@@ -1,0 +1,14 @@
+Title: Predictive Data Analysis System
+Package: regresoR
+Type: Package
+Version: 1.0.0
+Author: Oldemar Rodriguez R. with contributions from Diego Jimenez A. and Andres Navarro D.
+Maintainer:  Oldemar Rodriguez <oldemar.rodriguez@ucr.ac.cr>
+Depends: R (>= 3.4.3)
+Imports: shiny, shinyAce, rattle, dummies, data.table, tidyr, neuralnet,shinydashboardPlus, shinydashboard, shinyWidgets, ROCR, rpart, zip, rgdal, raster, rpart.plot, nnet, xgboost, ada, colourpicker,flexdashboard, psych, shinyjs, knitr, forcats, dplyr, DT, randomForest, ggplot2, e1071, rstudioapi, xtable, corrplot, caret, dendextend, scatterplot3d, stringr, rmarkdown, kknn
+Description: Perform regression-based predictive analysis on a database through a graphical interface.
+License: GPL (>=2)
+Encoding: UTF-8
+LazyData: true
+URL: http://www.promidat.com
+RoxygenNote: 6.1.0
