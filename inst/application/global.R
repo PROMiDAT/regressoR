@@ -622,8 +622,7 @@ dt.prediccion.np <- function() {
 dt.plot <- function(){
   num <- length(levels(datos[,variable.predecir]))
   return(paste0("prp(modelo.dt, type = 2, extra = 100, nn = T, varlen = 0, faclen = 0,
-fallen.leaves = TRUE, branch.lty = 6, shadow.col = '#dedede',
-box.col = '#c8b028')")) ##c8b028!important
+fallen.leaves = TRUE, branch.lty = 6, shadow.col = '#dedede',box.col = '#c8b028')")) ##c8b028!important
 }
 
 #Codigo de la dispersion de knn
