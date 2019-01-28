@@ -499,11 +499,11 @@ panel.disp.knn <- tabPanel(title = labelInput("dispersion"), value = "tabKknDisp
                                        plotOutput('plot.knn.disp', height = "55vh"))
 
 panel.indices.generales.knn <- tabPanel(title = labelInput("indices"), value = "tabKknIndex",
+                                      fluidRow(column(width = 6, gaugeOutput("knnRE", width = "100%")),
+                                               column(width = 6, gaugeOutput("knnCOR", width = "100%"))),
                                      fluidRow(column(width = 4, gaugeOutput("knnMSE", width = "100%")),
                                               column(width = 4, gaugeOutput("knnRMSE", width = "100%")),
-                                              column(width = 4, gaugeOutput("knnMAE", width = "100%"))),
-                                     fluidRow(column(width = 6, gaugeOutput("knnRE", width = "100%")),
-                                              column(width = 6, gaugeOutput("knnCOR", width = "100%"))))
+                                              column(width = 4, gaugeOutput("knnMAE", width = "100%"))))
 
 pagina.knn <- tabItem(tabName = "knn",
                       tabBox(id = "BoxKnn", width = NULL, height ="80%",

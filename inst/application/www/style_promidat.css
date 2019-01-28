@@ -24,6 +24,12 @@
   min-height: 370px !important;
 }
 
+#knnMSE, #knnRMSE, #knnMAE{
+  /*Pruebas*/
+  color:black;
+}
+
+
 /*gauge*/
 .html-widget.gauge svg {
   height: 210px !important;
