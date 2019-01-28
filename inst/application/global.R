@@ -657,23 +657,40 @@ rf.prediccion.np <- function() {
 }
 
 #Codigo de la matriz de confucion de rf
-rf.MC <- function(variable.p){
-  return(paste0("real <- datos.prueba$",variable.p,"\n",
-                "prediccion <- prediccion.rf\n",
-                "MC.rf <<- table(real, prediccion)"))
+# rf.MC <- function(variable.p){
+#   return(paste0("real <- datos.prueba$",variable.p,"\n",
+#                 "prediccion <- prediccion.rf\n",
+#                 "MC.rf <<- table(real, prediccion)"))
+# }
+
+importance.plor.rf <- function(modelo.rf, titulo.1, titulo.2){
+  importancia <- randomForest::importance(modelo.rf) %>% as.data.frame() %>% tibble::rownames_to_column("Variable")
+  g1 <- ggplot(importancia, aes(x = fct_reorder(Variable, `%IncMSE`), y = `%IncMSE`, fill = fct_reorder(Variable, `%IncMSE`))) + 
+    geom_bar(stat = 'identity', position = 'identity', width = 0.1) +
+    labs(title = titulo.1,  y = "", x = "") +
+    scale_y_continuous(labels = scales::comma) + coord_flip() +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1),
+          plot.title = element_text(size = 10),legend.position = "none")
+  g2 <- ggplot(importancia, aes(x = fct_reorder(Variable, IncNodePurity), y = IncNodePurity, fill = fct_reorder(Variable, IncNodePurity))) + 
+    geom_bar(stat = 'identity', position = 'identity', width = 0.1) +
+    labs(title = titulo.2,  y = "", x = "") +
+    scale_y_continuous(labels = scales::comma) + coord_flip() +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1), 
+          plot.title = element_text(size = 10), legend.position = 'none')
+  print(gridExtra::grid.arrange(g1, g2, ncol = 2, nrow = 1))
 }
 
-#Codigo del grafico de importancia de variables
-rf.plot <- function(){
-  return("ggVarImp(modelo.rf)")
+#Codigo de la dispersion de knn
+rf.disp <- function(){
+  return(disp.modelos("prediccion.rf", modelo = "RF"))
 }
 
 #Codigo del grafico de error del modelo
-plot.rf.error <- function(){
-  return(paste0("plot(modelo.rf, main='')\n",
-         "legend('topright', c('OOB','",
-         paste0(unique(datos[,variable.predecir]), collapse = "','"), "'), text.col=1:6, lty=1:5, col=1:6)"))
-}
+# plot.rf.error <- function(){
+#   return(paste0("plot(modelo.rf, main='')\n",
+#          "legend('topright', c('OOB','",
+#          paste0(unique(datos[,variable.predecir]), collapse = "','"), "'), text.col=1:6, lty=1:5, col=1:6)"))
+# }
 
 # Pagina de BOOSTING --------------------------------------------------------------------------------------------------------
 

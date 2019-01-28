@@ -24,11 +24,17 @@
   min-height: 370px !important;
 }
 
-#knnMSE, #knnRMSE, #knnMAE{
-  /*Pruebas*/
-  color:black;
+#knnRMSE path {
+    display: none;
 }
 
+div[id$="MSE"] path, div[id$="RMSE"] path, div[id$="MAE"] path,
+div[id$="MSE"] svg text:last-child, div[id$="RMSE"] svg text:last-child, 
+div[id$="MAE"] svg text:last-child, div[id$="MSE"] svg text:nth-last-child(2), 
+div[id$="RMSE"] svg text:nth-last-child(2), 
+div[id$="MAE"] svg text:nth-last-child(2) {
+  display: none;
+}
 
 /*gauge*/
 .html-widget.gauge svg {

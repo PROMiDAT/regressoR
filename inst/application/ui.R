@@ -499,11 +499,12 @@ panel.disp.knn <- tabPanel(title = labelInput("dispersion"), value = "tabKknDisp
                                        plotOutput('plot.knn.disp', height = "55vh"))
 
 panel.indices.generales.knn <- tabPanel(title = labelInput("indices"), value = "tabKknIndex",
-                                      fluidRow(column(width = 6, gaugeOutput("knnRE", width = "100%")),
-                                               column(width = 6, gaugeOutput("knnCOR", width = "100%"))),
-                                     fluidRow(column(width = 4, gaugeOutput("knnMSE", width = "100%")),
-                                              column(width = 4, gaugeOutput("knnRMSE", width = "100%")),
-                                              column(width = 4, gaugeOutput("knnMAE", width = "100%"))))
+                                        br(),
+                                        fluidRow(column(width = 6, gaugeOutput("knnRE", width = "100%")),
+                                                 column(width = 6, gaugeOutput("knnCOR", width = "100%"))),
+                                        fluidRow(column(width = 4, gaugeOutput("knnMSE", width = "100%")),
+                                                 column(width = 4, gaugeOutput("knnRMSE", width = "100%")),
+                                                 column(width = 4, gaugeOutput("knnMAE", width = "100%"))))
 
 pagina.knn <- tabItem(tabName = "knn",
                       tabBox(id = "BoxKnn", width = NULL, height ="80%",
@@ -560,11 +561,12 @@ panel.prediccion.svm <- tabPanel(title = labelInput("predm"), value = "tabSvmPre
 #                                        verbatimTextOutput("txtSvmMC"))
 
 panel.indices.generales.svm <- tabPanel(title = labelInput("indices"), value = "tabSvmIndex",
+                                        br(),
+                                        fluidRow(column(width = 6, gaugeOutput("svmRE", width = "100%")),
+                                                 column(width = 6, gaugeOutput("svmCOR", width = "100%"))),
                                         fluidRow(column(width = 4, gaugeOutput("svmMSE", width = "100%")),
                                                  column(width = 4, gaugeOutput("svmRMSE", width = "100%")),
-                                                 column(width = 4, gaugeOutput("svmMAE", width = "100%"))),
-                                        fluidRow(column(width = 6, gaugeOutput("svmRE", width = "100%")),
-                                                 column(width = 6, gaugeOutput("svmCOR", width = "100%"))))
+                                                 column(width = 4, gaugeOutput("svmMAE", width = "100%"))))
 
 pagina.svm <- tabItem(tabName = "svm",
                       tabBox(id = "BoxSvm", width = NULL, height ="80%",
@@ -625,11 +627,12 @@ panel.disp.dt <- tabPanel(title = labelInput("dispersion"), value = "tabDtDisp",
 #                                       verbatimTextOutput("txtDtMC"))
 
 panel.indices.generales.dt <- tabPanel(title = labelInput("indices"),value = "tabDtIndex",
+                                       br(),
+                                       fluidRow(column(width = 6, gaugeOutput("dtRE", width = "100%")),
+                                                column(width = 6, gaugeOutput("dtCOR", width = "100%"))),
                                        fluidRow(column(width = 4, gaugeOutput("dtMSE", width = "100%")),
                                                 column(width = 4, gaugeOutput("dtRMSE", width = "100%")),
-                                                column(width = 4, gaugeOutput("dtMAE", width = "100%"))),
-                                       fluidRow(column(width = 6, gaugeOutput("dtRE", width = "100%")),
-                                                column(width = 6, gaugeOutput("dtCOR", width = "100%"))))
+                                                column(width = 4, gaugeOutput("dtMAE", width = "100%"))))
 
 panel.reglas.dt <- tabPanel(title = labelInput("reglas"),value = "tabDtReglas",
                             verbatimTextOutput("rulesDt"))
@@ -660,18 +663,21 @@ codigo.rf  <- list(h4(labelInput("codigo")), hr(),
                    conditionalPanel("input.BoxRf == 'tabRfModelo'",
                                     aceEditor("fieldCodeRf", mode = "r", theme = "monokai",
                                               value = "", height = "3vh", readOnly = F, autoComplete = "enabled")),
-                   conditionalPanel("input.BoxRf == 'tabRferror'",
-                                    aceEditor("fieldCodeRfPlotError", mode = "r", theme = "monokai",
-                                              value = "", height = "5vh", readOnly = F, autoComplete = "enabled")),
+                   # conditionalPanel("input.BoxRf == 'tabRferror'",
+                   #                  aceEditor("fieldCodeRfPlotError", mode = "r", theme = "monokai",
+                   #                            value = "", height = "5vh", readOnly = F, autoComplete = "enabled")),
                    conditionalPanel("input.BoxRf == 'tabRfImp'",
                                     aceEditor("fieldCodeRfPlot", mode = "r", theme = "monokai",
-                                              value = "", height = "3vh", readOnly = F, autoComplete = "enabled")),
+                                              value = "", height = "28vh", readOnly = F, autoComplete = "enabled")),
                    conditionalPanel("input.BoxRf == 'tabRfPred'",
                                     aceEditor("fieldCodeRfPred", mode = "r", theme = "monokai",
                                               value = "", height = "3vh", readOnly = F, autoComplete = "enabled")),
-                   conditionalPanel("input.BoxRf == 'tabRfMC'",
-                                    aceEditor("fieldCodeRfMC", mode = "r", theme = "monokai",
-                                              value = "", height = "8vh", readOnly = F, autoComplete = "enabled")),
+                   conditionalPanel("input.BoxRf == 'tabRfDisp'",
+                                    aceEditor("fieldCodeRfDisp", mode = "r", theme = "monokai",
+                                              value = "", height = "3vh", readOnly = F, autoComplete = "enabled")),
+                   # conditionalPanel("input.BoxRf == 'tabRfMC'",
+                   #                  aceEditor("fieldCodeRfMC", mode = "r", theme = "monokai",
+                   #                            value = "", height = "8vh", readOnly = F, autoComplete = "enabled")),
                    conditionalPanel("input.BoxRf == 'tabRfIndex'",
                                     aceEditor("fieldCodeRfIG", mode = "r", theme = "monokai",
                                               value = "", height = "28vh", readOnly = F, autoComplete = "enabled")),
@@ -685,8 +691,8 @@ tabs.rf  <- tabsOptions(botones = list(icon("gear"),icon("code")), widths = c(50
 panel.generar.rf <- tabPanel(title = labelInput("generatem"),value = "tabRfModelo",
                              verbatimTextOutput("txtRf"))
 
-plor.error.ft <- tabPanel(title = labelInput("evolerror"), value = "tabRferror",
-                          plotOutput('plot.error.rf', height = "55vh"))
+# plor.error.ft <- tabPanel(title = labelInput("evolerror"), value = "tabRferror",
+#                           plotOutput('plot.error.rf', height = "55vh"))
 
 plot.rf <- tabPanel(title = labelInput("varImp"), value = "tabRfImp",
                     plotOutput('plot.rf', height = "55vh"))
@@ -694,15 +700,20 @@ plot.rf <- tabPanel(title = labelInput("varImp"), value = "tabRfImp",
 panel.prediccion.rf <- tabPanel(title = labelInput("predm"), value = "tabRfPred",
                                 DT::dataTableOutput("rfPrediTable"))
 
-panel.matriz.confucion.rf <- tabPanel(title = labelInput("mc"), value = "tabRfMC",
-                                      plotOutput('plot.rf.mc', height = "45vh"),
-                                      verbatimTextOutput("txtRfMC"))
+panel.disp.rf <- tabPanel(title = labelInput("dispersion"), value = "tabRfDisp",
+                           plotOutput('plot.rf.disp', height = "55vh"))
+
+# panel.matriz.confucion.rf <- tabPanel(title = labelInput("mc"), value = "tabRfMC",
+#                                       plotOutput('plot.rf.mc', height = "45vh"),
+#                                       verbatimTextOutput("txtRfMC"))
 
 panel.indices.generales.rf <- tabPanel(title = labelInput("indices"), value = "tabRfIndex",
-                                       fluidRow(column(width = 6, gaugeOutput("rfPrecGlob", width = "100%")),
-                                                column(width = 6, gaugeOutput("rfErrorGlob", width = "100%"))),
-                                       fluidRow(column(width = 12, shiny::tableOutput("rfIndPrecTable"))),
-                                       fluidRow(column(width = 12, shiny::tableOutput("rfIndErrTable"))))
+                                       br(),
+                                       fluidRow(column(width = 6, gaugeOutput("rfRE", width = "100%")),
+                                                column(width = 6, gaugeOutput("rfCOR", width = "100%"))),
+                                       fluidRow(column(width = 4, gaugeOutput("rfMSE", width = "100%")),
+                                                column(width = 4, gaugeOutput("rfRMSE", width = "100%")),
+                                                column(width = 4, gaugeOutput("rfMAE", width = "100%"))))
 
 
 reglas.rf <- tabPanel(title = labelInput("reglas"), value = "tabRfRules",
@@ -711,13 +722,15 @@ reglas.rf <- tabPanel(title = labelInput("reglas"), value = "tabRfRules",
 pagina.rf <- tabItem(tabName = "rf",
                      tabBox(id = "BoxRf", width = NULL, height ="80%",
                             panel.generar.rf,
-                            plor.error.ft,
+                            # plor.error.ft,
                             plot.rf,
                             panel.prediccion.rf,
-                            panel.matriz.confucion.rf,
+                            panel.disp.rf,
+                            # panel.matriz.confucion.rf,
                             panel.indices.generales.rf,
                             reglas.rf,
-                            tabs.rf))
+                            tabs.rf
+                            ))
 
 # PAGINA DE BOOSTING ------------------------------------------------------------------------------------------------------
 
