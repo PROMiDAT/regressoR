@@ -1,4 +1,6 @@
-var promidat_flat_models = {knn: true, dt: true, rf: true, boosting: true, svm: true, bayes: true , xgb: true, nn: true};
+var promidat_flat_models = {knn: true, dt: true, rf: true, 
+                            boosting: true, svm: true, rl: true, 
+                            nn: true, rlr: true};
 
 function promidat_model_firt(e, model, id){
   if(promidat_flat_models[model]){
@@ -17,11 +19,11 @@ function promidat_model_firt(e, model, id){
   $("a[href^='#shiny-tab-rf']").on('click', (e) => promidat_model_firt(e,"rf","runRf"));
   $("a[href^='#shiny-tab-boosting']").on('click', (e) => promidat_model_firt(e,"boosting","runBoosting"));
   $("a[href^='#shiny-tab-svm']").on('click', (e) => promidat_model_firt(e,"svm","runSvm"));
-  $("a[href^='#shiny-tab-bayes']").on('click', (e) => promidat_model_firt(e,"bayes","runBayes"));
-  $("a[href^='#shiny-tab-xgb']").on('click', (e) => promidat_model_firt(e,"xgb","runXgb"));
   $("a[href^='#shiny-tab-nn']").on('click', (e) => promidat_model_firt(e,"nn","runNn"));
+  $("a[href^='#shiny-tab-rl']").on('click', (e) => promidat_model_firt(e,"rl","runRl"));
+  $("a[href^='#shiny-tab-rlr']").on('click', (e) => promidat_model_firt(e,"rlr","runRlr"));
   $("#segmentButton").on('click',function(e){
-    promidat_flat_models = {knn: true, dt: true, rf: true, boosting: true, svm: true, bayes: true, xgb: true, nn: true};
+    promidat_flat_models = {knn: true, dt: true, rf: true, boosting: true, svm: true, rl: true, nn: true, rlr: true};
   });
 });
 
@@ -41,9 +43,8 @@ function eliminar_tabs_extras(){
   $("ul#BoxModelo li").last().remove();
   $("ul#BoxPodPred li").last().remove();
   $("ul#BoxPodPred li").last().remove();
-  $("ul#BoxBayes li").last().remove();
-  $("ul#BoxXgb li").last().remove();
   $("ul#BoxNn li").last().remove();
+  $("ul#BoxRl li").last().remove();
 }
 
 shinyjs.init = function() {

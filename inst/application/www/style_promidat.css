@@ -20,7 +20,7 @@
   min-height: 100px !important;
 }*/
 
-#rfPrediTable, #knnPrediTable, #svmPrediTable, #dtPrediTable, #rfPrediTable, #boostingPrediTable, #bayesPrediTable, #nnPrediTable, #xgbPrediTable {
+#rfPrediTable, #knnPrediTable, #svmPrediTable, #dtPrediTable, #rfPrediTable, #boostingPrediTable, #nnPrediTable, #rlPrediTable, #rlrPrediTable {
   min-height: 370px !important;
 }
 

@@ -1,5 +1,5 @@
 library(DT)
-library(ada)
+library(gbm)
 library(kknn)
 library(ROCR)
 library(nnet)
@@ -9,6 +9,7 @@ library(rpart)
 library(psych)
 library(caret)
 library(knitr)
+library(glmnet)
 library(raster)
 library(rattle)
 library(xtable)
@@ -97,53 +98,6 @@ tabsOptions <- function(botones = list(icon("gear"), icon("terminal")), widths =
   res <- paste0(res, tags$div(class = "btn-options", style = "position:relative;",width = "100%", HTML(codeButtons)))
   return(tags$div(HTML(res)))
 }
-#
-# updateSelects <- function(datos) {
-#   vars <- list("numericas" = colnames(var.numericas(datos)),
-#                "categoricas" = colnames(var.categoricas(datos)),
-#                "todas" = colnames(datos))
-#   selects <- list(
-#     list(id = "sel.normal", choices = "numericas", tipo = "Selectize"),
-#     list(id = "select.var", choices = "numericas", tipo = "Selectize"),
-#     list(id = "sel.distribucion.num", choices = "numericas", tipo = "Select"),
-#     list(id = "sel.distribucion.cat", choices = "categoricas", tipo = "Select"),
-#     list(id = "sel.resumen", choices = "todas", tipo = "Select"),
-#     list(id = "selVert", choices = "numericas+", tipo = "Select"),
-#     list(id = "sel.Kvert", choices = "numericas+", tipo = "Select"),
-#     list(id = "sel.Kbar", choices = "categoricas", tipo = "Select"),
-#     list(id = "selBar", choices = "categoricas", tipo = "Select"))
-#   lapply(selects, function(sel) {
-#     if(sel$tipo == "Selectize"){
-#       updateSelectizeInput(session, sel$id, choices = vars[[sel$choices]])
-#     } else {
-#       updateSelectInput(session, sel$id, choices = vars[[sel$choices]])
-#     }
-#   })
-#   updateinitSelects("selVert", colnames(var.numericas(datos)))
-#   updateinitSelects("sel.Kvert", colnames(var.numericas(datos)))
-# }
-#
-# updateinitSelects <- function(id, choices) {
-#   vars <- c()
-#   vars[tr("todos")] <- "todos"
-#   vars <- c(vars, choices)
-#   updateSelectInput(session, id, choices = vars)
-# }
-#
-# updateMenu <- function(datos = NULL, init = F){
-#   element <- "#sidebarItemExpanded li"
-#   menu.values <- c(
-#     "[class^=treeview]",  " a[data-value=acp]", " a[data-value=agrupacion]",
-#     " a[data-value=kmedias]", " a[data-value=reporte]")
-#
-#   lapply(menu.values, function(i){
-#     if(init || (is.null(datos) || ncol(datos) < 1)){
-#       addClass(class = "disabled", selector = paste0(element, i))
-#     } else {
-#       removeClass(class = "disabled", selector = paste0(element, i))
-#     }
-#   })
-# }
 
 # MENU --------------------------------------------------------------------------------------------------------------------
 
@@ -158,14 +112,14 @@ menu.estadisticas <- menuItem(labelInput("basico"), tabName = "parte1", icon = i
                               menuItem(labelInput("poderpred"), tabName = "poderPred", icon = icon("rocket")))
 
 menu.aprendizaje.supervisado <- menuItem(labelInput("aprendizaje"), tabName = "parte2", icon = icon("th-list"),
+                                         menuSubItem(labelInput("rll"),tabName = "rl",icon = icon("line-chart")),
+                                         menuSubItem(labelInput("rlr"),tabName = "rlr",icon = icon("line-chart")),
                                          menuSubItem(labelInput("knnl"),tabName = "knn",icon = icon("dot-circle-o")),
                                          menuSubItem(labelInput("dtl"),tabName = "dt",icon = icon("tree")),
                                          menuSubItem(labelInput("rfl"),tabName = "rf",icon = icon("sitemap")),
                                          menuSubItem(labelInput("bl"),tabName = "boosting",icon = icon("superscript")),
                                          menuSubItem(labelInput("svml"),tabName = "svm",icon = icon("line-chart")),
-                                         menuSubItem("Bayes",tabName = "bayes",icon = icon("dice")),
-                                         menuSubItem(labelInput("nn"),tabName = "nn",icon = icon("brain")),
-                                         menuSubItem(labelInput("xgb"),tabName = "xgb",icon = icon("project-diagram")))
+                                         menuSubItem(labelInput("nn"),tabName = "nn",icon = icon("brain")))
 
 menu.reporte <- menuItem(labelInput("reporte"), tabName = "reporte", icon = icon("save-file",lib = "glyphicon"))
 
@@ -412,54 +366,144 @@ pagina.correlaciones <- tabItem(tabName = "correlacion",
 # PAGINA DE PODER PREDICTIVO ----------------------------------------------------------------------------------------------
 
 codigo.poder.uno <- list(h4(labelInput("codigo")), hr(),
-                         conditionalPanel("input.BoxPodPred == 'preddist'",
-                                          campo.codigo(runid = "run.code.poder.pred", fieldid = "fieldCodePoderPred", height = "16vh")),
-                         conditionalPanel("input.BoxPodPred == 'predpares'",
-                                           campo.codigo(runid = "run.code.poder.num", fieldid = "fieldCodePoderNum", height = "16vh")))
+                         campo.codigo(runid = "run.code.poder.num", fieldid = "fieldCodePoderNum", height = "16vh"))
 
 
-codigo.poder.comp<- list(h4(labelInput("codigo")), hr(),
-                         conditionalPanel("input.BoxPodPred == 'predcatdist'",
-                                          campo.codigo(runid = "run.code.poder.cat", fieldid = "fieldCodePoderCat", height = "38vh")),
-                         conditionalPanel("input.BoxPodPred == 'preddens'",
-                                             campo.codigo(runid = "run.code.poder.dens", fieldid = "fieldCodePoderDens", height = "16vh")))
-
-opciones.poder.comp<- list(h4(labelInput("opciones")), hr(),
-                           conditionalPanel("input.BoxPodPred == 'predcatdist'",
-                                            selectInput(inputId = "sel.distribucion.poder", label = NULL, choices =  "", width = "100%")),
-                           conditionalPanel("input.BoxPodPred == 'preddens'",
-                                            selectInput(inputId = "sel.density.poder", label = NULL, choices =  "", width = "100%")))
-
-
-tabs.poder.predit.uno <- conditionalPanel("input.BoxPodPred == 'preddist' || input.BoxPodPred == 'predpares'",
-                                          tabsOptions(botones = list(icon("terminal")), widths = 100, heights = 55,
-                                                      tabs.content = list(codigo.poder.uno)))
-
-tabs.poder.predit.dos <- conditionalPanel("input.BoxPodPred == 'predcatdist' || input.BoxPodPred == 'preddens'",
-                                          tabsOptions(botones = list(icon("gear"),icon("terminal")), widths = c(50,100), heights = c(40, 93),
-                                                      tabs.content = list(opciones.poder.comp, codigo.poder.comp)))
-
-plot.pred.poder <- tabPanel(title = labelInput('distpred'), value = "preddist",
-                            plotOutput('plot.pred.poder', height = "55vh"))
-
-plot.dist.poder <- tabPanel(title = labelInput('distpredcat'), value = "predcatdist",
-                            plotOutput('plot.dist.poder', height = "55vh"))
+tabs.poder.predit.uno <- tabsOptions(botones = list(icon("terminal")), widths = 100, heights = 55,
+                                                      tabs.content = list(codigo.poder.uno))
 
 plot.pairs.poder <- tabPanel(title = labelInput('pares'), value = "predpares",
                              plotOutput('plot.pairs.poder', height = "55vh"))
 
-plot.dens.poder <- tabPanel(title = labelInput('denspred'), value = "preddens",
-                             plotOutput('plot.density.poder', height = "55vh"))
-
-
 pagina.poder <- tabItem(tabName = "poderPred",
                         tabBox(id = "BoxPodPred", width = NULL,
-                               plot.pred.poder,
                                plot.pairs.poder,
-                               plot.dist.poder,
-                               plot.dens.poder,
-                               tabs.poder.predit.uno,
-                               tabs.poder.predit.dos))
+                               tabs.poder.predit.uno))
+
+# PAGINA DE RL ------------------------------------------------------------------------------------------------------------
+
+codigo.rl  <- list(fluidRow(column(width = 9,h4(labelInput("codigo"))),
+                            column(width = 2,br(),actionButton("runRl", label = labelInput("ejecutar"), icon = icon("play")))),
+                   hr(),
+                   conditionalPanel("input.BoxRl == 'tabRlModelo'",
+                                    aceEditor("fieldCodeRl", mode = "r", theme = "monokai",
+                                              value = "", height = "3vh", readOnly = F, autoComplete = "enabled")),
+                   conditionalPanel("input.BoxRl == 'tabRlPred'",
+                                    aceEditor("fieldCodeRlPred", mode = "r", theme = "monokai",
+                                              value = "", height = "3vh", readOnly = F, autoComplete = "enabled")),
+                   conditionalPanel("input.BoxRl == 'tabRlDisp'",
+                                    aceEditor("fieldCodeRlDisp", mode = "r", theme = "monokai",
+                                              value = "", height = "3vh", readOnly = F, autoComplete = "enabled")),
+                   conditionalPanel("input.BoxRl == 'tabRlIndex'",
+                                    aceEditor("fieldCodeRlIG", mode = "r", theme = "monokai",
+                                              value = "", height = "28vh", readOnly = F, autoComplete = "enabled")))
+
+tabs.rl  <- tabsOptions(botones = list(icon("code")), widths = c(100), heights = c(95),
+                        tabs.content = list(codigo.rl))
+
+panel.generar.rl <- tabPanel(title = labelInput("generatem"),value = "tabRlModelo",
+                             verbatimTextOutput("txtRl"))
+
+panel.prediccion.rl <- tabPanel(title = labelInput("predm"), value = "tabRlPred",
+                                DT::dataTableOutput("rlPrediTable"))
+
+panel.disp.rl <- tabPanel(title = labelInput("dispersion"), value = "tabRlDisp",
+                          plotOutput('plot.rl.disp', height = "55vh"))
+
+panel.indices.generales.rl <- tabPanel(title = labelInput("indices"), value = "tabRlIndex",
+                                       br(),
+                                       fluidRow(column(width = 6, gaugeOutput("rlRE", width = "100%")),
+                                                column(width = 6, gaugeOutput("rlCOR", width = "100%"))),
+                                       fluidRow(column(width = 4, gaugeOutput("rlMSE", width = "100%")),
+                                                column(width = 4, gaugeOutput("rlRMSE", width = "100%")),
+                                                column(width = 4, gaugeOutput("rlMAE", width = "100%"))))
+
+
+pagina.rl <- tabItem(tabName = "rl",
+                     tabBox(id = "BoxRl", width = NULL, height ="80%",
+                            panel.generar.rl,
+                            panel.prediccion.rl,
+                            panel.disp.rl,
+                            panel.indices.generales.rl,
+                            tabs.rl))
+
+# PAGINA DE RLR -----------------------------------------------------------------------------------------------------------
+
+opciones.rlr <- list(fluidRow(column(width = 9,h4(labelInput("opciones"))),
+                              column(width = 2,br(),actionButton("runRlr", label = labelInput("ejecutar"), icon = icon("play")))),
+                     hr(),
+                     fluidRow(column(selectInput(inputId = "alpha.rlr", label = labelInput("selectAlg"),selected = 1,
+                                                 choices = list("Ridge" = 0, "Lasso" = 1)),width = 6),
+                              column(br(), switchInput(inputId = "switch.scale.rlr", onStatus = "success", offStatus = "danger", value = T,
+                                                 label = labelInput("escal"), onLabel = labelInput("si"), offLabel = labelInput("no"), labelWidth = "100%"), width=6)),
+                     fluidRow(column(id = "colManualLanda",width = 6, numericInput("landa", labelInput("landa"),value = 2, min = 0, "NULL", width = "100%")), br(),
+                              column(width = 6, switchInput(inputId = "permitir.landa", onStatus = "success", offStatus = "danger", value = F, width = "100%",
+                                                            label = "", onLabel = "Manual", offLabel = labelInput("automatico"), labelWidth = "100%"))))
+
+codigo.rlr  <- list(fluidRow(column(width = 9,h4(labelInput("codigo")))),
+                   hr(),
+                   conditionalPanel("input.BoxRlr == 'tabRlrModelo'",
+                                    aceEditor("fieldCodeRlr", mode = "r", theme = "monokai",
+                                              value = "", height = "8vh", readOnly = F, autoComplete = "enabled")),
+                   conditionalPanel("input.BoxRlr == 'tabRlrLanda'",
+                                    aceEditor("fieldCodeRlrLanda", mode = "r", theme = "monokai",
+                                              value = "", height = "8vh", readOnly = F, autoComplete = "enabled")),
+                   conditionalPanel("input.BoxRlr == 'tabRlrPosibLanda'",
+                                    aceEditor("fieldCodeRlrPosibLanda", mode = "r", theme = "monokai",
+                                              value = "", height = "8vh", readOnly = F, autoComplete = "enabled")),
+                   conditionalPanel("input.BoxRlr == 'tabRlrCoeff'",
+                                    aceEditor("fieldCodeRlrCoeff", mode = "r", theme = "monokai",
+                                              value = "", height = "8vh", readOnly = F, autoComplete = "enabled")),
+                   conditionalPanel("input.BoxRlr == 'tabRlrPred'",
+                                    aceEditor("fieldCodeRlrPred", mode = "r", theme = "monokai",
+                                              value = "", height = "10vh", readOnly = F, autoComplete = "enabled")),
+                   conditionalPanel("input.BoxRlr == 'tabRlrDisp'",
+                                    aceEditor("fieldCodeRlrDisp", mode = "r", theme = "monokai",
+                                              value = "", height = "3vh", readOnly = F, autoComplete = "enabled")),
+                   conditionalPanel("input.BoxRlr == 'tabRlrIndex'",
+                                    aceEditor("fieldCodeRlrIG", mode = "r", theme = "monokai",
+                                              value = "", height = "28vh", readOnly = F, autoComplete = "enabled")))
+
+tabs.rlr  <- tabsOptions(botones = list(icon("gear"),icon("code")), widths = c(50,100), heights = c(80, 95),
+                        tabs.content = list(opciones.rlr, codigo.rlr))
+
+panel.generar.rlr <- tabPanel(title = labelInput("generatem"),value = "tabRlrModelo",
+                             verbatimTextOutput("txtRlr"))
+
+panel.posib.landa.rlr <- tabPanel(title = labelInput("posibLanda"),value = "tabRlrPosibLanda",
+                            plotOutput('plot.rlr.posiblanda', height = "55vh"))
+
+panel.coeff.rlr <- tabPanel(title = labelInput("coeff"),value = "tabRlrCoeff",
+                              verbatimTextOutput("txtRlrCoeff"))
+
+panel.landa.rlr <- tabPanel(title = labelInput("gcoeff"),value = "tabRlrLanda",
+                            plotOutput('plot.rlr.landa', height = "55vh"))
+
+panel.prediccion.rlr <- tabPanel(title = labelInput("predm"), value = "tabRlrPred",
+                                DT::dataTableOutput("rlrPrediTable"))
+
+panel.disp.rlr <- tabPanel(title = labelInput("dispersion"), value = "tabRlrDisp",
+                          plotOutput('plot.rlr.disp', height = "55vh"))
+
+panel.indices.generales.rlr <- tabPanel(title = labelInput("indices"), value = "tabRlrIndex",
+                                       br(),
+                                       fluidRow(column(width = 6, gaugeOutput("rlrRE", width = "100%")),
+                                                column(width = 6, gaugeOutput("rlrCOR", width = "100%"))),
+                                       fluidRow(column(width = 4, gaugeOutput("rlrMSE", width = "100%")),
+                                                column(width = 4, gaugeOutput("rlrRMSE", width = "100%")),
+                                                column(width = 4, gaugeOutput("rlrMAE", width = "100%"))))
+
+
+pagina.rlr <- tabItem(tabName = "rlr",
+                     tabBox(id = "BoxRlr", width = NULL, height ="80%",
+                            panel.generar.rlr,
+                            panel.posib.landa.rlr,
+                            panel.landa.rlr,
+                            panel.coeff.rlr,
+                            panel.prediccion.rlr,
+                            panel.disp.rlr,
+                            panel.indices.generales.rlr,
+                            tabs.rlr))
 
 # PAGINA DE KNN -----------------------------------------------------------------------------------------------------------
 
@@ -537,9 +581,6 @@ codigo.svm <- list(h4(labelInput("codigo")), hr(),
                    conditionalPanel("input.BoxSvm == 'tabSvmPred'",
                                     aceEditor("fieldCodeSvmPred", mode = "r", theme = "monokai",
                                               value = "", height = "3vh", readOnly = F, autoComplete = "enabled")),
-                   # conditionalPanel("input.BoxSvm == 'tabSvmMC'",
-                   #                  aceEditor("fieldCodeSvmMC", mode = "r", theme = "monokai",
-                   #                            value = "", height = "8vh", readOnly = F, autoComplete = "enabled")),
                    conditionalPanel("input.BoxSvm == 'tabSvmIndex'",
                                     aceEditor("fieldCodeSvmIG", mode = "r", theme = "monokai",
                                               value = "", height = "28vh", readOnly = F, autoComplete = "enabled")))
@@ -555,10 +596,6 @@ panel.disp.svm <- tabPanel(title = labelInput("dispersion"), value = "tabSvmDisp
 
 panel.prediccion.svm <- tabPanel(title = labelInput("predm"), value = "tabSvmPred",
                                  DT::dataTableOutput("svmPrediTable"))
-
-# panel.matriz.confucion.svm <- tabPanel(title = labelInput("mc"), value = "tabSvmMC",
-#                                        plotOutput('plot.svm.mc', height = "45vh"),
-#                                        verbatimTextOutput("txtSvmMC"))
 
 panel.indices.generales.svm <- tabPanel(title = labelInput("indices"), value = "tabSvmIndex",
                                         br(),
@@ -597,9 +634,6 @@ codigo.dt <- list(h4(labelInput("codigo")), hr(),
                   conditionalPanel("input.BoxDt == 'tabDtDisp'",
                                    aceEditor("fieldCodeDtDisp", mode = "r", theme = "monokai",
                                              value = "", height = "7vh", readOnly = F, autoComplete = "enabled")),
-                   # conditionalPanel("input.BoxDt == 'tabDtMC'",
-                   #                  aceEditor("fieldCodeDtMC", mode = "r", theme = "monokai",
-                   #                            value = "", height = "8vh", readOnly = F, autoComplete = "enabled")),
                    conditionalPanel("input.BoxDt == 'tabDtIndex'",
                                     aceEditor("fieldCodeDtIG", mode = "r", theme = "monokai",
                                               value = "", height = "28vh", readOnly = F, autoComplete = "enabled")),
@@ -622,10 +656,6 @@ panel.prediccion.dt <- tabPanel(title = labelInput("predm"), value = "tabDtPred"
 panel.disp.dt <- tabPanel(title = labelInput("dispersion"), value = "tabDtDisp",
                            plotOutput('plot.dt.disp', height = "55vh"))
 
-# panel.matriz.confucion.dt <- tabPanel(title = labelInput("mc"), value = "tabDtMC",
-#                                       plotOutput('plot.dt.mc', height = "45vh"),
-#                                       verbatimTextOutput("txtDtMC"))
-
 panel.indices.generales.dt <- tabPanel(title = labelInput("indices"),value = "tabDtIndex",
                                        br(),
                                        fluidRow(column(width = 6, gaugeOutput("dtRE", width = "100%")),
@@ -643,7 +673,6 @@ pagina.dt <- tabItem(tabName = "dt",
                             plot.dt,
                             panel.prediccion.dt,
                             panel.disp.dt,
-                            # panel.matriz.confucion.dt,
                             panel.indices.generales.dt,
                             panel.reglas.dt,
                             tabs.dt))
@@ -663,9 +692,6 @@ codigo.rf  <- list(h4(labelInput("codigo")), hr(),
                    conditionalPanel("input.BoxRf == 'tabRfModelo'",
                                     aceEditor("fieldCodeRf", mode = "r", theme = "monokai",
                                               value = "", height = "3vh", readOnly = F, autoComplete = "enabled")),
-                   # conditionalPanel("input.BoxRf == 'tabRferror'",
-                   #                  aceEditor("fieldCodeRfPlotError", mode = "r", theme = "monokai",
-                   #                            value = "", height = "5vh", readOnly = F, autoComplete = "enabled")),
                    conditionalPanel("input.BoxRf == 'tabRfImp'",
                                     aceEditor("fieldCodeRfPlot", mode = "r", theme = "monokai",
                                               value = "", height = "28vh", readOnly = F, autoComplete = "enabled")),
@@ -675,9 +701,6 @@ codigo.rf  <- list(h4(labelInput("codigo")), hr(),
                    conditionalPanel("input.BoxRf == 'tabRfDisp'",
                                     aceEditor("fieldCodeRfDisp", mode = "r", theme = "monokai",
                                               value = "", height = "3vh", readOnly = F, autoComplete = "enabled")),
-                   # conditionalPanel("input.BoxRf == 'tabRfMC'",
-                   #                  aceEditor("fieldCodeRfMC", mode = "r", theme = "monokai",
-                   #                            value = "", height = "8vh", readOnly = F, autoComplete = "enabled")),
                    conditionalPanel("input.BoxRf == 'tabRfIndex'",
                                     aceEditor("fieldCodeRfIG", mode = "r", theme = "monokai",
                                               value = "", height = "28vh", readOnly = F, autoComplete = "enabled")),
@@ -691,9 +714,6 @@ tabs.rf  <- tabsOptions(botones = list(icon("gear"),icon("code")), widths = c(50
 panel.generar.rf <- tabPanel(title = labelInput("generatem"),value = "tabRfModelo",
                              verbatimTextOutput("txtRf"))
 
-# plor.error.ft <- tabPanel(title = labelInput("evolerror"), value = "tabRferror",
-#                           plotOutput('plot.error.rf', height = "55vh"))
-
 plot.rf <- tabPanel(title = labelInput("varImp"), value = "tabRfImp",
                     plotOutput('plot.rf', height = "55vh"))
 
@@ -702,10 +722,6 @@ panel.prediccion.rf <- tabPanel(title = labelInput("predm"), value = "tabRfPred"
 
 panel.disp.rf <- tabPanel(title = labelInput("dispersion"), value = "tabRfDisp",
                            plotOutput('plot.rf.disp', height = "55vh"))
-
-# panel.matriz.confucion.rf <- tabPanel(title = labelInput("mc"), value = "tabRfMC",
-#                                       plotOutput('plot.rf.mc', height = "45vh"),
-#                                       verbatimTextOutput("txtRfMC"))
 
 panel.indices.generales.rf <- tabPanel(title = labelInput("indices"), value = "tabRfIndex",
                                        br(),
@@ -722,52 +738,39 @@ reglas.rf <- tabPanel(title = labelInput("reglas"), value = "tabRfRules",
 pagina.rf <- tabItem(tabName = "rf",
                      tabBox(id = "BoxRf", width = NULL, height ="80%",
                             panel.generar.rf,
-                            # plor.error.ft,
                             plot.rf,
                             panel.prediccion.rf,
                             panel.disp.rf,
-                            # panel.matriz.confucion.rf,
                             panel.indices.generales.rf,
                             reglas.rf,
-                            tabs.rf
-                            ))
+                            tabs.rf))
 
 # PAGINA DE BOOSTING ------------------------------------------------------------------------------------------------------
 
 opciones.b <- list(fluidRow(column(width = 9,h4(labelInput("opciones"))),
                             column(width = 2,br(),actionButton("runBoosting", label = labelInput("ejecutar"), icon = icon("play")))),
                    hr(),
-                   conditionalPanel("input.BoxB != 'tabBRules'",
-                                    fluidRow(column(numericInput("iter.boosting", labelInput("numTree"), 50, width = "100%",min = 1), width = 6),
-                                             column(numericInput("maxdepth.boosting", labelInput("maxdepth"), 15, width = "100%",min = 1), width=6)),
-                                    fluidRow(column(selectInput(inputId = "tipo.boosting", label = labelInput("selectAlg"),selected = 1,
-                                                                choices =  c("discrete", "real", "gentle")), width = 6),
-                                             column(numericInput("minsplit.boosting", labelInput("minsplit"), 20, width = "100%",min = 1), width=6))),
-                   conditionalPanel("input.BoxB == 'tabBRules'",
-                                    numericInput("rules.b.n",labelInput("ruleNumTree"),1, width = "100%", min = 1)))
+                   fluidRow(column(numericInput("iter.boosting", labelInput("numTree"), 500, width = "100%",min = 1), width = 6),
+                            column(numericInput("shrinkage.boosting", labelInput("shrinkage"), 0.01, width = "100%",min = 0.0001), width=6)),
+                   fluidRow(column(selectInput(inputId = "tipo.boosting", label = labelInput("selectAlg"),selected = 1,
+                                               choices =  c("gaussian", "laplace", "tdist")), width = 6)))
 
 codigo.b  <- list(h4(labelInput("codigo")), hr(),
                    conditionalPanel("input.BoxB == 'tabBModelo'",
                                     aceEditor("fieldCodeBoosting", mode = "r", theme = "monokai",
                                               value = "", height = "5vh", readOnly = F, autoComplete = "enabled")),
-                   conditionalPanel("input.BoxB == 'tabBError'",
-                                    aceEditor("fieldCodeBoostingPlot", mode = "r", theme = "monokai",
-                                              value = "", height = "3vh", readOnly = F, autoComplete = "enabled")),
                    conditionalPanel("input.BoxB == 'tabBImp'",
                                     aceEditor("fieldCodeBoostingPlotImport", mode = "r", theme = "monokai",
                                               value = "", height = "3vh", readOnly = F, autoComplete = "enabled")),
                    conditionalPanel("input.BoxB == 'tabBPred'",
                                     aceEditor("fieldCodeBoostingPred", mode = "r", theme = "monokai",
                                               value = "", height = "3vh", readOnly = F, autoComplete = "enabled")),
-                   conditionalPanel("input.BoxB == 'tabBMC'",
-                                    aceEditor("fieldCodeBoostingMC", mode = "r", theme = "monokai",
-                                              value = "", height = "8vh", readOnly = F, autoComplete = "enabled")),
+                  conditionalPanel("input.BoxB == 'tabBDisp'",
+                                   aceEditor("fieldCodeBoostingDisp", mode = "r", theme = "monokai",
+                                             value = "", height = "3vh", readOnly = F, autoComplete = "enabled")),
                    conditionalPanel("input.BoxB == 'tabBIndex'",
                                     aceEditor("fieldCodeBoostingIG", mode = "r", theme = "monokai",
-                                              value = "", height = "28vh", readOnly = F, autoComplete = "enabled")),
-                  conditionalPanel("input.BoxB == 'tabBRules'",
-                                   aceEditor("fieldCodeBoostingRules", mode = "r", theme = "monokai",
-                                             value = "", height = "4vh", readOnly = F, autoComplete = "enabled")))
+                                              value = "", height = "28vh", readOnly = F, autoComplete = "enabled")))
 
 tabs.b  <- tabsOptions(botones = list(icon("gear"),icon("code")), widths = c(50,100), heights = c(63, 95),
                         tabs.content = list(opciones.b, codigo.b))
@@ -775,24 +778,22 @@ tabs.b  <- tabsOptions(botones = list(icon("gear"),icon("code")), widths = c(50,
 panel.generar.boosting <- tabPanel(title = labelInput("generatem"), value = "tabBModelo",
                               verbatimTextOutput("txtBoosting"))
 
-plot.boosting <- tabPanel(title = labelInput("evolerror"), value = "tabBError",
-                                 plotOutput('plot.boosting', height = "55vh"))
-
 plot.boosting.import <- tabPanel(title = labelInput("varImp"), value = "tabBImp",
                     plotOutput('plot.boosting.import', height = "55vh"))
 
 panel.prediccion.boosting <- tabPanel(title = labelInput("predm"), value = "tabBPred",
                                  DT::dataTableOutput("boostingPrediTable"))
 
-panel.matriz.confucion.boosting <- tabPanel(title = labelInput("mc"), value = "tabBMC",
-                                       plotOutput('plot.boosting.mc', height = "45vh"),
-                                       verbatimTextOutput("txtBoostingMC"))
+panel.disp.boosting <- tabPanel(title = labelInput("dispersion"), value = "tabBDisp",
+                           plotOutput('plot.boosting.disp', height = "55vh"))
 
 panel.indices.generales.boosting <- tabPanel(title = labelInput("indices"),value = "tabBIndex",
-                                        fluidRow(column(width = 6, gaugeOutput("boostingPrecGlob", width = "100%")),
-                                                 column(width = 6, gaugeOutput("boostingErrorGlob", width = "100%"))),
-                                        fluidRow(column(width = 12, shiny::tableOutput("boostingIndPrecTable"))),
-                                        fluidRow(column(width = 12, shiny::tableOutput("boostingIndErrTable"))))
+                                             br(),
+                                             fluidRow(column(width = 6, gaugeOutput("bRE", width = "100%")),
+                                                      column(width = 6, gaugeOutput("bCOR", width = "100%"))),
+                                             fluidRow(column(width = 4, gaugeOutput("bMSE", width = "100%")),
+                                                      column(width = 4, gaugeOutput("bRMSE", width = "100%")),
+                                                      column(width = 4, gaugeOutput("bMAE", width = "100%"))))
 
 reglas.boosting <- tabPanel(title = labelInput("reglas"), value = "tabBRules",
                             verbatimTextOutput("rulesB"))
@@ -800,59 +801,13 @@ reglas.boosting <- tabPanel(title = labelInput("reglas"), value = "tabBRules",
 pagina.boosting <- tabItem(tabName = "boosting",
                            tabBox(id = "BoxB", width = NULL, height ="80%",
                                   panel.generar.boosting,
-                                  plot.boosting,
                                   plot.boosting.import,
                                   panel.prediccion.boosting,
-                                  panel.matriz.confucion.boosting,
+                                  panel.disp.boosting,
                                   panel.indices.generales.boosting,
-                                  reglas.boosting,
                                   tabs.b))
 
-# PAGINA DE BAYES ---------------------------------------------------------------------------------------------------------
-
-codigo.bayes <- list(fluidRow(column(width = 11,h4(labelInput("codigo"))),
-                              column(width = 1,actionButton("runBayes", label = labelInput("ejecutar"), icon = icon("play")))),
-                     hr(),
-                     conditionalPanel("input.BoxBayes == 'tabBayesModelo'",
-                                      aceEditor("fieldCodeBayes", mode = "r", theme = "monokai", value = "", height = "4vh", readOnly = F)),
-                     conditionalPanel("input.BoxBayes == 'tabBayesPred'",
-                                      aceEditor("fieldCodeBayesPred", mode = "r", theme = "monokai",
-                                                value = "", height = "3vh", readOnly = F, autoComplete = "enabled")),
-                     conditionalPanel("input.BoxBayes == 'tabBayesMC'",
-                                      aceEditor("fieldCodeBayesMC", mode = "r", theme = "monokai",
-                                                value = "", height = "8vh", readOnly = F, autoComplete = "enabled")),
-                     conditionalPanel("input.BoxBayes == 'tabBayesIndex'",
-                                      aceEditor("fieldCodeBayesIG", mode = "r", theme = "monokai",
-                                                value = "", height = "28vh", readOnly = F, autoComplete = "enabled")))
-
-tabs.bayes <- tabsOptions(botones = list(icon("code")), widths = c(100), heights = c(95),
-                          tabs.content = list(codigo.bayes))
-
-panel.generar.bayes <- tabPanel(title = labelInput("generatem"), value = "tabBayesModelo",
-                                verbatimTextOutput("txtbayes"))
-
-panel.prediccion.bayes <- tabPanel(title = labelInput("predm"), value = "tabBayesPred",
-                                   DT::dataTableOutput("bayesPrediTable"))
-
-panel.matriz.confucion.bayes <- tabPanel(title = labelInput("mc"), value = "tabBayesMC",
-                                        plotOutput('plot.bayes.mc', height = "45vh"),
-                                        verbatimTextOutput("txtbayesMC"))
-
-panel.indices.generales.bayes <- tabPanel(title = labelInput("indices"), value = "tabBayesIndex",
-                                         fluidRow(column(width = 6, gaugeOutput("bayesPrecGlob", width = "100%")),
-                                                  column(width = 6, gaugeOutput("bayesErrorGlob", width = "100%"))),
-                                         fluidRow(column(width = 12, shiny::tableOutput("bayesIndPrecTable"))),
-                                         fluidRow(column(width = 12, shiny::tableOutput("bayesIndErrTable"))))
-
-pagina.bayes <- tabItem(tabName = "bayes",
-                      tabBox(id = "BoxBayes", width = NULL, height ="80%",
-                             panel.generar.bayes,
-                             panel.prediccion.bayes,
-                             panel.matriz.confucion.bayes,
-                             panel.indices.generales.bayes,
-                             tabs.bayes))
-
-# PAGINA DE REDES NEURONALES ----------------------------------------------------------------------------------------------
+# PAGINA DE NN ------------------------------------------------------------------------------------------------------------
 
 opciones.nn <- list(fluidRow(column(width = 9,h4(labelInput("opciones"))),
                               column(width = 2,br(),actionButton("runNn", label = labelInput("ejecutar"), icon = icon("play")))),
@@ -875,9 +830,9 @@ codigo.nn <- list(h4(labelInput("codigo")), hr(),
                    conditionalPanel("input.BoxNn == 'tabNnPred'",
                                     aceEditor("fieldCodeNnPred", mode = "r", theme = "monokai",
                                               value = "", height = "10vh", readOnly = F, autoComplete = "enabled")),
-                   conditionalPanel("input.BoxNn == 'tabNnMC'",
-                                    aceEditor("fieldCodeNnMC", mode = "r", theme = "monokai",
-                                              value = "", height = "13vh", readOnly = F, autoComplete = "enabled")),
+                  conditionalPanel("input.BoxNn == 'tabNnDisp'",
+                                   aceEditor("fieldCodeNnDisp", mode = "r", theme = "monokai",
+                                             value = "", height = "3vh", readOnly = F, autoComplete = "enabled")),
                    conditionalPanel("input.BoxNn == 'tabNnIndex'",
                                     aceEditor("fieldCodeNnIG", mode = "r", theme = "monokai",
                                               value = "", height = "28vh", readOnly = F, autoComplete = "enabled")))
@@ -894,80 +849,25 @@ panel.generar.nn <- tabPanel(title = labelInput("generatem"), value = "tabNnMode
 panel.prediccion.nn <- tabPanel(title = labelInput("predm"), value = "tabNnPred",
                                  DT::dataTableOutput("nnPrediTable"))
 
-panel.matriz.confucion.nn <- tabPanel(title = labelInput("mc"), value = "tabNnMC",
-                                       plotOutput('plot.nn.mc', height = "45vh"),
-                                       verbatimTextOutput("txtnnMC"))
+panel.disp.nn <- tabPanel(title = labelInput("dispersion"), value = "tabNnDisp",
+                           plotOutput('plot.nn.disp', height = "55vh"))
 
 panel.indices.generales.nn <- tabPanel(title = labelInput("indices"), value = "tabNnIndex",
-                                        fluidRow(column(width = 6, gaugeOutput("nnPrecGlob", width = "100%")),
-                                                 column(width = 6, gaugeOutput("nnErrorGlob", width = "100%"))),
-                                        fluidRow(column(width = 12, shiny::tableOutput("nnIndPrecTable"))),
-                                        fluidRow(column(width = 12, shiny::tableOutput("nnIndErrTable"))))
+                                       br(),
+                                       fluidRow(column(width = 6, gaugeOutput("nnRE", width = "100%")),
+                                                column(width = 6, gaugeOutput("nnCOR", width = "100%"))),
+                                       fluidRow(column(width = 4, gaugeOutput("nnMSE", width = "100%")),
+                                                column(width = 4, gaugeOutput("nnRMSE", width = "100%")),
+                                                column(width = 4, gaugeOutput("nnMAE", width = "100%"))))
 
 pagina.nn  <- tabItem(tabName = "nn",
                       tabBox(id = "BoxNn", width = NULL, height ="80%",
                              panel.generar.nn,
                              plot.nn,
                              panel.prediccion.nn,
-                             panel.matriz.confucion.nn,
+                             panel.disp.nn,
                              panel.indices.generales.nn,
                              tabs.nn))
-
-# PAGINA DE XG BOOSTING ---------------------------------------------------------------------------------------------------
-
-opciones.xgb <- list(fluidRow(column(width = 9,h4(labelInput("opciones"))),
-                              column(width = 2,br(),actionButton("runXgb", label = labelInput("ejecutar"), icon = icon("play")))),
-                     hr(),
-                     fluidRow(column(selectInput(inputId = "boosterXgb", label = labelInput("selbooster"),selected = 1,
-                                                 choices = c("gbtree", "gblinear", "dart")),width = 12)),
-                     fluidRow(column(numericInput("maxdepthXgb", labelInput("maxdepth"), min = 1,step = 1, value = 6), width = 6),
-                              column(numericInput("nroundsXgb", labelInput("selnrounds"), min = 0,step = 1, value = 50), width = 6)))
-
-codigo.xgb <- list(h4(labelInput("codigo")), hr(),
-                   conditionalPanel("input.BoxXgb == 'tabXgbModelo'",
-                                    aceEditor("fieldCodeXgb", mode = "r", theme = "monokai", value = "", height = "19vh", readOnly = F)),
-                   conditionalPanel("input.BoxXgb == 'tabXgbImp'",
-                                    aceEditor("fieldCodeXgbImp", mode = "r", theme = "monokai", value = "", height = "8vh", readOnly = F)),
-                   conditionalPanel("input.BoxXgb == 'tabXgbPred'",
-                                    aceEditor("fieldCodeXgbPred", mode = "r", theme = "monokai",
-                                              value = "", height = "17vh", readOnly = F, autoComplete = "enabled")),
-                   conditionalPanel("input.BoxXgb == 'tabXgbMC'",
-                                    aceEditor("fieldCodeXgbMC", mode = "r", theme = "monokai",
-                                              value = "", height = "17vh", readOnly = F, autoComplete = "enabled")),
-                   conditionalPanel("input.BoxXgb == 'tabXgbIndex'",
-                                    aceEditor("fieldCodeXgbIG", mode = "r", theme = "monokai",
-                                              value = "", height = "28vh", readOnly = F, autoComplete = "enabled")))
-
-tabs.xgb <- tabsOptions(botones = list(icon("gear"),icon("code")), widths = c(55,100), heights = c(70, 95),
-                        tabs.content = list(opciones.xgb, codigo.xgb))
-
-panel.generar.xgb <- tabPanel(title = labelInput("generatem"), value = "tabXgbModelo",
-                              verbatimTextOutput("txtxgb"))
-
-plot.xgb <- tabPanel(title = labelInput("varImp"), value = "tabXgbImp",
-                    plotOutput('plot.xgb', height = "55vh"))
-
-panel.prediccion.xgb <- tabPanel(title = labelInput("predm"), value = "tabXgbPred",
-                                 DT::dataTableOutput("xgbPrediTable"))
-
-panel.matriz.confucion.xgb <- tabPanel(title = labelInput("mc"), value = "tabXgbMC",
-                                       plotOutput('plot.xgb.mc', height = "45vh"),
-                                       verbatimTextOutput("txtxgbMC"))
-
-panel.indices.generales.xgb <- tabPanel(title = labelInput("indices"), value = "tabXgbIndex",
-                                        fluidRow(column(width = 6, gaugeOutput("xgbPrecGlob", width = "100%")),
-                                                 column(width = 6, gaugeOutput("xgbErrorGlob", width = "100%"))),
-                                        fluidRow(column(width = 12, shiny::tableOutput("xgbIndPrecTable"))),
-                                        fluidRow(column(width = 12, shiny::tableOutput("xgbIndErrTable"))))
-
-pagina.xgb <- tabItem(tabName = "xgb",
-                      tabBox(id = "BoxXgb", width = NULL, height ="80%",
-                             panel.generar.xgb,
-                             plot.xgb,
-                             panel.prediccion.xgb,
-                             panel.matriz.confucion.xgb,
-                             panel.indices.generales.xgb,
-                             tabs.xgb))
 
 # PAGINA DE COMPARACION DE MODELOS ---------------------------------------------------------------------------------------
 
@@ -978,7 +878,6 @@ selector.modelos <- checkboxGroupButtons("select.models", labelInput("selectMod"
 
 opciones.comparacion <- list(fluidRow(column(width = 10,h4(labelInput("opciones")))),
                              hr(),
-                             fluidRow(column(selectInput(inputId = "roc.sel",label = labelInput("selectCat"),choices =  "", width = "100%"), width = 12)),
                              fluidRow(column(selector.modelos, width = 12)))
 
 
@@ -988,13 +887,9 @@ tabs.comparacion  <- tabsOptions(botones = list(icon("gear")), widths = c(100), 
 panel.comparacion.tabla <- tabPanel(title = labelInput("tablaComp"),
                                     DT::dataTableOutput("TablaComp", height="70vh"))
 
-plot.comparacion.roc <- tabPanel(title = labelInput("rocCurva"), plotOutput('plot.roc', height = "70vh"))
-
-
 pagina.comparacion <- tabItem(tabName = "comparar",
                               tabBox(id = "BoxCom", width = NULL, height ="80%",
                                      panel.comparacion.tabla,
-                                     plot.comparacion.roc,
                                      tabs.comparacion))
 
 
@@ -1069,13 +964,6 @@ opciones.boosting.pred <- list(fluidRow(column(width = 3, numericInput("iter.boo
                                    column(width = 3, selectInput(inputId = "tipo.boosting.pred", label = labelInput("selectAlg"),selected = 1, width = "100%",
                                                                  choices =  c("discrete", "real", "gentle")))))
 
-opciones.bayes.pred <- tags$span()#vacio
-
-opciones.xgb.pred <- fluidRow(column(numericInput("maxdepthXgb.pred", labelInput("maxdepth"), min = 1,step = 1, value = 6), width = 4),
-                              column(numericInput("nroundsXgb.pred", labelInput("selnrounds"), min = 0,step = 1, value = 50), width = 4),
-                              column(selectInput(inputId = "boosterXgb.pred", label = labelInput("selbooster"),selected = 1,
-                                                 choices = c("gbtree", "gblinear", "dart")),width = 4))
-
 opciones.nn.pred <-list(fluidRow(column(numericInput("threshold.nn.pred",labelInput("threshold"),
                                                      min = 0, step = 0.01, value = 0.01), width = 4),
                                  column(numericInput("stepmax.nn.pred",labelInput("stepmax"),
@@ -1097,12 +985,8 @@ panel.crear.modelo.pred <- tabPanel(title = labelInput("seleParModel"),solidHead
                                                      opciones.boosting.pred),
                                     conditionalPanel(condition =  "input.selectModelsPred == 'svm'",
                                                      opciones.svm.pred),
-                                    conditionalPanel(condition =  "input.selectModelsPred == 'bayes'",
-                                                     opciones.bayes.pred),
                                     conditionalPanel(condition =  "input.selectModelsPred == 'nn'",
                                                      opciones.nn.pred),
-                                    conditionalPanel(condition =  "input.selectModelsPred == 'xgb'",
-                                                     opciones.xgb.pred),
                                     verbatimTextOutput("txtPredNuevos"),
                                     actionButton("PredNuevosBttnModelo", labelInput("generarM"), width  = "100%" ))
 
@@ -1112,8 +996,6 @@ opciones.modelo <- list(selectInput(inputId = "sel.predic.var.nuevos", label = l
                                                                        "<span data-id=\"rfl\"></span>" = "rf",
                                                                        "<span data-id=\"bl\"></span>" = "ada",
                                                                        "<span data-id=\"svml\"></span>" = "svm",
-                                                                       "Bayes" = "bayes",
-                                                                       "<span data-id=\"xgb\"></span>" = "xgb",
                                                                        "<span data-id=\"nn\"></span>" = "nn"),
                                           size = "sm", status = "primary",individual = FALSE, justified = FALSE, selected = "knn",
                                           checkIcon = list(yes = icon("ok", lib = "glyphicon"),
@@ -1188,14 +1070,14 @@ shinyUI(
                          pagina.dispersion,
                          pagina.correlaciones,
                          pagina.poder,
+                         pagina.rl,
+                         pagina.rlr,
                          pagina.knn,
                          pagina.svm,
                          pagina.dt,
                          pagina.rf,
                          pagina.boosting,
-                         pagina.bayes,
                          pagina.nn,
-                         pagina.xgb,
                          pagina.comparacion,
                          pagina.predicciones.nuevas,
                          pagina.generar.reporte,

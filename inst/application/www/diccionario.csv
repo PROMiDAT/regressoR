@@ -13,6 +13,8 @@ predicnuevos;Predicción Individuos Nuevos;Predict New Cases
 pred;Predicción;Prediction
 acerto;Acertó;Matched
 fallo;Falló;Failed
+rll;Regresión Linear;Linear Regression
+rlr;Regresión Penalizada;Penalized Regression
 knnl;K Vecinos Más Cercanos;K Nearest Neighbors
 dtl;Árboles De Decisión;Decision Trees
 rfl;Bosques Aleatorios;Random Forests
@@ -170,6 +172,7 @@ mediana;Mediana;Median
 q3;Tercer Cuartil;Third Quartile
 minimo;Mínimo;Minimum
 minsplit;Mínimo para dividir un nodo:;Minimum to split a node:
+shrinkage;Ritmo de Aprendizaje;Learning Rate:
 maxdepth;Profundidad Máxima:;Max Depth:
 splitIndex;Índice de división:;Split Index:
 numTree;Número de Árboles:;Number of Trees:
@@ -205,7 +208,7 @@ repradar;Gráfico Radar;Radar Plot
 repcat;Interpretación Variables Categóricas;Interpretation of Categorical Variables
 repinter;Retroalimentación;Feedback
 distancia;Método Distancia:;Distance Method:
-dist;distancia;distance
+dist;Distancia;Distance
 metodo;Método:;Method:
 iter;Iteraciones:;Iterations:
 coseno;Coseno:;Cosine:
@@ -235,3 +238,10 @@ MAE;Error Absoluto Medio;Mean Absolute Error
 ER;Error Relativo;Relative Error
 impVarA;Importancia Variables según Reducción en Precisión;Importance Variables according to Accuracy Reduction
 impVarRSS;Importancia Variables según Reducción del RSS;Importance Variables according to RSS reduction
+impVarRI;Importancia de Variables según Influencia Relativa;Importance of Variables by Relative Influence
+RI;Influencia Relativa;Relative Influence
+posibLanda;Posibles lambda;Possible lambda
+coeff;Coeficientes;Coefficients
+gcoeff;Coeficientes y lambda;Coefficients and lambda
+automatico;Automatico;Automatic
+landa;Mejor Lambda:;Better Lambda:
