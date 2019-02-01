@@ -54,7 +54,8 @@ new.gauge <- function(id, val, lab){
 
 # Genera los gauges
 fill.gauges <- function(ids, indices) {
-  titulos <- c(tr("MSE"), tr("RMSE"), tr("MAE"), tr("ER"), tr("correlacion"))
+  titulos <- c(tr("RMSE"), tr("MAE"), tr("ER"), tr("correlacion"),
+               tr("minimo"),tr("maximo"),tr("q1"),tr("q3"))
   for (i in 1:length(ids)) {
     exe(new.gauge(ids[i], indices[[i]], titulos[i]))
   }
@@ -63,17 +64,23 @@ fill.gauges <- function(ids, indices) {
 #Codigo del calculo de los indices
 # Funciones para medir precisión
 indices.generales <- function(real, prediccion) {
-  MSE <- sum((real - prediccion) ^ 2) / length(prediccion)
   RMSE <- sqrt(sum((real - prediccion) ^ 2) / length(prediccion))
   MAE <- sum(abs(real - prediccion)) / length(prediccion)
   RE <-sum(abs(real - prediccion)) / sum(abs(real))
   COR <- as.numeric(cor(real, prediccion))
   COR <- ifelse(is.na(COR), 0 , COR)
-  return(list(Error.Cuadratico = MSE,
-              Raiz.Error.Cuadratico = RMSE,
+  return(list(Raiz.Error.Cuadratico = RMSE,
               Error.Absoluto = MAE,
               Error.Relativo = RE,
               Correlacion = COR))
+}
+
+completar.indices <- function(l){
+  l["Min"] <- min(datos.aprendizaje[,variable.predecir])
+  l["Max"] <- max(datos.aprendizaje[,variable.predecir])
+  l["1Q"] <- quantile(datos.aprendizaje[,variable.predecir], prob=c(0.25))
+  l["3Q"] <- quantile(datos.aprendizaje[,variable.predecir], prob=c(0.75))
+  return(l)
 }
 
 # Gráfico de dispersión entre el valor real de la variable a predecir y la predicción del modelo.
@@ -417,58 +424,6 @@ correlaciones <- function(metodo = 'circle', tipo = "lower"){
 
 # Pagina de Poder Predictivo ------------------------------------------------------------------------------------------------
 
-# #Calcula proporciones
-# dist.x.predecir <- function(data, variable, variable.predecir) {
-#   data. <- data %>%
-#     dplyr::group_by_(variable, variable.predecir) %>%
-#     dplyr::summarise(count = n()) %>%
-#     dplyr::group_by_(variable) %>%
-#     dplyr::mutate(prop = round(count/sum(count),4))
-#   return(data.)
-# }
-# 
-# #Hace la grafica de proporciones segun la variable predictiva
-# plot.code.dist.porc <- function(variable, var.predecir, colores = NA, label.size = 9.5, label = "${X} ${Y}"){
-#   label = str_interp(label,list(X=variable,Y=var.predecir))
-#   return(paste0("colores <- gg_color_hue(length(unique(datos[,'",var.predecir,"'])))
-# label.size <- ",label.size," - length(unique(datos[,'",variable,"']))
-# label.size <- ifelse(label.size < 3, 3, label.size)
-# data. <- dist.x.predecir(datos, '",variable,"', '",var.predecir,"')
-# ggplot(data., aes(fct_reorder(data.[['",variable,"']], count, .desc = T), prop, fill = data.[['",var.predecir,"']])) +
-# geom_bar(stat = 'identity') +
-# geom_text(aes(label = paste0(count, ' (', scales::percent(prop), ')'), y = prop), color = 'gray90',
-# position = position_stack(vjust = .5), size = label.size) +
-# theme_minimal() +
-# theme(text = element_text(size=15)) +
-# scale_fill_manual(values = colores) +
-# scale_y_continuous(labels = scales::percent)+
-# coord_flip() +
-# labs(title = '",label,"', x = '', y = '') +
-# guides(fill = guide_legend(reverse=T)) +
-# theme(legend.position = 'top', legend.title = element_blank())
-# "))
-# }
-# 
-# plot.code.poder.pred <- function(var.predecir, label.size = 9.5, label=""){
-#   return(paste0("colores <- gg_color_hue(length(unique(datos[,'",var.predecir,"'])))
-# label.size <- ",label.size," - length(unique(datos[,'",var.predecir,"']))
-# label.size <- ifelse(label.size < 3, 3, label.size)
-# data. <- dist.x.predecir(datos, '",var.predecir,"','",var.predecir,"')
-# ggplot(data., aes(x='', y=prop, fill= data.[['",var.predecir,"']]))+
-# geom_bar(width = 1, stat = 'identity')+
-# geom_text(aes(label = paste0(count, ' (', scales::percent(prop), ')'), y = prop ), color = 'gray90',
-# position = position_stack(vjust = .5), size = label.size)+
-# theme_minimal() +
-# theme(text = element_text(size=15)) +
-# scale_fill_manual(values = colores) +
-# scale_y_continuous(labels = scales::percent)+
-# coord_flip()+
-# labs(title = '",label," \"",var.predecir,"\"', x = '', y = '') +
-# guides(fill = guide_legend(reverse=T)) +
-# theme(legend.position = 'top', legend.title = element_blank())
-# "))
-# }
-
 #Grafica el pairs
 pairs.poder <- function(){
   return(paste0("pairs.panels(var.numericas(datos), bg = 'black', ellipses = FALSE, smooth = FALSE,
@@ -476,18 +431,6 @@ lm = TRUE, cex = 0.5,cex.main=0.1,
 pch= 20, main='',
 hist.col = gg_color_hue(3)[3], oma = c(1,1,1,1) )"))
 }
-
-# #Grafica la densidad de las variables numericas
-# plot.numerico.dens <- function(variable, label = "${X} ${Y}"){
-#   label = str_interp(label,list(X=variable,Y=variable.predecir))
-#   return(paste0("ggplot(datos, aes_string('",variable,"', fill = '",variable.predecir,"')) +
-# geom_density( alpha = .85) +
-# theme_minimal() +
-# theme(text = element_text(size=15)) +
-# scale_fill_manual(values = gg_color_hue(length(levels(datos[,'",variable.predecir,"'])))) +
-# labs(title = '",label,"', y = '', x = '') +
-# theme(legend.position = 'top', legend.title = element_blank(), text = element_text(size = 15))"))
-# }
 
 # Pagina de RL --------------------------------------------------------------------------------------------------------------
 
@@ -548,7 +491,7 @@ coeff.landas <- function(landa = NULL){
 plot.coeff.landa <- function(landa = NULL){
   landa <- ifelse(is.null(landa),paste0("cv.glm.",rlr.type(),"$lambda.min"), landa)
   paste0("plot(modelo.rlr.",rlr.type(),", 'lambda', label = TRUE)\n",
-         "abline(v = log(",landa,", 10), col = 'blue', lwd = 2, lty = 3)")
+         "abline(v = log(",landa,"), col = 'blue', lwd = 2, lty = 3)")
 }
 
 #Codigo de la prediccion de rlr
@@ -583,9 +526,9 @@ kkn.modelo <- function(variable.pr = NULL, scale = TRUE,kmax = 7, kernel = "opti
   return(paste0("modelo.knn.",kernel," <<- train.kknn(",variable.pr,"~., data = datos.aprendizaje, scale =",scale,", kmax=",kmax,", kernel = '",kernel,"')"))
 }
 
-kkn.modelo.np <- function(variable.pr = NULL, scale = TRUE,kmax = 7, kernel = "optimal"){
+kkn.modelo.np <- function(scale = TRUE,kmax = 7, kernel = "optimal"){
   kmax <- ifelse(!is.numeric(kmax), round(sqrt(nrow(datos.aprendizaje))), kmax)
-  return(paste0("modelo.nuevos <<- train.kknn(",variable.pr,"~., data = datos.aprendizaje.completos, scale =",scale,", kmax=",kmax,", kernel = '",kernel,"')"))
+  return(paste0("modelo.nuevos <<- train.kknn(",variable.predecir.pn,"~., data = datos.aprendizaje.completos, scale =",scale,", kmax=",kmax,", kernel = '",kernel,"')"))
 }
 
 #Codigo de la prediccion de knn
@@ -609,8 +552,8 @@ svm.modelo <- function(variable.pr = NULL, scale = TRUE, kernel = "linear"){
   return(paste0("modelo.svm.",kernel," <<- svm(",variable.pr,"~., data = datos.aprendizaje, scale =",scale,", kernel = '",kernel,"')"))
 }
 
-svm.modelo.np <- function(variable.pr = NULL, scale = TRUE, kernel = "linear"){
-  return(paste0("modelo.nuevos <<- svm(",variable.pr,"~., data = datos.aprendizaje.completos, scale =",scale,", kernel = '",kernel,"')"))
+svm.modelo.np <- function(scale = TRUE, kernel = "linear"){
+  return(paste0("modelo.nuevos <<- svm(",variable.predecir.pn,"~., data = datos.aprendizaje.completos, scale =",scale,", kernel = '",kernel,"')"))
 }
 
 #Codigo de la prediccion de svm

@@ -208,7 +208,7 @@ repradar;Gráfico Radar;Radar Plot
 repcat;Interpretación Variables Categóricas;Interpretation of Categorical Variables
 repinter;Retroalimentación;Feedback
 distancia;Método Distancia:;Distance Method:
-dist;Distancia;Distance
+dif;Diferencia;Difference
 metodo;Método:;Method:
 iter;Iteraciones:;Iterations:
 coseno;Coseno:;Cosine:
@@ -232,7 +232,6 @@ threshold;Criterios de detención:;Detention criteria:
 stepmax;Pasos máximos para el entrenamiento:;Maximum steps for the training:
 nnWar;El modelo no converge con los parámetros actuales, intente modificarlos;The model does not converge with the current parameters, try to modify them
 redPlot;Red Neuronal;Neural Network
-MSE;Error Cuadrático Medio;Mean Squared Error
 RMSE;Raíz Error Cuadrático Medio;Root Mean Squared Error
 MAE;Error Absoluto Medio;Mean Absolute Error
 ER;Error Relativo;Relative Error

@@ -114,10 +114,10 @@ menu.estadisticas <- menuItem(labelInput("basico"), tabName = "parte1", icon = i
 menu.aprendizaje.supervisado <- menuItem(labelInput("aprendizaje"), tabName = "parte2", icon = icon("th-list"),
                                          menuSubItem(labelInput("rll"),tabName = "rl",icon = icon("line-chart")),
                                          menuSubItem(labelInput("rlr"),tabName = "rlr",icon = icon("line-chart")),
-                                         menuSubItem(labelInput("knnl"),tabName = "knn",icon = icon("dot-circle-o")),
                                          menuSubItem(labelInput("dtl"),tabName = "dt",icon = icon("tree")),
                                          menuSubItem(labelInput("rfl"),tabName = "rf",icon = icon("sitemap")),
                                          menuSubItem(labelInput("bl"),tabName = "boosting",icon = icon("superscript")),
+                                         menuSubItem(labelInput("knnl"),tabName = "knn",icon = icon("dot-circle-o")),
                                          menuSubItem(labelInput("svml"),tabName = "svm",icon = icon("line-chart")),
                                          menuSubItem(labelInput("nn"),tabName = "nn",icon = icon("brain")))
 
@@ -414,9 +414,12 @@ panel.indices.generales.rl <- tabPanel(title = labelInput("indices"), value = "t
                                        br(),
                                        fluidRow(column(width = 6, gaugeOutput("rlRE", width = "100%")),
                                                 column(width = 6, gaugeOutput("rlCOR", width = "100%"))),
-                                       fluidRow(column(width = 4, gaugeOutput("rlMSE", width = "100%")),
-                                                column(width = 4, gaugeOutput("rlRMSE", width = "100%")),
-                                                column(width = 4, gaugeOutput("rlMAE", width = "100%"))))
+                                       fluidRow(column(width = 6, gaugeOutput("rlRMSE", width = "100%")),
+                                                column(width = 6, gaugeOutput("rlMAE", width = "100%"))),
+                                       fluidRow(column(width = 3, gaugeOutput("rlMinG", width = "100%")),
+                                                column(width = 3, gaugeOutput("rlMaxG", width = "100%")),
+                                                column(width = 3, gaugeOutput("rl1QG", width = "100%")),
+                                                column(width = 3, gaugeOutput("rl3QG", width = "100%"))))
 
 
 pagina.rl <- tabItem(tabName = "rl",
@@ -489,9 +492,12 @@ panel.indices.generales.rlr <- tabPanel(title = labelInput("indices"), value = "
                                        br(),
                                        fluidRow(column(width = 6, gaugeOutput("rlrRE", width = "100%")),
                                                 column(width = 6, gaugeOutput("rlrCOR", width = "100%"))),
-                                       fluidRow(column(width = 4, gaugeOutput("rlrMSE", width = "100%")),
-                                                column(width = 4, gaugeOutput("rlrRMSE", width = "100%")),
-                                                column(width = 4, gaugeOutput("rlrMAE", width = "100%"))))
+                                       fluidRow(column(width = 6, gaugeOutput("rlrRMSE", width = "100%")),
+                                                column(width = 6, gaugeOutput("rlrMAE", width = "100%"))),
+                                       fluidRow(column(width = 3, gaugeOutput("rlrMin", width = "100%")),
+                                                column(width = 3, gaugeOutput("rlrMax", width = "100%")),
+                                                column(width = 3, gaugeOutput("rlr1Q", width = "100%")),
+                                                column(width = 3, gaugeOutput("rlr2Q", width = "100%"))))
 
 
 pagina.rlr <- tabItem(tabName = "rlr",
@@ -546,9 +552,12 @@ panel.indices.generales.knn <- tabPanel(title = labelInput("indices"), value = "
                                         br(),
                                         fluidRow(column(width = 6, gaugeOutput("knnRE", width = "100%")),
                                                  column(width = 6, gaugeOutput("knnCOR", width = "100%"))),
-                                        fluidRow(column(width = 4, gaugeOutput("knnMSE", width = "100%")),
-                                                 column(width = 4, gaugeOutput("knnRMSE", width = "100%")),
-                                                 column(width = 4, gaugeOutput("knnMAE", width = "100%"))))
+                                        fluidRow(column(width = 6, gaugeOutput("knnRMSE", width = "100%")),
+                                                 column(width = 6, gaugeOutput("knnMAE", width = "100%"))),
+                                        fluidRow(column(width = 3, gaugeOutput("knnMin", width = "100%")),
+                                                 column(width = 3, gaugeOutput("knnMax", width = "100%")),
+                                                 column(width = 3, gaugeOutput("knn1Q", width = "100%")),
+                                                 column(width = 3, gaugeOutput("knn2Q", width = "100%"))))
 
 pagina.knn <- tabItem(tabName = "knn",
                       tabBox(id = "BoxKnn", width = NULL, height ="80%",
@@ -567,10 +576,7 @@ opciones.svm <- list(fluidRow(column(width = 9,h4(labelInput("opciones"))),
                                       fluidRow(column(br(),switchInput(inputId = "switch.scale.svm", onStatus = "success", offStatus = "danger", value = T,
                                                                        label = labelInput("escal"), onLabel = labelInput("si"), offLabel = labelInput("no"), labelWidth = "100%"), width = 6),
                                               column(selectInput(inputId = "kernel.svm", label = labelInput("selkernel"), selected = "radial",
-                                                                 choices =  c("linear", "polynomial", "radial", "sigmoid")), width=6))),
-                     conditionalPanel("input.BoxSvm == 'tabSvmPlot'",
-                                      selectizeInput("select.var.svm.plot",NULL,label = "Variables Predictoras:", multiple = T, choices = c(""),
-                                                     options = list(maxItems = 2, placeholder = ""), width = "100%")))
+                                                                 choices =  c("linear", "polynomial", "radial", "sigmoid")), width=6))))
 
 codigo.svm <- list(h4(labelInput("codigo")), hr(),
                    conditionalPanel("input.BoxSvm == 'tabSvmModelo'",
@@ -601,9 +607,12 @@ panel.indices.generales.svm <- tabPanel(title = labelInput("indices"), value = "
                                         br(),
                                         fluidRow(column(width = 6, gaugeOutput("svmRE", width = "100%")),
                                                  column(width = 6, gaugeOutput("svmCOR", width = "100%"))),
-                                        fluidRow(column(width = 4, gaugeOutput("svmMSE", width = "100%")),
-                                                 column(width = 4, gaugeOutput("svmRMSE", width = "100%")),
-                                                 column(width = 4, gaugeOutput("svmMAE", width = "100%"))))
+                                        fluidRow(column(width = 6, gaugeOutput("svmRMSE", width = "100%")),
+                                                 column(width = 6, gaugeOutput("svmMAE", width = "100%"))),
+                                        fluidRow(column(width = 3, gaugeOutput("svmMin", width = "100%")),
+                                                 column(width = 3, gaugeOutput("svmMax", width = "100%")),
+                                                 column(width = 3, gaugeOutput("svm1Q", width = "100%")),
+                                                 column(width = 3, gaugeOutput("svm2Q", width = "100%"))))
 
 pagina.svm <- tabItem(tabName = "svm",
                       tabBox(id = "BoxSvm", width = NULL, height ="80%",
@@ -660,9 +669,12 @@ panel.indices.generales.dt <- tabPanel(title = labelInput("indices"),value = "ta
                                        br(),
                                        fluidRow(column(width = 6, gaugeOutput("dtRE", width = "100%")),
                                                 column(width = 6, gaugeOutput("dtCOR", width = "100%"))),
-                                       fluidRow(column(width = 4, gaugeOutput("dtMSE", width = "100%")),
-                                                column(width = 4, gaugeOutput("dtRMSE", width = "100%")),
-                                                column(width = 4, gaugeOutput("dtMAE", width = "100%"))))
+                                       fluidRow(column(width = 6, gaugeOutput("dtRMSE", width = "100%")),
+                                                column(width = 6, gaugeOutput("dtMAE", width = "100%"))),
+                                       fluidRow(column(width = 3, gaugeOutput("dtMin", width = "100%")),
+                                                column(width = 3, gaugeOutput("dtMax", width = "100%")),
+                                                column(width = 3, gaugeOutput("dt1Q", width = "100%")),
+                                                column(width = 3, gaugeOutput("dt2Q", width = "100%"))))
 
 panel.reglas.dt <- tabPanel(title = labelInput("reglas"),value = "tabDtReglas",
                             verbatimTextOutput("rulesDt"))
@@ -727,9 +739,12 @@ panel.indices.generales.rf <- tabPanel(title = labelInput("indices"), value = "t
                                        br(),
                                        fluidRow(column(width = 6, gaugeOutput("rfRE", width = "100%")),
                                                 column(width = 6, gaugeOutput("rfCOR", width = "100%"))),
-                                       fluidRow(column(width = 4, gaugeOutput("rfMSE", width = "100%")),
-                                                column(width = 4, gaugeOutput("rfRMSE", width = "100%")),
-                                                column(width = 4, gaugeOutput("rfMAE", width = "100%"))))
+                                       fluidRow(column(width = 6, gaugeOutput("rfRMSE", width = "100%")),
+                                                column(width = 6, gaugeOutput("rfMAE", width = "100%"))),
+                                       fluidRow(column(width = 3, gaugeOutput("rfMin", width = "100%")),
+                                                column(width = 3, gaugeOutput("rfMax", width = "100%")),
+                                                column(width = 3, gaugeOutput("rf1Q", width = "100%")),
+                                                column(width = 3, gaugeOutput("rf2Q", width = "100%"))))
 
 
 reglas.rf <- tabPanel(title = labelInput("reglas"), value = "tabRfRules",
@@ -791,9 +806,12 @@ panel.indices.generales.boosting <- tabPanel(title = labelInput("indices"),value
                                              br(),
                                              fluidRow(column(width = 6, gaugeOutput("bRE", width = "100%")),
                                                       column(width = 6, gaugeOutput("bCOR", width = "100%"))),
-                                             fluidRow(column(width = 4, gaugeOutput("bMSE", width = "100%")),
-                                                      column(width = 4, gaugeOutput("bRMSE", width = "100%")),
-                                                      column(width = 4, gaugeOutput("bMAE", width = "100%"))))
+                                             fluidRow(column(width = 6, gaugeOutput("bRMSE", width = "100%")),
+                                                      column(width = 6, gaugeOutput("bMAE", width = "100%"))),
+                                             fluidRow(column(width = 3, gaugeOutput("bMin", width = "100%")),
+                                                      column(width = 3, gaugeOutput("bMax", width = "100%")),
+                                                      column(width = 3, gaugeOutput("b1Q", width = "100%")),
+                                                      column(width = 3, gaugeOutput("b2Q", width = "100%"))))
 
 reglas.boosting <- tabPanel(title = labelInput("reglas"), value = "tabBRules",
                             verbatimTextOutput("rulesB"))
@@ -854,11 +872,14 @@ panel.disp.nn <- tabPanel(title = labelInput("dispersion"), value = "tabNnDisp",
 
 panel.indices.generales.nn <- tabPanel(title = labelInput("indices"), value = "tabNnIndex",
                                        br(),
-                                       fluidRow(column(width = 6, gaugeOutput("nnRE", width = "100%")),
+                                       fluidRow(column(width = 6, gaugeOutput("nnRE", width = "100%", height = "50%")),
                                                 column(width = 6, gaugeOutput("nnCOR", width = "100%"))),
-                                       fluidRow(column(width = 4, gaugeOutput("nnMSE", width = "100%")),
-                                                column(width = 4, gaugeOutput("nnRMSE", width = "100%")),
-                                                column(width = 4, gaugeOutput("nnMAE", width = "100%"))))
+                                       fluidRow(column(width = 6, gaugeOutput("nnRMSE", width = "100%")),
+                                                column(width = 6, gaugeOutput("nnMAE", width = "100%"))),
+                                       fluidRow(column(width = 3, gaugeOutput("nnMin", width = "100%")),
+                                                column(width = 3, gaugeOutput("nnMax", width = "100%")),
+                                                column(width = 3, gaugeOutput("nn1Q", width = "100%")),
+                                                column(width = 3, gaugeOutput("nn2Q", width = "100%"))))
 
 pagina.nn  <- tabItem(tabName = "nn",
                       tabBox(id = "BoxNn", width = NULL, height ="80%",
@@ -896,6 +917,8 @@ pagina.comparacion <- tabItem(tabName = "comparar",
 
 # PAGINA DE PREDICCIONES NUEVAS ---------------------------------------------------------------------------------------
 
+# Muestras de datos
+
 muestra.datos.pred <- box(title = labelInput("data"), status = "primary", width = 12, solidHeader = TRUE, collapsible = TRUE,
                           DT::DTOutput('contentsPred'), type = 7, color = "#CBB051")
 
@@ -904,6 +927,8 @@ muestra.datos.pred2 <- box(title = labelInput("data"), status = "primary", width
 
 muestra.datos.pred3 <- box(title = labelInput("data"), status = "primary", width = 12, solidHeader = TRUE, collapsible = TRUE,
                            DT::DTOutput('contentsPred3'), type = 7, color = "#CBB051")
+
+# Cargar y transformar datos
 
 panel.cargar.datos.pred <- tabPanel(title = labelInput("cargarDatos"), width = 12, solidHeader = FALSE, collapsible = FALSE, collapsed = FALSE,
                                fluidRow(column(width = 5,
@@ -939,6 +964,7 @@ panel.cargar.datos.pred2 <- tabPanel(title = labelInput("cargarNuev"), width = 1
                                                     actionButton("loadButtonNPred2", labelInput("cargar"), width = "100%")),
                                              column(width = 7, muestra.datos.pred3)))
 
+# Opciones de Modelos 
 
 opciones.knn.pred <- fluidRow(column(width = 4, br() , switchInput(inputId = "switch.scale.knn.pred", onStatus = "success", offStatus = "danger", value = T,
                                                               label = labelInput("escal"), onLabel = labelInput("si"), offLabel = labelInput("no"), labelWidth = "100%", width = "100%")),
@@ -958,11 +984,14 @@ opciones.dt.pred <- fluidRow(column(width = 6, numericInput("minsplit.dt.pred", 
 opciones.rf.pred <- fluidRow(column(width = 6, numericInput("ntree.rf.pred", labelInput("numTree"), 20, width = "100%", min = 0)),
                              column(width = 6, numericInput("mtry.rf.pred",labelInput("numVars"),1, width = "100%", min = 1)))
 
+
+                   # fluidRow(column(numericInput("iter.boosting", labelInput("numTree"), 500, width = "100%",min = 1), width = 6),
+                   #          column(numericInput("shrinkage.boosting", labelInput("shrinkage"), 0.01, width = "100%",min = 0.0001), width=6)),
+
 opciones.boosting.pred <- list(fluidRow(column(width = 3, numericInput("iter.boosting.pred", labelInput("numTree"), 50, width = "100%",min = 1)),
-                                   column(width = 3, numericInput("maxdepth.boosting.pred",labelInput("maxdepth"), 15, width = "100%",min = 1)),
-                                   column(width = 3, numericInput("minsplit.boosting.pred",labelInput("minsplit"), 20, width = "100%",min = 1)),
+                                   column(width = 3, numericInput("shrinkage.boosting.pred",labelInput("shrinkage"), 15, width = "100%",min = 1)),
                                    column(width = 3, selectInput(inputId = "tipo.boosting.pred", label = labelInput("selectAlg"),selected = 1, width = "100%",
-                                                                 choices =  c("discrete", "real", "gentle")))))
+                                                                 choices =  c("gaussian", "laplace", "tdist")))))
 
 opciones.nn.pred <-list(fluidRow(column(numericInput("threshold.nn.pred",labelInput("threshold"),
                                                      min = 0, step = 0.01, value = 0.01), width = 4),
@@ -1012,7 +1041,8 @@ tabs.modelos2  <- tabsOptions(botones = list(icon("code")), widths = c(100), hei
 panel.prediccion.knn <- tabPanel(title = labelInput("predicnuevos"), value = "predicModelo",
                                  DT::dataTableOutput("PrediTablePN"),
                                  hr(),
-                                 downloadButton("downloaDatosPred", labelInput("descargar"), style = "width:100%;"))
+                                 downloadButton("downloaDatosPred", labelInput("descargar"), style = "width:100%;"),
+                                 actionButton("predecirPromidat", "preditc"))
 
 pagina.predicciones.nuevas <- tabItem(tabName = "predNuevos",
                                       tabBox(id = "BoxModelo", width = NULL, height ="80%",

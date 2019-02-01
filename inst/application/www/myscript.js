@@ -22,6 +22,7 @@ function promidat_model_firt(e, model, id){
   $("a[href^='#shiny-tab-nn']").on('click', (e) => promidat_model_firt(e,"nn","runNn"));
   $("a[href^='#shiny-tab-rl']").on('click', (e) => promidat_model_firt(e,"rl","runRl"));
   $("a[href^='#shiny-tab-rlr']").on('click', (e) => promidat_model_firt(e,"rlr","runRlr"));
+  $("a[data-value='predicModelo']").on('click',(e) => $("#predecirPromidat").click())
   $("#segmentButton").on('click',function(e){
     promidat_flat_models = {knn: true, dt: true, rf: true, boosting: true, svm: true, rl: true, nn: true, rlr: true};
   });

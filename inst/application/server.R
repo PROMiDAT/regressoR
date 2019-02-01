@@ -61,7 +61,7 @@ shinyServer(function(input, output, session) {
   obj.predic <- function(predic.var = NULL){
     real <- datos.prueba[, variable.predecir]
     df <- cbind(real, predic.var,  abs(real - predic.var))
-    colns <- c(tr("reald"), tr("pred"), tr("dist"))
+    colns <- c(tr("reald"), tr("pred"), tr("dif"))
     colnames(df) <- colns
     sketch <- htmltools::withTags(table(tableHeader(colns)))
     return(DT::datatable(df,
@@ -956,8 +956,8 @@ shinyServer(function(input, output, session) {
         insert.report("ind.rl",paste0("## Índices Generales\n```{r}\n",
                                       cod.rl.ind, "\nindices.generales(datos.prueba[,'",variable.predecir,"'], prediccion.rl)\n```"))
         
-        nombres <- c("rlMSE", "rlRMSE","rlMAE", "rlRE","rlCOR")
-        fill.gauges(nombres, indices.rl)
+        nombres <- c("rlRMSE","rlMAE", "rlRE","rlCOR","rlMinG","rlMaxG","rl1QG","rl3QG")
+        fill.gauges(nombres, completar.indices(indices.rl))
         
         nombres.modelos <<- c(nombres.modelos, "indices.rl")
         IndicesM[["rll"]] <<- indices.rl
@@ -969,7 +969,6 @@ shinyServer(function(input, output, session) {
       })
     }
   }
-  
   
   # PAGINA DE RLR -----------------------------------------------------------------------------------------------------------
   
@@ -1179,7 +1178,7 @@ shinyServer(function(input, output, session) {
         insert.report(paste0("ind.rlr.",rlr.type()),paste0("## Índices Generales\n```{r}\n",
                                       cod.rlr.ind, "\nindices.generales(datos.prueba[,'",variable.predecir,"'], prediccion.rlr.",rlr.type(),")\n```"))
 
-        nombres <- c("rlrMSE", "rlrRMSE","rlrMAE", "rlrRE","rlrCOR")
+        nombres <- c("rlrRMSE","rlrMAE", "rlrRE","rlrCOR")
         fill.gauges(nombres, indices.rlr)
 
         # nombres.modelos <<- c(nombres.modelos, paste0("indices.rlr.",rlr.type()))
@@ -1339,7 +1338,7 @@ shinyServer(function(input, output, session) {
                       paste0("## Índices Generales del Modelo KNN - ",input$kernel.knn,"\n```{r}\n",
                              cod.knn.ind, "\nindices.generales(datos.prueba[,'",variable.predecir,"'] ,prediccion.knn.",input$kernel.knn,")\n```"))
 
-        nombres <- c("knnMSE", "knnRMSE","knnMAE", "knnRE","knnCOR")
+        nombres <- c("knnRMSE","knnMAE", "knnRE","knnCOR")
         fill.gauges(nombres, indices.knn)
 
         nombres.modelos <<- c(nombres.modelos, paste0("indices.knn.",input$kernel.knn))
@@ -1492,7 +1491,7 @@ shinyServer(function(input, output, session) {
                       paste0("## Índices Generales del modelo SVM  - ",input$kernel.svm," \n```{r}\n",
                              cod.svm.ind, "\nindices.generales(datos.prueba[,'",variable.predecir,"'], prediccion.svm.",input$kernel.svm,")\n```"))
 
-        nombres <- c("svmMSE", "svmRMSE","svmMAE", "svmRE","svmCOR")
+        nombres <- c("svmRMSE","svmMAE", "svmRE","svmCOR")
         fill.gauges(nombres, indices.svm)
         
         plot.disp.svm()
@@ -1667,7 +1666,7 @@ shinyServer(function(input, output, session) {
         
         insert.report("ind.dt", paste0("## Índices Generales \n```{r}\n", cod.dt.ind, "\nindices.generales(datos.prueba[,'",variable.predecir,"'], prediccion.dt)\n```"))
 
-        nombres <- c("dtMSE", "dtRMSE","dtMAE", "dtRE","dtCOR")
+        nombres <- c("dtRMSE","dtMAE", "dtRE","dtCOR")
         fill.gauges(nombres, indices.dt)
         
         IndicesM[["dtl"]] <<- indices.dt
@@ -1859,7 +1858,7 @@ shinyServer(function(input, output, session) {
         insert.report("ind.rf",paste0("## Índices Generales\n```{r}\n",
                                       cod.rf.ind, "\nindices.generales(datos.prueba[,'",variable.predecir,"'], prediccion.rf)\n```"))
 
-        nombres <- c("rfMSE", "rfRMSE","rfMAE", "rfRE","rfCOR")
+        nombres <- c("rfRMSE","rfMAE", "rfRE","rfCOR")
         fill.gauges(nombres, indices.rf)
 
         nombres.modelos <<- c(nombres.modelos, "indices.rf")
@@ -2035,7 +2034,7 @@ shinyServer(function(input, output, session) {
                       paste0("## Índices Generales del Modelo BOOSTING - ",input$tipo.boosting,"\n```{r}\n",
                              cod.knn.ind, "\nindices.generales(datos.prueba[,'",variable.predecir,"'] ,prediccion.boosting.",input$tipo.boosting,")\n```"))
         
-        nombres <- c("bMSE", "bRMSE","bMAE", "bRE","bCOR")
+        nombres <- c("bRMSE","bMAE", "bRE","bCOR")
         fill.gauges(nombres, indices.boosting)
 
         nombres.modelos <<- c(nombres.modelos, paste0("indices.boosting.",input$tipo.boosting))
@@ -2225,7 +2224,7 @@ shinyServer(function(input, output, session) {
         insert.report("ind.nn", paste0("## Índices Generales \n```{r}\n", cod.nn.ind, 
                                        "\nindices.generales(datos.prueba[,'",variable.predecir,"'], prediccion.nn)\n```"))
 
-        nombres <-  c("nnMSE", "nnRMSE","nnMAE", "nnRE","nnCOR")
+        nombres <-  c("nnRMSE","nnMAE", "nnRE","nnCOR")
         fill.gauges(nombres, indices.nn)
         
         IndicesM[["nn"]] <<- indices.nn
@@ -2302,15 +2301,6 @@ shinyServer(function(input, output, session) {
   varificar.datos.pn <- function(){
     if(any(!(c(colnames(datos.prueba.completos),variable.predecir.pn) %in% colnames(datos.originales.completos))))
       stop(tr("NoTamColum"))
-  }
-
-  unificar.factores <- function(){
-    for(nombre in colnames(datos.prueba.completos)){
-      if(class(datos.prueba.completos[,nombre]) == "factor"){
-        levels(datos.prueba.completos[,nombre]) <<- unique(c(levels(datos.prueba.completos[,nombre]),
-                                                            levels(datos.aprendizaje.completos[,nombre])))
-      }
-    }
   }
 
   actualizar.tabla.pn <- function(tablas = c("contentsPred", "contentsPred2")){
@@ -2406,7 +2396,7 @@ shinyServer(function(input, output, session) {
       codigo.na <- paste0(code.NA(deleteNA = input$deleteNAnPred, d.o = "datos.originales.completos"), "\n", "datos.aprendizaje.completos <<- datos.originales.completos")
       isolate(exe( codigo.na))
 
-      updateSelectInput(session, "sel.predic.var.nuevos", choices = rev(colnames.empty(var.categoricas(datos.aprendizaje.completos))))
+      updateSelectInput(session, "sel.predic.var.nuevos", choices = rev(colnames.empty(var.numericas(datos.aprendizaje.completos))))
       updateNumericInput(session, "kmax.knn.pred", value = round(sqrt(nrow(datos.aprendizaje.completos))))
       updateNumericInput(session, "mtry.rf.pred", value = round(sqrt(ncol(datos.aprendizaje.completos) -1)))
     },
@@ -2486,28 +2476,34 @@ shinyServer(function(input, output, session) {
   }
 
   predecir.pn <-function(){
-    codigo <- switch(modelo.seleccionado.pn,
-                     knn =  kkn.prediccion.pn(),
-                     dt  = dt.prediccion.np(),
-                     rf  = rf.prediccion.np(),
-                     ada = boosting.prediccion.np(),
-                     svm = svm.prediccion.np(),
-                     nn = nn.prediccion.np())
-    tryCatch({
-      exe(codigo)
-      actualizar.pred.pn(codigo)
-    },
-    error =  function(e){
-      showNotification(paste0("Error :", e), duration = 10, type = "error")
-    })
+    if(!is.null(datos.prueba.completos)){
+      codigo <- switch(modelo.seleccionado.pn,
+                       knn =  kkn.prediccion.pn(),
+                       dt  = dt.prediccion.np(),
+                       rf  = rf.prediccion.np(),
+                       ada = boosting.prediccion.np(),
+                       svm = svm.prediccion.np(),
+                       nn = nn.prediccion.np())
+      tryCatch({
+        exe(codigo)
+        actualizar.pred.pn(codigo)
+      },
+      error =  function(e){
+        showNotification(paste0("Error :", e), duration = 10, type = "error")
+      })
+    }
   }
 
+  observeEvent(c(input$predecirPromidat), {
+    predecir.pn()
+  })
+  
   observeEvent(input$transButtonPredN, {
     # transforma los datos
     code.trans.pn <<- transformar.datos.pn()
 
     # Actualiza los selectores que dependen de los datos
-    updateSelectInput(session, "sel.predic.var.nuevos", choices = rev(colnames.empty(var.categoricas(datos.aprendizaje.completos))))
+    updateSelectInput(session, "sel.predic.var.nuevos", choices = rev(colnames.empty(var.numericas(datos.aprendizaje.completos))))
     updateNumericInput(session, "mtry.rf.pred", value = round(sqrt(ncol(datos.aprendizaje.completos) -1)))
 
     modelo.nuevos <<- NULL
@@ -2519,9 +2515,12 @@ shinyServer(function(input, output, session) {
   })
 
   observeEvent(input$PredNuevosBttnModelo,{
+    browser()
+    variable.predecir.pn <<- input$sel.predic.var.nuevos
+    modelo.seleccionado.pn  <<- input$selectModelsPred
+    
     codigo <- switch(input$selectModelsPred,
-                     knn =  kkn.modelo.np(variable.pr = input$sel.predic.var.nuevos,
-                                          scale = input$switch.scale.knn.pred,
+                     knn =  kkn.modelo.np(scale = input$switch.scale.knn.pred,
                                           kmax = input$kmax.knn.pred,
                                           kernel = input$kernel.knn.pred),
                      dt  = dt.modelo.np(variable.pr = input$sel.predic.var.nuevos,
@@ -2535,8 +2534,7 @@ shinyServer(function(input, output, session) {
                                               maxdepth = input$maxdepth.boosting.pred,
                                               type = input$tipo.boosting.pred,
                                               minsplit = input$minsplit.boosting.pred),
-                     svm = svm.modelo.np(variable.pr =input$sel.predic.var.nuevos,
-                                         scale = input$switch.scale.svm.pred,
+                     svm = svm.modelo.np(scale = input$switch.scale.svm.pred,
                                          kernel = input$kernel.svm.pred),
                      nn = nn.modelo.np(variable.pr=input$sel.predic.var.nuevos,
                                         input$threshold.nn.pred,
@@ -2548,8 +2546,6 @@ shinyServer(function(input, output, session) {
                                         input$nn.cap.pred.7,input$nn.cap.pred.8,
                                         input$nn.cap.pred.9,input$nn.cap.pred.10))
 
-      variable.predecir.pn <<- input$sel.predic.var.nuevos
-      modelo.seleccionado.pn  <<- input$selectModelsPred
       modelo.nuevos <<- NULL
       predic.nuevos <<- NULL
       actualizar.pred.pn("")
@@ -2593,9 +2589,9 @@ shinyServer(function(input, output, session) {
       code.trans.pn <<- gsub("datos.originales.completos", "datos.prueba.completos", code.trans.pn)
       code.trans.pn <<- gsub("datos.aprendizaje.completos", "datos.prueba.completos", code.trans.pn)
       exe(code.trans.pn)
-      unificar.factores()
+      # unificar.factores()
       actualizar.tabla.pn("contentsPred3")
-      predecir.pn()
+      # predecir.pn()
     },
     error = function(e) {
       showNotification(paste0("Error: ", e), duration = 10, type = "error")
@@ -2742,14 +2738,11 @@ shinyServer(function(input, output, session) {
                                 "cargarDatos","transDatos","seleParModel","generarM","variables","tipo",
                                 "activa","nn","xgb","selbooster","selnrounds","selectCapas","threshold",
                                 "stepmax","redPlot","rll","rlr","posibLanda","coeff","gcoeff",
-                                "automatico","landa"))
+                                "automatico","landa","shrinkage"))
 
     updatePlot$normal <- default.normal("datos", input$sel.normal, input$col.normal, tr("curvanormal"))
     updatePlot$dya.cat <- def.code.cat(variable = input$sel.distribucion.cat, titulox = tr("cantidadcasos"), tituloy = tr("categorias"))
     updatePlot$calc.normal <- default.calc.normal(labelsi = tr("positivo"),labelno=tr("negativo"),labelsin=tr("sinasimetria"))
-    # updatePlot$poder.pred <- plot.code.poder.pred(variable.predecir, label= tr("distrelvar"))
-    # updatePlot$poder.dens <- plot.numerico.dens(input$sel.density.poder,tr("denspodlab"))
-    # updatePlot$poder.cat <- plot.code.dist.porc(input$sel.distribucion.poder,variable.predecir, label=tr("distpodcat"))
 
     ejecutar.knn.ind()
     ejecutar.svm.ind()
