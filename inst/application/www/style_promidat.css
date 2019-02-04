@@ -39,13 +39,49 @@ div[id$="1QG"] svg text:nth-last-child(2), div[id$="3QG"] svg text:nth-last-chil
   display: none;
 }
 
-/*gauge*/
+div[data-value$="Index"] .col-sm-6{
+    height: 120px;
+}
+
+div[data-value$="Index"] .col-sm-3{
+    height: 80px;
+}
+
+
+div[data-value$="Index"] .col-sm-12{
+    height: 28px;
+} 
+
+div[data-value$="Index"] h3{
+    position: relative;
+}
+
+div[data-value$="Index"] .fila-resumen{
+  height: 120px;
+}
+
 .html-widget.gauge svg {
   height: 210px !important;
 }
 
+.row.fila-resumen > .col-sm-3 > div{
+   height: 20px !important;
+}
+
+.row.fila-resumen > .col-sm-3 .gauge.html-widget svg{
+   height: 120px !important;
+}
+
 svg text[fill="#b3b3b3"] {
-  font-size: 8px !important;
+  font-size: 10px !important;
+}
+
+.row.fila-resumen > .col-sm-3 .gauge.html-widget svg text[fill="#b3b3b3"] {
+  font-size: 15px !important;
+}
+
+#distribucion_numerica{
+  display:none;
 }
 
 .mini-numeric-select .form-group.shiny-input-container {

@@ -319,7 +319,7 @@ tabs.distribuciones <- tabsOptions(botones = list(icon("gear"), icon("terminal")
                                    widths = c(50, 100, 100, 100), heights = c(30, 35, 48, 80),
                                    tabs.content = list(opciones.distribuciones,
                                                        campos.codigos.distribuciones,
-                                                       list(DT::dataTableOutput("mostrar.atipicos")),
+                                                       list(DT::dataTableOutput("mostrarAtipicos")),
                                                        codigo.distribuciones))
 
 selector.variables.distribucion <- tags$div(class = "multiple-select-var",
@@ -328,7 +328,9 @@ selector.variables.distribucion <- tags$div(class = "multiple-select-var",
                                             conditionalPanel(condition = "input.tabDyA == 'categoricas'",
                                                              selectInput(inputId = "sel.distribucion.cat",label = NULL,choices =  "")))
 
-resultados.distribucion.numericas <- tabPanel(title = labelInput("numericas"), value = "numericas", plotOutput('plot.num', height = "70vh"))
+resultados.distribucion.numericas <- tabPanel(title = labelInput("numericas"), value = "numericas", 
+                                              plotOutput('plot.num', height = "70vh"),
+                                              actionButton(id="distribucion_numerica"))
 
 resultados.distribucion.categoricas <- tabPanel(title = labelInput("categoricas"), value = "categoricas",plotOutput('plot.cat', height = "70vh"))
 
@@ -416,10 +418,13 @@ panel.indices.generales.rl <- tabPanel(title = labelInput("indices"), value = "t
                                                 column(width = 6, gaugeOutput("rlCOR", width = "100%"))),
                                        fluidRow(column(width = 6, gaugeOutput("rlRMSE", width = "100%")),
                                                 column(width = 6, gaugeOutput("rlMAE", width = "100%"))),
-                                       fluidRow(column(width = 3, gaugeOutput("rlMinG", width = "100%")),
-                                                column(width = 3, gaugeOutput("rlMaxG", width = "100%")),
+                                       br(),br(),
+                                       fluidRow(column(width = 12, align="center", tags$h3(labelInput("resumen")))),
+                                       fluidRow(class = "fila-resumen", 
+                                                column(width = 3, gaugeOutput("rlMinG", width = "100%")),
                                                 column(width = 3, gaugeOutput("rl1QG", width = "100%")),
-                                                column(width = 3, gaugeOutput("rl3QG", width = "100%"))))
+                                                column(width = 3, gaugeOutput("rl3QG", width = "100%")),
+                                                column(width = 3, gaugeOutput("rlMaxG", width = "100%"))))
 
 
 pagina.rl <- tabItem(tabName = "rl",
@@ -494,10 +499,13 @@ panel.indices.generales.rlr <- tabPanel(title = labelInput("indices"), value = "
                                                 column(width = 6, gaugeOutput("rlrCOR", width = "100%"))),
                                        fluidRow(column(width = 6, gaugeOutput("rlrRMSE", width = "100%")),
                                                 column(width = 6, gaugeOutput("rlrMAE", width = "100%"))),
-                                       fluidRow(column(width = 3, gaugeOutput("rlrMin", width = "100%")),
-                                                column(width = 3, gaugeOutput("rlrMax", width = "100%")),
-                                                column(width = 3, gaugeOutput("rlr1Q", width = "100%")),
-                                                column(width = 3, gaugeOutput("rlr2Q", width = "100%"))))
+                                       br(),br(),
+                                       fluidRow(column(width = 12, align="center", tags$h3(labelInput("resumen")))),
+                                       fluidRow(class = "fila-resumen", 
+                                                column(width = 3, gaugeOutput("rlrMinG", width = "100%")),
+                                                column(width = 3, gaugeOutput("rlr1QG", width = "100%")),
+                                                column(width = 3, gaugeOutput("rlr3QG", width = "100%")),
+                                                column(width = 3, gaugeOutput("rlrMaxG", width = "100%"))))
 
 
 pagina.rlr <- tabItem(tabName = "rlr",
@@ -554,10 +562,13 @@ panel.indices.generales.knn <- tabPanel(title = labelInput("indices"), value = "
                                                  column(width = 6, gaugeOutput("knnCOR", width = "100%"))),
                                         fluidRow(column(width = 6, gaugeOutput("knnRMSE", width = "100%")),
                                                  column(width = 6, gaugeOutput("knnMAE", width = "100%"))),
-                                        fluidRow(column(width = 3, gaugeOutput("knnMin", width = "100%")),
-                                                 column(width = 3, gaugeOutput("knnMax", width = "100%")),
-                                                 column(width = 3, gaugeOutput("knn1Q", width = "100%")),
-                                                 column(width = 3, gaugeOutput("knn2Q", width = "100%"))))
+                                        br(),br(),
+                                        fluidRow(column(width = 12, align="center", tags$h3(labelInput("resumen")))),
+                                        fluidRow(class = "fila-resumen", 
+                                                 column(width = 3, gaugeOutput("knnMinG", width = "100%")),
+                                                 column(width = 3, gaugeOutput("knn1QG", width = "100%")),
+                                                 column(width = 3, gaugeOutput("knn3QG", width = "100%")),
+                                                 column(width = 3, gaugeOutput("knnMaxG", width = "100%"))))
 
 pagina.knn <- tabItem(tabName = "knn",
                       tabBox(id = "BoxKnn", width = NULL, height ="80%",
@@ -609,10 +620,13 @@ panel.indices.generales.svm <- tabPanel(title = labelInput("indices"), value = "
                                                  column(width = 6, gaugeOutput("svmCOR", width = "100%"))),
                                         fluidRow(column(width = 6, gaugeOutput("svmRMSE", width = "100%")),
                                                  column(width = 6, gaugeOutput("svmMAE", width = "100%"))),
-                                        fluidRow(column(width = 3, gaugeOutput("svmMin", width = "100%")),
-                                                 column(width = 3, gaugeOutput("svmMax", width = "100%")),
-                                                 column(width = 3, gaugeOutput("svm1Q", width = "100%")),
-                                                 column(width = 3, gaugeOutput("svm2Q", width = "100%"))))
+                                        br(),br(),
+                                        fluidRow(column(width = 12, align="center", tags$h3(labelInput("resumen")))),
+                                        fluidRow(class = "fila-resumen",
+                                                 column(width = 3, gaugeOutput("svmMinG", width = "100%")),
+                                                 column(width = 3, gaugeOutput("svm1QG", width = "100%")),
+                                                 column(width = 3, gaugeOutput("svm3QG", width = "100%")),
+                                                 column(width = 3, gaugeOutput("svmMaxG", width = "100%"))))
 
 pagina.svm <- tabItem(tabName = "svm",
                       tabBox(id = "BoxSvm", width = NULL, height ="80%",
@@ -671,10 +685,13 @@ panel.indices.generales.dt <- tabPanel(title = labelInput("indices"),value = "ta
                                                 column(width = 6, gaugeOutput("dtCOR", width = "100%"))),
                                        fluidRow(column(width = 6, gaugeOutput("dtRMSE", width = "100%")),
                                                 column(width = 6, gaugeOutput("dtMAE", width = "100%"))),
-                                       fluidRow(column(width = 3, gaugeOutput("dtMin", width = "100%")),
-                                                column(width = 3, gaugeOutput("dtMax", width = "100%")),
-                                                column(width = 3, gaugeOutput("dt1Q", width = "100%")),
-                                                column(width = 3, gaugeOutput("dt2Q", width = "100%"))))
+                                       br(),br(),
+                                       fluidRow(column(width = 12, align="center", tags$h3(labelInput("resumen")))),
+                                       fluidRow(class = "fila-resumen", 
+                                                column(width = 3, gaugeOutput("dtMinG", width = "100%")),
+                                                column(width = 3, gaugeOutput("dt1QG", width = "100%")),
+                                                column(width = 3, gaugeOutput("dt3QG", width = "100%")),
+                                                column(width = 3, gaugeOutput("dtMaxG", width = "100%"))))
 
 panel.reglas.dt <- tabPanel(title = labelInput("reglas"),value = "tabDtReglas",
                             verbatimTextOutput("rulesDt"))
@@ -741,10 +758,13 @@ panel.indices.generales.rf <- tabPanel(title = labelInput("indices"), value = "t
                                                 column(width = 6, gaugeOutput("rfCOR", width = "100%"))),
                                        fluidRow(column(width = 6, gaugeOutput("rfRMSE", width = "100%")),
                                                 column(width = 6, gaugeOutput("rfMAE", width = "100%"))),
-                                       fluidRow(column(width = 3, gaugeOutput("rfMin", width = "100%")),
-                                                column(width = 3, gaugeOutput("rfMax", width = "100%")),
-                                                column(width = 3, gaugeOutput("rf1Q", width = "100%")),
-                                                column(width = 3, gaugeOutput("rf2Q", width = "100%"))))
+                                       br(),br(),
+                                       fluidRow(column(width = 12, align="center", tags$h3(labelInput("resumen")))),
+                                       fluidRow(class = "fila-resumen",
+                                                column(width = 3, gaugeOutput("rfMinG", width = "100%")),
+                                                column(width = 3, gaugeOutput("rf1QG", width = "100%")),
+                                                column(width = 3, gaugeOutput("rf3QG", width = "100%")),
+                                                column(width = 3, gaugeOutput("rfMaxG", width = "100%"))))
 
 
 reglas.rf <- tabPanel(title = labelInput("reglas"), value = "tabRfRules",
@@ -808,10 +828,13 @@ panel.indices.generales.boosting <- tabPanel(title = labelInput("indices"),value
                                                       column(width = 6, gaugeOutput("bCOR", width = "100%"))),
                                              fluidRow(column(width = 6, gaugeOutput("bRMSE", width = "100%")),
                                                       column(width = 6, gaugeOutput("bMAE", width = "100%"))),
-                                             fluidRow(column(width = 3, gaugeOutput("bMin", width = "100%")),
-                                                      column(width = 3, gaugeOutput("bMax", width = "100%")),
-                                                      column(width = 3, gaugeOutput("b1Q", width = "100%")),
-                                                      column(width = 3, gaugeOutput("b2Q", width = "100%"))))
+                                             br(),br(),
+                                             fluidRow(column(width = 12, align="center", tags$h3(labelInput("resumen")))),
+                                             fluidRow(class = "fila-resumen",
+                                                      column(width = 3, gaugeOutput("bMinG", width = "100%")),
+                                                      column(width = 3, gaugeOutput("b1QG", width = "100%")),
+                                                      column(width = 3, gaugeOutput("b3QG", width = "100%")),
+                                                      column(width = 3, gaugeOutput("bMaxG", width = "100%"))))
 
 reglas.boosting <- tabPanel(title = labelInput("reglas"), value = "tabBRules",
                             verbatimTextOutput("rulesB"))
@@ -876,10 +899,13 @@ panel.indices.generales.nn <- tabPanel(title = labelInput("indices"), value = "t
                                                 column(width = 6, gaugeOutput("nnCOR", width = "100%"))),
                                        fluidRow(column(width = 6, gaugeOutput("nnRMSE", width = "100%")),
                                                 column(width = 6, gaugeOutput("nnMAE", width = "100%"))),
-                                       fluidRow(column(width = 3, gaugeOutput("nnMin", width = "100%")),
-                                                column(width = 3, gaugeOutput("nnMax", width = "100%")),
-                                                column(width = 3, gaugeOutput("nn1Q", width = "100%")),
-                                                column(width = 3, gaugeOutput("nn2Q", width = "100%"))))
+                                       br(),br(),
+                                       fluidRow(column(width = 12, align="center", tags$h3(labelInput("resumen")))),
+                                       fluidRow(class = "fila-resumen",
+                                                column(width = 3, gaugeOutput("nnMinG", width = "100%")),
+                                                column(width = 3, gaugeOutput("nn1QG", width = "100%")),
+                                                column(width = 3, gaugeOutput("nn3QG", width = "100%")),
+                                                column(width = 3, gaugeOutput("nnMaxG", width = "100%"))))
 
 pagina.nn  <- tabItem(tabName = "nn",
                       tabBox(id = "BoxNn", width = NULL, height ="80%",
