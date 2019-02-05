@@ -330,7 +330,7 @@ selector.variables.distribucion <- tags$div(class = "multiple-select-var",
 
 resultados.distribucion.numericas <- tabPanel(title = labelInput("numericas"), value = "numericas", 
                                               plotOutput('plot.num', height = "70vh"),
-                                              actionButton(id="distribucion_numerica"))
+                                              actionButton(inputId="distribucion_numerica",label = "",style="display:none;"))
 
 resultados.distribucion.categoricas <- tabPanel(title = labelInput("categoricas"), value = "categoricas",plotOutput('plot.cat', height = "70vh"))
 
@@ -992,6 +992,16 @@ panel.cargar.datos.pred2 <- tabPanel(title = labelInput("cargarNuev"), width = 1
 
 # Opciones de Modelos 
 
+opciones.rl.pred <- list() # Vacio
+
+opciones.rlr.pred <- fluidRow(column(selectInput(inputId = "alpha.rlr.pred", label = labelInput("selectAlg"),selected = 1,
+                                                 choices = list("Ridge" = 0, "Lasso" = 1)),width = 3),
+                              column(br(), switchInput(inputId = "switch.scale.rlr.pred", onStatus = "success", offStatus = "danger", value = T,
+                                                       label = labelInput("escal"), onLabel = labelInput("si"), offLabel = labelInput("no"), labelWidth = "100%"), width=3),
+                              column(id = "colManualLanda.pred",width = 3, numericInput("landa.pred", labelInput("landa"),value = 2, min = 0, "NULL", width = "100%")), br(),
+                              column(width = 3, switchInput(inputId = "permitir.landa.pred", onStatus = "success", offStatus = "danger", value = F, width = "100%",
+                                                            label = "", onLabel = "Manual", offLabel = labelInput("automatico"), labelWidth = "100%")))
+
 opciones.knn.pred <- fluidRow(column(width = 4, br() , switchInput(inputId = "switch.scale.knn.pred", onStatus = "success", offStatus = "danger", value = T,
                                                               label = labelInput("escal"), onLabel = labelInput("si"), offLabel = labelInput("no"), labelWidth = "100%", width = "100%")),
                               column(width = 4, numericInput("kmax.knn.pred", labelInput("kmax"), min = 1,step = 1, value = 7,width="100%")),
@@ -1010,13 +1020,9 @@ opciones.dt.pred <- fluidRow(column(width = 6, numericInput("minsplit.dt.pred", 
 opciones.rf.pred <- fluidRow(column(width = 6, numericInput("ntree.rf.pred", labelInput("numTree"), 20, width = "100%", min = 0)),
                              column(width = 6, numericInput("mtry.rf.pred",labelInput("numVars"),1, width = "100%", min = 1)))
 
-
-                   # fluidRow(column(numericInput("iter.boosting", labelInput("numTree"), 500, width = "100%",min = 1), width = 6),
-                   #          column(numericInput("shrinkage.boosting", labelInput("shrinkage"), 0.01, width = "100%",min = 0.0001), width=6)),
-
-opciones.boosting.pred <- list(fluidRow(column(width = 3, numericInput("iter.boosting.pred", labelInput("numTree"), 50, width = "100%",min = 1)),
-                                   column(width = 3, numericInput("shrinkage.boosting.pred",labelInput("shrinkage"), 15, width = "100%",min = 1)),
-                                   column(width = 3, selectInput(inputId = "tipo.boosting.pred", label = labelInput("selectAlg"),selected = 1, width = "100%",
+opciones.boosting.pred <- list(fluidRow(column(width = 4, numericInput("iter.boosting.pred", labelInput("numTree"), 500, width = "100%",min = 1)),
+                                   column(width = 4, numericInput("shrinkage.boosting.pred",labelInput("shrinkage"), 0.01, width = "100%",min = 0.0001)),
+                                   column(width = 4, selectInput(inputId = "tipo.boosting.pred", label = labelInput("selectAlg"),selected = 1, width = "100%",
                                                                  choices =  c("gaussian", "laplace", "tdist")))))
 
 opciones.nn.pred <-list(fluidRow(column(numericInput("threshold.nn.pred",labelInput("threshold"),
@@ -1024,19 +1030,23 @@ opciones.nn.pred <-list(fluidRow(column(numericInput("threshold.nn.pred",labelIn
                                  column(numericInput("stepmax.nn.pred",labelInput("stepmax"),
                                                      min = 100, step = 100, value = 1000), width = 4),
                                  column(sliderInput(inputId = "cant.capas.nn.pred", min = 2, max = 10,
-                                                    label = labelInput("selectCapas"), value = 2), width = 4)),
+                                                    label = labelInput("selectCapas"), value = 10), width = 4)),
                         fluidRow(lapply(1:10, function(i) tags$span(numericInput(paste0("nn.cap.pred.",i), NULL,
                                                                                  min = 1, step = 1, value = 10),
                                                                     class = "mini-numeric-select"))))
 
 panel.crear.modelo.pred <- tabPanel(title = labelInput("seleParModel"),solidHeader = FALSE, collapsible = FALSE, collapsed = FALSE, value = "crearModelo",
+                                    conditionalPanel(condition =  "input.selectModelsPred == 'rl'",
+                                                     opciones.rl.pred),
+                                    conditionalPanel(condition =  "input.selectModelsPred == 'rlr'",
+                                                     opciones.rlr.pred),
                                     conditionalPanel(condition =  "input.selectModelsPred == 'knn'",
                                                      opciones.knn.pred),
                                     conditionalPanel(condition =  "input.selectModelsPred == 'dt'",
                                                      opciones.dt.pred),
                                     conditionalPanel(condition =  "input.selectModelsPred == 'rf'",
                                                      opciones.rf.pred),
-                                    conditionalPanel(condition =  "input.selectModelsPred == 'ada'",
+                                    conditionalPanel(condition =  "input.selectModelsPred == 'boosting'",
                                                      opciones.boosting.pred),
                                     conditionalPanel(condition =  "input.selectModelsPred == 'svm'",
                                                      opciones.svm.pred),
@@ -1046,10 +1056,13 @@ panel.crear.modelo.pred <- tabPanel(title = labelInput("seleParModel"),solidHead
                                     actionButton("PredNuevosBttnModelo", labelInput("generarM"), width  = "100%" ))
 
 opciones.modelo <- list(selectInput(inputId = "sel.predic.var.nuevos", label = labelInput("seleccionarPredecir"), choices =  "", width = "100%"),
-                        radioGroupButtons("selectModelsPred", labelInput("selectMod"), list("<span data-id=\"knnl\"></span>" = "knn",
+                        radioGroupButtons("selectModelsPred", labelInput("selectMod"), 
+                                                                  list("<span data-id=\"rll\"></span>" = "rl",
+                                                                       "<span data-id=\"rlr\"></span>" = "rlr",
+                                                                       "<span data-id=\"knnl\"></span>" = "knn",
                                                                        "<span data-id=\"dtl\"></span>" = "dt",
                                                                        "<span data-id=\"rfl\"></span>" = "rf",
-                                                                       "<span data-id=\"bl\"></span>" = "ada",
+                                                                       "<span data-id=\"bl\"></span>" = "boosting",
                                                                        "<span data-id=\"svml\"></span>" = "svm",
                                                                        "<span data-id=\"nn\"></span>" = "nn"),
                                           size = "sm", status = "primary",individual = FALSE, justified = FALSE, selected = "knn",

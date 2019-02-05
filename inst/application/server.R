@@ -598,7 +598,6 @@ shinyServer(function(input, output, session) {
   observeEvent(c(input$loadButton, input$transButton), {
     output$plot.num <- renderPlot({
       tryCatch({
-        browser()
         cod.dya.num <<- updatePlot$dya.num
         res <- isolate(exe(cod.dya.num))
         updateAceEditor(session, "fieldCodeNum", value = cod.dya.num)
@@ -638,8 +637,10 @@ shinyServer(function(input, output, session) {
   }
   
   # Crea la tabla de atipicos
-  output$mostrarAtipicos <- DT::renderDataTable({tabla.atipicos()})
-
+  observeEvent(c(input$distribucion_numerica), {
+    output$mostrarAtipicos <- DT::renderDataTable({tabla.atipicos()})
+  })
+  
   # Hace el grafico de Distribucion categorico
   observeEvent(c(input$loadButton, input$transButton), {
     output$plot.cat <- renderPlot({
@@ -2380,6 +2381,14 @@ shinyServer(function(input, output, session) {
     actualizar.nn.capas.np()
   })
 
+  observeEvent(input$permitir.landa.pred, {
+    if (input$permitir.landa.pred) {
+      shinyjs::enable("landa.pred")
+    } else {
+      shinyjs::disable("landa.pred")
+    }
+  })
+  
   observeEvent(input$loadButtonNPred,{
     codigo.carga <- code.carga(nombre.filas = input$rownameNPred,
                                ruta = input$file2$datapath,
@@ -2481,10 +2490,15 @@ shinyServer(function(input, output, session) {
   predecir.pn <-function(){
     if(!is.null(datos.prueba.completos)){
       codigo <- switch(modelo.seleccionado.pn,
+                       rl  =  rl.prediccion.np(),
+                       rlr =  rlr.prediccion.np(alpha = input$alpha.rlr.pred,
+                                                escalar = input$switch.scale.rlr.pred,
+                                                manual = input$permitir.landa.pred,
+                                                landa = input$landa.pred),
                        knn =  kkn.prediccion.pn(),
                        dt  = dt.prediccion.np(),
                        rf  = rf.prediccion.np(),
-                       ada = boosting.prediccion.np(),
+                       boosting = boosting.prediccion.np(),
                        svm = svm.prediccion.np(),
                        nn = nn.prediccion.np())
       tryCatch({
@@ -2518,11 +2532,15 @@ shinyServer(function(input, output, session) {
   })
 
   observeEvent(input$PredNuevosBttnModelo,{
-    browser()
     variable.predecir.pn <<- input$sel.predic.var.nuevos
     modelo.seleccionado.pn  <<- input$selectModelsPred
     
     codigo <- switch(input$selectModelsPred,
+                     rl  = rl.modelo.np(),
+                     rlr  = rlr.modelo.np(alpha = input$alpha.rlr.pred,
+                                          escalar = input$switch.scale.rlr.pred,
+                                          manual = input$permitir.landa.pred,
+                                          landa = input$landa.pred),
                      knn =  kkn.modelo.np(scale = input$switch.scale.knn.pred,
                                           kmax = input$kmax.knn.pred,
                                           kernel = input$kernel.knn.pred),
@@ -2532,11 +2550,10 @@ shinyServer(function(input, output, session) {
                      rf  = rf.modelo.np(variable.pr = input$sel.predic.var.nuevos,
                                         ntree = input$ntree.rf.pred,
                                         mtry = input$mtry.rf.pred),
-                     ada = boosting.modelo.np(variable.pr = input$sel.predic.var.nuevos,
+                     boosting = boosting.modelo.np(variable.pr = input$sel.predic.var.nuevos,
                                               iter = input$iter.boosting.pred,
-                                              maxdepth = input$maxdepth.boosting.pred,
                                               type = input$tipo.boosting.pred,
-                                              minsplit = input$minsplit.boosting.pred),
+                                              minsplit = input$shrinkage.boosting.pred),
                      svm = svm.modelo.np(scale = input$switch.scale.svm.pred,
                                          kernel = input$kernel.svm.pred),
                      nn = nn.modelo.np(variable.pr=input$sel.predic.var.nuevos,
@@ -2592,9 +2609,7 @@ shinyServer(function(input, output, session) {
       code.trans.pn <<- gsub("datos.originales.completos", "datos.prueba.completos", code.trans.pn)
       code.trans.pn <<- gsub("datos.aprendizaje.completos", "datos.prueba.completos", code.trans.pn)
       exe(code.trans.pn)
-      # unificar.factores()
       actualizar.tabla.pn("contentsPred3")
-      # predecir.pn()
     },
     error = function(e) {
       showNotification(paste0("Error: ", e), duration = 10, type = "error")

@@ -439,8 +439,8 @@ rl.modelo <- function(variable.pr = NULL){
   return(paste0("modelo.rl <<- lm(",variable.pr,"~., data = datos.aprendizaje)"))
 }
 
-rl.modelo.np <- function(variable.pr = NULL){
-  return(paste0("modelo.nuevos <<- lm(",variable.pr,"~., data = datos.aprendizaje.completos)"))
+rl.modelo.np <- function(){
+  return(paste0("modelo.nuevos <<- lm(",variable.predecir.pn,"~., data = datos.aprendizaje.completos)"))
 }
 
 #Codigo de la prediccion de rl
@@ -470,11 +470,12 @@ rlr.modelo <- function(variable.pr = NULL, alpha = 0, escalar = TRUE){
                 "modelo.rlr.",rlr.type()," <<- glmnet(x, y, standardize = ",escalar,", alpha = ",alpha,")"))
 }
 
-rlr.modelo.np <- function(variable.pr = NULL, alpha = 0, escalar = TRUE){
-  return(paste0("x <- model.matrix('",variable.pr,"'~., datos.aprendizaje.completos)[, -1]\n",
-                "y <- datos.aprendizaje.completos[, '",variable.pr,"']\n",
-                "modelo.nuevos <<- glmnet(",variable.pr,"~., data = datos.aprendizaje.completos,",
-                "standardize = ",escalar,", alpha = ",alpha,")"))
+rlr.modelo.np <- function(alpha = 0, escalar = TRUE, manual = FALSE, landa = 2){
+  landa <- ifelse(manual,"",paste0("cv.glm.nuevos <<- cv.glmnet(x, y, standardize = ",escalar,", alpha = ",alpha,")\n"))
+  return(paste0("x <- model.matrix(",variable.predecir.pn,"~., datos.aprendizaje.completos)[, -1]\n",
+                "y <- datos.aprendizaje.completos[, '",variable.predecir.pn,"']\n",
+                landa,
+                "modelo.nuevos <<- glmnet(x, y,standardize = ",escalar,", alpha = ",alpha,")"))
 }
 
 select.landa <- function(variable.pr = NULL, alpha = 0, escalar = TRUE){
@@ -504,11 +505,13 @@ rlr.prediccion <- function(variable.pr = NULL,landa = NULL) {
          "s = ",landa,", exact = TRUE, x = x, y = y)")
 }
 
-rlr.prediccion.np <- function(landa = NULL) {
-  landa <- ifelse(is.null(landa),paste0("cv.glm.",rlr.type(),"$lambda.min"), landa)
-  paste0("x <- model.matrix(",variable.pr,"~., datos.prueba.completos)[, -1]\n",
-         "y <- datos.prueba.completos[, '",variable.pr,"']\n",
-         "prueba <- model.matrix(",variable.pr,"~., datos.prueba.completos)[, -1]\n",
+rlr.prediccion.np <- function(alpha = 0, escalar = TRUE, manual = FALSE, landa = 2) {
+  landa <- ifelse(manual, landa, "cv.glm.nuevos$lambda.min")
+  paste0("x <- model.matrix(",variable.predecir.pn,"~., datos.aprendizaje.completos)[, -1]\n",
+         "y <- datos.aprendizaje.completos[, '",variable.predecir.pn,"']\n",
+         "dp <- datos.prueba.completos\n",
+         "dp[, 'medv'] <- 0\n",
+         "prueba <- model.matrix(",variable.predecir.pn,"~., dp)[, -1]\n",
          "predic.nuevos <<- predict(modelo.nuevos, newx = prueba,",
          "s = ",landa,", exact = TRUE, x = x, y = y)")
 }
@@ -740,7 +743,7 @@ nn.modelo.np <- function(variable.pr = "",threshold = 0.01, stepmax = 1000, cant
          "datos.dummies.apren <- as.data.frame(scale(datos.dummies.apren, center = mean.nn.np, scale = sd.nn.np))\n",
          "nombres <- colnames(datos.dummies.apren)\n",
          "formula.nn <- as.formula(paste('",variable.pr,"~', paste0(nombres[!nombres %in% '",variable.pr,"'], collapse = '+')))\n",
-         "modelo.nn <<- neuralnet(formula.nn, data = datos.dummies.apren, hidden = ",capas,",\n\t\t\tlinear.output = TRUE,",
+         "modelo.nuevos <<- neuralnet(formula.nn, data = datos.dummies.apren, hidden = ",capas,",\n\t\t\tlinear.output = TRUE,",
          "threshold = ",threshold,", stepmax = ",stepmax,")\n")
 }
 

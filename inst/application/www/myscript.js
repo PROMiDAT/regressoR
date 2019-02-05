@@ -2,6 +2,9 @@ var promidat_flat_models = {knn: true, dt: true, rf: true,
                             boosting: true, svm: true, rl: true, 
                             nn: true, rlr: true};
 
+nya_btn = true;
+nya_btn_fun = (e) => nya_btn = nya_btn?($("#distribucion_numerica").click(),false):true;
+
 function promidat_model_firt(e, model, id){
   if(promidat_flat_models[model]){
     promidat_flat_models[model] = false;
@@ -23,6 +26,7 @@ function promidat_model_firt(e, model, id){
   $("a[href^='#shiny-tab-rl']").on('click', (e) => promidat_model_firt(e,"rl","runRl"));
   $("a[href^='#shiny-tab-rlr']").on('click', (e) => promidat_model_firt(e,"rlr","runRlr"));
   $("a[data-value='predicModelo']").on('click',(e) => $("#predecirPromidat").click())
+  $($($($("#tabDyA").next().children()[2]).children()[4]).children()[2]).on('click', nya_btn_fun)
   $("#segmentButton").on('click',function(e){
     promidat_flat_models = {knn: true, dt: true, rf: true, boosting: true, svm: true, rl: true, nn: true, rlr: true};
   });
