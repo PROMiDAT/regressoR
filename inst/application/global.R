@@ -47,7 +47,7 @@ maximo <- function(n){
 new.gauge <- function(id, val, lab){
   return(paste0("output$",id," <- renderGauge({
                 gauge(round(",val,",2),
-                min = 0, max = ",maximo(val),",
+                min = 0, max = 1,
                 label = '",lab,"',
                 gaugeSectors(success = c(0,",maximo(val),")))})"))
 }
