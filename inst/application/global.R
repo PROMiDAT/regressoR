@@ -44,20 +44,22 @@ maximo <- function(n){
 }
 
 #Genera un gauge
-new.gauge <- function(id, val, lab){
+new.gauge <- function(id, val, lab, decor){
   return(paste0("output$",id," <- renderGauge({
-                gauge(round(",val,",2),
+                gauge(round(",val,",4),
                 min = 0, max = 1,
                 label = '",lab,"',
+                symbol = '",decor,"',
                 gaugeSectors(success = c(0,",maximo(val),")))})"))
 }
 
 # Genera los gauges
 fill.gauges <- function(ids, indices) {
   titulos <- c(tr("RMSE"), tr("MAE"), tr("ER"), tr("correlacion"),
-               tr("minimo"),tr("maximo"),tr("q1"),tr("q3"))
+               tr("R2"), tr("minimo"),tr("maximo"),tr("q1"),tr("q3"))
+  decor <- c("","","","","","","","","")
   for (i in 1:length(ids)) {
-    exe(new.gauge(ids[i], indices[[i]], titulos[i]))
+    exe(new.gauge(ids[i], indices[[i]], titulos[i], decor[i]))
   }
 }
 
@@ -65,14 +67,16 @@ fill.gauges <- function(ids, indices) {
 # Funciones para medir precisión
 indices.generales <- function(real, prediccion) {
   RMSE <- sqrt(sum((real - prediccion) ^ 2) / length(prediccion))
-  MAE <- sum(abs(real - prediccion)) / length(prediccion)
-  RE <-sum(abs(real - prediccion)) / sum(abs(real))
-  COR <- as.numeric(cor(real, prediccion))
-  COR <- ifelse(is.na(COR), 0 , COR)
+  MAE  <- sum(abs(real - prediccion)) / length(prediccion)
+  RE   <- sum(abs(real - prediccion)) / sum(abs(real))
+  COR  <- as.numeric(cor(real, prediccion))
+  COR  <- ifelse(is.na(COR), 0 , COR)
+  R2   <- sum((prediccion - real)**2)/sum((real - mean(real))**2)
   return(list(Raiz.Error.Cuadratico = RMSE,
               Error.Absoluto = MAE,
               Error.Relativo = RE,
-              Correlacion = COR))
+              Correlacion = COR,
+              R.Cuadrado = R2))
 }
 
 completar.indices <- function(l){
@@ -154,8 +158,13 @@ exe <- function(...){
   eval(parse(text = paste0(...)))
 }
 
-as.string.c <- function(vect){
-  return(paste0("c('",paste0(vect, collapse = "','"),"')"))
+as.string.c <- function(vect, .numeric = FALSE){
+  if(.numeric){
+    return(paste0("c(",paste0(vect, collapse = ","),")"))
+  }
+  else{
+    return(paste0("c('",paste0(vect, collapse = "','"),"')"))
+  }
 }
 
 extract.code <- function(funcion) {
@@ -720,7 +729,7 @@ boosting.disp <- function(type = "gaussian"){
 nn.modelo <- function(threshold = 0.01, stepmax = 1000, cant.cap = 2, ...){
   threshold <- ifelse(threshold == 0, 0.01, threshold)
   stepmax <- ifelse(stepmax < 100, 100, stepmax)
-  capas <- as.string.c(as.numeric(list(...)[1:cant.cap]))
+  capas <- as.string.c(as.numeric(list(...)[1:cant.cap]), .numeric = TRUE)
 
   paste0("datos.dummies.apren <- dummy.data.frame(datos.aprendizaje)\n",
          "mean.nn <<- sapply(datos.dummies.apren, mean)\n",
@@ -735,7 +744,7 @@ nn.modelo <- function(threshold = 0.01, stepmax = 1000, cant.cap = 2, ...){
 nn.modelo.np <- function(variable.pr = "",threshold = 0.01, stepmax = 1000, cant.cap = 2, ...){
   threshold <- ifelse(threshold == 0, 0.01, threshold)
   stepmax <- ifelse(stepmax < 100, 100, stepmax)
-  capas <- as.string.c(as.numeric(list(...)[1:cant.cap]))
+  capas <- as.string.c(as.numeric(list(...)[1:cant.cap]), .numeric = TRUE)
   
   paste0("datos.dummies.apren <- dummy.data.frame(datos.aprendizaje.completos)\n",
          "mean.nn.np <<- sapply(datos.dummies.apren, mean)\n",
@@ -1031,8 +1040,7 @@ predic.nuevos <<- NULL
 env.report <<- new.env()
 env.report$codigo.reporte <- list()
 
-info.sys <- .Platform$OS.type
-if(toupper(info.sys) != "WINDOWS"){
+if(toupper(.Platform$OS.type) != "WINDOWS"){
   enc <<- "utf8"
 }else{
   enc <<- "UTF-8"

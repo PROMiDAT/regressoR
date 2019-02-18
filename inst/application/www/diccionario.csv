@@ -84,10 +84,12 @@ activa;Activa;Active
 aplicar;Aplicar;Apply
 cargarNuev;Cargar Individuos Nuevos;Load New Cases
 resumen;Resumen Numérico;Numeric Summary
+resumenVarPre;Resumen Numérico De La Variable A Predecir;Numerical Summary Of The Variable To Be Predicted
 normalidad;Test de Normalidad;Normality Test
 dispersion;Dispersión;Scatter Plot
 distribuciones;Distribuciones;Distributions
 distribucion;Distribución;Distribution
+R2;R cuadrado;R squared
 correlacion;Correlación;Correlation
 resumenvar;Resumen Numérico por Variable;Numeric Summary by Variable
 selvar;Seleccionar la variable:;Select the variable:

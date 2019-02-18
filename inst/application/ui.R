@@ -2,18 +2,13 @@ library(DT)
 library(gbm)
 library(kknn)
 library(ROCR)
-library(nnet)
 library(shiny)
 library(e1071)
 library(rpart)
-library(psych)
-library(caret)
 library(knitr)
 library(glmnet)
-library(raster)
 library(rattle)
 library(xtable)
-library(dummies)
 library(xgboost)
 library(shinyjs)
 library(ggplot2)
@@ -23,11 +18,9 @@ library(shinyAce)
 library(corrplot)
 library(neuralnet)
 library(rpart.plot)
-library(dendextend)
 library(randomForest)
 library(colourpicker)
 library(shinyWidgets)
-library(scatterplot3d)
 library(flexdashboard)
 library(shinydashboard)
 library(shinydashboardPlus)
@@ -414,12 +407,13 @@ panel.disp.rl <- tabPanel(title = labelInput("dispersion"), value = "tabRlDisp",
 
 panel.indices.generales.rl <- tabPanel(title = labelInput("indices"), value = "tabRlIndex",
                                        br(),
-                                       fluidRow(column(width = 6, gaugeOutput("rlRE", width = "100%")),
-                                                column(width = 6, gaugeOutput("rlCOR", width = "100%"))),
-                                       fluidRow(column(width = 6, gaugeOutput("rlRMSE", width = "100%")),
-                                                column(width = 6, gaugeOutput("rlMAE", width = "100%"))),
+                                       fluidRow(column(width = 6, gaugeOutput("rlCOR", width = "100%")),
+                                                column(width = 6, gaugeOutput("rlR2", width = "100%"))),
+                                       fluidRow(column(width = 4, gaugeOutput("rlRE", width = "100%")),
+                                                column(width = 4, gaugeOutput("rlRMSE", width = "100%")),
+                                                column(width = 4, gaugeOutput("rlMAE", width = "100%"))),
                                        br(),br(),
-                                       fluidRow(column(width = 12, align="center", tags$h3(labelInput("resumen")))),
+                                       fluidRow(column(width = 12, align="center", tags$h3(labelInput("resumenVarPre")))),
                                        fluidRow(class = "fila-resumen", 
                                                 column(width = 3, gaugeOutput("rlMinG", width = "100%")),
                                                 column(width = 3, gaugeOutput("rl1QG", width = "100%")),
@@ -495,12 +489,13 @@ panel.disp.rlr <- tabPanel(title = labelInput("dispersion"), value = "tabRlrDisp
 
 panel.indices.generales.rlr <- tabPanel(title = labelInput("indices"), value = "tabRlrIndex",
                                        br(),
-                                       fluidRow(column(width = 6, gaugeOutput("rlrRE", width = "100%")),
-                                                column(width = 6, gaugeOutput("rlrCOR", width = "100%"))),
-                                       fluidRow(column(width = 6, gaugeOutput("rlrRMSE", width = "100%")),
-                                                column(width = 6, gaugeOutput("rlrMAE", width = "100%"))),
+                                       fluidRow(column(width = 6, gaugeOutput("rlrCOR", width = "100%")),
+                                                column(width = 6, gaugeOutput("rlrR2", width = "100%"))),
+                                       fluidRow(column(width = 4, gaugeOutput("rlrRE", width = "100%")),
+                                                column(width = 4, gaugeOutput("rlrRMSE", width = "100%")),
+                                                column(width = 4, gaugeOutput("rlrMAE", width = "100%"))),
                                        br(),br(),
-                                       fluidRow(column(width = 12, align="center", tags$h3(labelInput("resumen")))),
+                                       fluidRow(column(width = 12, align="center", tags$h3(labelInput("resumenVarPre")))),
                                        fluidRow(class = "fila-resumen", 
                                                 column(width = 3, gaugeOutput("rlrMinG", width = "100%")),
                                                 column(width = 3, gaugeOutput("rlr1QG", width = "100%")),
@@ -558,12 +553,13 @@ panel.disp.knn <- tabPanel(title = labelInput("dispersion"), value = "tabKknDisp
 
 panel.indices.generales.knn <- tabPanel(title = labelInput("indices"), value = "tabKknIndex",
                                         br(),
-                                        fluidRow(column(width = 6, gaugeOutput("knnRE", width = "100%")),
-                                                 column(width = 6, gaugeOutput("knnCOR", width = "100%"))),
-                                        fluidRow(column(width = 6, gaugeOutput("knnRMSE", width = "100%")),
-                                                 column(width = 6, gaugeOutput("knnMAE", width = "100%"))),
+                                        fluidRow(column(width = 6, gaugeOutput("knnCOR", width = "100%")),
+                                                 column(width = 6, gaugeOutput("knnR2", width = "100%"))),
+                                        fluidRow(column(width = 4, gaugeOutput("knnRE", width = "100%")),
+                                                 column(width = 4, gaugeOutput("knnRMSE", width = "100%")),
+                                                 column(width = 4, gaugeOutput("knnMAE", width = "100%"))),
                                         br(),br(),
-                                        fluidRow(column(width = 12, align="center", tags$h3(labelInput("resumen")))),
+                                        fluidRow(column(width = 12, align="center", tags$h3(labelInput("resumenVarPre")))),
                                         fluidRow(class = "fila-resumen", 
                                                  column(width = 3, gaugeOutput("knnMinG", width = "100%")),
                                                  column(width = 3, gaugeOutput("knn1QG", width = "100%")),
@@ -616,12 +612,13 @@ panel.prediccion.svm <- tabPanel(title = labelInput("predm"), value = "tabSvmPre
 
 panel.indices.generales.svm <- tabPanel(title = labelInput("indices"), value = "tabSvmIndex",
                                         br(),
-                                        fluidRow(column(width = 6, gaugeOutput("svmRE", width = "100%")),
-                                                 column(width = 6, gaugeOutput("svmCOR", width = "100%"))),
-                                        fluidRow(column(width = 6, gaugeOutput("svmRMSE", width = "100%")),
-                                                 column(width = 6, gaugeOutput("svmMAE", width = "100%"))),
+                                        fluidRow(column(width = 6, gaugeOutput("svmCOR", width = "100%")),
+                                                 column(width = 6, gaugeOutput("svmR2", width = "100%"))),
+                                        fluidRow(column(width = 4, gaugeOutput("svmRE", width = "100%")),
+                                                 column(width = 4, gaugeOutput("svmRMSE", width = "100%")),
+                                                 column(width = 4, gaugeOutput("svmMAE", width = "100%"))),
                                         br(),br(),
-                                        fluidRow(column(width = 12, align="center", tags$h3(labelInput("resumen")))),
+                                        fluidRow(column(width = 12, align="center", tags$h3(labelInput("resumenVarPre")))),
                                         fluidRow(class = "fila-resumen",
                                                  column(width = 3, gaugeOutput("svmMinG", width = "100%")),
                                                  column(width = 3, gaugeOutput("svm1QG", width = "100%")),
@@ -681,12 +678,13 @@ panel.disp.dt <- tabPanel(title = labelInput("dispersion"), value = "tabDtDisp",
 
 panel.indices.generales.dt <- tabPanel(title = labelInput("indices"),value = "tabDtIndex",
                                        br(),
-                                       fluidRow(column(width = 6, gaugeOutput("dtRE", width = "100%")),
-                                                column(width = 6, gaugeOutput("dtCOR", width = "100%"))),
-                                       fluidRow(column(width = 6, gaugeOutput("dtRMSE", width = "100%")),
-                                                column(width = 6, gaugeOutput("dtMAE", width = "100%"))),
+                                       fluidRow(column(width = 6, gaugeOutput("dtCOR", width = "100%")),
+                                                column(width = 6, gaugeOutput("dtR2", width = "100%"))),
+                                       fluidRow(column(width = 4, gaugeOutput("dtRE", width = "100%")),
+                                                column(width = 4, gaugeOutput("dtRMSE", width = "100%")),
+                                                column(width = 4, gaugeOutput("dtMAE", width = "100%"))),
                                        br(),br(),
-                                       fluidRow(column(width = 12, align="center", tags$h3(labelInput("resumen")))),
+                                       fluidRow(column(width = 12, align="center", tags$h3(labelInput("resumenVarPre")))),
                                        fluidRow(class = "fila-resumen", 
                                                 column(width = 3, gaugeOutput("dtMinG", width = "100%")),
                                                 column(width = 3, gaugeOutput("dt1QG", width = "100%")),
@@ -754,12 +752,13 @@ panel.disp.rf <- tabPanel(title = labelInput("dispersion"), value = "tabRfDisp",
 
 panel.indices.generales.rf <- tabPanel(title = labelInput("indices"), value = "tabRfIndex",
                                        br(),
-                                       fluidRow(column(width = 6, gaugeOutput("rfRE", width = "100%")),
-                                                column(width = 6, gaugeOutput("rfCOR", width = "100%"))),
-                                       fluidRow(column(width = 6, gaugeOutput("rfRMSE", width = "100%")),
-                                                column(width = 6, gaugeOutput("rfMAE", width = "100%"))),
+                                       fluidRow(column(width = 6, gaugeOutput("rfCOR", width = "100%")),
+                                                column(width = 6, gaugeOutput("rfR2", width = "100%"))),
+                                       fluidRow(column(width = 4, gaugeOutput("rfRE", width = "100%")),
+                                                column(width = 4, gaugeOutput("rfRMSE", width = "100%")),
+                                                column(width = 4, gaugeOutput("rfMAE", width = "100%"))),
                                        br(),br(),
-                                       fluidRow(column(width = 12, align="center", tags$h3(labelInput("resumen")))),
+                                       fluidRow(column(width = 12, align="center", tags$h3(labelInput("resumenVarPre")))),
                                        fluidRow(class = "fila-resumen",
                                                 column(width = 3, gaugeOutput("rfMinG", width = "100%")),
                                                 column(width = 3, gaugeOutput("rf1QG", width = "100%")),
@@ -824,12 +823,13 @@ panel.disp.boosting <- tabPanel(title = labelInput("dispersion"), value = "tabBD
 
 panel.indices.generales.boosting <- tabPanel(title = labelInput("indices"),value = "tabBIndex",
                                              br(),
-                                             fluidRow(column(width = 6, gaugeOutput("bRE", width = "100%")),
-                                                      column(width = 6, gaugeOutput("bCOR", width = "100%"))),
-                                             fluidRow(column(width = 6, gaugeOutput("bRMSE", width = "100%")),
-                                                      column(width = 6, gaugeOutput("bMAE", width = "100%"))),
+                                             fluidRow(column(width = 6, gaugeOutput("bCOR", width = "100%")),
+                                                      column(width = 6, gaugeOutput("bR2", width = "100%"))),
+                                             fluidRow(column(width = 4, gaugeOutput("bRE", width = "100%")),
+                                                      column(width = 4, gaugeOutput("bRMSE", width = "100%")),
+                                                      column(width = 4, gaugeOutput("bMAE", width = "100%"))),
                                              br(),br(),
-                                             fluidRow(column(width = 12, align="center", tags$h3(labelInput("resumen")))),
+                                             fluidRow(column(width = 12, align="center", tags$h3(labelInput("resumenVarPre")))),
                                              fluidRow(class = "fila-resumen",
                                                       column(width = 3, gaugeOutput("bMinG", width = "100%")),
                                                       column(width = 3, gaugeOutput("b1QG", width = "100%")),
@@ -895,12 +895,13 @@ panel.disp.nn <- tabPanel(title = labelInput("dispersion"), value = "tabNnDisp",
 
 panel.indices.generales.nn <- tabPanel(title = labelInput("indices"), value = "tabNnIndex",
                                        br(),
-                                       fluidRow(column(width = 6, gaugeOutput("nnRE", width = "100%", height = "50%")),
-                                                column(width = 6, gaugeOutput("nnCOR", width = "100%"))),
-                                       fluidRow(column(width = 6, gaugeOutput("nnRMSE", width = "100%")),
-                                                column(width = 6, gaugeOutput("nnMAE", width = "100%"))),
+                                       fluidRow(column(width = 6, gaugeOutput("nnCOR", width = "100%")),
+                                                column(width = 6, gaugeOutput("nnR2", width = "100%"))),
+                                       fluidRow(column(width = 4, gaugeOutput("nnRE", width = "100%", height = "50%")),
+                                                column(width = 4, gaugeOutput("nnRMSE", width = "100%")),
+                                                column(width = 4, gaugeOutput("nnMAE", width = "100%"))),
                                        br(),br(),
-                                       fluidRow(column(width = 12, align="center", tags$h3(labelInput("resumen")))),
+                                       fluidRow(column(width = 12, align="center", tags$h3(labelInput("resumenVarPre")))),
                                        fluidRow(class = "fila-resumen",
                                                 column(width = 3, gaugeOutput("nnMinG", width = "100%")),
                                                 column(width = 3, gaugeOutput("nn1QG", width = "100%")),
