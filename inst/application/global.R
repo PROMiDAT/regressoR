@@ -495,7 +495,9 @@ select.landa <- function(variable.pr = NULL, alpha = 0, escalar = TRUE){
 
 coeff.landas <- function(landa = NULL){
   landa <- ifelse(is.null(landa),paste0("cv.glm.",rlr.type(),"$lambda.min"), landa)
-  paste0("predict(modelo.rlr.",rlr.type(),", s = ",landa,", type = 'coefficients')")
+  paste0("x <- model.matrix(",variable.predecir,"~., datos.aprendizaje)[, -1]\n",
+         "y <- datos.aprendizaje[, '",variable.predecir,"']\n",
+         "predict(modelo.rlr.",rlr.type(),", s = ",landa,", type = 'coefficients', exact = TRUE, x = x, y = y)")
 }
 
 plot.coeff.landa <- function(landa = NULL){
@@ -505,11 +507,11 @@ plot.coeff.landa <- function(landa = NULL){
 }
 
 #Codigo de la prediccion de rlr
-rlr.prediccion <- function(variable.pr = NULL,landa = NULL) {
+rlr.prediccion <- function(landa = NULL) {
   landa <- ifelse(is.null(landa),paste0("cv.glm.",rlr.type(),"$lambda.min"), landa)
-  paste0("x <- model.matrix(",variable.pr,"~., datos.aprendizaje)[, -1]\n",
-         "y <- datos.aprendizaje[, '",variable.pr,"']\n",
-         "prueba <- model.matrix(",variable.pr,"~., datos.prueba)[, -1]\n",
+  paste0("x <- model.matrix(",variable.predecir,"~., datos.aprendizaje)[, -1]\n",
+         "y <- datos.aprendizaje[, '",variable.predecir,"']\n",
+         "prueba <- model.matrix(",variable.predecir,"~., datos.prueba)[, -1]\n",
          "prediccion.rlr.",rlr.type()," <<- predict(modelo.rlr.",rlr.type(),",newx = prueba,",
          "s = ",landa,", exact = TRUE, x = x, y = y)")
 }
@@ -519,7 +521,7 @@ rlr.prediccion.np <- function(alpha = 0, escalar = TRUE, manual = FALSE, landa =
   paste0("x <- model.matrix(",variable.predecir.pn,"~., datos.aprendizaje.completos)[, -1]\n",
          "y <- datos.aprendizaje.completos[, '",variable.predecir.pn,"']\n",
          "dp <- datos.prueba.completos\n",
-         "dp[, 'medv'] <- 0\n",
+         "dp[, '",variable.predecir.pn,"'] <- 0\n",
          "prueba <- model.matrix(",variable.predecir.pn,"~., dp)[, -1]\n",
          "predic.nuevos <<- predict(modelo.nuevos, newx = prueba,",
          "s = ",landa,", exact = TRUE, x = x, y = y)")
@@ -839,7 +841,7 @@ ordenar.reporte <- function(lista){
              "modelo.nn", "modelo.nn.graf", "pred.nn", "mc.nn", "ind.nn",
              combinar.nombres(c("modelo.xgb", "modelo.xgb.graf", "pred.xgb", "mc.xgb", "ind.xgb"),
                               c("gbtree", "gblinear", "dart")),
-             "tabla.comparativa", "roc")
+             "tabla.comparativa")
 
   orden <- c(orden, nombres[!(nombres %in% orden)])
   lista <- lista[orden]
@@ -872,7 +874,7 @@ def.reporte <- function(titulo = "Sin Titulo", nombre = "PROMiDAT", entradas) {
     "library(caret)\nlibrary(kknn)\nlibrary(e1071)\nlibrary(rpart)\n",
     "library(rpart.plot)\nlibrary(randomForest)\nlibrary(ada)\nlibrary(xgboost)\n",
     "library(nnet)\nlibrary(dplyr)\nlibrary(forcats)\nlibrary(psych)\n",
-    "library(ROCR)\nlibrary(xtable)\nlibrary(raster)\n",
+    "library(xtable)\nlibrary(raster)\n",
     "```\n\n", "```{r}\n", extract.code("var.numericas"), "\n\n",
     extract.code("var.categoricas"), "\n\n", extract.code("datos.disyuntivos"),
     "\n\n", extract.code("distribucion.numerico"), "\n\n",
