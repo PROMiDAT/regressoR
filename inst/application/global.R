@@ -102,7 +102,6 @@ disp.modelos <- function(prediccion, modelo){
 #Convierte una tabla de prediccion html a data.frame
 dt.to.data.frame.predict <- function(datos){
   datos <- datos$x$data
-  datos[,3] <- ifelse(datos[,1] == datos[,2], rep("Acertó",nrow(datos)), rep("Falló",nrow(datos)))
   return(datos)
 }
 
@@ -813,34 +812,22 @@ ordenar.reporte <- function(lista){
              "correlacion","poder.pred",
              nombres[grepl("poder.cat.", nombres)],
              "poder.num",nombres[grepl("poder.den.", nombres)],
-             combinar.nombres(c("modelo.knn","pred.knn","mc.knn","ind.knn"),
+             "modelo.rl","pred.rl","disp.rl","ind.rl",
+             combinar.nombres(c("modelo.rlr","posib.landa.rlr","coeff.landa.rlr","gcoeff.landa.rlr","pred.rlr","disp.rlr","ind.rlr"),
+                              c("ridge", "lasso")),
+             combinar.nombres(c("modelo.knn","pred.knn","disp.knn","ind.knn"),
                               c("optimal", "rectangular", "triangular","epanechnikov",
                                 "biweight","triweight", "cos","inv","gaussian")),
-             "modelo.svm.linear",
-             nombres[grepl("svm.plot.linear", nombres)],
-             "pred.svm.linear","mc.svm.linear","ind.svm.linear",
-             "modelo.svm.polynomial",
-             nombres[grepl("svm.plot.polynomial", nombres)],
-             "pred.svm.polynomial","mc.svm.polynomial","ind.svm.polynomial",
-             "modelo.svm.radial",
-             nombres[grepl("svm.plot.radial", nombres)],
-             "pred.svm.radial","mc.svm.radial","ind.svm.radial",
-             "modelo.svm.sigmoid",
-             nombres[grepl("svm.plot.sigmoid", nombres)],
-             "pred.svm.sigmoid","mc.svm.sigmoid","ind.svm.sigmoid",
-             "modelo.dt.gini","modelo.dt.graf.gini","pred.dt.gini",
-             "mc.dt.gini","ind.dt.gini","modelo.dt.rules.gini",
-             "modelo.dt.information","modelo.dt.graf.information","pred.dt.information",
-             "mc.dt.information","ind.dt.information","modelo.dt.rules.information",
-             "modelo.rf","modelo.rf.error.","modelo.rf.graf",
-             "pred.rf","mc.rf","ind.rf",
+             combinar.nombres(c("modelo.svm","pred.svm","disp.svm","ind.svm"),
+                              c("linear", "polynomial", "radial","sigmoid")),
+             "modelo.dt","modelo.dt.graf","pred.dt",
+             "disp.dt","ind.dt","modelo.dt.rules",
+             "modelo.rf","modelo.rf.graf","disp.rf",
+             "pred.rf","ind.rf",
              nombres[grepl("modelo.rf.rules.", nombres)],
-             combinar.nombres(c("modelo.b","modelo.b.error","modelo.b.imp","pred.b","mc.b","ind.b"),
-                              c("discrete", "real", "gentle")),
-             "modelo.bayes", "pred.bayes", "mc.bayes", "ind.bayes",
-             "modelo.nn", "modelo.nn.graf", "pred.nn", "mc.nn", "ind.nn",
-             combinar.nombres(c("modelo.xgb", "modelo.xgb.graf", "pred.xgb", "mc.xgb", "ind.xgb"),
-                              c("gbtree", "gblinear", "dart")),
+             combinar.nombres(c("modelo.b","modelo.b.imp","pred.b","disp.boosting","ind.b"),
+                              c("gaussian", "laplace", "tdist")),
+             "modelo.nn", "modelo.nn.graf", "pred.nn", "disp.nn", "ind.nn",
              "tabla.comparativa")
 
   orden <- c(orden, nombres[!(nombres %in% orden)])
@@ -868,19 +855,20 @@ def.reporte <- function(titulo = "Sin Titulo", nombre = "PROMiDAT", entradas) {
     "knitr::opts_chunk$set(echo = FALSE,  fig.height = 10, fig.width = 15)\n",
     "```\n\n",
     "```{r message=FALSE, warning=FALSE}\n",
-    "library(promises)\nlibrary(ggplot2)\n",
-    "library(corrplot)\nlibrary(dendextend)\nlibrary(scatterplot3d)\n",
-    "library(stringr)\n",
+    "library(promises)\nlibrary(ggplot2)\nlibrary(neuralnet)\n",
+    "library(corrplot)\n\nlibrary(scatterplot3d)\nlibrary(rattle)\n",
+    "library(stringr)\nlibrary(gbm)\nlibrary(DT)\nlibrary(glmnet)\n",
     "library(caret)\nlibrary(kknn)\nlibrary(e1071)\nlibrary(rpart)\n",
     "library(rpart.plot)\nlibrary(randomForest)\nlibrary(ada)\nlibrary(xgboost)\n",
-    "library(nnet)\nlibrary(dplyr)\nlibrary(forcats)\nlibrary(psych)\n",
-    "library(xtable)\nlibrary(raster)\n",
+    "library(dplyr)\nlibrary(forcats)\n",
+    "library(xtable)\n",
     "```\n\n", "```{r}\n", extract.code("var.numericas"), "\n\n",
     extract.code("var.categoricas"), "\n\n", extract.code("datos.disyuntivos"),
     "\n\n", extract.code("distribucion.numerico"), "\n\n",
     extract.code("distribucion.categorico"), "\n\n```",
     codigo.usuario)
 }
+
 
 recover.cat <- function(){
   unlockBinding("cat", .BaseNamespaceEnv)
