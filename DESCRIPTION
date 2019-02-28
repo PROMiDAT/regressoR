@@ -26,7 +26,6 @@ Imports:
     ROCR (>= 1.0-7),
     glmnet (>= 2.0-16),
     gbm (>= 2.1.5)
-Suggests: shiny
 Description: Perform regression-based predictive analysis on a database through a graphical interface.
 License: GPL (>=2)
 Encoding: UTF-8
