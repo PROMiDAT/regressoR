@@ -5,7 +5,8 @@ Version: 1.0.0
 Author: Oldemar Rodriguez R. with contributions from Diego Jimenez A. and Andres Navarro D.
 Maintainer:  Oldemar Rodriguez <oldemar.rodriguez@ucr.ac.cr>
 Depends: R (>= 3.4.3)
-Imports: 
+Imports:
+    shiny (>= 1.2.0)
     shinyAce (>= 0.3.3),
     shinydashboardPlus (>= 0.6.0),
     shinyWidgets (>= 0.4.4),
