@@ -1,1 +1,2 @@
 export(init_regresor)
+importFrom("utils", "installed.packages", "packageDescription")
