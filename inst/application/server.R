@@ -59,11 +59,11 @@ shinyServer(function(input, output, session) {
 
   # Crea la tabla de comparacion entre prediccion y datos reales (datos de prueba)
   obj.predic <- function(predic.var = NULL){
-    real <- datos.prueba[, variable.predecir]
+    real <- datos.prueba[, variable.predecir, drop = F]
     df <- cbind(real, predic.var,  abs(real - predic.var))
     colns <- c(tr("reald"), tr("pred"), tr("dif"))
     colnames(df) <- colns
-    sketch <- htmltools::withTags(table(tableHeader(colns)))
+    sketch <- htmltools::withTags(table(tableHeader(c("ID",colns))))
     return(DT::datatable(df,
                          selection = "none",
                          editable = FALSE,
@@ -727,9 +727,14 @@ shinyServer(function(input, output, session) {
         cod.poder.num <<- updatePlot$poder.num
         updateAceEditor(session, "fieldCodePoderNum", value = cod.poder.num)
         if (ncol(var.numericas(datos)) >= 2) {
-          res <- isolate(exe(cod.poder.num))
-          insert.report("poder.num",paste0("## Poder Predictivo Variables Numéricas \n```{r}\n", cod.poder.num, "\n```"))
-          return(res)
+          if(ncol(var.numericas(datos)) <= 25){
+            res <- isolate(exe(cod.poder.num))
+            insert.report("poder.num",paste0("## Poder Predictivo Variables Numéricas \n```{r}\n", cod.poder.num, "\n```"))
+            return(res)
+          }else{
+            showNotification(tr("bigPlot"), duration = 10, type = "message")
+            return(NULL)
+          }
         }else{
           error.variables( T)
         }
@@ -2017,9 +2022,16 @@ shinyServer(function(input, output, session) {
   # Plotear el arbol
   plotear.red <- function(){
     tryCatch({
-      output$plot.nn <- renderPlot(isolate(exe(input$fieldCodeNnPlot)))
-      cod <- ifelse(input$fieldCodeNnPlot == "", nn.plot(), input$fieldCodeNnPlot)
-      insert.report("modelo.nn.graf", paste0("\n```{r}\n", cod, "\n```"))
+      capas <- c(input$nn.cap.1,input$nn.cap.2,input$nn.cap.3,input$nn.cap.4,
+                 input$nn.cap.5,input$nn.cap.6,input$nn.cap.7,input$nn.cap.8,input$nn.cap.9,input$nn.cap.10)
+      capas <- capas[1:input$cant.capas.nn]
+      if(input$cant.capas.nn * sum(capas) <= 1500 & ncol(modelo.nn$covariate) <= 20){
+        output$plot.nn <- renderPlot(isolate(exe(input$fieldCodeNnPlot)))
+        cod <- ifelse(input$fieldCodeNnPlot == "", nn.plot(), input$fieldCodeNnPlot)
+        insert.report("modelo.nn.graf", paste0("\n```{r}\n", cod, "\n```"))
+      }else{
+        showNotification(tr("bigPlot"), duration = 10, type = "message")
+      }
     },
     error = function(e){
       output$plot.nn <- renderPlot(NULL)

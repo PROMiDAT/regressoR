@@ -5,6 +5,18 @@
   padding-bottom:6px;
 }
 
+.bootstrap-switch .bootstrap-switch-handle-off.bootstrap-switch-success, 
+.bootstrap-switch .bootstrap-switch-handle-on.bootstrap-switch-success {
+    color: #fff;
+    background: #3260f3 !important;
+}
+
+.bootstrap-switch .bootstrap-switch-handle-off.bootstrap-switch-danger, 
+.bootstrap-switch .bootstrap-switch-handle-on.bootstrap-switch-danger {
+    color: #fff;
+    background: #969696 !important;
+}
+
 /* Espacio entre el header y el menu */
 #espacioMenu{
   padding-top:10px;
