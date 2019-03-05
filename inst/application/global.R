@@ -33,15 +33,15 @@ var.categoricas <- function(data){
   return(res)
 }
 
-maximo <- function(n){
-  contador <- 0
-  n <- n %/% 1
-  while(n != 0){
-    contador <- 1 + contador
-    n <- n%/%10
-  }
-  return(10 ** contador)
-}
+# maximo <- function(n){
+#   contador <- 0
+#   n <- n %/% 1
+#   while(n != 0){
+#     contador <- 1 + contador
+#     n <- n%/%10
+#   }
+#   return(10 ** contador)
+# }
 
 #Genera un gauge
 new.gauge <- function(id, val, lab, decor){
@@ -50,7 +50,7 @@ new.gauge <- function(id, val, lab, decor){
                 min = 0, max = 1,
                 label = '",lab,"',
                 symbol = '",decor,"',
-                gaugeSectors(success = c(0,",maximo(val),")))})"))
+                gaugeSectors(success = c(0,1)))})"))
 }
 
 # Genera los gauges
