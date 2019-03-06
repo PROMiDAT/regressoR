@@ -71,7 +71,7 @@ indices.generales <- function(real, prediccion) {
   RE   <- sum(abs(real - prediccion)) / sum(abs(real))
   COR  <- as.numeric(cor(real, prediccion))
   COR  <- ifelse(is.na(COR), 0 , COR)
-  R2   <- sum((prediccion - real)**2)/sum((real - mean(real))**2)
+  R2   <- sum((prediccion - mean(real))**2)/sum((real - mean(real))**2)
   return(list(Raiz.Error.Cuadratico = RMSE,
               Error.Absoluto = MAE,
               Error.Relativo = RE,
@@ -90,9 +90,10 @@ completar.indices <- function(l){
 # Gráfico de dispersión entre el valor real de la variable a predecir y la predicción del modelo.
 plot.real.prediccion <- function(real, prediccion, modelo = "") {
   ggplot(data = data.frame(Real = real, Prediccion = as.numeric(prediccion)), mapping = aes(x = Real, y = Prediccion)) +
-    geom_point(size = 1.2, col = alpha("dodgerblue3", 0.5)) +
+    geom_point(size = 2, col = "red") +
     labs(title = paste0("Real vs Predicción", ifelse(modelo == "", "", paste(", con", modelo))), 
-         x = "Real", y = "Predicción") + theme_minimal()
+         x = "Real", y = "Predicción") + theme_minimal() +
+    theme(panel.background = element_blank(), axis.line = element_line(colour = "black"))
 }
 
 disp.modelos <- function(prediccion, modelo){
@@ -462,7 +463,7 @@ rl.prediccion.np <- function() {
 
 #Codigo de la dispersion de knn
 rl.disp <- function(){
-  return(disp.modelos("prediccion.rl", modelo = "RL"))
+  return(disp.modelos("prediccion.rl", modelo = tr("rll")))
 }
 
 # Pagina de RLR -------------------------------------------------------------------------------------------------------------
@@ -528,7 +529,7 @@ rlr.prediccion.np <- function(alpha = 0, escalar = TRUE, manual = FALSE, landa =
 
 #Codigo de la dispersion de knn
 rlr.disp <- function(){
-  return(disp.modelos(paste0("prediccion.rlr.",rlr.type()), modelo = "R/L"))
+  return(disp.modelos(paste0("prediccion.rlr.",rlr.type()), modelo = tr("rlr")))
 }
 
 # Pagina de KNN -------------------------------------------------------------------------------------------------------------
@@ -555,7 +556,7 @@ kkn.prediccion.pn <- function() {
 
 #Codigo de la dispersion de knn
 knn.disp <- function(kernel = "optimal"){
-  return(disp.modelos(paste0("prediccion.knn.",kernel), modelo = "KNN"))
+  return(disp.modelos(paste0("prediccion.knn.",kernel), modelo = tr("knnl")))
 }
 
 # Pagina de SVM -------------------------------------------------------------------------------------------------------------
@@ -580,7 +581,7 @@ svm.prediccion.np <- function() {
 
 #Codigo de la dispersion de knn
 svm.disp <- function(kernel = "linear"){
-  return(disp.modelos(paste0("prediccion.svm.",kernel), modelo = "SVM"))
+  return(disp.modelos(paste0("prediccion.svm.",kernel), modelo = tr("svml")))
 }
 
 # Pagina de DT --------------------------------------------------------------------------------------------------------------
@@ -620,7 +621,7 @@ fallen.leaves = TRUE, branch.lty = 6, shadow.col = '#dedede',box.col = '#c8b028'
 
 #Codigo de la dispersion de knn
 dt.disp <- function(){
-  return(disp.modelos("prediccion.dt", modelo = "DT"))
+  return(disp.modelos("prediccion.dt", modelo = tr("dtl")))
 }
 
 # Pagina de RF --------------------------------------------------------------------------------------------------------------
@@ -668,7 +669,7 @@ importance.plor.rf <- function(modelo.rf, titulo.1, titulo.2){
 
 #Codigo de la dispersion de knn
 rf.disp <- function(){
-  return(disp.modelos("prediccion.rf", modelo = "RF"))
+  return(disp.modelos("prediccion.rf", modelo = tr("rfl")))
 }
 
 # Pagina de BOOSTING --------------------------------------------------------------------------------------------------------
@@ -721,7 +722,7 @@ boosting.plot.import <- function(type = "gaussian"){
 
 #Codigo de la dispersion de knn
 boosting.disp <- function(type = "gaussian"){
-  return(disp.modelos(paste0("prediccion.boosting.",type), modelo = "BOOSTING"))
+  return(disp.modelos(paste0("prediccion.boosting.",type), modelo = tr("bl")))
 }
 
 # Pagina de NN ------------------------------------------------------------------------------------------------------------
@@ -778,7 +779,7 @@ nn.prediccion.np <- function(){
 
 #Codigo de la dispersion de nn
 nn.disp <- function(){
-  return(disp.modelos("prediccion.nn", modelo = "NN"))
+  return(disp.modelos("prediccion.nn", modelo = tr("nn")))
 }
 
 nn.plot <- function(){

@@ -1,29 +1,33 @@
-library(DT)
-library(gbm)
-library(kknn)
-library(shiny)
-library(e1071)
-library(rpart)
-library(knitr)
-library(glmnet)
-library(rattle)
-library(xtable)
-library(xgboost)
-library(shinyjs)
-library(ggplot2)
-library(stringr)
-library(forcats)
-library(shinyAce)
-library(corrplot)
-library(neuralnet)
-library(rpart.plot)
-library(randomForest)
-library(colourpicker)
-library(shinyWidgets)
-library(flexdashboard)
-library(shinydashboard)
-library(shinydashboardPlus)
-library(dplyr)
+
+suppressMessages(suppressWarnings({
+  library(DT)
+  library(gbm)
+  library(kknn)
+  library(shiny)
+  library(e1071)
+  library(rpart)
+  library(knitr)
+  library(glmnet)
+  library(rattle)
+  library(xtable)
+  library(xgboost)
+  library(shinyjs)
+  library(ggplot2)
+  library(stringr)
+  library(forcats)
+  library(shinyAce)
+  library(corrplot)
+  library(neuralnet)
+  library(rpart.plot)
+  library(randomForest)
+  library(colourpicker)
+  library(shinyWidgets)
+  library(flexdashboard)
+  library(shinydashboard)
+  library(shinydashboardPlus)
+  library(dplyr)
+}))
+
 
 # FUNCIONES --------------------------------------------------------------------------------------------------------------
 
@@ -637,7 +641,7 @@ pagina.svm <- tabItem(tabName = "svm",
 opciones.dt <- list(fluidRow(column(width = 9, h4(labelInput("opciones"))),
                               column(width = 2, br(),actionButton("runDt", label = labelInput("ejecutar"), icon = icon("play")))),
                      hr(),
-                     fluidRow(column(numericInput("minsplit.dt", labelInput("minsplit"), 20, width = "100%",min = 1), width = 6),
+                     fluidRow(column(numericInput("minsplit.dt", labelInput("minsplit"), 2, width = "100%",min = 1), width = 6),
                               column(numericInput("maxdepth.dt", labelInput("maxdepth"), 15, width = "100%",min = 0, max = 30, step = 1),width = 6)))
 
 codigo.dt <- list(h4(labelInput("codigo")), hr(),
@@ -783,7 +787,7 @@ pagina.rf <- tabItem(tabName = "rf",
 opciones.b <- list(fluidRow(column(width = 9,h4(labelInput("opciones"))),
                             column(width = 2,br(),actionButton("runBoosting", label = labelInput("ejecutar"), icon = icon("play")))),
                    hr(),
-                   fluidRow(column(numericInput("iter.boosting", labelInput("numTree"), 500, width = "100%",min = 1), width = 6),
+                   fluidRow(column(numericInput("iter.boosting", labelInput("numTree"), 20, width = "100%",min = 1), width = 6),
                             column(numericInput("shrinkage.boosting", labelInput("shrinkage"), 0.01, width = "100%",min = 0.0001), width=6)),
                    fluidRow(column(selectInput(inputId = "tipo.boosting", label = labelInput("selectAlg"),selected = 1,
                                                choices =  c("gaussian", "laplace", "tdist")), width = 6)))

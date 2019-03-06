@@ -1890,6 +1890,7 @@ shinyServer(function(input, output, session) {
   # Genera el modelo
   ejecutar.boosting <- function() {
     tryCatch({ # Se corren los codigo
+      browser()
       isolate(exe(cod.b.modelo))
       isolate(tipo <- input$tipo.boosting)
       output$txtBoosting <- renderPrint(exe("print(summary(modelo.boosting.",tipo,",plotit = FALSE))"))
@@ -2396,29 +2397,34 @@ shinyServer(function(input, output, session) {
 
   predecir.pn <-function(){
     if(!is.null(datos.prueba.completos)){
-      codigo <- switch(modelo.seleccionado.pn,
-                       rl  =  rl.prediccion.np(),
-                       rlr =  rlr.prediccion.np(alpha = input$alpha.rlr.pred,
-                                                escalar = input$switch.scale.rlr.pred,
-                                                manual = input$permitir.landa.pred,
-                                                landa = input$landa.pred),
-                       knn =  kkn.prediccion.pn(),
-                       dt  = dt.prediccion.np(),
-                       rf  = rf.prediccion.np(),
-                       boosting = boosting.prediccion.np(),
-                       svm = svm.prediccion.np(),
-                       nn = nn.prediccion.np())
-      tryCatch({
-        exe(codigo)
-        actualizar.pred.pn(codigo)
-      },
-      error =  function(e){
-        showNotification(paste0("Error :", e), duration = 10, type = "error")
-      })
+      if(exists("modelo.nuevos") && !is.null(modelo.nuevos)){
+        codigo <- switch(modelo.seleccionado.pn,
+                         rl  =  rl.prediccion.np(),
+                         rlr =  rlr.prediccion.np(alpha = input$alpha.rlr.pred,
+                                                  escalar = input$switch.scale.rlr.pred,
+                                                  manual = input$permitir.landa.pred,
+                                                  landa = input$landa.pred),
+                         knn =  kkn.prediccion.pn(),
+                         dt  = dt.prediccion.np(),
+                         rf  = rf.prediccion.np(),
+                         boosting = boosting.prediccion.np(),
+                         svm = svm.prediccion.np(),
+                         nn = nn.prediccion.np())
+        tryCatch({
+          exe(codigo)
+          actualizar.pred.pn(codigo)
+        },error =  function(e){
+            showNotification(paste0("Error :", e), duration = 10, type = "error")
+        })
+      }else{
+        showNotification(paste0("Error :", tr("ErrorModelo")), duration = 10, type = "error")
+      }
+    }else{
+      showNotification(paste0("Error :", tr("ErrorDatosPN")), duration = 10, type = "error")
     }
   }
 
-  observeEvent(c(input$predecirPromidat), {
+  observeEvent(input$predecirPromidat, {
     predecir.pn()
   })
   

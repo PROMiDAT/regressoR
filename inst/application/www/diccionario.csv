@@ -7,7 +7,7 @@ dataP;Datos de Prueba;Test Sample
 configuraciones;Configuraciones;Settings
 basico;Estadísticas Básicas;Basic Statistics
 poderpred;Poder Predictivo;Predictive Power
-aprendizaje;Apendizaje Supervisado;Supervised Learning
+aprendizaje;Aprendizaje Supervisado;Supervised Learning
 comparacion;Comparación de Modelos;Model Comparison
 predicnuevos;Predicción Individuos Nuevos;Predict New Cases
 pred;Predicción;Prediction
@@ -84,7 +84,7 @@ activa;Activa;Active
 aplicar;Aplicar;Apply
 cargarNuev;Cargar Individuos Nuevos;Load New Cases
 resumen;Resumen Numérico;Numeric Summary
-resumenVarPre;Resumen Numérico De La Variable A Predecir;Numerical Summary Of The Variable To Be Predicted
+resumenVarPre;Resumen Numérico de la Variable a Predecir;Numerical Summary of the Variable to be Predicted
 normalidad;Test de Normalidad;Normality Test
 dispersion;Dispersión;Scatter Plot
 distribuciones;Distribuciones;Distributions
@@ -247,3 +247,5 @@ gcoeff;Coeficientes y lambda;Coefficients and lambda
 automatico;Automatico;Automatic
 landa;Mejor Lambda:;Better Lambda:
 bigPlot;El gráfico es demasiado grande para desplegarse;The graph is too large to display
+ErrorModelo;Aún no genera el modelo;The model has not yet been generated
+ErrorDatosPN;Aún no carga los datos a predecir;It still doesn't load the data to predict
