@@ -71,7 +71,7 @@ indices.generales <- function(real, prediccion) {
   RE   <- sum(abs(real - prediccion)) / sum(abs(real))
   COR  <- as.numeric(cor(real, prediccion))
   COR  <- ifelse(is.na(COR), 0 , COR)
-  R2   <- sum((prediccion - mean(real))**2)/sum((real - mean(real))**2)
+  R2   <- 1 - (sum((prediccion - real)**2)/sum((real - mean(real))**2))
   return(list(Raiz.Error.Cuadratico = RMSE,
               Error.Absoluto = MAE,
               Error.Relativo = RE,
@@ -93,7 +93,10 @@ plot.real.prediccion <- function(real, prediccion, modelo = "") {
     geom_point(size = 2, col = "red") +
     labs(title = paste0("Real vs Predicción", ifelse(modelo == "", "", paste(", con", modelo))), 
          x = "Real", y = "Predicción") + theme_minimal() +
-    theme(panel.background = element_blank(), axis.line = element_line(colour = "black"))
+    theme(panel.background = element_blank(), axis.line = element_line(colour = "black"))+
+    # xlim(min(real,prediccion), max(real,prediccion)) + ylim(min(real,prediccion), max(real,prediccion))+
+    geom_line(col = "black",  mapping = aes(x = Real, y = Real), alpha = 0.5) 
+    # +geom_smooth(se = FALSE, method = "lm")
 }
 
 disp.modelos <- function(prediccion, modelo){
@@ -674,22 +677,62 @@ rf.disp <- function(){
 
 # Pagina de BOOSTING --------------------------------------------------------------------------------------------------------
 
+calibrar.boosting <- function(){
+  nr <- nrow(datos.aprendizaje)
+  for(i in 10:1){
+    for (j in seq(0.5, 1, 0.1)) {
+      if(nr * j > i*2 + 1){
+        return(list(n.minobsinnode = i, bag.fraction = j))
+      }
+    }
+  }
+  return(NULL)
+}
+
 #Crea el modelo BOOSTING
 boosting.modelo <- function(variable.pr = NULL, iter = 50, type = "gaussian", minsplit = 0.1){
   iter <- ifelse(!is.numeric(iter), 50, iter)
   minsplit <- ifelse(!is.numeric(minsplit), 0.1, minsplit)
-  codigo <- paste0("modelo.boosting.",type," <<- gbm(",variable.pr,
-                  "~ ., data = datos.aprendizaje, distribution = '",
-                  type,"', n.trees = ",iter,", shrinkage = ",minsplit,")")
+  extra.values <- calibrar.boosting()
+  if(is.null(extra.values)){
+    codigo <- paste0("modelo.boosting.",type," <<- gbm(",variable.pr,
+                     "~ ., data = datos.aprendizaje, distribution = '",
+                     type,"', n.trees = ",iter,", shrinkage = ",minsplit,")")
+  }else{
+    codigo <- paste0("modelo.boosting.",type," <<- gbm(",variable.pr,
+                     "~ ., data = datos.aprendizaje, distribution = '",
+                     type,"', n.trees = ",iter,", shrinkage = ",minsplit,",n.minobsinnode = ",extra.values[["n.minobsinnode"]],
+                     ",bag.fraction = ",extra.values[["bag.fraction"]],")")
+  }
   return(codigo)
+}
+
+calibrar.boosting.np <- function(){
+  nr <- nrow(datos.aprendizaje.completos)
+  for(i in 10:1){
+    for (j in seq(0.5, 1, 0.1)) {
+      if(nr * j > i*2 + 1){
+        return(list(n.minobsinnode = i, bag.fraction = j))
+      }
+    }
+  }
+  return(NULL)
 }
 
 boosting.modelo.np <- function(variable.pr = NULL, iter = 50, type = "gaussian", minsplit = 0.1){
   iter <- ifelse(!is.numeric(iter), 50, iter)
   minsplit <- ifelse(!is.numeric(minsplit), 0.1, minsplit)
-  codigo <- paste0("modelo.nuevos <<- gbm(",variable.pr,
-                  "~ ., data = datos.aprendizaje.completos, distribution = '",
-                  type,"', n.trees = ",iter,", shrinkage = ",minsplit,")")
+  extra.values <- calibrar.boosting.np()
+  if(is.null(extra.values)){
+    codigo <- paste0("modelo.nuevos <<- gbm(",variable.pr,
+                    "~ ., data = datos.aprendizaje.completos, distribution = '",
+                    type,"', n.trees = ",iter,", shrinkage = ",minsplit,")")
+  }else{
+    codigo <- paste0("modelo.nuevos <<- gbm(",variable.pr,
+                     "~ ., data = datos.aprendizaje.completos, distribution = '",
+                     type,"', n.trees = ",iter,", shrinkage = ",minsplit,",n.minobsinnode = ",extra.values[["n.minobsinnode"]],
+                     ",bag.fraction = ",extra.values[["bag.fraction"]],")")
+  }
   return(codigo)
 }
 

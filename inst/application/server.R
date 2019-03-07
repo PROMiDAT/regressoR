@@ -834,7 +834,7 @@ shinyServer(function(input, output, session) {
   ejecutar.rl <- function() {
     tryCatch({ # Se corren los codigo
       isolate(exe(cod.rl.modelo))
-      output$txtRl <- renderPrint(print(modelo.rl))
+      output$txtRl <- renderPrint(print(summary(modelo.rl)))
       
       insert.report("modelo.rl",paste0("## Generación del Modelo Bosques Aleatorios\n```{r}\n",
                                        cod.rl.modelo, "\nmodelo.rl\n```"))
@@ -1855,9 +1855,13 @@ shinyServer(function(input, output, session) {
 
   # Ejecuta el modelo, prediccion, mc e indices de knn
   boosting.full <- function() {
-    ejecutar.boosting()
-    ejecutar.boosting.pred()
-    ejecutar.boosting.ind()
+    if(!is.null(calibrar.boosting())){
+      ejecutar.boosting()
+      ejecutar.boosting.pred()
+      ejecutar.boosting.ind()
+    }else{
+      showNotification(tr("ErrorBsize"), duration = 15, type = "error")
+    }
   }
 
   # Grafico de importancia
@@ -1890,18 +1894,17 @@ shinyServer(function(input, output, session) {
   # Genera el modelo
   ejecutar.boosting <- function() {
     tryCatch({ # Se corren los codigo
-      browser()
-      isolate(exe(cod.b.modelo))
-      isolate(tipo <- input$tipo.boosting)
-      output$txtBoosting <- renderPrint(exe("print(summary(modelo.boosting.",tipo,",plotit = FALSE))"))
-      
-      plotear.boosting.imp()
-
-      insert.report(paste0("modelo.b.",tipo),
-                    paste0("## Generación del Modelo BOOSTING - ",tipo,"\n```{r}\n",
-                           cod.b.modelo, "\nmodelo.boosting.",tipo,"\n```"))
-
-      nombres.modelos <<- c(nombres.modelos, paste0("modelo.boosting.",tipo))
+        isolate(exe(cod.b.modelo))
+        isolate(tipo <- input$tipo.boosting)
+        output$txtBoosting <- renderPrint(exe("print(summary(modelo.boosting.",tipo,",plotit = FALSE))"))
+        
+        plotear.boosting.imp()
+  
+        insert.report(paste0("modelo.b.",tipo),
+                      paste0("## Generación del Modelo BOOSTING - ",tipo,"\n```{r}\n",
+                             cod.b.modelo, "\nmodelo.boosting.",tipo,"\n```"))
+  
+        nombres.modelos <<- c(nombres.modelos, paste0("modelo.boosting.",tipo))
     },
     error = function(e) { # Regresamos al estado inicial y mostramos un error
       limpia.boosting(1)
@@ -2210,9 +2213,21 @@ shinyServer(function(input, output, session) {
 
   # PAGINA DE PREDICCIONES NUEVAS -------------------------------------------------------------------------------------------
 
-  varificar.datos.pn <- function(){
-    if(any(!(c(colnames(datos.prueba.completos),variable.predecir.pn) %in% colnames(datos.originales.completos))))
-      stop(tr("NoTamColum"))
+  verificar.datos.pn <- function(){
+    nombres <- colnames(datos.originales.completos)
+    nombres  <- nombres[-which(nombres == variable.predecir.pn)]
+    nombres.prueba <- colnames(datos.prueba.completos)
+    
+    if(any(!(nombres.prueba %in% nombres))){
+      stop(tr("NoTamColum"), call. = FALSE) 
+    }
+    
+    tipos <- unlist(lapply(datos.originales.completos[,nombres, drop = FALSE], class))
+    tipos.prueba <- unlist(lapply(datos.prueba.completos[,nombres, drop = FALSE], class))
+    
+    if(any(tipos != tipos.prueba)){
+      stop(tr("NoTamColum"),call. = FALSE) 
+    }
   }
 
   actualizar.tabla.pn <- function(tablas = c("contentsPred", "contentsPred2")){
@@ -2482,10 +2497,14 @@ shinyServer(function(input, output, session) {
       modelo.nuevos <<- NULL
       predic.nuevos <<- NULL
       actualizar.pred.pn("")
-
+      
       tryCatch({
-        exe(codigo)
-        actualizar.texto.modelo.pn(codigo)
+        if( (input$selectModelsPred == "boosting" && !is.null(calibrar.boosting.np()) ) || input$selectModelsPred != "boosting" ){
+          exe(codigo)
+          actualizar.texto.modelo.pn(codigo)
+        }else{
+          showNotification(tr("ErrorBsize"), duration = 15, type = "error")
+        }
       },
       error =  function(e){
         showNotification(paste0("Error: ", e), duration = 10, type = "error")
@@ -2508,20 +2527,20 @@ shinyServer(function(input, output, session) {
 
     tryCatch({
       isolate(exe(codigo.carga))
-      varificar.datos.pn()
-      if(ncol(datos.prueba.completos) <= 1) {
-        showNotification(tr("errorSeg"), duration = 10, type = "error")
-        return(NULL)
-      }
       codigo.na <- ""
       codigo.na <- paste0(code.NA(deleteNA = input$deleteNAnPred2,
                                   d.o = paste0("datos.prueba.completos")))
       datos.prueba.completos[,variable.predecir.pn] <<- NULL
+      verificar.datos.pn()
       isolate(exe( codigo.na))
       datos.prueba.completos[,variable.predecir.pn] <<- NA
       code.trans.pn <<- gsub("datos.originales.completos", "datos.prueba.completos", code.trans.pn)
       code.trans.pn <<- gsub("datos.aprendizaje.completos", "datos.prueba.completos", code.trans.pn)
       exe(code.trans.pn)
+      if(ncol(datos.prueba.completos) <= 1) {
+        showNotification(tr("errorSeg"), duration = 10, type = "error")
+        return(NULL)
+      }
       actualizar.tabla.pn("contentsPred3")
     },
     error = function(e) {

@@ -1039,7 +1039,22 @@ opciones.nn.pred <-list(fluidRow(column(numericInput("threshold.nn.pred",labelIn
                                                                                  min = 1, step = 1, value = 10),
                                                                     class = "mini-numeric-select"))))
 
+opciones.modelo <- list(selectInput(inputId = "sel.predic.var.nuevos", label = labelInput("seleccionarPredecir"), choices =  "", width = "100%"),
+                        radioGroupButtons("selectModelsPred", labelInput("selectMod"), 
+                                          list("<span data-id=\"rll\"></span>" = "rl",
+                                               "<span data-id=\"rlr\"></span>" = "rlr",
+                                               "<span data-id=\"knnl\"></span>" = "knn",
+                                               "<span data-id=\"dtl\"></span>" = "dt",
+                                               "<span data-id=\"rfl\"></span>" = "rf",
+                                               "<span data-id=\"bl\"></span>" = "boosting",
+                                               "<span data-id=\"svml\"></span>" = "svm",
+                                               "<span data-id=\"nn\"></span>" = "nn"),
+                                          size = "sm", status = "primary",individual = FALSE, justified = FALSE, selected = "knn",
+                                          checkIcon = list(yes = icon("ok", lib = "glyphicon"),
+                                                           no = icon("remove", lib = "glyphicon"))))
+
 panel.crear.modelo.pred <- tabPanel(title = labelInput("seleParModel"),solidHeader = FALSE, collapsible = FALSE, collapsed = FALSE, value = "crearModelo",
+                                    opciones.modelo,
                                     conditionalPanel(condition =  "input.selectModelsPred == 'rl'",
                                                      opciones.rl.pred),
                                     conditionalPanel(condition =  "input.selectModelsPred == 'rlr'",
@@ -1057,25 +1072,11 @@ panel.crear.modelo.pred <- tabPanel(title = labelInput("seleParModel"),solidHead
                                     conditionalPanel(condition =  "input.selectModelsPred == 'nn'",
                                                      opciones.nn.pred),
                                     verbatimTextOutput("txtPredNuevos"),
-                                    actionButton("PredNuevosBttnModelo", labelInput("generarM"), width  = "100%" ))
+                                    actionButton("PredNuevosBttnModelo", labelInput("generarM"), width  = "100%", style = "background-color:#CBB051;color:#fff;margin-top:9px;"))
 
-opciones.modelo <- list(selectInput(inputId = "sel.predic.var.nuevos", label = labelInput("seleccionarPredecir"), choices =  "", width = "100%"),
-                        radioGroupButtons("selectModelsPred", labelInput("selectMod"), 
-                                                                  list("<span data-id=\"rll\"></span>" = "rl",
-                                                                       "<span data-id=\"rlr\"></span>" = "rlr",
-                                                                       "<span data-id=\"knnl\"></span>" = "knn",
-                                                                       "<span data-id=\"dtl\"></span>" = "dt",
-                                                                       "<span data-id=\"rfl\"></span>" = "rf",
-                                                                       "<span data-id=\"bl\"></span>" = "boosting",
-                                                                       "<span data-id=\"svml\"></span>" = "svm",
-                                                                       "<span data-id=\"nn\"></span>" = "nn"),
-                                          size = "sm", status = "primary",individual = FALSE, justified = FALSE, selected = "knn",
-                                          checkIcon = list(yes = icon("ok", lib = "glyphicon"),
-                                                           no = icon("remove", lib = "glyphicon"))))
 
-tabs.modelos  <- tabsOptions(botones = list(icon("gear"),icon("code")), widths = c(60,100), heights = c(70, 40),
-                       tabs.content = list(opciones.modelo,
-                                           list(aceEditor("fieldPredNuevos", mode = "r", theme = "monokai", value = "", height = "20vh", readOnly = F))))
+tabs.modelos  <- tabsOptions(botones = list(icon("code")), widths = c(100), heights = c(40),
+                       tabs.content = list(list(aceEditor("fieldPredNuevos", mode = "r", theme = "monokai", value = "", height = "20vh", readOnly = F))))
 
 tabs.modelos2  <- tabsOptions(botones = list(icon("code")), widths = c(100), heights = c(40),
                              tabs.content = list(aceEditor("fieldCodePredPN", mode = "r", theme = "monokai",
@@ -1084,7 +1085,7 @@ tabs.modelos2  <- tabsOptions(botones = list(icon("code")), widths = c(100), hei
 panel.prediccion.knn <- tabPanel(title = labelInput("predicnuevos"), value = "predicModelo",
                                  DT::dataTableOutput("PrediTablePN"),
                                  hr(),
-                                 downloadButton("downloaDatosPred", labelInput("descargar"), style = "width:100%;"),
+                                 downloadButton("downloaDatosPred", labelInput("descargar"), style = "width:100%"),
                                  actionButton("predecirPromidat", "preditc"))
 
 pagina.predicciones.nuevas <- tabItem(tabName = "predNuevos",
