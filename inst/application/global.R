@@ -55,9 +55,10 @@ new.gauge <- function(id, val, lab, decor){
 
 # Genera los gauges
 fill.gauges <- function(ids, indices) {
-  titulos <- c(tr("RMSE"), tr("MAE"), tr("ER"), tr("correlacion"),
-               tr("R2"), tr("minimo"),tr("maximo"),tr("q1"),tr("q3"))
-  decor <- c("","","","","","","","","")
+  titulos <- c(tr("RMSE"), tr("MAE"), tr("ER"),
+               tr("correlacion"),tr("minimo"),
+               tr("maximo"),tr("q1"),tr("q3"))
+  decor <- c("","","","","","","","")
   for (i in 1:length(ids)) {
     exe(new.gauge(ids[i], indices[[i]], titulos[i], decor[i]))
   }
@@ -71,12 +72,10 @@ indices.generales <- function(real, prediccion) {
   RE   <- sum(abs(real - prediccion)) / sum(abs(real))
   COR  <- as.numeric(cor(real, prediccion))
   COR  <- ifelse(is.na(COR), 0 , COR)
-  R2   <- 1 - (sum((prediccion - real)**2)/sum((real - mean(real))**2))
   return(list(Raiz.Error.Cuadratico = RMSE,
               Error.Absoluto = MAE,
               Error.Relativo = RE,
-              Correlacion = COR,
-              R.Cuadrado = R2))
+              Correlacion = COR))
 }
 
 completar.indices <- function(l){
@@ -91,12 +90,10 @@ completar.indices <- function(l){
 plot.real.prediccion <- function(real, prediccion, modelo = "") {
   ggplot(data = data.frame(Real = real, Prediccion = as.numeric(prediccion)), mapping = aes(x = Real, y = Prediccion)) +
     geom_point(size = 2, col = "red") +
-    labs(title = paste0("Real vs Predicción", ifelse(modelo == "", "", paste(", con", modelo))), 
-         x = "Real", y = "Predicción") + theme_minimal() +
-    theme(panel.background = element_blank(), axis.line = element_line(colour = "black"))+
-    # xlim(min(real,prediccion), max(real,prediccion)) + ylim(min(real,prediccion), max(real,prediccion))+
-    geom_line(col = "black",  mapping = aes(x = Real, y = Real), alpha = 0.5) 
-    # +geom_smooth(se = FALSE, method = "lm")
+    labs(title = paste0("Real vs Predicción", ifelse(modelo == "", "", paste(", con", modelo))), x = "Real", y = "Predicción") +
+    theme_minimal() +
+    theme(panel.background = element_blank(), axis.line = element_line(colour = "black")) +
+    geom_line(col = "black",  mapping = aes(x = Real, y = Real), alpha = 0.5)
 }
 
 disp.modelos <- function(prediccion, modelo){

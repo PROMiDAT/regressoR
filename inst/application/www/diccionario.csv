@@ -13,7 +13,7 @@ predicnuevos;Predicción Individuos Nuevos;Predict New Cases
 pred;Predicción;Prediction
 acerto;Acertó;Matched
 fallo;Falló;Failed
-rll;Regresión Linear;Linear Regression
+rll;Regresión Lineal;Linear Regression
 rlr;Regresión Penalizada;Penalized Regression
 knnl;K Vecinos Más Cercanos;K Nearest Neighbors
 dtl;Árboles De Decisión;Decision Trees

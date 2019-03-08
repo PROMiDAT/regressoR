@@ -36,28 +36,23 @@
   min-height: 370px !important;
 }
 
-div[id$="RE"] path,
+div[id$="RE"] path, div[id$="COR"] path,
 div[id$="RMSE"] path, div[id$="MAE"] path, div[id$="MaxG"] path,
-div[id$="MinG"] path,div[id$="1QG"] path,div[id$="3QG"] path,
-div[id$="RE"] svg text:last-child,
+div[id$="MinG"] path, div[id$="1QG"] path, div[id$="3QG"] path,
+div[id$="RE"] svg text:last-child,   div[id$="COR"] svg text:last-child,
 div[id$="RMSE"] svg text:last-child, div[id$="MAE"] svg text:last-child,
-div[id$="MaxG"] svg text:last-child,div[id$="MinG"] svg text:last-child,
-div[id$="1QG"] svg text:last-child,div[id$="3QG"] svg text:last-child,
-div[id$="RE"] svg text:nth-last-child(2),
+div[id$="MaxG"] svg text:last-child, div[id$="MinG"] svg text:last-child,
+div[id$="1QG"] svg text:last-child,  div[id$="3QG"] svg text:last-child,
+div[id$="RE"] svg text:nth-last-child(2),   div[id$="COR"] svg text:nth-last-child(2),
 div[id$="RMSE"] svg text:nth-last-child(2), div[id$="MAE"] svg text:nth-last-child(2),
 div[id$="MaxG"] svg text:nth-last-child(2), div[id$="MinG"] svg text:nth-last-child(2),
-div[id$="1QG"] svg text:nth-last-child(2), div[id$="3QG"] svg text:nth-last-child(2){
+div[id$="1QG"] svg text:nth-last-child(2),  div[id$="3QG"] svg text:nth-last-child(2){
   display: none;
 }
 
-div[data-value$="Index"] .col-sm-6{
-    height: 120px;
-}
-
 div[data-value$="Index"] .col-sm-3{
-    height: 80px;
+    height: 135px;
 }
-
 
 div[data-value$="Index"] .col-sm-12{
     height: 28px;
