@@ -1,14 +1,14 @@
-#' Start regresoR
-#' @title This function will start regresoR
+#' Start regressoR
+#' @title This function will start regressoR
 #' @return Nothing
 #' @description An interactive 'Shiny' application for data prediction.
-#' @details This starts the regresoR application on the user's local computer.
-#' @keywords predictoR
+#' @details This starts the regressoR application on the user's local computer.
+#' @keywords regressoR
 #' @examples
 #'  if(interactive()){
 #'    init_regresor()
 #'  }
-init_regresor <- function(){
+init_regressor <- function(){
   if(package_version(unclass(packageDescription("shiny"))$Version) < package_version("1.2.0") ){
     installed.packages("shiny")
   }
@@ -19,5 +19,5 @@ init_regresor <- function(){
   }else{
     options(encoding = "UTF-8")
   }
-  shiny::runApp(appDir = system.file("application", package = "regresoR"), launch.browser = TRUE)
+  shiny::runApp(appDir = system.file("application", package = "regressoR"), launch.browser = TRUE)
 }

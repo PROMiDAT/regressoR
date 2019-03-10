@@ -114,7 +114,7 @@ shinyServer(function(input, output, session) {
   shinyjs::disable(selector = 'a[href^="#shiny-tab-parte1"]')
   shinyjs::disable(selector = 'a[href^="#shiny-tab-parte2"]')
   shinyjs::disable(selector = 'a[href^="#shiny-tab-comparar"]')
-  shinyjs::disable(selector = 'a[href^="#shiny-tab-poderPred]')
+  shinyjs::disable(selector = 'a[href^="#shiny-tab-poderPred"]')
   shinyjs::disable(selector = 'a[href^="#shiny-tab-parte1"]')
 
   actualizar.tabla()
@@ -878,7 +878,9 @@ shinyServer(function(input, output, session) {
         indices.rl <<- indices.generales(datos.prueba[,variable.predecir], prediccion.rl)
         
         insert.report("ind.rl",paste0("## Índices Generales\n```{r}\n",
-                                      cod.rl.ind, "\nindices.generales(datos.prueba[,'",variable.predecir,"'], prediccion.rl)\n```"))
+                                      cod.rl.ind, "\nindices.generales(datos.prueba[,'",variable.predecir,"'], prediccion.rl)\n",
+                                      "indices.rl<- indices.generales(datos.prueba[,'",variable.predecir,"'], prediccion.rl)\n",
+                                      "IndicesM[['rll']] <<- indices.rl\n```"))
         
         nombres <- c("rlRMSE","rlMAE", "rlRE","rlCOR","rlMinG","rlMaxG","rl1QG","rl3QG")
         fill.gauges(nombres, completar.indices(indices.rl))
@@ -1098,7 +1100,9 @@ shinyServer(function(input, output, session) {
         #exe("indices.rlr.",rlr.type()," <<- indices.rlr")
         
         insert.report(paste0("ind.rlr.",rlr.type()),paste0("## Índices Generales\n```{r}\n",
-                                      cod.rlr.ind, "\nindices.generales(datos.prueba[,'",variable.predecir,"'], prediccion.rlr.",rlr.type(),")\n```"))
+                                      cod.rlr.ind, "\nindices.generales(datos.prueba[,'",variable.predecir,"'], prediccion.rlr.",rlr.type(),")\n",
+                                      "indices.rlr <- indices.generales(datos.prueba[,'",variable.predecir,"'], prediccion.rlr.",rlr.type(),")\n",
+                                      "IndicesM[['rlr-",rlr.type(),"']] <<- indices.rlr\n```"))
 
         nombres <- c("rlrRMSE","rlrMAE", "rlrRE","rlrCOR","rlrMinG","rlrMaxG","rlr1QG","rlr3QG")
         fill.gauges(nombres, completar.indices(indices.rlr))
@@ -1257,7 +1261,9 @@ shinyServer(function(input, output, session) {
 
         insert.report(paste0("ind.knn.",kernel),
                       paste0("## Índices Generales del Modelo KNN - ",kernel,"\n```{r}\n",
-                             cod.knn.ind, "\nindices.generales(datos.prueba[,'",variable.predecir,"'] ,prediccion.knn.",kernel,")\n```"))
+                             cod.knn.ind, "\nindices.generales(datos.prueba[,'",variable.predecir,"'] ,prediccion.knn.",kernel,")\n",
+                             "indices.knn <- indices.generales(datos.prueba[,'",variable.predecir,"'], prediccion.knn.",kernel,")\n",
+                             "IndicesM[['knnl-",kernel,"']] <<- indices.knn\n```"))
 
         nombres <- c("knnRMSE","knnMAE", "knnRE","knnCOR","knnMinG","knnMaxG","knn1QG","knn3QG")
         fill.gauges(nombres, completar.indices(indices.knn))
@@ -1408,7 +1414,9 @@ shinyServer(function(input, output, session) {
 
         insert.report(paste0("ind.svm.",kernel),
                       paste0("## Índices Generales del modelo SVM  - ",kernel," \n```{r}\n",
-                             cod.svm.ind, "\nindices.generales(datos.prueba[,'",variable.predecir,"'], prediccion.svm.",kernel,")\n```"))
+                             cod.svm.ind, "\nindices.generales(datos.prueba[,'",variable.predecir,"'], prediccion.svm.",kernel,")\n",
+                             "indices.svm <- indices.generales(datos.prueba[,'",variable.predecir,"'], prediccion.svm.",kernel,")\n",
+                             "IndicesM[['svml-",kernel,"']] <<- indices.svm\n```"))
 
         nombres <- c("svmRMSE","svmMAE", "svmRE","svmCOR","svmMinG","svmMaxG","svm1QG","svm3QG")
         fill.gauges(nombres, completar.indices(indices.svm))
@@ -1578,7 +1586,9 @@ shinyServer(function(input, output, session) {
         
         indices.dt <<- indices.generales(datos.prueba[,variable.predecir], prediccion.dt)
         
-        insert.report("ind.dt", paste0("## Índices Generales \n```{r}\n", cod.dt.ind, "\nindices.generales(datos.prueba[,'",variable.predecir,"'], prediccion.dt)\n```"))
+        insert.report("ind.dt", paste0("## Índices Generales \n```{r}\n", cod.dt.ind, "\nindices.generales(datos.prueba[,'",variable.predecir,"'], prediccion.dt)\n",
+                                       "indices.dt <- indices.generales(datos.prueba[,'",variable.predecir,"'], prediccion.dt)\n",
+                                       "IndicesM[['dtl']] <<- indices.dt\n```"))
 
         nombres <- c("dtRMSE","dtMAE", "dtRE","dtCOR","dtMinG","dtMaxG","dt1QG","dt3QG")
         fill.gauges(nombres, completar.indices(indices.dt))
@@ -1765,7 +1775,9 @@ shinyServer(function(input, output, session) {
         indices.rf <<- indices.generales(datos.prueba[,variable.predecir], prediccion.rf)
 
         insert.report("ind.rf",paste0("## Índices Generales\n```{r}\n",
-                                      cod.rf.ind, "\nindices.generales(datos.prueba[,'",variable.predecir,"'], prediccion.rf)\n```"))
+                                      cod.rf.ind, "\nindices.generales(datos.prueba[,'",variable.predecir,"'], prediccion.rf)\n",
+                                      "indices.rf <- indices.generales(datos.prueba[,'",variable.predecir,"'], prediccion.rf)\n",
+                                      "IndicesM[['rfl']] <<- indices.rf\n```"))
 
         nombres <- c("rfRMSE","rfMAE", "rfRE","rfCOR","rfMinG","rfMaxG","rf1QG","rf3QG")
         fill.gauges(nombres, completar.indices(indices.rf))
@@ -1945,7 +1957,9 @@ shinyServer(function(input, output, session) {
 
         insert.report(paste0("ind.b.",tipo),
                       paste0("## Índices Generales del Modelo BOOSTING - ",tipo,"\n```{r}\n",
-                             cod.knn.ind, "\nindices.generales(datos.prueba[,'",variable.predecir,"'] ,prediccion.boosting.",tipo,")\n```"))
+                             cod.knn.ind, "\nindices.generales(datos.prueba[,'",variable.predecir,"'] ,prediccion.boosting.",tipo,")\n",
+                             "indices.boosting <- indices.generales(datos.prueba[,'",variable.predecir,"'], prediccion.boosting.",tipo,")\n",
+                             "IndicesM[['bl-",tipo,"']] <<- indices.boosting\n```"))
         
         nombres <- c("bRMSE","bMAE", "bRE","bCOR","bMinG","bMaxG","b1QG","b3QG")
         fill.gauges(nombres, completar.indices(indices.boosting))
@@ -2137,7 +2151,9 @@ shinyServer(function(input, output, session) {
         indices.nn <<- indices.generales(datos.prueba[,variable.predecir], prediccion.nn)
 
         insert.report("ind.nn", paste0("## Índices Generales \n```{r}\n", cod.nn.ind, 
-                                       "\nindices.generales(datos.prueba[,'",variable.predecir,"'], prediccion.nn)\n```"))
+                                       "\nindices.generales(datos.prueba[,'",variable.predecir,"'], prediccion.nn)\n",
+                                       "indices.nn <- indices.generales(datos.prueba[,'",variable.predecir,"'], prediccion.nn)\n",
+                                       "IndicesM[['nn']] <<- indices.nn\n```"))
 
         nombres <-  c("nnRMSE","nnMAE", "nnRE","nnCOR","nnMinG","nnMaxG","nn1QG","nn3QG")
         fill.gauges(nombres, completar.indices(indices.nn))
@@ -2581,7 +2597,7 @@ shinyServer(function(input, output, session) {
     env.report$codigo.reporte[[n]][["carga.datos"]] <<- paste0("\n# Carga de Datos (",input$file1$name,")",
                                                     "\n```{r}\ndatos.originales <<- codigo.reporte[[",n,"]]$datos.originales\n",
                                                     "datos <<- datos.originales\n```\n```{r}\nhead(datos)\n```\n```{r}\nstr(datos)\n```\n",
-                                                    "```{r}\nMCs <<- list()\nareas <<- list()\nscores <<- list()\n```\n")
+                                                    "```{r}\nIndicesM <<- list()\n```\n")
   }
 
   new.secction.report <- function(){
@@ -2637,7 +2653,7 @@ shinyServer(function(input, output, session) {
       file.rename(out, paste(input$textTitulo,'-', input$textNombre, '.docx', sep=''))
       files <- c(paste(input$textTitulo,'-', input$textNombre, '.docx', sep=''), files)
 
-      utils::zip(file, files)
+      zip::zip(file, files)
     }
   )
 
@@ -2668,7 +2684,7 @@ shinyServer(function(input, output, session) {
                               message = list(ids = labelid, values = sentvalue))
   }
 
-  observeEvent(input$idioma, {
+  observeEvent(c(input$idioma), {
     updateLabelInput(session, c("idioma","selidioma","data","basico","resumen","normalidad",
                                 "dispersion","distribucion","correlacion","poderpred","reporte",
                                 "aprendizaje","acercade","comparacion","predicnuevos","knnl","dtl",

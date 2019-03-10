@@ -33,16 +33,6 @@ var.categoricas <- function(data){
   return(res)
 }
 
-# maximo <- function(n){
-#   contador <- 0
-#   n <- n %/% 1
-#   while(n != 0){
-#     contador <- 1 + contador
-#     n <- n%/%10
-#   }
-#   return(10 ** contador)
-# }
-
 #Genera un gauge
 new.gauge <- function(id, val, lab, decor){
   return(paste0("output$",id," <- renderGauge({
@@ -863,8 +853,8 @@ ordenar.reporte <- function(lista){
                               c("linear", "polynomial", "radial","sigmoid")),
              "modelo.dt","modelo.dt.graf","pred.dt",
              "disp.dt","ind.dt","modelo.dt.rules",
-             "modelo.rf","modelo.rf.graf","disp.rf",
-             "pred.rf","ind.rf",
+             "modelo.rf","modelo.rf.graf",
+             "pred.rf","disp.rf","ind.rf",
              nombres[grepl("modelo.rf.rules.", nombres)],
              combinar.nombres(c("modelo.b","modelo.b.imp","pred.b","disp.boosting","ind.b"),
                               c("gaussian", "laplace", "tdist")),
@@ -899,7 +889,7 @@ def.reporte <- function(titulo = "Sin Titulo", nombre = "PROMiDAT", entradas) {
     "library(promises)\nlibrary(ggplot2)\nlibrary(neuralnet)\n",
     "library(corrplot)\n\nlibrary(scatterplot3d)\nlibrary(rattle)\n",
     "library(stringr)\nlibrary(gbm)\nlibrary(DT)\nlibrary(glmnet)\n",
-    "library(caret)\nlibrary(kknn)\nlibrary(e1071)\nlibrary(rpart)\n",
+    "library(kknn)\nlibrary(e1071)\nlibrary(rpart)\n",
     "library(rpart.plot)\nlibrary(randomForest)\nlibrary(ada)\nlibrary(xgboost)\n",
     "library(dplyr)\nlibrary(forcats)\n",
     "library(xtable)\n",

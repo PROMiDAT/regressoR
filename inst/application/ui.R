@@ -26,6 +26,7 @@ suppressMessages(suppressWarnings({
   library(shinydashboard)
   library(shinydashboardPlus)
   library(dplyr)
+  library(zip)
 }))
 
 
@@ -1121,7 +1122,7 @@ pagina.info <- tabItem(tabName = "acercaDe",
 
 shinyUI(
   dashboardPagePlus(
-  title="PROMiDAT - RegresoR",
+  title="PROMiDAT - RegressoR",
   dashboardHeaderPlus(
     title = tags$a(href="http://promidat.com", target = "_blank",
                    img(src="Logo2.png", height=55, width="100%",

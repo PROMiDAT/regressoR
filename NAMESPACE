@@ -1,2 +1,2 @@
-export(init_regresor)
+export(init_regressor)
 importFrom("utils", "installed.packages", "packageDescription")

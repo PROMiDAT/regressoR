@@ -3,7 +3,10 @@ var promidat_flat_models = {knn: true, dt: true, rf: true,
                             nn: true, rlr: true};
 
 nya_btn = true;
-nya_btn_fun = (e) => nya_btn = nya_btn?($("#distribucion_numerica").click(),false):true;
+
+function nya_btn_fun(e){
+  nya_btn = nya_btn?($("#distribucion_numerica").click(),false):true;
+}
 
 function promidat_model_firt(e, model, id){
   if(promidat_flat_models[model]){
@@ -14,18 +17,18 @@ function promidat_model_firt(e, model, id){
 
  window.addEventListener("load", function(event) {
   /* Al cargarse la página  se pone el titulo */
-  $("header").find("nav").append('<span class="header-title"> <i>regreso</i>R </span>');
+  $("header").find("nav").append('<span class="header-title"> <i>regresso</i>R </span>');
 
   /* Los modelos se vuelven ejecutar al ser seleccionados una vez se haga una segmentacion diferente*/
-  $("a[href^='#shiny-tab-knn']").on('click', (e) => promidat_model_firt(e,"knn","runKnn"));
-  $("a[href^='#shiny-tab-dt']").on('click', (e) => promidat_model_firt(e,"dt","runDt"));
-  $("a[href^='#shiny-tab-rf']").on('click', (e) => promidat_model_firt(e,"rf","runRf"));
-  $("a[href^='#shiny-tab-boosting']").on('click', (e) => promidat_model_firt(e,"boosting","runBoosting"));
-  $("a[href^='#shiny-tab-svm']").on('click', (e) => promidat_model_firt(e,"svm","runSvm"));
-  $("a[href^='#shiny-tab-nn']").on('click', (e) => promidat_model_firt(e,"nn","runNn"));
-  $("a[href^='#shiny-tab-rl']").on('click', (e) => promidat_model_firt(e,"rl","runRl"));
-  $("a[href^='#shiny-tab-rlr']").on('click', (e) => promidat_model_firt(e,"rlr","runRlr"));
-  $("a[data-value='predicModelo']").on('click',(e) => $("#predecirPromidat").click())
+  $("a[href^='#shiny-tab-knn']").on('click', function(e){promidat_model_firt(e,"knn","runKnn")});
+  $("a[href^='#shiny-tab-dt']").on('click', function(e){promidat_model_firt(e,"dt","runDt")});
+  $("a[href^='#shiny-tab-rf']").on('click', function(e){promidat_model_firt(e,"rf","runRf")});
+  $("a[href^='#shiny-tab-boosting']").on('click', function(e){promidat_model_firt(e,"boosting","runBoosting")});
+  $("a[href^='#shiny-tab-svm']").on('click', function(e){promidat_model_firt(e,"svm","runSvm")});
+  $("a[href^='#shiny-tab-nn']").on('click', function(e){promidat_model_firt(e,"nn","runNn")});
+  $("a[href^='#shiny-tab-rl']").on('click', function(e){promidat_model_firt(e,"rl","runRl")});
+  $("a[href^='#shiny-tab-rlr']").on('click', function(e){promidat_model_firt(e,"rlr","runRlr")});
+  $("a[data-value='predicModelo']").on('click', function(e){ $("#predecirPromidat").click()});
   $($($($("#tabDyA").next().children()[2]).children()[4]).children()[2]).on('click', nya_btn_fun)
   $("#segmentButton").on('click',function(e){
     promidat_flat_models = {knn: true, dt: true, rf: true, boosting: true, svm: true, rl: true, nn: true, rlr: true};
