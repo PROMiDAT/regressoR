@@ -33,27 +33,6 @@ var.categoricas <- function(data){
   return(res)
 }
 
-#Genera un gauge
-new.gauge <- function(id, val, lab, decor){
-  return(paste0("output$",id," <- renderGauge({
-                gauge(round(",val,",4),
-                min = 0, max = 1,
-                label = '",lab,"',
-                symbol = '",decor,"',
-                gaugeSectors(success = c(0,1)))})"))
-}
-
-# Genera los gauges
-fill.gauges <- function(ids, indices) {
-  titulos <- c(tr("RMSE"), tr("MAE"), tr("ER"),
-               tr("correlacion"),tr("minimo"),
-               tr("maximo"),tr("q1"),tr("q3"))
-  decor <- c("","","","","","","","")
-  for (i in 1:length(ids)) {
-    exe(new.gauge(ids[i], indices[[i]], titulos[i], decor[i]))
-  }
-}
-
 #Codigo del calculo de los indices
 # Funciones para medir precisión
 indices.generales <- function(real, prediccion) {
@@ -68,11 +47,12 @@ indices.generales <- function(real, prediccion) {
               Correlacion = COR))
 }
 
-completar.indices <- function(l){
+indices.resumen <- function(){
+  l <- list()
   l["Min"] <- min(datos.aprendizaje[,variable.predecir])
-  l["Max"] <- max(datos.aprendizaje[,variable.predecir])
   l["1Q"] <- quantile(datos.aprendizaje[,variable.predecir], prob=c(0.25))
   l["3Q"] <- quantile(datos.aprendizaje[,variable.predecir], prob=c(0.75))
+  l["Max"] <- max(datos.aprendizaje[,variable.predecir])
   return(l)
 }
 

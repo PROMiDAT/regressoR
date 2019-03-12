@@ -395,7 +395,7 @@ codigo.rl  <- list(fluidRow(column(width = 9,h4(labelInput("codigo"))),
                                               value = "", height = "3vh", readOnly = F, autoComplete = "enabled")),
                    conditionalPanel("input.BoxRl == 'tabRlIndex'",
                                     aceEditor("fieldCodeRlIG", mode = "r", theme = "monokai",
-                                              value = "", height = "28vh", readOnly = F, autoComplete = "enabled")))
+                                              value = "", height = "22vh", readOnly = F, autoComplete = "enabled")))
 
 tabs.rl  <- tabsOptions(botones = list(icon("code")), widths = c(100), heights = c(95),
                         tabs.content = list(codigo.rl))
@@ -411,17 +411,11 @@ panel.disp.rl <- tabPanel(title = labelInput("dispersion"), value = "tabRlDisp",
 
 panel.indices.generales.rl <- tabPanel(title = labelInput("indices"), value = "tabRlIndex",
                                        br(),
-                                       fluidRow(column(width = 3, gaugeOutput("rlCOR", width = "100%")),
-                                                column(width = 3, gaugeOutput("rlRE", width = "100%")),
-                                                column(width = 3, gaugeOutput("rlRMSE", width = "100%")),
-                                                column(width = 3, gaugeOutput("rlMAE", width = "100%"))),
-                                       br(),br(),
+                                       fluidRow(tableOutput('indexdfrl')),
+                                       br(),
                                        fluidRow(column(width = 12, align="center", tags$h3(labelInput("resumenVarPre")))),
-                                       fluidRow(class = "fila-resumen", 
-                                                column(width = 3, gaugeOutput("rlMinG", width = "100%")),
-                                                column(width = 3, gaugeOutput("rl1QG", width = "100%")),
-                                                column(width = 3, gaugeOutput("rl3QG", width = "100%")),
-                                                column(width = 3, gaugeOutput("rlMaxG", width = "100%"))))
+                                       br(),
+                                       fluidRow(tableOutput('indexdfrl2')))
 
 
 pagina.rl <- tabItem(tabName = "rl",
@@ -467,7 +461,7 @@ codigo.rlr  <- list(fluidRow(column(width = 9,h4(labelInput("codigo")))),
                                               value = "", height = "3vh", readOnly = F, autoComplete = "enabled")),
                    conditionalPanel("input.BoxRlr == 'tabRlrIndex'",
                                     aceEditor("fieldCodeRlrIG", mode = "r", theme = "monokai",
-                                              value = "", height = "28vh", readOnly = F, autoComplete = "enabled")))
+                                              value = "", height = "22vh", readOnly = F, autoComplete = "enabled")))
 
 tabs.rlr  <- tabsOptions(botones = list(icon("gear"),icon("code")), widths = c(50,100), heights = c(80, 95),
                         tabs.content = list(opciones.rlr, codigo.rlr))
@@ -491,18 +485,12 @@ panel.disp.rlr <- tabPanel(title = labelInput("dispersion"), value = "tabRlrDisp
                           plotOutput('plot.rlr.disp', height = "55vh"))
 
 panel.indices.generales.rlr <- tabPanel(title = labelInput("indices"), value = "tabRlrIndex",
-                                       br(),
-                                       fluidRow(column(width = 3, gaugeOutput("rlrCOR", width = "100%")),
-                                                column(width = 3, gaugeOutput("rlrRE", width = "100%")),
-                                                column(width = 3, gaugeOutput("rlrRMSE", width = "100%")),
-                                                column(width = 3, gaugeOutput("rlrMAE", width = "100%"))),
-                                       br(),br(),
-                                       fluidRow(column(width = 12, align="center", tags$h3(labelInput("resumenVarPre")))),
-                                       fluidRow(class = "fila-resumen", 
-                                                column(width = 3, gaugeOutput("rlrMinG", width = "100%")),
-                                                column(width = 3, gaugeOutput("rlr1QG", width = "100%")),
-                                                column(width = 3, gaugeOutput("rlr3QG", width = "100%")),
-                                                column(width = 3, gaugeOutput("rlrMaxG", width = "100%"))))
+                                        br(),
+                                        fluidRow(tableOutput('indexdfrlr')),
+                                        br(),
+                                        fluidRow(column(width = 12, align="center", tags$h3(labelInput("resumenVarPre")))),
+                                        br(),
+                                        fluidRow(tableOutput('indexdfrlr2')))
 
 
 pagina.rlr <- tabItem(tabName = "rlr",
@@ -539,7 +527,7 @@ codigo.knn <- list(h4(labelInput("codigo")), hr(),
                                               value = "", height = "3vh", readOnly = F, autoComplete = "enabled")),
                    conditionalPanel("input.BoxKnn == 'tabKknIndex'",
                                     aceEditor("fieldCodeKnnIG", mode = "r", theme = "monokai",
-                                              value = "", height = "28vh", readOnly = F, autoComplete = "enabled")))
+                                              value = "", height = "22vh", readOnly = F, autoComplete = "enabled")))
 
 tabs.knn <- tabsOptions(botones = list(icon("gear"),icon("code")), widths = c(50,100), heights = c(80, 95),
                         tabs.content = list(opciones.knn, codigo.knn))
@@ -555,17 +543,11 @@ panel.disp.knn <- tabPanel(title = labelInput("dispersion"), value = "tabKknDisp
 
 panel.indices.generales.knn <- tabPanel(title = labelInput("indices"), value = "tabKknIndex",
                                         br(),
-                                        fluidRow(column(width = 3, gaugeOutput("knnCOR", width = "100%")),
-                                                 column(width = 3, gaugeOutput("knnRE", width = "100%")),
-                                                 column(width = 3, gaugeOutput("knnRMSE", width = "100%")),
-                                                 column(width = 3, gaugeOutput("knnMAE", width = "100%"))),
-                                        br(),br(),
+                                        fluidRow(tableOutput('indexdfknn')),
+                                        br(),
                                         fluidRow(column(width = 12, align="center", tags$h3(labelInput("resumenVarPre")))),
-                                        fluidRow(class = "fila-resumen", 
-                                                 column(width = 3, gaugeOutput("knnMinG", width = "100%")),
-                                                 column(width = 3, gaugeOutput("knn1QG", width = "100%")),
-                                                 column(width = 3, gaugeOutput("knn3QG", width = "100%")),
-                                                 column(width = 3, gaugeOutput("knnMaxG", width = "100%"))))
+                                        br(),
+                                        fluidRow(tableOutput('indexdfknn2')))
 
 pagina.knn <- tabItem(tabName = "knn",
                       tabBox(id = "BoxKnn", width = NULL, height ="80%",
@@ -597,7 +579,7 @@ codigo.svm <- list(h4(labelInput("codigo")), hr(),
                                               value = "", height = "3vh", readOnly = F, autoComplete = "enabled")),
                    conditionalPanel("input.BoxSvm == 'tabSvmIndex'",
                                     aceEditor("fieldCodeSvmIG", mode = "r", theme = "monokai",
-                                              value = "", height = "28vh", readOnly = F, autoComplete = "enabled")))
+                                              value = "", height = "22vh", readOnly = F, autoComplete = "enabled")))
 
 tabs.svm <- tabsOptions(botones = list(icon("gear"),icon("code")), widths = c(50,100), heights = c(60, 95),
                         tabs.content = list(opciones.svm, codigo.svm))
@@ -613,17 +595,11 @@ panel.prediccion.svm <- tabPanel(title = labelInput("predm"), value = "tabSvmPre
 
 panel.indices.generales.svm <- tabPanel(title = labelInput("indices"), value = "tabSvmIndex",
                                         br(),
-                                        fluidRow(column(width = 3, gaugeOutput("svmCOR", width = "100%")),
-                                                 column(width = 3, gaugeOutput("svmRE", width = "100%")),
-                                                 column(width = 3, gaugeOutput("svmRMSE", width = "100%")),
-                                                 column(width = 3, gaugeOutput("svmMAE", width = "100%"))),
-                                        br(),br(),
+                                        fluidRow(tableOutput('indexdfsvm')),
+                                        br(),
                                         fluidRow(column(width = 12, align="center", tags$h3(labelInput("resumenVarPre")))),
-                                        fluidRow(class = "fila-resumen",
-                                                 column(width = 3, gaugeOutput("svmMinG", width = "100%")),
-                                                 column(width = 3, gaugeOutput("svm1QG", width = "100%")),
-                                                 column(width = 3, gaugeOutput("svm3QG", width = "100%")),
-                                                 column(width = 3, gaugeOutput("svmMaxG", width = "100%"))))
+                                        br(),
+                                        fluidRow(tableOutput('indexdfsvm2')))
 
 pagina.svm <- tabItem(tabName = "svm",
                       tabBox(id = "BoxSvm", width = NULL, height ="80%",
@@ -656,7 +632,7 @@ codigo.dt <- list(h4(labelInput("codigo")), hr(),
                                              value = "", height = "7vh", readOnly = F, autoComplete = "enabled")),
                    conditionalPanel("input.BoxDt == 'tabDtIndex'",
                                     aceEditor("fieldCodeDtIG", mode = "r", theme = "monokai",
-                                              value = "", height = "28vh", readOnly = F, autoComplete = "enabled")),
+                                              value = "", height = "22vh", readOnly = F, autoComplete = "enabled")),
                   conditionalPanel("input.BoxDt == 'tabDtReglas'",
                                    aceEditor("fieldCodeDtRule", mode = "r", theme = "monokai",
                                              value = "", height = "4vh", readOnly = F, autoComplete = "enabled")))
@@ -678,17 +654,11 @@ panel.disp.dt <- tabPanel(title = labelInput("dispersion"), value = "tabDtDisp",
 
 panel.indices.generales.dt <- tabPanel(title = labelInput("indices"),value = "tabDtIndex",
                                        br(),
-                                       fluidRow(column(width = 3, gaugeOutput("dtCOR", width = "100%")),
-                                                column(width = 3, gaugeOutput("dtRE", width = "100%")),
-                                                column(width = 3, gaugeOutput("dtRMSE", width = "100%")),
-                                                column(width = 3, gaugeOutput("dtMAE", width = "100%"))),
-                                       br(),br(),
+                                       fluidRow(tableOutput('indexdfdt')),
+                                       br(),
                                        fluidRow(column(width = 12, align="center", tags$h3(labelInput("resumenVarPre")))),
-                                       fluidRow(class = "fila-resumen", 
-                                                column(width = 3, gaugeOutput("dtMinG", width = "100%")),
-                                                column(width = 3, gaugeOutput("dt1QG", width = "100%")),
-                                                column(width = 3, gaugeOutput("dt3QG", width = "100%")),
-                                                column(width = 3, gaugeOutput("dtMaxG", width = "100%"))))
+                                       br(),
+                                       fluidRow(tableOutput('indexdfdt2')))
 
 panel.reglas.dt <- tabPanel(title = labelInput("reglas"),value = "tabDtReglas",
                             verbatimTextOutput("rulesDt"))
@@ -729,7 +699,7 @@ codigo.rf  <- list(h4(labelInput("codigo")), hr(),
                                               value = "", height = "3vh", readOnly = F, autoComplete = "enabled")),
                    conditionalPanel("input.BoxRf == 'tabRfIndex'",
                                     aceEditor("fieldCodeRfIG", mode = "r", theme = "monokai",
-                                              value = "", height = "28vh", readOnly = F, autoComplete = "enabled")),
+                                              value = "", height = "22vh", readOnly = F, autoComplete = "enabled")),
                    conditionalPanel("input.BoxRf == 'tabRfRules'",
                                     aceEditor("fieldCodeRfRules", mode = "r", theme = "monokai",
                                               value = "", height = "4vh", readOnly = F, autoComplete = "enabled")))
@@ -751,18 +721,11 @@ panel.disp.rf <- tabPanel(title = labelInput("dispersion"), value = "tabRfDisp",
 
 panel.indices.generales.rf <- tabPanel(title = labelInput("indices"), value = "tabRfIndex",
                                        br(),
-                                       fluidRow(column(width = 3, gaugeOutput("rfCOR", width = "100%")),
-                                                column(width = 3, gaugeOutput("rfRE", width = "100%")),
-                                                column(width = 3, gaugeOutput("rfRMSE", width = "100%")),
-                                                column(width = 3, gaugeOutput("rfMAE", width = "100%"))),
-                                       br(),br(),
+                                       fluidRow(tableOutput('indexdfrf')),
+                                       br(),
                                        fluidRow(column(width = 12, align="center", tags$h3(labelInput("resumenVarPre")))),
-                                       fluidRow(class = "fila-resumen",
-                                                column(width = 3, gaugeOutput("rfMinG", width = "100%")),
-                                                column(width = 3, gaugeOutput("rf1QG", width = "100%")),
-                                                column(width = 3, gaugeOutput("rf3QG", width = "100%")),
-                                                column(width = 3, gaugeOutput("rfMaxG", width = "100%"))))
-
+                                       br(),
+                                       fluidRow(tableOutput('indexdfrf2')))
 
 reglas.rf <- tabPanel(title = labelInput("reglas"), value = "tabRfRules",
                       verbatimTextOutput("rulesRf"))
@@ -802,7 +765,7 @@ codigo.b  <- list(h4(labelInput("codigo")), hr(),
                                              value = "", height = "3vh", readOnly = F, autoComplete = "enabled")),
                    conditionalPanel("input.BoxB == 'tabBIndex'",
                                     aceEditor("fieldCodeBoostingIG", mode = "r", theme = "monokai",
-                                              value = "", height = "28vh", readOnly = F, autoComplete = "enabled")))
+                                              value = "", height = "22vh", readOnly = F, autoComplete = "enabled")))
 
 tabs.b  <- tabsOptions(botones = list(icon("gear"),icon("code")), widths = c(50,100), heights = c(63, 95),
                         tabs.content = list(opciones.b, codigo.b))
@@ -821,17 +784,11 @@ panel.disp.boosting <- tabPanel(title = labelInput("dispersion"), value = "tabBD
 
 panel.indices.generales.boosting <- tabPanel(title = labelInput("indices"),value = "tabBIndex",
                                              br(),
-                                             fluidRow(column(width = 3, gaugeOutput("bCOR", width = "100%")),
-                                                      column(width = 3, gaugeOutput("bRE", width = "100%")),
-                                                      column(width = 3, gaugeOutput("bRMSE", width = "100%")),
-                                                      column(width = 3, gaugeOutput("bMAE", width = "100%"))),
-                                             br(),br(),
+                                             fluidRow(tableOutput('indexdfb')),
+                                             br(),
                                              fluidRow(column(width = 12, align="center", tags$h3(labelInput("resumenVarPre")))),
-                                             fluidRow(class = "fila-resumen",
-                                                      column(width = 3, gaugeOutput("bMinG", width = "100%")),
-                                                      column(width = 3, gaugeOutput("b1QG", width = "100%")),
-                                                      column(width = 3, gaugeOutput("b3QG", width = "100%")),
-                                                      column(width = 3, gaugeOutput("bMaxG", width = "100%"))))
+                                             br(),
+                                             fluidRow(tableOutput('indexdfb2')))
 
 reglas.boosting <- tabPanel(title = labelInput("reglas"), value = "tabBRules",
                             verbatimTextOutput("rulesB"))
@@ -873,7 +830,7 @@ codigo.nn <- list(h4(labelInput("codigo")), hr(),
                                              value = "", height = "3vh", readOnly = F, autoComplete = "enabled")),
                    conditionalPanel("input.BoxNn == 'tabNnIndex'",
                                     aceEditor("fieldCodeNnIG", mode = "r", theme = "monokai",
-                                              value = "", height = "28vh", readOnly = F, autoComplete = "enabled")))
+                                              value = "", height = "22vh", readOnly = F, autoComplete = "enabled")))
 
 tabs.nn <- tabsOptions(botones = list(icon("gear"),icon("code")), widths = c(75,100), heights = c(95, 95),
                         tabs.content = list(opciones.nn, codigo.nn))
@@ -892,17 +849,11 @@ panel.disp.nn <- tabPanel(title = labelInput("dispersion"), value = "tabNnDisp",
 
 panel.indices.generales.nn <- tabPanel(title = labelInput("indices"), value = "tabNnIndex",
                                        br(),
-                                       fluidRow(column(width = 3, gaugeOutput("nnCOR", width = "100%")),
-                                                column(width = 3, gaugeOutput("nnRE", width = "100%", height = "50%")),
-                                                column(width = 3, gaugeOutput("nnRMSE", width = "100%")),
-                                                column(width = 3, gaugeOutput("nnMAE", width = "100%"))),
-                                       br(),br(),
+                                       fluidRow(tableOutput('indexdfnn')),
+                                       br(),
                                        fluidRow(column(width = 12, align="center", tags$h3(labelInput("resumenVarPre")))),
-                                       fluidRow(class = "fila-resumen",
-                                                column(width = 3, gaugeOutput("nnMinG", width = "100%")),
-                                                column(width = 3, gaugeOutput("nn1QG", width = "100%")),
-                                                column(width = 3, gaugeOutput("nn3QG", width = "100%")),
-                                                column(width = 3, gaugeOutput("nnMaxG", width = "100%"))))
+                                       br(),
+                                       fluidRow(tableOutput('indexdfnn2')))
 
 pagina.nn  <- tabItem(tabName = "nn",
                       tabBox(id = "BoxNn", width = NULL, height ="80%",

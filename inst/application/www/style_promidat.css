@@ -36,54 +36,16 @@
   min-height: 370px !important;
 }
 
-div[id$="RE"] path, div[id$="COR"] path,
-div[id$="RMSE"] path, div[id$="MAE"] path, div[id$="MaxG"] path,
-div[id$="MinG"] path, div[id$="1QG"] path, div[id$="3QG"] path,
-div[id$="RE"] svg text:last-child,   div[id$="COR"] svg text:last-child,
-div[id$="RMSE"] svg text:last-child, div[id$="MAE"] svg text:last-child,
-div[id$="MaxG"] svg text:last-child, div[id$="MinG"] svg text:last-child,
-div[id$="1QG"] svg text:last-child,  div[id$="3QG"] svg text:last-child,
-div[id$="RE"] svg text:nth-last-child(2),   div[id$="COR"] svg text:nth-last-child(2),
-div[id$="RMSE"] svg text:nth-last-child(2), div[id$="MAE"] svg text:nth-last-child(2),
-div[id$="MaxG"] svg text:nth-last-child(2), div[id$="MinG"] svg text:nth-last-child(2),
-div[id$="1QG"] svg text:nth-last-child(2),  div[id$="3QG"] svg text:nth-last-child(2){
-  display: none;
+div[id^="indexdf"] table td{
+  color: #000000 !important;
+  background-color: #e2e2e2;
+  font-size:20px;
 }
 
-div[data-value$="Index"] .col-sm-3{
-    height: 135px;
-}
-
-div[data-value$="Index"] .col-sm-12{
-    height: 28px;
-} 
-
-div[data-value$="Index"] h3{
-    position: relative;
-}
-
-div[data-value$="Index"] .fila-resumen{
-  height: 120px;
-}
-
-.html-widget.gauge svg {
-  height: 210px !important;
-}
-
-.row.fila-resumen > .col-sm-3 > div{
-   height: 20px !important;
-}
-
-.row.fila-resumen > .col-sm-3 .gauge.html-widget svg{
-   height: 120px !important;
-}
-
-svg text[fill="#b3b3b3"] {
-  font-size: 10px !important;
-}
-
-.row.fila-resumen > .col-sm-3 .gauge.html-widget svg text[fill="#b3b3b3"] {
-  font-size: 15px !important;
+div[id^="indexdf"] table thead tr{
+  color: #000000 !important;
+  background-color: #CBB051 !important;
+  font-size:20px;
 }
 
 #distribucion_numerica{

@@ -1,7 +1,7 @@
 
 shinyServer(function(input, output, session) {
   # FUNCIONES UTILITARIAS ---------------------------------------------------------------------------------------------------
-
+  
   # Crea una tabla dependiendo de los datos ingresados
   renderizar.tabla.datos <- function(data, editable = TRUE, dom = "frtip", pageLength = 10, scrollY = "27vh") {
     labelsNC <- ifelse(input$idioma == c("es", "es"), c("Numérico","Categórico"), c("Numerical","Categorical"))
@@ -96,6 +96,16 @@ shinyServer(function(input, output, session) {
     }
   }
 
+  render.index.table <- function(table){
+    renderTable({table},  
+                striped = TRUE, 
+                bordered = TRUE,  
+                spacing = 'l',  
+                width = '100%',  
+                digits = 5,
+                align = 'c')
+  }
+  
   # CONFIGURACIONES INICIALES -----------------------------------------------------------------------------------------------
 
   source("global.R", local = T)
@@ -882,8 +892,14 @@ shinyServer(function(input, output, session) {
                                       "indices.rl<- indices.generales(datos.prueba[,'",variable.predecir,"'], prediccion.rl)\n",
                                       "IndicesM[['rll']] <<- indices.rl\n```"))
         
-        nombres <- c("rlRMSE","rlMAE", "rlRE","rlCOR","rlMinG","rlMaxG","rl1QG","rl3QG")
-        fill.gauges(nombres, completar.indices(indices.rl))
+
+        df <- as.data.frame(indices.rl)
+        colnames(df) <- c(tr("RMSE"), tr("MAE"), tr("ER"), tr("correlacion"))
+        output$indexdfrl <- render.index.table(df)
+        
+        df2 <- as.data.frame(indices.resumen())
+        colnames(df2) <- c(tr("minimo"),tr("q1"),tr("q3"),tr("maximo"))
+        output$indexdfrl2 <- render.index.table(df2)
         
         nombres.modelos <<- c(nombres.modelos, "indices.rl")
         IndicesM[["rll"]] <<- indices.rl
@@ -1104,8 +1120,14 @@ shinyServer(function(input, output, session) {
                                       "indices.rlr <- indices.generales(datos.prueba[,'",variable.predecir,"'], prediccion.rlr.",rlr.type(),")\n",
                                       "IndicesM[['rlr-",rlr.type(),"']] <<- indices.rlr\n```"))
 
-        nombres <- c("rlrRMSE","rlrMAE", "rlrRE","rlrCOR","rlrMinG","rlrMaxG","rlr1QG","rlr3QG")
-        fill.gauges(nombres, completar.indices(indices.rlr))
+        
+        df <- as.data.frame(indices.rlr)
+        colnames(df) <- c(tr("RMSE"), tr("MAE"), tr("ER"), tr("correlacion"))
+        output$indexdfrlr <- render.index.table(df)
+        
+        df2 <- as.data.frame(indices.resumen())
+        colnames(df2) <- c(tr("minimo"),tr("q1"),tr("q3"),tr("maximo"))
+        output$indexdfrlr2 <- render.index.table(df2)
 
         # nombres.modelos <<- c(nombres.modelos, paste0("indices.rlr.",rlr.type()))
         IndicesM[[paste0("rlr-",rlr.type())]] <<- indices.rlr
@@ -1265,8 +1287,14 @@ shinyServer(function(input, output, session) {
                              "indices.knn <- indices.generales(datos.prueba[,'",variable.predecir,"'], prediccion.knn.",kernel,")\n",
                              "IndicesM[['knnl-",kernel,"']] <<- indices.knn\n```"))
 
-        nombres <- c("knnRMSE","knnMAE", "knnRE","knnCOR","knnMinG","knnMaxG","knn1QG","knn3QG")
-        fill.gauges(nombres, completar.indices(indices.knn))
+        
+        df <- as.data.frame(indices.knn)
+        colnames(df) <- c(tr("RMSE"), tr("MAE"), tr("ER"), tr("correlacion"))
+        output$indexdfknn <- render.index.table(df)
+        
+        df2 <- as.data.frame(indices.resumen())
+        colnames(df2) <- c(tr("minimo"),tr("q1"),tr("q3"),tr("maximo"))
+        output$indexdfknn2 <- render.index.table(df2)
 
         nombres.modelos <<- c(nombres.modelos, paste0("indices.knn.",kernel))
         IndicesM[[paste0("knnl-",kernel)]] <<- indices.knn
@@ -1418,8 +1446,14 @@ shinyServer(function(input, output, session) {
                              "indices.svm <- indices.generales(datos.prueba[,'",variable.predecir,"'], prediccion.svm.",kernel,")\n",
                              "IndicesM[['svml-",kernel,"']] <<- indices.svm\n```"))
 
-        nombres <- c("svmRMSE","svmMAE", "svmRE","svmCOR","svmMinG","svmMaxG","svm1QG","svm3QG")
-        fill.gauges(nombres, completar.indices(indices.svm))
+        
+        df <- as.data.frame(indices.svm)
+        colnames(df) <- c(tr("RMSE"), tr("MAE"), tr("ER"), tr("correlacion"))
+        output$indexdfsvm <- render.index.table(df)
+        
+        df2 <- as.data.frame(indices.resumen())
+        colnames(df2) <- c(tr("minimo"),tr("q1"),tr("q3"),tr("maximo"))
+        output$indexdfsvm2 <- render.index.table(df2)
         
         plot.disp.svm()
         nombres.modelos <<- c(nombres.modelos, paste0("indices.svm.",kernel))
@@ -1590,8 +1624,13 @@ shinyServer(function(input, output, session) {
                                        "indices.dt <- indices.generales(datos.prueba[,'",variable.predecir,"'], prediccion.dt)\n",
                                        "IndicesM[['dtl']] <<- indices.dt\n```"))
 
-        nombres <- c("dtRMSE","dtMAE", "dtRE","dtCOR","dtMinG","dtMaxG","dt1QG","dt3QG")
-        fill.gauges(nombres, completar.indices(indices.dt))
+        df <- as.data.frame(indices.dt)
+        colnames(df) <- c(tr("RMSE"), tr("MAE"), tr("ER"), tr("correlacion"))
+        output$indexdfdt <- render.index.table(df)
+        
+        df2 <- as.data.frame(indices.resumen())
+        colnames(df2) <- c(tr("minimo"),tr("q1"),tr("q3"),tr("maximo"))
+        output$indexdfdt2 <- render.index.table(df2)
         
         IndicesM[["dtl"]] <<- indices.dt
         actualizar.selector.comparativa()
@@ -1779,8 +1818,13 @@ shinyServer(function(input, output, session) {
                                       "indices.rf <- indices.generales(datos.prueba[,'",variable.predecir,"'], prediccion.rf)\n",
                                       "IndicesM[['rfl']] <<- indices.rf\n```"))
 
-        nombres <- c("rfRMSE","rfMAE", "rfRE","rfCOR","rfMinG","rfMaxG","rf1QG","rf3QG")
-        fill.gauges(nombres, completar.indices(indices.rf))
+        df <- as.data.frame(indices.rf)
+        colnames(df) <- c(tr("RMSE"), tr("MAE"), tr("ER"), tr("correlacion"))
+        output$indexdfrf <- render.index.table(df)
+        
+        df2 <- as.data.frame(indices.resumen())
+        colnames(df2) <- c(tr("minimo"),tr("q1"),tr("q3"),tr("maximo"))
+        output$indexdfrf2 <- render.index.table(df2)
 
         nombres.modelos <<- c(nombres.modelos, "indices.rf")
         IndicesM[["rfl"]] <<- indices.rf
@@ -1961,8 +2005,13 @@ shinyServer(function(input, output, session) {
                              "indices.boosting <- indices.generales(datos.prueba[,'",variable.predecir,"'], prediccion.boosting.",tipo,")\n",
                              "IndicesM[['bl-",tipo,"']] <<- indices.boosting\n```"))
         
-        nombres <- c("bRMSE","bMAE", "bRE","bCOR","bMinG","bMaxG","b1QG","b3QG")
-        fill.gauges(nombres, completar.indices(indices.boosting))
+        df <- as.data.frame(indices.boosting)
+        colnames(df) <- c(tr("RMSE"), tr("MAE"), tr("ER"), tr("correlacion"))
+        output$indexdfb <- render.index.table(df)
+        
+        df2 <- as.data.frame(indices.resumen())
+        colnames(df2) <- c(tr("minimo"),tr("q1"),tr("q3"),tr("maximo"))
+        output$indexdfb2 <- render.index.table(df2)
 
         nombres.modelos <<- c(nombres.modelos, paste0("indices.boosting.",tipo))
         IndicesM[[paste0("bl-",tipo)]] <<- exe("indices.boosting.",tipo)
@@ -2155,8 +2204,13 @@ shinyServer(function(input, output, session) {
                                        "indices.nn <- indices.generales(datos.prueba[,'",variable.predecir,"'], prediccion.nn)\n",
                                        "IndicesM[['nn']] <<- indices.nn\n```"))
 
-        nombres <-  c("nnRMSE","nnMAE", "nnRE","nnCOR","nnMinG","nnMaxG","nn1QG","nn3QG")
-        fill.gauges(nombres, completar.indices(indices.nn))
+        df <- as.data.frame(indices.nn)
+        colnames(df) <- c(tr("RMSE"), tr("MAE"), tr("ER"), tr("correlacion"))
+        output$indexdfnn <- render.index.table(df)
+        
+        df2 <- as.data.frame(indices.resumen())
+        colnames(df2) <- c(tr("minimo"),tr("q1"),tr("q3"),tr("maximo"))
+        output$indexdfnn2 <- render.index.table(df2)
         
         IndicesM[["nn"]] <<- indices.nn
         actualizar.selector.comparativa()
