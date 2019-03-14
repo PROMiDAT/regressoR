@@ -1,7 +1,7 @@
 #' Start regressoR
 #' @title This function will start regressoR
 #' @return Nothing
-#' @description An interactive 'Shiny' application for data prediction.
+#' @description An interactive 'Shiny' application for data regression.
 #' @details This starts the regressoR application on the user's local computer.
 #' @keywords regressoR
 #' @examples

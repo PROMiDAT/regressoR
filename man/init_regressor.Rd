@@ -10,7 +10,7 @@ init_regressor()
 Nothing
 }
 \description{
-An interactive 'Shiny' application for data prediction.
+An interactive 'Shiny' application for data regression.
 }
 \details{
 Start regressoR
