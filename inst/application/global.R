@@ -51,6 +51,10 @@ indices.resumen <- function(){
 }
 
 
+disp.modelos <- function(prediccion, modelo){
+  paste0("plot.real.prediction(datos.prueba[,'",variable.predecir,"'], ",prediccion,", '",modelo,"')")
+}
+
 #Convierte una tabla de prediccion html a data.frame
 dt.to.data.frame.predict <- function(datos){
   datos <- datos$x$data
