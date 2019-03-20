@@ -1,8 +1,13 @@
 
+
+
+# The server for RegressoR
 shinyServer(function(input, output, session) {
-  # FUNCIONES UTILITARIAS ---------------------------------------------------------------------------------------------------
   
-  # Crea una tabla dependiendo de los datos ingresados
+  
+  # UTILITY FUNCTIONS -----------------------------------------------------------------------------------------------------
+  
+  # Creates a table depending on the data entered
   renderizar.tabla.datos <- function(data, editable = TRUE, dom = "frtip", pageLength = 10, scrollY = "27vh") {
     labelsNC <- ifelse(input$idioma == c("es", "es"), c("Numérico","Categórico"), c("Numerical","Categorical"))
     data <- head(data, n = 100)
@@ -106,20 +111,21 @@ shinyServer(function(input, output, session) {
                 align = 'c')
   }
   
-  # CONFIGURACIONES INICIALES -----------------------------------------------------------------------------------------------
+  # CONFIGURACIONES INICIALES ---------------------------------------------------------------------------------------------
 
-  source("global.R", local = T)
-  source("utils.R", local = T)
-  load("www/translation.bin")
-  options(shiny.maxRequestSize = 200 * 1024^2,
-          width = 200,
-          DT.options = list(aLengthMenu = c(10, 30, 50), iDisplayLength = 10,
-                            scrollX = TRUE, language = list(search = HTML('<i class="fa fa-search"></i>'),
-                                                            info = "", emptyTable = "", zeroRecords = "",
-                                                            paginate = list("previous" = HTML('<i class="fa fa-backward"></i>'),
-                                                                            "next" = HTML('<i class="fa fa-forward"></i>'),
-                                                                            "first" =HTML('<i class="fa fa-fast-backward"></i>'),
-                                                                            "last" = HTML('<i class="fa fa-fast-forward"></i>')) )))
+  source("global.R", local = T) 
+  source("utils.R" , local = T)
+  
+  load("www/translation.bin") # Load translation.bin (dictionary to change language)
+  
+  options(shiny.maxRequestSize = 209715200, width = 200, # 209715200 = 200 * 1024^2
+          DT.options = list(aLengthMenu = c(10, 30, 50), iDisplayLength = 10, scrollX = TRUE, 
+                            language = list(search = HTML('<i class="fa fa-search"></i>'),
+                                            info = "", emptyTable = "", zeroRecords = "",
+                                            paginate = list("previous" = HTML('<i class="fa fa-backward"></i>'),
+                                                            "next" = HTML('<i class="fa fa-forward"></i>'),
+                                                            "first" =HTML('<i class="fa fa-fast-backward"></i>'),
+                                                            "last" = HTML('<i class="fa fa-fast-forward"></i>')) )))
 
   shinyjs::disable(selector = 'a[href^="#shiny-tab-parte1"]')
   shinyjs::disable(selector = 'a[href^="#shiny-tab-parte2"]')
@@ -762,12 +768,12 @@ shinyServer(function(input, output, session) {
     if(input$fieldCodePoderNum != "") {
       updatePlot$poder.num <- input$fieldCodePoderNum
     } else {
-      updatePlot$poder.num <- pairs.poder()
+      updatePlot$poder.num <- pairs.poder
     }
   })
 
   observeEvent(input$segmentButton,{
-    updatePlot$poder.num <- pairs.poder()
+    updatePlot$poder.num <- pairs.poder
   }, priority = 3)
   
   # PAGINA DE RL ------------------------------------------------------------------------------------------------------------

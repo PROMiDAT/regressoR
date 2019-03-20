@@ -1,12 +1,6 @@
 
 # FUNCIONES GLOBALES --------------------------------------------------------------------------------------------------------
 
-#Colores de ggplot2
-gg_color_hue <- function(n) {
-  hues <- seq(15, 375, length = n + 1)
-  hcl(h = hues, l = 65, c = 100)[1:n]
-}
-
 max.col <- function(m){
   base::max.col(apply(m, 1, function(x) max(x, na.rm = TRUE)) == m)
 }
@@ -56,19 +50,6 @@ indices.resumen <- function(){
   return(l)
 }
 
-# Gráfico de dispersión entre el valor real de la variable a predecir y la predicción del modelo.
-plot.real.prediccion <- function(real, prediccion, modelo = "") {
-  ggplot(data = data.frame(Real = real, Prediccion = as.numeric(prediccion)), mapping = aes(x = Real, y = Prediccion)) +
-    geom_point(size = 2, col = "red") +
-    labs(title = paste0("Real vs Predicción", ifelse(modelo == "", "", paste(", con", modelo))), x = "Real", y = "Predicción") +
-    theme_minimal() +
-    theme(panel.background = element_blank(), axis.line = element_line(colour = "black")) +
-    geom_line(col = "black",  mapping = aes(x = Real, y = Real), alpha = 0.5)
-}
-
-disp.modelos <- function(prediccion, modelo){
-  paste0("plot.real.prediccion(datos.prueba[,'",variable.predecir,"'], ",prediccion,", '",modelo,"')")
-}
 
 #Convierte una tabla de prediccion html a data.frame
 dt.to.data.frame.predict <- function(datos){
@@ -121,26 +102,6 @@ plot.MC <<- function(cm) {
   text(mean(c((x2 + (i + 2) * (ancho + 3)), (x1 + (i + 2) * (ancho + 3)))), y1 + 20, names.class[i + 3], cex = 1.2)
   text(mean(c((x2 + (i + 3) * (ancho + 3)), (x1 + (i + 3) * (ancho + 3)))), y1 + 20, names.class[i + 4], cex = 1.2)
 }"))
-}
-
-# Concatena y ejecuta un string como codigo
-exe <- function(...){
-  eval(parse(text = paste0(...)))
-}
-
-as.string.c <- function(vect, .numeric = FALSE){
-  if(.numeric){
-    return(paste0("c(",paste0(vect, collapse = ","),")"))
-  }
-  else{
-    return(paste0("c('",paste0(vect, collapse = "','"),"')"))
-  }
-}
-
-extract.code <- function(funcion) {
-  code <- paste(head(exe(funcion), 100), collapse = "\n")
-  code <- paste(funcion, "<-", code)
-  return(code)
 }
 
 # Pagina de Cargar y Transformar Datos --------------------------------------------------------------------------------------
@@ -404,12 +365,11 @@ correlaciones <- function(metodo = 'circle', tipo = "lower"){
 # Pagina de Poder Predictivo ------------------------------------------------------------------------------------------------
 
 #Grafica el pairs
-pairs.poder <- function(){
-  return(paste0("pairs.panels(var.numericas(datos), bg = 'black', ellipses = FALSE, smooth = FALSE,
-lm = TRUE, cex = 0.5,cex.main=0.1,
-pch= 20, main='',
-hist.col = gg_color_hue(3)[3], oma = c(1,1,1,1) )"))
-}
+
+pairs.poder <<- 
+"pairs.panels(var.numericas(datos), bg='black', ellipses=FALSE, smooth=FALSE, 
+  lm=TRUE, cex=0.5, cex.main=0.1, pch=20, main='',
+hist.col=gg_color_hue(3)[3], oma=c(1,1,1,1) )"
 
 # Pagina de RL --------------------------------------------------------------------------------------------------------------
 
@@ -741,7 +701,7 @@ boosting.disp <- function(type = "gaussian"){
 nn.modelo <- function(threshold = 0.01, stepmax = 1000, cant.cap = 2, ...){
   threshold <- ifelse(threshold == 0, 0.01, threshold)
   stepmax <- ifelse(stepmax < 100, 100, stepmax)
-  capas <- as.string.c(as.numeric(list(...)[1:cant.cap]), .numeric = TRUE)
+  capas <- as.string.c(as.numeric(list(...)[1:cant.cap]), quote = FALSE)
 
   paste0("datos.dummies.apren <- dummy.data.frame(datos.aprendizaje)\n",
          "mean.nn <<- sapply(datos.dummies.apren, mean)\n",
@@ -756,7 +716,7 @@ nn.modelo <- function(threshold = 0.01, stepmax = 1000, cant.cap = 2, ...){
 nn.modelo.np <- function(variable.pr = "",threshold = 0.01, stepmax = 1000, cant.cap = 2, ...){
   threshold <- ifelse(threshold == 0, 0.01, threshold)
   stepmax <- ifelse(stepmax < 100, 100, stepmax)
-  capas <- as.string.c(as.numeric(list(...)[1:cant.cap]), .numeric = TRUE)
+  capas <- as.string.c(as.numeric(list(...)[1:cant.cap]), quote = FALSE)
   
   paste0("datos.dummies.apren <- dummy.data.frame(datos.aprendizaje.completos)\n",
          "mean.nn.np <<- sapply(datos.dummies.apren, mean)\n",
