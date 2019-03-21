@@ -1,4 +1,7 @@
-#' Concat and execute a text in R
+
+#' exe
+#' 
+#' @description Concat and execute a text in R
 #'
 #' @param ... one or more texts to be concatenated and executed
 #' 
@@ -14,10 +17,9 @@ exe <- function(...){
   eval(parse(text = paste0(...)))
 }
 
-
-#' Extract code
+#' extract.code
 #' 
-#' Gets the code of a function in text form
+#' @description Gets the code of a function in text form
 #'
 #' @param funcion the name of the function to be extracted
 #'
@@ -36,20 +38,22 @@ extract.code <- function(funcion) {
   return(code)
 }
 
-
-#' Creates a string representative of a vector
+#' as.string.c
+#' 
+#' @description Creates a string representative of a vector
 #'
 #' @param vect a vector
 #' @param quote a logical value. If TRUE, the values on the vector will be surrounded by quotes.
 #' 
 #' @return a text
 #' @export
-#'
+#' 
 #' @examples
 #' as.string.c(c("A", "B", "C"))
 #' as.string.c(c(5, 6, 7))
 #' as.string.c(c(5, 6, 7), quote = FALSE)
 #' as.string.c(iris$Species)
+#'
 as.string.c <- function(vect, quote = TRUE){
   if(quote){
     return(paste0("c('",paste0(vect, collapse = "','"),"')"))
