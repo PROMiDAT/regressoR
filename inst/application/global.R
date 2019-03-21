@@ -1,64 +1,8 @@
 
 # FUNCIONES GLOBALES --------------------------------------------------------------------------------------------------------
 
-max.col <- function(m){
-  base::max.col(apply(m, 1, function(x) max(x, na.rm = TRUE)) == m)
-}
-
-#Obtiene los nombres de columnas o regresa un string vacio
-colnames.empty <- function(res){
-  res <- colnames(res)
-  if(is.null(res))
-    return("")
-  return(res)
-}
-
-#Obtiene solo las variables numericas
-var.numericas <- function(data){
-  if(is.null(data)) return(NULL)
-  res <- base::subset(data, select = sapply(data, class) %in% c('numeric', 'integer'))
-  return(res)
-}
-
-#Obtiene solo las variables categoricas
-var.categoricas <- function(data){
-  if(is.null(data)) return(NULL)
-  res <- base::subset(data, select = !sapply(data, class) %in% c('numeric', 'integer'))
-  return(res)
-}
-
-#Codigo del calculo de los indices
-# Funciones para medir precisión
-indices.generales <- function(real, prediccion) {
-  RMSE <- sqrt(sum((real - prediccion) ^ 2) / length(prediccion))
-  MAE  <- sum(abs(real - prediccion)) / length(prediccion)
-  RE   <- sum(abs(real - prediccion)) / sum(abs(real))
-  COR  <- as.numeric(cor(real, prediccion))
-  COR  <- ifelse(is.na(COR), 0 , COR)
-  return(list(Raiz.Error.Cuadratico = RMSE,
-              Error.Absoluto = MAE,
-              Error.Relativo = RE,
-              Correlacion = COR))
-}
-
-indices.resumen <- function(){
-  l <- list()
-  l["Min"] <- min(datos.aprendizaje[,variable.predecir])
-  l["1Q"] <- quantile(datos.aprendizaje[,variable.predecir], prob=c(0.25))
-  l["3Q"] <- quantile(datos.aprendizaje[,variable.predecir], prob=c(0.75))
-  l["Max"] <- max(datos.aprendizaje[,variable.predecir])
-  return(l)
-}
-
-
 disp.modelos <- function(prediccion, modelo){
-  paste0("plot.real.prediction(datos.prueba[,'",variable.predecir,"'], ",prediccion,", '",modelo,"')")
-}
-
-#Convierte una tabla de prediccion html a data.frame
-dt.to.data.frame.predict <- function(datos){
-  datos <- datos$x$data
-  return(datos)
+  paste0("plot_real_prediction(datos.prueba[,'",variable.predecir,"'], ",prediccion,", '",modelo,"')")
 }
 
 # Hace el grafico de la matriz de confusion
@@ -110,20 +54,7 @@ plot.MC <<- function(cm) {
 
 # Pagina de Cargar y Transformar Datos --------------------------------------------------------------------------------------
 
-#Transforma las variables a disyuntivas
-datos.disyuntivos <- function(data, vars){
-  if(is.null(data)) return(NULL)
-  cualitativas <- base::subset(data, select = colnames(data) %in% c(vars))
-  data <- data[, !colnames(data) %in% vars]
-  for (variable in colnames(cualitativas)) {
-    for (categoria in unique(cualitativas[, variable])) {
-      nueva.var <- as.numeric(cualitativas[, variable] == categoria)
-      data <- cbind(data, nueva.var)
-      colnames(data)[length(colnames(data))] <- paste0(variable, '.', categoria)
-    }
-  }
-  return(data)
-}
+
 
 #Genera el codigo para cargar datos
 code.carga <- function(nombre.filas = T, ruta = NULL, separador = ";", sep.decimal = ",", encabezado = T, d.o = "datos.originales", d = "datos" ){
@@ -163,7 +94,7 @@ code.trans <- function(variable, nuevo.tipo, d.o = "datos.originales",d="datos")
   } else {
     es.factor <- ifelse( eval(parse(text = paste0("class(",d.o,"[, variable]) %in% c('numeric', 'integer')"))),
                         paste0(d,"[, '", variable, "'] <<- as.factor(",d,"[, '", variable, "']) \n"), "")
-    return(paste0(es.factor, d, " <<- datos.disyuntivos(",d,", '", variable,"')"))
+    return(paste0(es.factor, d, " <<- disjunctive.data(",d,", '", variable,"')"))
   }
 }
 
@@ -293,7 +224,7 @@ fisher.calc <- function (x, na.rm = FALSE, ...) {
 #Genera  la tabla de normalidad
 default.calc.normal <- function(data = "datos", labelsi = "Positiva", labelno = "Negativa",labelsin = "Sin Asimetría") {
   return(paste0(
-    "calc <- lapply(var.numericas(", data,"), function(i) fisher.calc(i)[1]) \n",
+    "calc <- lapply(var.numerical(", data,"), function(i) fisher.calc(i)[1]) \n",
     "calc <- as.data.frame(calc) \n",
     "calc <- rbind(calc, lapply(calc, function(i) ifelse(i > 0, '", labelsi,
     "',\n  ifelse(i < 0, '", labelno, "', '", labelsin, "')))) \n",
@@ -357,7 +288,7 @@ distribucion.categorico <- function(var) {
 
 #Calcula la matriz de correlacion
 modelo.cor <- function(data = "datos"){
-  return(paste0("correlacion <<- cor(var.numericas(", data, "))"))
+  return(paste0("correlacion <<- cor(var.numerical(", data, "))"))
 }
 
 #Codigo de la generacion de correlaciones
@@ -371,7 +302,7 @@ correlaciones <- function(metodo = 'circle', tipo = "lower"){
 #Grafica el pairs
 
 pairs.poder <<- 
-"pairs.panels(var.numericas(datos), bg='black', ellipses=FALSE, smooth=FALSE, 
+"pairs.panels(var.numerical(datos), bg='black', ellipses=FALSE, smooth=FALSE, 
   lm=TRUE, cex=0.5, cex.main=0.1, pch=20, main='',
 hist.col=gg_color_hue(3)[3], oma=c(1,1,1,1) )"
 
@@ -762,19 +693,7 @@ nn.plot <- function(){
          "dimension=15, radius = 0.2, fontsize = 10)")
 }
 
-# Pagina de TABLA COMPARATIVA -----------------------------------------------------------------------------------------------
-
 # Pagina de REPORTE ---------------------------------------------------------------------------------------------------------
-
-combinar.nombres <- function(n.modelos, n.modos){
-  res <- c()
-  for (modo in n.modos) {
-    for (modelo in n.modelos) {
-      res <- c(res,paste0(modelo,".",modo))
-    }
-  }
-  return(res)
-}
 
 #Ordena el reporte
 ordenar.reporte <- function(lista){
@@ -788,19 +707,19 @@ ordenar.reporte <- function(lista){
              nombres[grepl("poder.cat.", nombres)],
              "poder.num",nombres[grepl("poder.den.", nombres)],
              "modelo.rl","pred.rl","disp.rl","ind.rl",
-             combinar.nombres(c("modelo.rlr","posib.landa.rlr","coeff.landa.rlr","gcoeff.landa.rlr","pred.rlr","disp.rlr","ind.rlr"),
+             combine.names(c("modelo.rlr","posib.landa.rlr","coeff.landa.rlr","gcoeff.landa.rlr","pred.rlr","disp.rlr","ind.rlr"),
                               c("ridge", "lasso")),
-             combinar.nombres(c("modelo.knn","pred.knn","disp.knn","ind.knn"),
+             combine.names(c("modelo.knn","pred.knn","disp.knn","ind.knn"),
                               c("optimal", "rectangular", "triangular","epanechnikov",
                                 "biweight","triweight", "cos","inv","gaussian")),
-             combinar.nombres(c("modelo.svm","pred.svm","disp.svm","ind.svm"),
+             combine.names(c("modelo.svm","pred.svm","disp.svm","ind.svm"),
                               c("linear", "polynomial", "radial","sigmoid")),
              "modelo.dt","modelo.dt.graf","pred.dt",
              "disp.dt","ind.dt","modelo.dt.rules",
              "modelo.rf","modelo.rf.graf",
              "pred.rf","disp.rf","ind.rf",
              nombres[grepl("modelo.rf.rules.", nombres)],
-             combinar.nombres(c("modelo.b","modelo.b.imp","pred.b","disp.boosting","ind.b"),
+             combine.names(c("modelo.b","modelo.b.imp","pred.b","disp.boosting","ind.b"),
                               c("gaussian", "laplace", "tdist")),
              "modelo.nn", "modelo.nn.graf", "pred.nn", "disp.nn", "ind.nn",
              "tabla.comparativa")
@@ -837,8 +756,8 @@ def.reporte <- function(titulo = "Sin Titulo", nombre = "PROMiDAT", entradas) {
     "library(rpart.plot)\nlibrary(randomForest)\nlibrary(ada)\nlibrary(xgboost)\n",
     "library(dplyr)\nlibrary(forcats)\n",
     "library(xtable)\n",
-    "```\n\n", "```{r}\n", extract.code("var.numericas"), "\n\n",
-    extract.code("var.categoricas"), "\n\n", extract.code("datos.disyuntivos"),
+    "```\n\n", "```{r}\n", extract.code("var.numerical"), "\n\n",
+    extract.code("var.categorical"), "\n\n", extract.code("disjunctive.data"),
     "\n\n", extract.code("distribucion.numerico"), "\n\n",
     extract.code("distribucion.categorico"), "\n\n```",
     codigo.usuario)
@@ -847,7 +766,7 @@ def.reporte <- function(titulo = "Sin Titulo", nombre = "PROMiDAT", entradas) {
 
 recover.cat <- function(){
   unlockBinding("cat", .BaseNamespaceEnv)
-
+  
   .BaseNamespaceEnv$cat <- function (..., file = "", sep = " ", fill = FALSE, labels = NULL, append = FALSE){
     if (is.character(file))
       if (file == "")
@@ -862,21 +781,21 @@ recover.cat <- function(){
       }
       .Internal(cat(list(...), file, sep, fill, labels, append))
   }
-
+  
   lockBinding("cat",.BaseNamespaceEnv)
 }
 
 overwrite.cat <- function(){
   unlockBinding("cat", .BaseNamespaceEnv)
-
+  
   .BaseNamespaceEnv$cat <- function(..., file = "", sep = " ", fill = FALSE, labels = NULL, append = FALSE){
     file <- stderr()
     sep <- ""
-
+    
     msg <- .makeMessage(..., domain = NULL, appendLF = TRUE)
     call <- sys.call()
     cond <- simpleMessage(msg, call)
-
+    
     if (is.character(file))
       if (file == "")
         file <- stdout()
@@ -889,7 +808,7 @@ overwrite.cat <- function(){
       on.exit(close(file))
     }
     defaultHandler <- function(c) {
-      base:::.Internal(cat(as.list(conditionMessage(c)), file, sep, fill, labels, append))
+      .Internal(cat(as.list(conditionMessage(c)), file, sep, fill, labels, append))
     }
     withRestarts({
       signalCondition(cond)
@@ -897,7 +816,7 @@ overwrite.cat <- function(){
     }, muffleMessage = function() NULL)
     invisible()
   }
-
+  
   lockBinding("cat",.BaseNamespaceEnv)
 }
 

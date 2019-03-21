@@ -8,7 +8,7 @@ shinyServer(function(input, output, session) {
   # UTILITY FUNCTIONS -----------------------------------------------------------------------------------------------------
   
   # Creates a table depending on the data entered
-  renderizar.tabla.datos <- function(data, editable = TRUE, dom = "frtip", pageLength = 10, scrollY = "27vh") {
+  renderizar.tabla.datos <- function(data, editable = TRUE, dom = "frtip", pageLength = 10, scrollY = "27vh", server = T) {
     labelsNC <- ifelse(input$idioma == c("es", "es"), c("Numérico","Categórico"), c("Numerical","Categorical"))
     data <- head(data, n = 100)
     nombre.columnas <- c("ID", colnames(data))
@@ -19,20 +19,20 @@ shinyServer(function(input, output, session) {
     sketch <- htmltools::withTags(table(tableHeader(nombre.columnas),
                                         tags$tfoot(tags$tr(tags$th(), tipo.columnas))))
 
-    return(DT::datatable(data, selection = 'none', editable = editable,  container = sketch,
-                  options = list(dom = dom, pageLength = pageLength, scrollY = scrollY)))
+    return(DT::renderDT(DT::datatable(data, selection = 'none', editable = editable,  container = sketch,
+                  options = list(dom = dom, pageLength = pageLength, scrollY = scrollY)), server = server))
   }
 
   # Acualiza las distintas tablas
   actualizar.tabla <- function(x = c("datos", "datos.aprendizaje", "datos.prueba")){
     if(any("datos" %in% x)){ # Cambia la tabla de datos
-      output$contents <- DT::renderDT(renderizar.tabla.datos(datos,editable = T),server=F)
+      output$contents <- renderizar.tabla.datos(datos,editable = T, server=F)
     }
     if(any("datos.aprendizaje" %in% x)){ # Cambia la tabla de datos de aprendizaje
-      output$contentsAprend <- DT::renderDT(renderizar.tabla.datos(datos.aprendizaje,editable=T,scrollY="15vh"),server=F)
+      output$contentsAprend <- renderizar.tabla.datos(datos.aprendizaje,editable=T,scrollY="15vh", server=F)
     }
     if(any("datos.prueba" %in% x)){ # Cambia la tabla de datos de prueba
-      output$contentsPrueba <- DT::renderDT(renderizar.tabla.datos(datos.prueba,editable = T,scrollY="15vh"),server=F)
+      output$contentsPrueba <- renderizar.tabla.datos(datos.prueba,editable = T,scrollY="15vh",server=F)
     }
   }
 
@@ -63,7 +63,7 @@ shinyServer(function(input, output, session) {
   }
 
   # Crea la tabla de comparacion entre prediccion y datos reales (datos de prueba)
-  obj.predic <- function(predic.var = NULL){
+  tb_predic <- function(predic.var = NULL){
     real <- datos.prueba[, variable.predecir, drop = F]
     df <- cbind(real, predic.var,  abs(real - predic.var))
     colns <- c(tr("reald"), tr("pred"), tr("dif"))
@@ -76,39 +76,14 @@ shinyServer(function(input, output, session) {
                          container = sketch,
                          options = list(dom = "frtip", pageLength = 10)))
   }
-
-  error.plot <- function(msg) {
-    res <- ggplot(data.frame(x = c(2, 2.5, 3), y = c(2 ,3 ,2))) +
-      geom_polygon(mapping=aes(x=x, y=y), col="gold", fill="gold", alpha=0.3) +
-      annotate("rect", xmin = 2.47, xmax = 2.53, ymin = 2.4, ymax = 2.8) +
-      annotate("rect", xmin = 2.47, xmax = 2.53, ymin = 2.25, ymax = 2.35) +
-      annotate("text", x = 2.5, y = 2.1, label = paste0("bold('", msg, "')"),
-               size = 8, parse = T) +
-      theme(
-        panel.background = element_rect(fill = "transparent"),
-        axis.title = element_blank(), axis.ticks = element_blank(),
-        axis.text = element_blank()
-      )
-    return(res)
-  }
   
   # Grafica un error de datos faltantes
   error.variables <- function(num = T) {
     if(num){
-      error.plot(tr("errornum"))
+      error_plot(tr("errornum"))
     } else {
-      error.plot(tr("errorcat"))
+      error_plot(tr("errorcat"))
     }
-  }
-
-  render.index.table <- function(table){
-    renderTable({table},  
-                striped = TRUE, 
-                bordered = TRUE,  
-                spacing = 'l',  
-                width = '100%',  
-                digits = 5,
-                align = 'c')
   }
   
   # CONFIGURACIONES INICIALES ---------------------------------------------------------------------------------------------
@@ -133,7 +108,7 @@ shinyServer(function(input, output, session) {
   shinyjs::disable(selector = 'a[href^="#shiny-tab-poderPred"]')
   shinyjs::disable(selector = 'a[href^="#shiny-tab-parte1"]')
 
-  actualizar.tabla()
+  #actualizar.tabla()
 
   updateAceEditor(session, "fieldCodeResum", value = cod.resum())
   updateAceEditor(session, "fieldModelCor", value = modelo.cor())
@@ -220,12 +195,12 @@ shinyServer(function(input, output, session) {
 
   # Actualizar los distintos selectores
   acualizar.selecctores <- function() {
-    updateSelectizeInput(session, "sel.normal", choices = colnames.empty(var.numericas(datos)))
-    updateSelectizeInput(session, "select.var", choices = colnames.empty(var.numericas(datos)))
-    updateSelectInput(session, "sel.distribucion.num", choices = colnames.empty(var.numericas(datos)))
-    updateSelectInput(session, "sel.distribucion.cat", choices = colnames.empty(var.categoricas(datos)))
+    updateSelectizeInput(session, "sel.normal", choices = colnames.empty(var.numerical(datos)))
+    updateSelectizeInput(session, "select.var", choices = colnames.empty(var.numerical(datos)))
+    updateSelectInput(session, "sel.distribucion.num", choices = colnames.empty(var.numerical(datos)))
+    updateSelectInput(session, "sel.distribucion.cat", choices = colnames.empty(var.categorical(datos)))
     updateSelectInput(session, "sel.resumen", choices = colnames.empty(datos))
-    updateSelectInput(session, "sel.predic.var", choices = rev(colnames.empty(var.numericas(datos))))
+    updateSelectInput(session, "sel.predic.var", choices = rev(colnames.empty(var.numerical(datos))))
   }
 
   # Crea las correlaciones
@@ -376,9 +351,9 @@ shinyServer(function(input, output, session) {
 
   # Actualiza los selecctores relacionados con los datos de prueba y aprendizaje
   acualizar.selecctores.seg <- function() {
-    nombres <- colnames.empty(var.numericas(datos))
+    nombres <- colnames.empty(var.numerical(datos))
     choices <- as.character(unique(datos[, variable.predecir]))
-    cat.sin.pred <- colnames.empty(var.categoricas(datos))
+    cat.sin.pred <- colnames.empty(var.categorical(datos))
     cat.sin.pred <- cat.sin.pred[cat.sin.pred != input$sel.predic.var]
     updateSelectInput(session, "sel.distribucion.poder", choices = cat.sin.pred)
     updateSelectInput(session, "sel.density.poder", choices = nombres)
@@ -480,7 +455,7 @@ shinyServer(function(input, output, session) {
 
   # Cambia los cuadros de summary por varibale
   output$resumen <- renderUI({
-    if (input$sel.resumen %in% colnames(var.numericas(datos))){
+    if (input$sel.resumen %in% colnames(var.numerical(datos))){
       resumen.numerico(datos, input$sel.resumen)
     }else{
       resumen.categorico(datos, input$sel.resumen)
@@ -499,7 +474,7 @@ shinyServer(function(input, output, session) {
         insert.report(paste0("normalidad.", input$sel.normal),paste0("## Test de Normalidad \n```{r}\n", cod.normal, "\n```"))
         return(res)
       }, error = function(e){
-        if(ncol(var.numericas(datos)) <= 0){
+        if(ncol(var.numerical(datos)) <= 0){
           error.variables( T)
         } else {
           showNotification(paste0("ERROR: ", e), duration = 10, type = "error")
@@ -562,7 +537,7 @@ shinyServer(function(input, output, session) {
         }
         return(isolate(exe(cod.disp)))
       }, error = function(e) {
-        if(ncol(var.numericas(datos)) <= 1){
+        if(ncol(var.numerical(datos)) <= 1){
           error.variables( T)
         } else {
           showNotification(paste0("ERROR: ", e), duration = 10, type = "error")
@@ -634,7 +609,7 @@ shinyServer(function(input, output, session) {
         
         return(res)
       }, error = function(e) {
-        if (ncol(var.numericas(datos)) == 0){
+        if (ncol(var.numerical(datos)) == 0){
           error.variables( T)
         }else{
           showNotification(paste0("ERROR: ", e), duration = 10, type = "error")
@@ -680,7 +655,7 @@ shinyServer(function(input, output, session) {
                       paste0("## Distribución \n```{r}\n", cod.dya.cat, "\n```"))
         return(res)
       }, error = function(e) {
-        if (ncol(var.categoricas(datos)) == 0){
+        if (ncol(var.categorical(datos)) == 0){
           error.variables( T)
         }else{
           showNotification(paste0("ERROR: ", e), duration = 10, type = "error")
@@ -712,7 +687,7 @@ shinyServer(function(input, output, session) {
         insert.report("correlacion", paste0("## Correlación \n```{r}\n", cod.cor, "\n```"))
         return(res)
       }, error = function(e) {
-        if (ncol(var.numericas(datos)) == 0){
+        if (ncol(var.numerical(datos)) == 0){
           error.variables( T)
         }else{
           showNotification(paste0("ERROR EN Correlacion: ", e),
@@ -742,8 +717,8 @@ shinyServer(function(input, output, session) {
       tryCatch({
         cod.poder.num <<- updatePlot$poder.num
         updateAceEditor(session, "fieldCodePoderNum", value = cod.poder.num)
-        if (ncol(var.numericas(datos)) >= 2) {
-          if(ncol(var.numericas(datos)) <= 25){
+        if (ncol(var.numerical(datos)) >= 2) {
+          if(ncol(var.numerical(datos)) <= 25){
             res <- isolate(exe(cod.poder.num))
             insert.report("poder.num",paste0("## Poder Predictivo Variables Numéricas \n```{r}\n", cod.poder.num, "\n```"))
             return(res)
@@ -803,7 +778,7 @@ shinyServer(function(input, output, session) {
     updateAceEditor(session, "fieldCodeRlDisp", value = codigo)
     
     # Se genera el codigo de la indices
-    codigo <- extract.code("indices.generales")
+    codigo <- extract.code("general.indices")
     updateAceEditor(session, "fieldCodeRlIG", value = codigo)
     cod.rl.ind <<- codigo
   }
@@ -868,11 +843,11 @@ shinyServer(function(input, output, session) {
     tryCatch({ # Se corren los codigo
       isolate(exe(cod.rl.pred))
       
-      output$rlPrediTable <- DT::renderDataTable(obj.predic(prediccion.rl), server = FALSE)
+      output$rlPrediTable <- DT::renderDataTable(tb_predic(prediccion.rl), server = FALSE)
       
       insert.report("pred.rl",
                     paste0("## Predicción del Modelo Bosques Aleatorios\n```{r}\n", cod.rl.pred,
-                           "\nhead(dt.to.data.frame.predict(obj.predic(prediccion.rl)))\n```"))
+                           "\nhead(tb_predic(prediccion.rl)x$data)\n```"))
       
       plot.disp.rl()
       
@@ -891,11 +866,11 @@ shinyServer(function(input, output, session) {
       tryCatch({ # Se corren los codigo
         isolate(exe(cod.rl.ind))
         
-        indices.rl <<- indices.generales(datos.prueba[,variable.predecir], prediccion.rl)
+        indices.rl <<- general.indices(datos.prueba[,variable.predecir], prediccion.rl)
         
         insert.report("ind.rl",paste0("## Índices Generales\n```{r}\n",
-                                      cod.rl.ind, "\nindices.generales(datos.prueba[,'",variable.predecir,"'], prediccion.rl)\n",
-                                      "indices.rl<- indices.generales(datos.prueba[,'",variable.predecir,"'], prediccion.rl)\n",
+                                      cod.rl.ind, "\ngeneral.indices(datos.prueba[,'",variable.predecir,"'], prediccion.rl)\n",
+                                      "indices.rl<- general.indices(datos.prueba[,'",variable.predecir,"'], prediccion.rl)\n",
                                       "IndicesM[['rll']] <<- indices.rl\n```"))
         
 
@@ -903,7 +878,7 @@ shinyServer(function(input, output, session) {
         colnames(df) <- c(tr("RMSE"), tr("MAE"), tr("ER"), tr("correlacion"))
         output$indexdfrl <- render.index.table(df)
         
-        df2 <- as.data.frame(indices.resumen())
+        df2 <- as.data.frame(summary_indices(datos.aprendizaje[,variable.predecir]))
         colnames(df2) <- c(tr("minimo"),tr("q1"),tr("q3"),tr("maximo"))
         output$indexdfrl2 <- render.index.table(df2)
         
@@ -985,7 +960,7 @@ shinyServer(function(input, output, session) {
     updateAceEditor(session, "fieldCodeRlrDisp", value = codigo)
 
     # Se genera el codigo de la indices
-    codigo <- extract.code("indices.generales")
+    codigo <- extract.code("general.indices")
     updateAceEditor(session, "fieldCodeRlrIG", value = codigo)
     cod.rlr.ind <<- codigo
   }
@@ -1096,11 +1071,11 @@ shinyServer(function(input, output, session) {
     tryCatch({ # Se corren los codigo
       isolate(exe(cod.rlr.pred))
       isolate(tipo <- rlr.type())
-      output$rlrPrediTable <- DT::renderDataTable(obj.predic(exe("prediccion.rlr.",tipo)), server = FALSE)
+      output$rlrPrediTable <- DT::renderDataTable(tb_predic(exe("prediccion.rlr.",tipo)), server = FALSE)
 
       insert.report(paste0("pred.rlr.",tipo),
                     paste0("## Predicción del R/L\n```{r}\n", cod.rlr.pred,
-                           "\nhead(dt.to.data.frame.predict(obj.predic(prediccion.rlr.",tipo,")))\n```"))
+                           "\nhead(tb_predic(prediccion.rlr.",tipo,")x$data)\n```"))
 
       plot.disp.rlr()
       nombres.modelos <<- c(nombres.modelos, "prediccion.rlr")
@@ -1118,12 +1093,12 @@ shinyServer(function(input, output, session) {
       tryCatch({ # Se corren los codigo
         isolate(exe(cod.rlr.ind))
 
-        indices.rlr <- indices.generales(datos.prueba[,variable.predecir], exe("prediccion.rlr.",rlr.type()))
+        indices.rlr <- general.indices(datos.prueba[,variable.predecir], exe("prediccion.rlr.",rlr.type()))
         #exe("indices.rlr.",rlr.type()," <<- indices.rlr")
         
         insert.report(paste0("ind.rlr.",rlr.type()),paste0("## Índices Generales\n```{r}\n",
-                                      cod.rlr.ind, "\nindices.generales(datos.prueba[,'",variable.predecir,"'], prediccion.rlr.",rlr.type(),")\n",
-                                      "indices.rlr <- indices.generales(datos.prueba[,'",variable.predecir,"'], prediccion.rlr.",rlr.type(),")\n",
+                                      cod.rlr.ind, "\ngeneral.indices(datos.prueba[,'",variable.predecir,"'], prediccion.rlr.",rlr.type(),")\n",
+                                      "indices.rlr <- general.indices(datos.prueba[,'",variable.predecir,"'], prediccion.rlr.",rlr.type(),")\n",
                                       "IndicesM[['rlr-",rlr.type(),"']] <<- indices.rlr\n```"))
 
         
@@ -1131,7 +1106,7 @@ shinyServer(function(input, output, session) {
         colnames(df) <- c(tr("RMSE"), tr("MAE"), tr("ER"), tr("correlacion"))
         output$indexdfrlr <- render.index.table(df)
         
-        df2 <- as.data.frame(indices.resumen())
+        df2 <- as.data.frame(summary_indices(datos.aprendizaje[,variable.predecir]))
         colnames(df2) <- c(tr("minimo"),tr("q1"),tr("q3"),tr("maximo"))
         output$indexdfrlr2 <- render.index.table(df2)
 
@@ -1193,7 +1168,7 @@ shinyServer(function(input, output, session) {
     updateAceEditor(session, "fieldCodeKnnDisp", value = codigo)
 
     # Se genera el codigo de la indices
-    codigo <- extract.code("indices.generales")
+    codigo <- extract.code("general.indices")
     updateAceEditor(session, "fieldCodeKnnIG", value = codigo)
     cod.knn.ind <<- codigo
   }
@@ -1262,10 +1237,10 @@ shinyServer(function(input, output, session) {
       exe(cod.knn.pred)
       isolate(kernel <- input$kernel.knn)
       # Cambia la tabla con la prediccion de knn
-      output$knnPrediTable <- DT::renderDataTable(obj.predic(exe("prediccion.knn.",kernel)),server = FALSE)
+      output$knnPrediTable <- DT::renderDataTable(tb_predic(exe("prediccion.knn.",kernel)),server = FALSE)
       insert.report(paste0("pred.knn.",kernel),
                     paste0("## Predicción del Modelo KNN - ",kernel,"\n```{r}\n", cod.knn.pred,
-                           "\nhead(dt.to.data.frame.predict(obj.predic(prediccion.knn.",kernel,")))\n```"))
+                           "\nhead(tb_predic(prediccion.knn.",kernel,")x$data)\n```"))
 
       plot.disp.knn()
       nombres.modelos <<- c(nombres.modelos, paste0("prediccion.knn.",kernel))
@@ -1284,13 +1259,13 @@ shinyServer(function(input, output, session) {
         isolate(exe(cod.knn.ind))
         isolate(kernel <- input$kernel.knn)
         
-        indices.knn <- indices.generales(datos.prueba[,variable.predecir], exe("prediccion.knn.",kernel))
+        indices.knn <- general.indices(datos.prueba[,variable.predecir], exe("prediccion.knn.",kernel))
         eval(parse(text = paste0("indices.knn.",kernel, "<<- indices.knn")))
 
         insert.report(paste0("ind.knn.",kernel),
                       paste0("## Índices Generales del Modelo KNN - ",kernel,"\n```{r}\n",
-                             cod.knn.ind, "\nindices.generales(datos.prueba[,'",variable.predecir,"'] ,prediccion.knn.",kernel,")\n",
-                             "indices.knn <- indices.generales(datos.prueba[,'",variable.predecir,"'], prediccion.knn.",kernel,")\n",
+                             cod.knn.ind, "\ngeneral.indices(datos.prueba[,'",variable.predecir,"'] ,prediccion.knn.",kernel,")\n",
+                             "indices.knn <- general.indices(datos.prueba[,'",variable.predecir,"'], prediccion.knn.",kernel,")\n",
                              "IndicesM[['knnl-",kernel,"']] <<- indices.knn\n```"))
 
         
@@ -1298,7 +1273,7 @@ shinyServer(function(input, output, session) {
         colnames(df) <- c(tr("RMSE"), tr("MAE"), tr("ER"), tr("correlacion"))
         output$indexdfknn <- render.index.table(df)
         
-        df2 <- as.data.frame(indices.resumen())
+        df2 <- as.data.frame(summary_indices(datos.aprendizaje[,variable.predecir]))
         colnames(df2) <- c(tr("minimo"),tr("q1"),tr("q3"),tr("maximo"))
         output$indexdfknn2 <- render.index.table(df2)
 
@@ -1349,7 +1324,7 @@ shinyServer(function(input, output, session) {
     updateAceEditor(session, "fieldCodeSvmDisp", value = codigo)
 
     # Se genera el codigo de la indices
-    codigo <- extract.code("indices.generales")
+    codigo <- extract.code("general.indices")
     updateAceEditor(session, "fieldCodeSvmIG", value = codigo)
     cod.svm.ind <<- codigo
   }
@@ -1421,10 +1396,10 @@ shinyServer(function(input, output, session) {
       isolate(kernel <- input$kernel.svm)
       
       # Cambia la tabla con la prediccion de knn
-      output$svmPrediTable <- DT::renderDataTable(exe("obj.predic(prediccion.svm.",kernel,")"),server = FALSE)
+      output$svmPrediTable <- DT::renderDataTable(exe("tb_predic(prediccion.svm.",kernel,")"),server = FALSE)
       insert.report(paste0("pred.svm.",input$kernel.svm),
                     paste0("## Predicción del Modelo SVM - ",kernel,"\n```{r}\n", cod.svm.pred,
-                           "\nhead(dt.to.data.frame.predict(obj.predic(prediccion.svm.",kernel,")))\n```"))
+                           "\nhead(tb_predic(prediccion.svm.",kernel,")x$data)\n```"))
 
       nombres.modelos <<- c(nombres.modelos, paste0("prediccion.svm.",kernel))
 
@@ -1443,13 +1418,13 @@ shinyServer(function(input, output, session) {
         isolate(exe(cod.svm.ind))
         isolate(kernel <- input$kernel.svm)
         
-        indices.svm <- indices.generales(datos.prueba[,variable.predecir], exe("prediccion.svm.",kernel))
+        indices.svm <- general.indices(datos.prueba[,variable.predecir], exe("prediccion.svm.",kernel))
         eval(parse(text =paste0("indices.svm.",kernel, "<<- indices.svm")))
 
         insert.report(paste0("ind.svm.",kernel),
                       paste0("## Índices Generales del modelo SVM  - ",kernel," \n```{r}\n",
-                             cod.svm.ind, "\nindices.generales(datos.prueba[,'",variable.predecir,"'], prediccion.svm.",kernel,")\n",
-                             "indices.svm <- indices.generales(datos.prueba[,'",variable.predecir,"'], prediccion.svm.",kernel,")\n",
+                             cod.svm.ind, "\ngeneral.indices(datos.prueba[,'",variable.predecir,"'], prediccion.svm.",kernel,")\n",
+                             "indices.svm <- general.indices(datos.prueba[,'",variable.predecir,"'], prediccion.svm.",kernel,")\n",
                              "IndicesM[['svml-",kernel,"']] <<- indices.svm\n```"))
 
         
@@ -1457,7 +1432,7 @@ shinyServer(function(input, output, session) {
         colnames(df) <- c(tr("RMSE"), tr("MAE"), tr("ER"), tr("correlacion"))
         output$indexdfsvm <- render.index.table(df)
         
-        df2 <- as.data.frame(indices.resumen())
+        df2 <- as.data.frame(summary_indices(datos.aprendizaje[,variable.predecir]))
         colnames(df2) <- c(tr("minimo"),tr("q1"),tr("q3"),tr("maximo"))
         output$indexdfsvm2 <- render.index.table(df2)
         
@@ -1513,7 +1488,7 @@ shinyServer(function(input, output, session) {
     updateAceEditor(session, "fieldCodeDtDisp", value = codigo)
 
     # Se genera el codigo de la indices
-    codigo <- extract.code("indices.generales")
+    codigo <- extract.code("general.indices")
     updateAceEditor(session, "fieldCodeDtIG", value = codigo)
     cod.dt.ind <<- codigo
   }
@@ -1602,11 +1577,11 @@ shinyServer(function(input, output, session) {
     tryCatch({ # Se corren los codigo
       isolate(exe(cod.dt.pred))
       # Cambia la tabla con la prediccion de dt
-      output$dtPrediTable <- DT::renderDataTable(obj.predic(prediccion.dt),server = FALSE)
+      output$dtPrediTable <- DT::renderDataTable(tb_predic(prediccion.dt),server = FALSE)
 
       insert.report("pred.dt",
                     paste0("## Predicción del Modelo Árboles de Decisión\n```{r}\n", cod.dt.pred,
-                           "\nhead(dt.to.data.frame.predict(obj.predic(prediccion.dt)))\n```"))
+                           "\nhead(tb_predic(prediccion.dt)x$data)\n```"))
 
       plot.disp.dt()
       nombres.modelos <<- c(nombres.modelos, "prediccion.dt")
@@ -1624,17 +1599,17 @@ shinyServer(function(input, output, session) {
       tryCatch({ # Se corren los codigo
         isolate(exe(cod.dt.ind))
         
-        indices.dt <<- indices.generales(datos.prueba[,variable.predecir], prediccion.dt)
+        indices.dt <<- general.indices(datos.prueba[,variable.predecir], prediccion.dt)
         
-        insert.report("ind.dt", paste0("## Índices Generales \n```{r}\n", cod.dt.ind, "\nindices.generales(datos.prueba[,'",variable.predecir,"'], prediccion.dt)\n",
-                                       "indices.dt <- indices.generales(datos.prueba[,'",variable.predecir,"'], prediccion.dt)\n",
+        insert.report("ind.dt", paste0("## Índices Generales \n```{r}\n", cod.dt.ind, "\ngeneral.indices(datos.prueba[,'",variable.predecir,"'], prediccion.dt)\n",
+                                       "indices.dt <- general.indices(datos.prueba[,'",variable.predecir,"'], prediccion.dt)\n",
                                        "IndicesM[['dtl']] <<- indices.dt\n```"))
 
         df <- as.data.frame(indices.dt)
         colnames(df) <- c(tr("RMSE"), tr("MAE"), tr("ER"), tr("correlacion"))
         output$indexdfdt <- render.index.table(df)
         
-        df2 <- as.data.frame(indices.resumen())
+        df2 <- as.data.frame(summary_indices(datos.aprendizaje[,variable.predecir]))
         colnames(df2) <- c(tr("minimo"),tr("q1"),tr("q3"),tr("maximo"))
         output$indexdfdt2 <- render.index.table(df2)
         
@@ -1702,7 +1677,7 @@ shinyServer(function(input, output, session) {
     updateAceEditor(session, "fieldCodeRfPlot", value = extract.code("importance.plor.rf"))
 
     # Se genera el codigo de la indices
-    codigo <- extract.code("indices.generales")
+    codigo <- extract.code("general.indices")
     updateAceEditor(session, "fieldCodeRfIG", value = codigo)
     cod.rf.ind <<- codigo
   }
@@ -1796,11 +1771,11 @@ shinyServer(function(input, output, session) {
     tryCatch({ # Se corren los codigo
       isolate(exe(cod.rf.pred))
 
-      output$rfPrediTable <- DT::renderDataTable(obj.predic(prediccion.rf), server = FALSE)
+      output$rfPrediTable <- DT::renderDataTable(tb_predic(prediccion.rf), server = FALSE)
 
       insert.report("pred.rf",
                     paste0("## Predicción del Modelo Bosques Aleatorios\n```{r}\n", cod.rf.pred,
-                           "\nhead(dt.to.data.frame.predict(obj.predic(prediccion.rf)))\n```"))
+                           "\nhead(tb_predic(prediccion.rf)x$data)\n```"))
 
       nombres.modelos <<- c(nombres.modelos, "prediccion.rf")
       updatePlot$tablaCom <- !updatePlot$tablaCom #graficar otra vez la tabla comprativa
@@ -1817,18 +1792,18 @@ shinyServer(function(input, output, session) {
       tryCatch({ # Se corren los codigo
         isolate(exe(cod.rf.ind))
 
-        indices.rf <<- indices.generales(datos.prueba[,variable.predecir], prediccion.rf)
+        indices.rf <<- general.indices(datos.prueba[,variable.predecir], prediccion.rf)
 
         insert.report("ind.rf",paste0("## Índices Generales\n```{r}\n",
-                                      cod.rf.ind, "\nindices.generales(datos.prueba[,'",variable.predecir,"'], prediccion.rf)\n",
-                                      "indices.rf <- indices.generales(datos.prueba[,'",variable.predecir,"'], prediccion.rf)\n",
+                                      cod.rf.ind, "\ngeneral.indices(datos.prueba[,'",variable.predecir,"'], prediccion.rf)\n",
+                                      "indices.rf <- general.indices(datos.prueba[,'",variable.predecir,"'], prediccion.rf)\n",
                                       "IndicesM[['rfl']] <<- indices.rf\n```"))
 
         df <- as.data.frame(indices.rf)
         colnames(df) <- c(tr("RMSE"), tr("MAE"), tr("ER"), tr("correlacion"))
         output$indexdfrf <- render.index.table(df)
         
-        df2 <- as.data.frame(indices.resumen())
+        df2 <- as.data.frame(summary_indices(datos.aprendizaje[,variable.predecir]))
         colnames(df2) <- c(tr("minimo"),tr("q1"),tr("q3"),tr("maximo"))
         output$indexdfrf2 <- render.index.table(df2)
 
@@ -1889,7 +1864,7 @@ shinyServer(function(input, output, session) {
     updateAceEditor(session, "fieldCodeBoostingPlotImport", value = boosting.plot.import(input$tipo.boosting))
 
     # Se genera el codigo de la indices
-    codigo <- extract.code("indices.generales")
+    codigo <- extract.code("general.indices")
     updateAceEditor(session, "fieldCodeBoostingIG", value = codigo)
     cod.b.ind <<- codigo
   }
@@ -1980,10 +1955,10 @@ shinyServer(function(input, output, session) {
       isolate(exe(cod.b.pred))
       isolate(tipo <- input$tipo.boosting)
       # Cambia la tabla con la prediccion de boosting
-      output$boostingPrediTable <- DT::renderDataTable(obj.predic(exe("prediccion.boosting.",tipo)),server = FALSE)
+      output$boostingPrediTable <- DT::renderDataTable(tb_predic(exe("prediccion.boosting.",tipo)),server = FALSE)
       insert.report(paste0("pred.b.",tipo),
                     paste0("## Predicción del Modelo BOOSTING - ",tipo,"\n```{r}\n",
-                    cod.b.pred,"\nhead(dt.to.data.frame.predict(obj.predic(prediccion.boosting.",input$tipo.boosting,")))\n```"))
+                    cod.b.pred,"\nhead(tb_predic(prediccion.boosting.",input$tipo.boosting,")x$data)\n```"))
 
       plot.disp.boosting()
       nombres.modelos <<- c(nombres.modelos, paste0("modelo.boosting.",tipo))
@@ -2002,20 +1977,20 @@ shinyServer(function(input, output, session) {
         isolate(exe(cod.b.ind))
         isolate(tipo <- input$tipo.boosting)
         
-        indices.boosting <- indices.generales(datos.prueba[,variable.predecir], exe("prediccion.boosting.",tipo))
+        indices.boosting <- general.indices(datos.prueba[,variable.predecir], exe("prediccion.boosting.",tipo))
         eval(parse(text = paste0("indices.boosting.",tipo, "<<- indices.boosting")))
 
         insert.report(paste0("ind.b.",tipo),
                       paste0("## Índices Generales del Modelo BOOSTING - ",tipo,"\n```{r}\n",
-                             cod.knn.ind, "\nindices.generales(datos.prueba[,'",variable.predecir,"'] ,prediccion.boosting.",tipo,")\n",
-                             "indices.boosting <- indices.generales(datos.prueba[,'",variable.predecir,"'], prediccion.boosting.",tipo,")\n",
+                             cod.knn.ind, "\ngeneral.indices(datos.prueba[,'",variable.predecir,"'] ,prediccion.boosting.",tipo,")\n",
+                             "indices.boosting <- general.indices(datos.prueba[,'",variable.predecir,"'], prediccion.boosting.",tipo,")\n",
                              "IndicesM[['bl-",tipo,"']] <<- indices.boosting\n```"))
         
         df <- as.data.frame(indices.boosting)
         colnames(df) <- c(tr("RMSE"), tr("MAE"), tr("ER"), tr("correlacion"))
         output$indexdfb <- render.index.table(df)
         
-        df2 <- as.data.frame(indices.resumen())
+        df2 <- as.data.frame(summary_indices(datos.aprendizaje[,variable.predecir]))
         colnames(df2) <- c(tr("minimo"),tr("q1"),tr("q3"),tr("maximo"))
         output$indexdfb2 <- render.index.table(df2)
 
@@ -2087,7 +2062,7 @@ shinyServer(function(input, output, session) {
     updateAceEditor(session, "fieldCodeNnDisp", value = codigo)
 
     #Se genera el codigo de la indices
-    codigo <- extract.code("indices.generales")
+    codigo <- extract.code("general.indices")
     updateAceEditor(session, "fieldCodeNnIG", value = codigo)
     cod.nn.ind <<- codigo
   }
@@ -2182,11 +2157,11 @@ shinyServer(function(input, output, session) {
       isolate(exe(cod.nn.pred))
       
       # Cambia la tabla con la prediccion de nn
-      output$nnPrediTable <- DT::renderDataTable(obj.predic(prediccion.nn),server = FALSE)
+      output$nnPrediTable <- DT::renderDataTable(tb_predic(prediccion.nn),server = FALSE)
 
       insert.report("pred.nn",
                     paste0("## Predicción del Modelo Redes Neuronales\n```{r}\n", cod.nn.pred,
-                           "\nhead(dt.to.data.frame.predict(obj.predic(prediccion.nn)))\n```"))
+                           "\nhead(tb_predic(prediccion.nn)x$data)\n```"))
 
       plot.disp.nn()
       nombres.modelos <<- c(nombres.modelos,"prediccion.nn")
@@ -2203,18 +2178,18 @@ shinyServer(function(input, output, session) {
     if(exists("prediccion.nn")){
       tryCatch({ # Se corren los codigo
         isolate(exe(cod.nn.ind))
-        indices.nn <<- indices.generales(datos.prueba[,variable.predecir], prediccion.nn)
+        indices.nn <<- general.indices(datos.prueba[,variable.predecir], prediccion.nn)
 
         insert.report("ind.nn", paste0("## Índices Generales \n```{r}\n", cod.nn.ind, 
-                                       "\nindices.generales(datos.prueba[,'",variable.predecir,"'], prediccion.nn)\n",
-                                       "indices.nn <- indices.generales(datos.prueba[,'",variable.predecir,"'], prediccion.nn)\n",
+                                       "\ngeneral.indices(datos.prueba[,'",variable.predecir,"'], prediccion.nn)\n",
+                                       "indices.nn <- general.indices(datos.prueba[,'",variable.predecir,"'], prediccion.nn)\n",
                                        "IndicesM[['nn']] <<- indices.nn\n```"))
 
         df <- as.data.frame(indices.nn)
         colnames(df) <- c(tr("RMSE"), tr("MAE"), tr("ER"), tr("correlacion"))
         output$indexdfnn <- render.index.table(df)
         
-        df2 <- as.data.frame(indices.resumen())
+        df2 <- as.data.frame(summary_indices(datos.aprendizaje[,variable.predecir]))
         colnames(df2) <- c(tr("minimo"),tr("q1"),tr("q3"),tr("maximo"))
         output$indexdfnn2 <- render.index.table(df2)
         
@@ -2308,19 +2283,16 @@ shinyServer(function(input, output, session) {
 
   actualizar.tabla.pn <- function(tablas = c("contentsPred", "contentsPred2")){
     if("contentsPred2" %in% tablas){
-      output$contentsPred <- DT::renderDT(renderizar.tabla.datos(datos.aprendizaje.completos,
-                                                                 editable = F,
-                                                                 scrollY = "25vh"), server = F)
+      output$contentsPred <- renderizar.tabla.datos(datos.aprendizaje.completos,editable = F,
+                                                    scrollY = "25vh", server = F)
     }
     if("contentsPred2" %in% tablas){
-      output$contentsPred2 <- DT::renderDT(renderizar.tabla.datos(datos.aprendizaje.completos,
-                                                                  editable = F,
-                                                                  scrollY = "25vh"), server = F)
+      output$contentsPred2 <- renderizar.tabla.datos(datos.aprendizaje.completos,editable = F,
+                                                     scrollY = "25vh", server = F)
     }
     if("contentsPred3" %in% tablas){
-      output$contentsPred3 <- DT::renderDT(renderizar.tabla.datos(datos.prueba.completos,
-                                                                  editable = F,
-                                                                  scrollY = "25vh"), server = T)
+      output$contentsPred3 <- renderizar.tabla.datos(datos.prueba.completos,editable = F,
+                                                     scrollY = "25vh", server = T)
     }
   }
 
@@ -2343,9 +2315,8 @@ shinyServer(function(input, output, session) {
     updateAceEditor(session, "fieldCodePredPN", value = codigo)
     if(!is.null(predic.nuevos)){
       datos.aux.prueba <- crear.datos.np()
-      output$PrediTablePN <- DT::renderDT(renderizar.tabla.datos(datos.aux.prueba,
-                                                                 editable = F,
-                                                                 scrollY = "25vh"),server = T)
+      output$PrediTablePN <- renderizar.tabla.datos(datos.aux.prueba,editable = F,
+                                                    scrollY = "25vh",server = T)
     }else{
       output$PrediTablePN <- DT::renderDT(DT::datatable(data.frame()))
     }
@@ -2407,7 +2378,7 @@ shinyServer(function(input, output, session) {
       codigo.na <- paste0(code.NA(deleteNA = input$deleteNAnPred, d.o = "datos.originales.completos"), "\n", "datos.aprendizaje.completos <<- datos.originales.completos")
       isolate(exe( codigo.na))
 
-      updateSelectInput(session, "sel.predic.var.nuevos", choices = rev(colnames.empty(var.numericas(datos.aprendizaje.completos))))
+      updateSelectInput(session, "sel.predic.var.nuevos", choices = rev(colnames.empty(var.numerical(datos.aprendizaje.completos))))
       updateNumericInput(session, "kmax.knn.pred", value = round(sqrt(nrow(datos.aprendizaje.completos))))
       updateNumericInput(session, "mtry.rf.pred", value = round(sqrt(ncol(datos.aprendizaje.completos) -1)))
     },
@@ -2524,7 +2495,7 @@ shinyServer(function(input, output, session) {
     code.trans.pn <<- transformar.datos.pn()
 
     # Actualiza los selectores que dependen de los datos
-    updateSelectInput(session, "sel.predic.var.nuevos", choices = rev(colnames.empty(var.numericas(datos.aprendizaje.completos))))
+    updateSelectInput(session, "sel.predic.var.nuevos", choices = rev(colnames.empty(var.numerical(datos.aprendizaje.completos))))
     updateNumericInput(session, "mtry.rf.pred", value = round(sqrt(ncol(datos.aprendizaje.completos) -1)))
 
     modelo.nuevos <<- NULL
@@ -2724,7 +2695,12 @@ shinyServer(function(input, output, session) {
     x[!vapply(x, is.null, FUN.VALUE = logical(1))]
   }
 
-  # translates text into current language
+  #' tr
+  #' 
+  #' @description translates text into current language
+  #' 
+  #' @export
+  #' @keywords internal 
   tr <- function(text) {
     sapply(text, function(s) {
       elem <- ifelse(is.null(translation[[s]][[input$idioma]]), s, translation[[s]][[input$idioma]])
