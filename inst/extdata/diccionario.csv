@@ -250,3 +250,5 @@ bigPlot;El gráfico es demasiado grande para desplegarse;The graph is too large 
 ErrorModelo;Aún no genera el modelo;The model has not yet been generated
 ErrorDatosPN;Aún no carga los datos a predecir;It still doesn't load the data to predict
 ErrorBsize;La tabla de aprendizaje es muy pequeña para ejecutar este modelo;The learning table is too small to run this model
+errornum;Se necesitan variables numéricas  para esta parte.;You need numerical variables for this part.
+errorcat;Se necesitan variables categóricas  para esta parte.;You need categorical variables for this part.
