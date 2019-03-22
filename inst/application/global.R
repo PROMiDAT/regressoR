@@ -1,55 +1,6 @@
 
-# FUNCIONES GLOBALES --------------------------------------------------------------------------------------------------------
-
 disp.modelos <- function(prediccion, modelo){
   paste0("plot_real_prediction(datos.prueba[,'",variable.predecir,"'], ",prediccion,", '",modelo,"')")
-}
-
-# Hace el grafico de la matriz de confusion
-plot.MC.code <- function(cm) {
-  return(paste0("
-plot.MC <<- function(cm) {
-  par(mar = c(2, 2, 2, 2))
-  plot(c(1, 600), c(-100, 500), type = 'n', xlab = '', ylab = '', xaxt = 'n', yaxt = 'n')
-  title('",tr("mc"),"', cex.main = 2)
-
-  start <- 80
-  len <- 500 - start
-
-  n.class <- ncol(cm)
-  names.class <- colnames(cm)
-  prec.cat <- diag(cm) / rowSums(cm)
-  error.cat <- 1 - prec.cat
-
-  ancho <- len / n.class
-  alto <- len / (n.class)
-  x2 <- (x1 <- start) + ancho
-  y2 <- (y1 <- len) - alto
-
-  text(310, 485, '",tr("pred"),"', cex = 1.3, font = 2)
-  text(start - 55, 250, 'Real', cex = 1.3, srt = 90, font = 2)
-
-  for (i in 0:(n.class - 1)) {
-    for (j in 0:(n.class - 1)) {
-      x1.aux <- x1 + j * (ancho + 3)
-      y1.aux <- y1 - i * (alto + 5)
-      x2.aux <- x2 + j * (ancho + 3)
-      y2.aux <- y2 - i * (alto + 5)
-      if (j < (n.class)) {
-        rect(x1.aux, y1.aux, x2.aux, y2.aux, col = ifelse(i == j, '#3f72af', '#11999e'))
-        text(mean(c(x1.aux, x2.aux)),
-          mean(c(y1.aux, y2.aux)),
-          paste0(cm[(i + 1), (j + 1)], ' (', round(cm[(i + 1), (j + 1)] / sum(cm[(i + 1), ]), 2) * 100, '%)'),
-          cex = 1.1, font = 2, col = 'white')
-      }
-    }
-    text(mean(c((x2 + i * (ancho + 3)), (x1 + i * (ancho + 3)))), y1 + 20, names.class[i + 1], cex = 1)
-    text(x1 - 20, mean(c((y1 - i * (alto + 5)), (y2 - i * (alto + 5)))), names.class[i + 1], cex = 1)
-  }
-  text(mean(c((x2 + (i + 1) * (ancho + 3)), (x1 + (i + 1) * (ancho + 3)))), y1 + 20, names.class[i + 2], cex = 1.2)
-  text(mean(c((x2 + (i + 2) * (ancho + 3)), (x1 + (i + 2) * (ancho + 3)))), y1 + 20, names.class[i + 3], cex = 1.2)
-  text(mean(c((x2 + (i + 3) * (ancho + 3)), (x1 + (i + 3) * (ancho + 3)))), y1 + 20, names.class[i + 4], cex = 1.2)
-}"))
 }
 
 # Pagina de Cargar y Transformar Datos --------------------------------------------------------------------------------------
@@ -127,31 +78,31 @@ cod.resum <- function(data = "datos"){
 resumen.numerico <- function(data, variable) {
   datos.numericos <- list(
     Q1 = list(
-      id = "q1", Label = tags$span(`data-id`="q1", tr("q1")), color = "green",
+      id = "q1", Label = tags$span(`data-id`="q1", translate("q1")), color = "green",
       Value = format(round(quantile(data[, variable], .25), 3), scientific = F)
     ),
     Mediana = list(
-      id = "mediana", Label = tags$span(`data-id`="mediana", tr("mediana")),
+      id = "mediana", Label = tags$span(`data-id`="mediana", translate("mediana")),
       Value = format(round(median(data[, variable]), 3), scientific = F),
       color = "orange"),
     Q3 = list(
-      id = "q3", Label = tags$span(`data-id`="q3", tr("q3")), color = "maroon",
+      id = "q3", Label = tags$span(`data-id`="q3", translate("q3")), color = "maroon",
       Value = format(round(quantile(data[, variable], .75), 3), scientific = F)
     ),
     Minimo = list(
-      id = "minimo", Label = tags$span(`data-id`="minimo", tr("minimo")),
+      id = "minimo", Label = tags$span(`data-id`="minimo", translate("minimo")),
       Value = format(round(min(data[, variable]), 3), scientific = F),
       color = "red"),
     Promedio = list(
-      id = "promedio", Label = tags$span(`data-id`="promedio", tr("promedio")),
+      id = "promedio", Label = tags$span(`data-id`="promedio", translate("promedio")),
       Value = format(round(mean(data[, variable]), 3), scientific = F),
       color = "blue"),
     Maximo = list(
-      id = "maximo", Label = tags$span(`data-id`="maximo", tr("maximo")),
+      id = "maximo", Label = tags$span(`data-id`="maximo", translate("maximo")),
       Value = format(round(max(data[, variable]), 3), scientific = F),
       color = "purple"),
     DS <- list(
-      id = "ds", Label = tags$span(`data-id`="ds", tr("ds")), color = "yellow",
+      id = "ds", Label = tags$span(`data-id`="ds", translate("ds")), color = "yellow",
       Value = format(round(sd(data[, variable]), 3), scientific = FALSE, nsmall = 3)
     )
   )
@@ -254,7 +205,7 @@ def.code.num <- function(data = "datos", variable = "input$sel.distribucion", co
 }
 
 #Llama a la funcion que crea la distribuccion categorica
-def.code.cat <- function(data = "datos", variable, titulox = tr("cantidadcasos"), tituloy = tr("categorias")) {
+def.code.cat <- function(data = "datos", variable, titulox = translate("cantidadcasos"), tituloy = translate("categorias")) {
   paste0("distribucion.categorico(", data, "[, '", variable,"']) + ",
          "labs(title = '", variable, "', x = '",titulox, "', y = '", tituloy, "')")
 }
@@ -328,7 +279,7 @@ rl.prediccion.np <- function() {
 
 #Codigo de la dispersion de knn
 rl.disp <- function(){
-  return(disp.modelos("prediccion.rl", modelo = tr("rll")))
+  return(disp.modelos("prediccion.rl", modelo = translate("rll")))
 }
 
 # Pagina de RLR -------------------------------------------------------------------------------------------------------------
@@ -394,7 +345,7 @@ rlr.prediccion.np <- function(alpha = 0, escalar = TRUE, manual = FALSE, landa =
 
 #Codigo de la dispersion de knn
 rlr.disp <- function(){
-  return(disp.modelos(paste0("prediccion.rlr.",rlr.type()), modelo = tr("rlr")))
+  return(disp.modelos(paste0("prediccion.rlr.",rlr.type()), modelo = translate("rlr")))
 }
 
 # Pagina de KNN -------------------------------------------------------------------------------------------------------------
@@ -421,7 +372,7 @@ kkn.prediccion.pn <- function() {
 
 #Codigo de la dispersion de knn
 knn.disp <- function(kernel = "optimal"){
-  return(disp.modelos(paste0("prediccion.knn.",kernel), modelo = tr("knnl")))
+  return(disp.modelos(paste0("prediccion.knn.",kernel), modelo = translate("knnl")))
 }
 
 # Pagina de SVM -------------------------------------------------------------------------------------------------------------
@@ -446,7 +397,7 @@ svm.prediccion.np <- function() {
 
 #Codigo de la dispersion de knn
 svm.disp <- function(kernel = "linear"){
-  return(disp.modelos(paste0("prediccion.svm.",kernel), modelo = tr("svml")))
+  return(disp.modelos(paste0("prediccion.svm.",kernel), modelo = translate("svml")))
 }
 
 # Pagina de DT --------------------------------------------------------------------------------------------------------------
@@ -486,7 +437,7 @@ fallen.leaves = TRUE, branch.lty = 6, shadow.col = '#dedede',box.col = '#c8b028'
 
 #Codigo de la dispersion de knn
 dt.disp <- function(){
-  return(disp.modelos("prediccion.dt", modelo = tr("dtl")))
+  return(disp.modelos("prediccion.dt", modelo = translate("dtl")))
 }
 
 # Pagina de RF --------------------------------------------------------------------------------------------------------------
@@ -534,7 +485,7 @@ importance.plor.rf <- function(modelo.rf, titulo.1, titulo.2){
 
 #Codigo de la dispersion de knn
 rf.disp <- function(){
-  return(disp.modelos("prediccion.rf", modelo = tr("rfl")))
+  return(disp.modelos("prediccion.rf", modelo = translate("rfl")))
 }
 
 # Pagina de BOOSTING --------------------------------------------------------------------------------------------------------
@@ -620,14 +571,14 @@ boosting.MC <- function(variable.p, type = "gaussian"){
 boosting.plot.import <- function(type = "gaussian"){
   paste0("ggplot(summary(modelo.boosting.",type,"), aes(x = fct_reorder(var, rel.inf), y = rel.inf, fill = fct_reorder(var, rel.inf))) +\n",
     "geom_bar(stat = 'identity', position = 'identity', width = 0.1) +\n",
-    "labs(title = '",tr("impVarRI"),"', y = '",tr("RI"),"', x = '')+\n",
+    "labs(title = '",translate("impVarRI"),"', y = '",translate("RI"),"', x = '')+\n",
     "scale_y_continuous(labels = scales::comma) + coord_flip() +\n",
     "theme(axis.text.x = element_text(angle = 45, hjust = 1), legend.position = 'none')\n")
 }
 
 #Codigo de la dispersion de knn
 boosting.disp <- function(type = "gaussian"){
-  return(disp.modelos(paste0("prediccion.boosting.",type), modelo = tr("bl")))
+  return(disp.modelos(paste0("prediccion.boosting.",type), modelo = translate("bl")))
 }
 
 # Pagina de NN ------------------------------------------------------------------------------------------------------------
@@ -684,7 +635,7 @@ nn.prediccion.np <- function(){
 
 #Codigo de la dispersion de nn
 nn.disp <- function(){
-  return(disp.modelos("prediccion.nn", modelo = tr("nn")))
+  return(disp.modelos("prediccion.nn", modelo = translate("nn")))
 }
 
 nn.plot <- function(){
@@ -923,9 +874,3 @@ predic.nuevos <<- NULL
 
 env.report <<- new.env()
 env.report$codigo.reporte <- list()
-
-if(toupper(.Platform$OS.type) != "WINDOWS"){
-  enc <<- "utf8"
-}else{
-  enc <<- "UTF-8"
-}

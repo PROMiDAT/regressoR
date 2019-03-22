@@ -5,23 +5,15 @@
 shinyServer(function(input, output, session) {
   
   
-  # UTILITY FUNCTIONS -----------------------------------------------------------------------------------------------------
-  
-  # Creates a table depending on the data entered
-  renderizar.tabla.datos <- function(data, editable = TRUE, dom = "frtip", pageLength = 10, scrollY = "27vh", server = T) {
-    labelsNC <- ifelse(input$idioma == c("es", "es"), c("Numérico","Categórico"), c("Numerical","Categorical"))
-    data <- head(data, n = 100)
-    nombre.columnas <- c("ID", colnames(data))
-    tipo.columnas <- sapply(colnames(data), function(i) ifelse(class(data[,i]) %in% c("numeric", "integer"),
-                                                                paste0("<span data-id='numerico'>", labelsNC[1], "</span>"),
-                                                                paste0("<span data-id='categorico'>", labelsNC[2], "</span>")))
-    tipo.columnas <- lapply(tipo.columnas, function(i)tags$th(HTML(i)))
-    sketch <- htmltools::withTags(table(tableHeader(nombre.columnas),
-                                        tags$tfoot(tags$tr(tags$th(), tipo.columnas))))
-
-    return(DT::renderDT(DT::datatable(data, selection = 'none', editable = editable,  container = sketch,
-                  options = list(dom = dom, pageLength = pageLength, scrollY = scrollY)), server = server))
+  error.variables <- function(num = T){
+    regressoR::error.variables(num, input$idioma)
   }
+  
+  translate <- function(labelid){
+    regressoR::translate(labelid, input$idioma)
+  }
+  
+  # UTILITY FUNCTIONS -----------------------------------------------------------------------------------------------------
 
   # Acualiza las distintas tablas
   actualizar.tabla <- function(x = c("datos", "datos.aprendizaje", "datos.prueba")){
@@ -51,13 +43,13 @@ shinyServer(function(input, output, session) {
   validar.datos <- function(print = TRUE) {
     # Validaciones
     if (is.null(variable.predecir) & print) {
-      showNotification(tr("tieneVP"), duration = 10, type = "error")
+      showNotification(translate("tieneVP"), duration = 10, type = "error")
     }
     if (is.null(datos) & print) {
-      showNotification(tr("tieneD"), duration = 10, type = "error")
+      showNotification(translate("tieneD"), duration = 10, type = "error")
     }
     if (is.null(datos.aprendizaje) & print) {
-      showNotification(tr("tieneDAP"), duration = 10, type = "error")
+      showNotification(translate("tieneDAP"), duration = 10, type = "error")
     }
     return(!is.null(datos) & !is.null(variable.predecir) & !is.null(datos.aprendizaje))
   }
@@ -66,7 +58,7 @@ shinyServer(function(input, output, session) {
   tb_predic <- function(predic.var = NULL){
     real <- datos.prueba[, variable.predecir, drop = F]
     df <- cbind(real, predic.var,  abs(real - predic.var))
-    colns <- c(tr("reald"), tr("pred"), tr("dif"))
+    colns <- c(translate("reald"), translate("pred"), translate("dif"))
     colnames(df) <- colns
     sketch <- htmltools::withTags(table(tableHeader(c("ID",colns))))
     return(DT::datatable(df,
@@ -77,21 +69,10 @@ shinyServer(function(input, output, session) {
                          options = list(dom = "frtip", pageLength = 10)))
   }
   
-  # Grafica un error de datos faltantes
-  error.variables <- function(num = T) {
-    if(num){
-      error_plot(tr("errornum"))
-    } else {
-      error_plot(tr("errorcat"))
-    }
-  }
-  
   # CONFIGURACIONES INICIALES ---------------------------------------------------------------------------------------------
 
   source("global.R", local = T) 
   source("utils.R" , local = T)
-  
-  load("www/translation.bin") # Load translation.bin (dictionary to change language)
   
   options(shiny.maxRequestSize = 209715200, width = 200, # 209715200 = 200 * 1024^2
           DT.options = list(aLengthMenu = c(10, 30, 50), iDisplayLength = 10, scrollX = TRUE, 
@@ -130,7 +111,7 @@ shinyServer(function(input, output, session) {
     tryCatch({
       isolate(exe(codigo.carga))
       if(ncol(datos) <= 1) {
-        showNotification(tr("errorCData"), duration = 10, type = "error")
+        showNotification(translate("errorCData"), duration = 10, type = "error")
         return(NULL)
       }
       new.report()
@@ -301,14 +282,14 @@ shinyServer(function(input, output, session) {
     if(!is.null(datos) && ncol(datos) > 0){
       res <- data.frame(Variables = colnames(datos), Tipo = c(1:ncol(datos)), Activa = c(1:ncol(datos)))
       res$Tipo <- sapply(colnames(datos), function(i)
-        paste0('<select id="sel', i, contador, '"> <option value="categorico">',tr("categorico"),'</option>',
+        paste0('<select id="sel', i, contador, '"> <option value="categorico">',translate("categorico"),'</option>',
                '<option value="numerico" ', ifelse(class(datos[, i]) %in% c("numeric", "integer"),
-                                                   ' selected="selected"', ""),'>', tr("numerico"),
-               '</option> <option value="disyuntivo">',tr("disyuntivo"),'</option> </select>'))
+                                                   ' selected="selected"', ""),'>', translate("numerico"),
+               '</option> <option value="disyuntivo">',translate("disyuntivo"),'</option> </select>'))
       res$Activa <- sapply(colnames(datos), function(i) paste0('<input type="checkbox" id="box', i, contador, '" checked/>'))
     } else {
       res <- as.data.frame(NULL)
-      showNotification(tr("tieneCData"), duration = 10, type = "error")
+      showNotification(translate("tieneCData"), duration = 10, type = "error")
     }
     return(res)
   })
@@ -345,7 +326,7 @@ shinyServer(function(input, output, session) {
       isolate(exe(codigo))
       updateAceEditor(session, "fieldCodeSegment", value = codigo)
     }, error = function(e) {
-      showNotification(paste0(tr("errorSeg"), e), duration = 15, type = "error")
+      showNotification(paste0(translate("errorSeg"), e), duration = 15, type = "error")
     })
   }
 
@@ -392,7 +373,7 @@ shinyServer(function(input, output, session) {
       deault.codigo.boosting()
       default.codigo.nn()
     } else {
-      showNotification(tr("tieneSVP"), duration = 15, type = "error")
+      showNotification(translate("tieneSVP"), duration = 15, type = "error")
     }
 
     # Cierre o abre el menu
@@ -424,7 +405,7 @@ shinyServer(function(input, output, session) {
 
   output$downloaDatosA <- downloadHandler(
     filename = function(){
-      paste0("(",tr("dataA"),")",input$file1$name)
+      paste0("(",translate("dataA"),")",input$file1$name)
     },
     content = function(file) {
       write.csv(datos.aprendizaje, file, row.names = input$rowname)
@@ -433,7 +414,7 @@ shinyServer(function(input, output, session) {
 
   output$downloaDatosP <- downloadHandler(
     filename = function() {
-      paste0("(",tr("dataP"),")",input$file1$name)
+      paste0("(",translate("dataP"),")",input$file1$name)
     },
     content = function(file) {
       write.csv(datos.prueba, file, row.names = input$rowname)
@@ -491,7 +472,7 @@ shinyServer(function(input, output, session) {
 
   # Ejecuta el codigo cuando cambian los parametros
   observeEvent(c(input$sel.normal, input$col.normal), {
-    updatePlot$normal <- default.normal(data = "datos", vars = input$sel.normal, color = input$col.normal, tr("curvanormal"))
+    updatePlot$normal <- default.normal(data = "datos", vars = input$sel.normal, color = input$col.normal, translate("curvanormal"))
   })
 
   # Hace la tabla comparativa de la pagina de test de normalidad
@@ -502,8 +483,8 @@ shinyServer(function(input, output, session) {
         codigo <- updatePlot$calc.normal
         res <- isolate(exe(codigo))
         updateAceEditor(session, "fieldCalcNormal", value = codigo)
-        fisher <- tr("fisher")
-        asimetria <- tr("asimetria")
+        fisher <- translate("fisher")
+        asimetria <- translate("asimetria")
         sketch = htmltools::withTags(table(
           tags$thead(tags$tr(tags$th(), tags$th(fisher), tags$th(asimetria)))
         ))
@@ -723,7 +704,7 @@ shinyServer(function(input, output, session) {
             insert.report("poder.num",paste0("## Poder Predictivo Variables Numéricas \n```{r}\n", cod.poder.num, "\n```"))
             return(res)
           }else{
-            showNotification(tr("bigPlot"), duration = 10, type = "message")
+            showNotification(translate("bigPlot"), duration = 10, type = "message")
             return(NULL)
           }
         }else{
@@ -875,11 +856,11 @@ shinyServer(function(input, output, session) {
         
 
         df <- as.data.frame(indices.rl)
-        colnames(df) <- c(tr("RMSE"), tr("MAE"), tr("ER"), tr("correlacion"))
+        colnames(df) <- c(translate("RMSE"), translate("MAE"), translate("ER"), translate("correlacion"))
         output$indexdfrl <- render.index.table(df)
         
         df2 <- as.data.frame(summary_indices(datos.aprendizaje[,variable.predecir]))
-        colnames(df2) <- c(tr("minimo"),tr("q1"),tr("q3"),tr("maximo"))
+        colnames(df2) <- c(translate("minimo"),translate("q1"),translate("q3"),translate("maximo"))
         output$indexdfrl2 <- render.index.table(df2)
         
         nombres.modelos <<- c(nombres.modelos, "indices.rl")
@@ -1103,11 +1084,11 @@ shinyServer(function(input, output, session) {
 
         
         df <- as.data.frame(indices.rlr)
-        colnames(df) <- c(tr("RMSE"), tr("MAE"), tr("ER"), tr("correlacion"))
+        colnames(df) <- c(translate("RMSE"), translate("MAE"), translate("ER"), translate("correlacion"))
         output$indexdfrlr <- render.index.table(df)
         
         df2 <- as.data.frame(summary_indices(datos.aprendizaje[,variable.predecir]))
-        colnames(df2) <- c(tr("minimo"),tr("q1"),tr("q3"),tr("maximo"))
+        colnames(df2) <- c(translate("minimo"),translate("q1"),translate("q3"),translate("maximo"))
         output$indexdfrlr2 <- render.index.table(df2)
 
         # nombres.modelos <<- c(nombres.modelos, paste0("indices.rlr.",rlr.type()))
@@ -1270,11 +1251,11 @@ shinyServer(function(input, output, session) {
 
         
         df <- as.data.frame(indices.knn)
-        colnames(df) <- c(tr("RMSE"), tr("MAE"), tr("ER"), tr("correlacion"))
+        colnames(df) <- c(translate("RMSE"), translate("MAE"), translate("ER"), translate("correlacion"))
         output$indexdfknn <- render.index.table(df)
         
         df2 <- as.data.frame(summary_indices(datos.aprendizaje[,variable.predecir]))
-        colnames(df2) <- c(tr("minimo"),tr("q1"),tr("q3"),tr("maximo"))
+        colnames(df2) <- c(translate("minimo"),translate("q1"),translate("q3"),translate("maximo"))
         output$indexdfknn2 <- render.index.table(df2)
 
         nombres.modelos <<- c(nombres.modelos, paste0("indices.knn.",kernel))
@@ -1429,11 +1410,11 @@ shinyServer(function(input, output, session) {
 
         
         df <- as.data.frame(indices.svm)
-        colnames(df) <- c(tr("RMSE"), tr("MAE"), tr("ER"), tr("correlacion"))
+        colnames(df) <- c(translate("RMSE"), translate("MAE"), translate("ER"), translate("correlacion"))
         output$indexdfsvm <- render.index.table(df)
         
         df2 <- as.data.frame(summary_indices(datos.aprendizaje[,variable.predecir]))
-        colnames(df2) <- c(tr("minimo"),tr("q1"),tr("q3"),tr("maximo"))
+        colnames(df2) <- c(translate("minimo"),translate("q1"),translate("q3"),translate("maximo"))
         output$indexdfsvm2 <- render.index.table(df2)
         
         plot.disp.svm()
@@ -1606,11 +1587,11 @@ shinyServer(function(input, output, session) {
                                        "IndicesM[['dtl']] <<- indices.dt\n```"))
 
         df <- as.data.frame(indices.dt)
-        colnames(df) <- c(tr("RMSE"), tr("MAE"), tr("ER"), tr("correlacion"))
+        colnames(df) <- c(translate("RMSE"), translate("MAE"), translate("ER"), translate("correlacion"))
         output$indexdfdt <- render.index.table(df)
         
         df2 <- as.data.frame(summary_indices(datos.aprendizaje[,variable.predecir]))
-        colnames(df2) <- c(tr("minimo"),tr("q1"),tr("q3"),tr("maximo"))
+        colnames(df2) <- c(translate("minimo"),translate("q1"),translate("q3"),translate("maximo"))
         output$indexdfdt2 <- render.index.table(df2)
         
         IndicesM[["dtl"]] <<- indices.dt
@@ -1705,7 +1686,7 @@ shinyServer(function(input, output, session) {
   # Grafico de importancia
   plotear.rf.imp <- function() {
     tryCatch({
-      output$plot.rf <- renderPlot(isolate(importance.plor.rf(modelo.rf,tr("impVarA"),tr("impVarRSS"))))
+      output$plot.rf <- renderPlot(isolate(importance.plor.rf(modelo.rf,translate("impVarA"),translate("impVarRSS"))))
       cod <- ifelse(input$fieldCodeRfPlot == "", extract.code("importance.plor.rf"), input$fieldCodeRfPlot)
       insert.report("modelo.rf.graf", paste0("## Importancia de las Variables\n```{r}\n", cod , "\n```"))
     }, error = function(e) {
@@ -1733,7 +1714,7 @@ shinyServer(function(input, output, session) {
           updateAceEditor(session,"fieldCodeRfRules",paste0("printRandomForests(modelo.rf, ",n,")"))
           printRandomForests(modelo.rf, n)
         },error = function(e){
-          stop(tr("NoDRule"))
+          stop(translate("NoDRule"))
       })
     })
     insert.report(paste0("modelo.rf.rules.", n), paste0("\n## Reglas del árbol #",n," \n```{r}\nprintRandomForests(modelo.rf, ",n,")\n```"))
@@ -1800,11 +1781,11 @@ shinyServer(function(input, output, session) {
                                       "IndicesM[['rfl']] <<- indices.rf\n```"))
 
         df <- as.data.frame(indices.rf)
-        colnames(df) <- c(tr("RMSE"), tr("MAE"), tr("ER"), tr("correlacion"))
+        colnames(df) <- c(translate("RMSE"), translate("MAE"), translate("ER"), translate("correlacion"))
         output$indexdfrf <- render.index.table(df)
         
         df2 <- as.data.frame(summary_indices(datos.aprendizaje[,variable.predecir]))
-        colnames(df2) <- c(tr("minimo"),tr("q1"),tr("q3"),tr("maximo"))
+        colnames(df2) <- c(translate("minimo"),translate("q1"),translate("q3"),translate("maximo"))
         output$indexdfrf2 <- render.index.table(df2)
 
         nombres.modelos <<- c(nombres.modelos, "indices.rf")
@@ -1897,7 +1878,7 @@ shinyServer(function(input, output, session) {
       ejecutar.boosting.pred()
       ejecutar.boosting.ind()
     }else{
-      showNotification(tr("ErrorBsize"), duration = 15, type = "error")
+      showNotification(translate("ErrorBsize"), duration = 15, type = "error")
     }
   }
 
@@ -1987,11 +1968,11 @@ shinyServer(function(input, output, session) {
                              "IndicesM[['bl-",tipo,"']] <<- indices.boosting\n```"))
         
         df <- as.data.frame(indices.boosting)
-        colnames(df) <- c(tr("RMSE"), tr("MAE"), tr("ER"), tr("correlacion"))
+        colnames(df) <- c(translate("RMSE"), translate("MAE"), translate("ER"), translate("correlacion"))
         output$indexdfb <- render.index.table(df)
         
         df2 <- as.data.frame(summary_indices(datos.aprendizaje[,variable.predecir]))
-        colnames(df2) <- c(tr("minimo"),tr("q1"),tr("q3"),tr("maximo"))
+        colnames(df2) <- c(translate("minimo"),translate("q1"),translate("q3"),translate("maximo"))
         output$indexdfb2 <- render.index.table(df2)
 
         nombres.modelos <<- c(nombres.modelos, paste0("indices.boosting.",tipo))
@@ -2078,7 +2059,7 @@ shinyServer(function(input, output, session) {
         cod <- ifelse(input$fieldCodeNnPlot == "", nn.plot(), input$fieldCodeNnPlot)
         insert.report("modelo.nn.graf", paste0("\n```{r}\n", cod, "\n```"))
       }else{
-        showNotification(tr("bigPlot"), duration = 10, type = "message")
+        showNotification(translate("bigPlot"), duration = 10, type = "message")
       }
     },
     error = function(e){
@@ -2147,7 +2128,7 @@ shinyServer(function(input, output, session) {
     warning = function(w){
       limpia.nn(1)
       NN_EXECUTION <<- FALSE
-      showNotification(paste0(tr("nnWar")," (NN-01) : ",w), duration = 20, type = "warning")
+      showNotification(paste0(translate("nnWar")," (NN-01) : ",w), duration = 20, type = "warning")
     })
   }
 
@@ -2186,11 +2167,11 @@ shinyServer(function(input, output, session) {
                                        "IndicesM[['nn']] <<- indices.nn\n```"))
 
         df <- as.data.frame(indices.nn)
-        colnames(df) <- c(tr("RMSE"), tr("MAE"), tr("ER"), tr("correlacion"))
+        colnames(df) <- c(translate("RMSE"), translate("MAE"), translate("ER"), translate("correlacion"))
         output$indexdfnn <- render.index.table(df)
         
         df2 <- as.data.frame(summary_indices(datos.aprendizaje[,variable.predecir]))
-        colnames(df2) <- c(tr("minimo"),tr("q1"),tr("q3"),tr("maximo"))
+        colnames(df2) <- c(translate("minimo"),translate("q1"),translate("q3"),translate("maximo"))
         output$indexdfnn2 <- render.index.table(df2)
         
         IndicesM[["nn"]] <<- indices.nn
@@ -2213,8 +2194,8 @@ shinyServer(function(input, output, session) {
     for (nom in names(IndicesM)){
       nom.aux <- unlist(strsplit(nom, "-"))
       nombres <- c(nombres,ifelse(length(nom.aux) == 1,
-                                  tr(nom.aux),
-                                  paste0(tr(nom.aux[1]),"-",nom.aux[2])))
+                                  translate(nom.aux),
+                                  paste0(translate(nom.aux[1]),"-",nom.aux[2])))
     }
     return(nombres)
   }
@@ -2237,8 +2218,8 @@ shinyServer(function(input, output, session) {
       }
       resp <- do.call(rbind, IndicesM)
       rownames(resp) <- nombres
-      colnames(resp) <- c(tr("RMSE"), tr("MAE"),
-                          tr("ER"),tr("correlacion"))
+      colnames(resp) <- c(translate("RMSE"), translate("MAE"),
+                          translate("ER"),translate("correlacion"))
       resp <- as.data.frame(resp)
       resp[] <- lapply(resp, as.numeric)
       resp <- round(resp, 4)
@@ -2270,14 +2251,14 @@ shinyServer(function(input, output, session) {
     nombres.prueba <- colnames(datos.prueba.completos)
     
     if(any(!(nombres.prueba %in% nombres))){
-      stop(tr("NoTamColum"), call. = FALSE) 
+      stop(translate("NoTamColum"), call. = FALSE) 
     }
     
     tipos <- unlist(lapply(datos.originales.completos[,nombres, drop = FALSE], class))
     tipos.prueba <- unlist(lapply(datos.prueba.completos[,nombres, drop = FALSE], class))
     
     if(any(tipos != tipos.prueba)){
-      stop(tr("NoTamColum"),call. = FALSE) 
+      stop(translate("NoTamColum"),call. = FALSE) 
     }
   }
 
@@ -2371,7 +2352,7 @@ shinyServer(function(input, output, session) {
     tryCatch({
       isolate(exe(codigo.carga))
       if(ncol(datos.originales.completos) <= 1) {
-        showNotification(tr("errorSeg"), duration = 10, type = "error")
+        showNotification(translate("errorSeg"), duration = 10, type = "error")
         return(NULL)
       }
       codigo.na <- ""
@@ -2404,15 +2385,15 @@ shinyServer(function(input, output, session) {
                         Tipo = c(1:ncol(datos.aprendizaje.completos)),
                         Activa = c(1:ncol(datos.aprendizaje.completos)))
       res$Tipo <- sapply(colnames(datos.aprendizaje.completos), function(i) paste0(
-        '<select id="Predsel', i, contadorPN, '"> <option value="categorico">',tr("categorico"),'</option>',
-        '<option value="numerico" ', ifelse(class(datos.aprendizaje.completos[, i]) %in% c("numeric", "integer"),' selected="selected"', ""),'>', tr("numerico"),'</option>',
-        '<option value="disyuntivo">',tr("disyuntivo"),'</option> </select>'
+        '<select id="Predsel', i, contadorPN, '"> <option value="categorico">',translate("categorico"),'</option>',
+        '<option value="numerico" ', ifelse(class(datos.aprendizaje.completos[, i]) %in% c("numeric", "integer"),' selected="selected"', ""),'>', translate("numerico"),'</option>',
+        '<option value="disyuntivo">',translate("disyuntivo"),'</option> </select>'
       ))
       res$Activa <- sapply(colnames(datos.aprendizaje.completos), function(i) paste0('<input type="checkbox" id="Predbox', i, contadorPN, '" checked/>'))
       actualizar.nn.capas.np()
     } else {
       res <- as.data.frame(NULL)
-      showNotification(tr("tieneCData"), duration = 10, type = "error")
+      showNotification(translate("tieneCData"), duration = 10, type = "error")
     }
     return(res)
   })
@@ -2479,10 +2460,10 @@ shinyServer(function(input, output, session) {
             showNotification(paste0("Error :", e), duration = 10, type = "error")
         })
       }else{
-        showNotification(paste0("Error :", tr("ErrorModelo")), duration = 10, type = "error")
+        showNotification(paste0("Error :", translate("ErrorModelo")), duration = 10, type = "error")
       }
     }else{
-      showNotification(paste0("Error :", tr("ErrorDatosPN")), duration = 10, type = "error")
+      showNotification(paste0("Error :", translate("ErrorDatosPN")), duration = 10, type = "error")
     }
   }
 
@@ -2550,7 +2531,7 @@ shinyServer(function(input, output, session) {
           exe(codigo)
           actualizar.texto.modelo.pn(codigo)
         }else{
-          showNotification(tr("ErrorBsize"), duration = 15, type = "error")
+          showNotification(translate("ErrorBsize"), duration = 15, type = "error")
         }
       },
       error =  function(e){
@@ -2558,7 +2539,7 @@ shinyServer(function(input, output, session) {
       },
       warning = function(w){
         if(input$selectModelsPred == "nn"){
-          showNotification(paste0(tr("nnWar")," (NN-01) : ",w), duration = 20, type = "warning")
+          showNotification(paste0(translate("nnWar")," (NN-01) : ",w), duration = 20, type = "warning")
         }
       })
   })
@@ -2585,7 +2566,7 @@ shinyServer(function(input, output, session) {
       code.trans.pn <<- gsub("datos.aprendizaje.completos", "datos.prueba.completos", code.trans.pn)
       exe(code.trans.pn)
       if(ncol(datos.prueba.completos) <= 1) {
-        showNotification(tr("errorSeg"), duration = 10, type = "error")
+        showNotification(translate("errorSeg"), duration = 10, type = "error")
         return(NULL)
       }
       actualizar.tabla.pn("contentsPred3")
@@ -2694,27 +2675,15 @@ shinyServer(function(input, output, session) {
   dropNulls <- function (x) {
     x[!vapply(x, is.null, FUN.VALUE = logical(1))]
   }
-
-  #' tr
-  #' 
-  #' @description translates text into current language
-  #' 
-  #' @export
-  #' @keywords internal 
-  tr <- function(text) {
-    sapply(text, function(s) {
-      elem <- ifelse(is.null(translation[[s]][[input$idioma]]), s, translation[[s]][[input$idioma]])
-      Encoding(elem) <- enc
-      elem
-    }, USE.NAMES = F)
-  }
+  
+  
 
   updateLabelInput <- function (session, labelid, value = NULL) {
     message <- dropNulls(list(labelid = labelid))
     if(length(labelid) == 1) {
       labelid <- list(labelid)
     }
-    ifelse(is.null(value), sentvalue <- tr(labelid),
+    ifelse(is.null(value), sentvalue <- translate(labelid),
             ifelse(length(value) == 1, sentvalue <- list(value), sentvalue <- value))
     session$sendCustomMessage(type = 'updateLabel',
                               message = list(ids = labelid, values = sentvalue))
@@ -2742,9 +2711,9 @@ shinyServer(function(input, output, session) {
                                 "stepmax","redPlot","rll","rlr","posibLanda","coeff","gcoeff",
                                 "automatico","landa","shrinkage","resumenVarPre", "R2"))
 
-    updatePlot$normal <- default.normal("datos", input$sel.normal, input$col.normal, tr("curvanormal"))
-    updatePlot$dya.cat <- def.code.cat(variable = input$sel.distribucion.cat, titulox = tr("cantidadcasos"), tituloy = tr("categorias"))
-    updatePlot$calc.normal <- default.calc.normal(labelsi = tr("positivo"),labelno=tr("negativo"),labelsin=tr("sinasimetria"))
+    updatePlot$normal <- default.normal("datos", input$sel.normal, input$col.normal, translate("curvanormal"))
+    updatePlot$dya.cat <- def.code.cat(variable = input$sel.distribucion.cat, titulox = translate("cantidadcasos"), tituloy = translate("categorias"))
+    updatePlot$calc.normal <- default.calc.normal(labelsi = translate("positivo"),labelno=translate("negativo"),labelsin=translate("sinasimetria"))
 
     ejecutar.knn.ind()
     ejecutar.svm.ind()
