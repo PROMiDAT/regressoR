@@ -12,3 +12,15 @@ render.index.table(table)
 \description{
 creates a reactive table for indices panels.
 }
+\examples{
+if(interactive()) {
+   library(shiny)
+   shinyApp(
+      ui = fluidPage(fluidRow(column(12, tableOutput('tbl')))),
+      server = function(input, output) {
+         output$tbl = render.index.table(iris)
+      }
+   )
+}
+
+}

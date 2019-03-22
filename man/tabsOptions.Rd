@@ -18,7 +18,7 @@ tabsOptions(buttons = list(icon("gear"), icon("terminal")),
 \item{tabs.content}{list with the content of each tab.}
 }
 \value{
-shiny.tag object
+shiny.tag
 }
 \description{
 create tabs options on panels.
