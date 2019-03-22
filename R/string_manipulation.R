@@ -62,3 +62,31 @@ as.string.c <- function(vect, quote = TRUE){
     return(paste0("c(",paste0(vect, collapse = ","),")"))
   }
 }
+
+load("inst/extdata/translation.bin") # Load translation.bin (dictionary to change language)
+enc <- ifelse(toupper(.Platform$OS.type) != "WINDOWS", "utf8", "UTF-8")
+
+#' translate
+#' 
+#' @description translates text id into current language
+#' 
+#' @param text the id for the text.
+#' @param language The language to choose. It can be "es" or "en".
+#' 
+#' @details Use regressoR:::translation to see the data
+#' 
+#' @export
+#' @examples
+#' translate("knnl")
+#' translate("knnl", "en")
+#' 
+translate <- function(text, language = "es") {
+  sapply(text, function(s) {
+    elem <- ifelse(is.null(translation[[s]][[language]]), s, translation[[s]][[language]])
+    Encoding(elem) <- enc
+    elem
+  }, USE.NAMES = F)
+}
+
+
+

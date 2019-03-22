@@ -115,7 +115,7 @@ radioButtonsTr <- function(inputId, label, values, names){
 #' @param heights vector or list with heights of each tab.
 #' @param tabs.content list with the content of each tab.
 #'
-#' @return shiny.tag object
+#' @return shiny.tag
 #' @keywords internal
 #' 
 tabsOptions <- function(buttons = list(icon("gear"), icon("terminal")), widths = c(50, 100),
@@ -139,7 +139,6 @@ tabsOptions <- function(buttons = list(icon("gear"), icon("terminal")), widths =
   return(tags$div(HTML(res)))
 }
 
-
 #' render.index.table
 #' 
 #' @description creates a reactive table for indices panels.
@@ -148,18 +147,62 @@ tabsOptions <- function(buttons = list(icon("gear"), icon("terminal")), widths =
 #'
 #' @export
 #' 
-#' @example
+#' @examples
 #' if(interactive()) {
-#'   library(shiny)
-#'   shinyApp(
-#'      ui = fluidPage(fluidRow(column(12, tableOutput('tbl')))),
-#'      server = function(input, output) {
-#'         output$tbl = render.index.table(iris)
-#'      }
-#'   )
-#'}
+#'    library(shiny)
+#'    shinyApp(
+#'       ui = fluidPage(fluidRow(column(12, tableOutput('tbl')))),
+#'       server = function(input, output) {
+#'          output$tbl = render.index.table(iris)
+#'       }
+#'    )
+#' }
+#'
 render.index.table <- function(table){
   renderTable({table}, striped = TRUE, bordered = TRUE,  
               spacing = 'l', width = '100%',  digits = 5,
               align = 'c')
+}
+
+
+
+# Creates a table depending on the data entered
+#' render.table.data
+#'
+#' @param data 
+#' @param editable 
+#' @param dom 
+#' @param pageLength 
+#' @param scrollY 
+#' @param server 
+#' @param language
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#' if(interactive()) {
+#'    library(shiny)
+#'    library(DT)
+#'    shinyApp(
+#'       ui = fluidPage(fluidRow(column(12, DTOutput('tbl')))),
+#'       server = function(input, output) {
+#'          output$tbl = render.table.data(iris)
+#'       }
+#'    )
+#' }
+#'
+renderizar.tabla.datos <- function(data, editable = TRUE, dom = "frtip", pageLength = 10, scrollY = "27vh", server = T, language = "es") {
+  labelsNC <- ifelse(language == c("es", "es"), c("Numérico","Categórico"), c("Numerical","Categorical"))
+  data <- head(data, n = 100)
+  nombre.columnas <- c("ID", colnames(data))
+  tipo.columnas <- sapply(colnames(data), function(i) ifelse(class(data[,i]) %in% c("numeric", "integer"),
+                                                             paste0("<span data-id='numerico'>", labelsNC[1], "</span>"),
+                                                             paste0("<span data-id='categorico'>", labelsNC[2], "</span>")))
+  tipo.columnas <- lapply(tipo.columnas, function(i)tags$th(HTML(i)))
+  sketch <- htmltools::withTags(table(tableHeader(nombre.columnas),
+                                      tags$tfoot(tags$tr(tags$th(), tipo.columnas))))
+  
+  return(DT::renderDT(DT::datatable(data, selection = 'none', editable = editable,  container = sketch,
+                                    options = list(dom = dom, pageLength = pageLength, scrollY = scrollY)), server = server))
 }
