@@ -1,5 +1,5 @@
 export(init_regressor, exe, extract.code, as.string.c, gg_color_hue, plot_real_prediction, general.indices, combine.names, colnames.empty, var.numerical,
-       var.categorical, summary_indices, disjunctive.data, error_plot, render.index.table)
+       var.categorical, summary_indices, disjunctive.data, error_plot, render.index.table, translate, error.variables)
 
 import(ggplot2)
 import(shiny)
