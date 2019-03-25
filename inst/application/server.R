@@ -18,13 +18,13 @@ shinyServer(function(input, output, session) {
   # Acualiza las distintas tablas
   actualizar.tabla <- function(x = c("datos", "datos.aprendizaje", "datos.prueba")){
     if(any("datos" %in% x)){ # Cambia la tabla de datos
-      output$contents <- renderizar.tabla.datos(datos,editable = T, server=F)
+      output$contents <- render_table_data(datos,editable = T, server=F)
     }
     if(any("datos.aprendizaje" %in% x)){ # Cambia la tabla de datos de aprendizaje
-      output$contentsAprend <- renderizar.tabla.datos(datos.aprendizaje,editable=T,scrollY="15vh", server=F)
+      output$contentsAprend <- render_table_data(datos.aprendizaje,editable=T,scrollY="15vh", server=F)
     }
     if(any("datos.prueba" %in% x)){ # Cambia la tabla de datos de prueba
-      output$contentsPrueba <- renderizar.tabla.datos(datos.prueba,editable = T,scrollY="15vh",server=F)
+      output$contentsPrueba <- render_table_data(datos.prueba,editable = T,scrollY="15vh",server=F)
     }
   }
 
@@ -2258,21 +2258,21 @@ shinyServer(function(input, output, session) {
     tipos.prueba <- unlist(lapply(datos.prueba.completos[,nombres, drop = FALSE], class))
     
     if(any(tipos != tipos.prueba)){
-      stop(translate("NoTamColum"),call. = FALSE) 
+      stop(translate("NoTamColum"),call. = FALSE)
     }
   }
 
   actualizar.tabla.pn <- function(tablas = c("contentsPred", "contentsPred2")){
     if("contentsPred2" %in% tablas){
-      output$contentsPred <- renderizar.tabla.datos(datos.aprendizaje.completos,editable = F,
+      output$contentsPred <- render_table_data(datos.aprendizaje.completos,editable = F,
                                                     scrollY = "25vh", server = F)
     }
     if("contentsPred2" %in% tablas){
-      output$contentsPred2 <- renderizar.tabla.datos(datos.aprendizaje.completos,editable = F,
+      output$contentsPred2 <- render_table_data(datos.aprendizaje.completos,editable = F,
                                                      scrollY = "25vh", server = F)
     }
     if("contentsPred3" %in% tablas){
-      output$contentsPred3 <- renderizar.tabla.datos(datos.prueba.completos,editable = F,
+      output$contentsPred3 <- render_table_data(datos.prueba.completos,editable = F,
                                                      scrollY = "25vh", server = T)
     }
   }
@@ -2296,7 +2296,7 @@ shinyServer(function(input, output, session) {
     updateAceEditor(session, "fieldCodePredPN", value = codigo)
     if(!is.null(predic.nuevos)){
       datos.aux.prueba <- crear.datos.np()
-      output$PrediTablePN <- renderizar.tabla.datos(datos.aux.prueba,editable = F,
+      output$PrediTablePN <- render_table_data(datos.aux.prueba,editable = F,
                                                     scrollY = "25vh",server = T)
     }else{
       output$PrediTablePN <- DT::renderDT(DT::datatable(data.frame()))
