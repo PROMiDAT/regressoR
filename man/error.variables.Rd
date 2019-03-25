@@ -4,10 +4,12 @@
 \alias{error.variables}
 \title{error.variables}
 \usage{
-error.variables(num = T)
+error.variables(num = T, language = "es")
 }
 \arguments{
 \item{num}{if TRUE shows a message of missing numerical variables, if FALSE shows a message of missing categorical variables.}
+
+\item{language}{The language to choose. It can be "es" or "en".}
 }
 \description{
 Draws an error of missing data

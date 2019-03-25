@@ -9,13 +9,13 @@ translate(text, language = "es")
 \arguments{
 \item{text}{the id for the text.}
 
-\item{language}{The language to choose. It can be "es" or "en".}
+\item{language}{the language to choose. It can be "es" or "en".}
 }
 \description{
 translates text id into current language
 }
 \details{
-Use regressoR:::translation to see the data
+Use data(dictionary) to see the data
 }
 \examples{
 translate("knnl")
