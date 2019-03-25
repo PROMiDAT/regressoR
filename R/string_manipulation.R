@@ -71,9 +71,9 @@ enc <- ifelse(toupper(.Platform$OS.type) != "WINDOWS", "utf8", "UTF-8")
 #' @description translates text id into current language
 #' 
 #' @param text the id for the text.
-#' @param language The language to choose. It can be "es" or "en".
+#' @param language the language to choose. It can be "es" or "en".
 #' 
-#' @details Use regressoR:::translation to see the data
+#' @details Use data(dictionary) to see the data
 #' 
 #' @export
 #' @examples

@@ -166,18 +166,17 @@ render.index.table <- function(table){
 
 
 
-# Creates a table depending on the data entered
 #' render.table.data
 #'
-#' @param data 
-#' @param editable 
-#' @param dom 
-#' @param pageLength 
-#' @param scrollY 
-#' @param server 
-#' @param language
+#' @param data a data.frame to create a the table.
+#' @param editable whether to make an editable table. The default value is TRUE.
+#' @param dom define the table control elements to appear on the page and in what order.
+#' @param pageLength the number of rows to show. The default value is 10.
+#' @param scrollY the heigth of the table.
+#' @param server whether to use server-side processing. If TRUE, then the data is kept on the server and the browser requests a page at a time; if FALSE, then the entire data frame is sent to the browser at once.
+#' @param language the language to choose. It can be "es" or "en".
 #'
-#' @return
+#' @return a shiny.render.function
 #' @export
 #'
 #' @examples
@@ -192,17 +191,22 @@ render.index.table <- function(table){
 #'    )
 #' }
 #'
-renderizar.tabla.datos <- function(data, editable = TRUE, dom = "frtip", pageLength = 10, scrollY = "27vh", server = T, language = "es") {
-  labelsNC <- ifelse(language == c("es", "es"), c("Numérico","Categórico"), c("Numerical","Categorical"))
+render_table_data <- function(data, editable = TRUE, dom = "frtip", pageLength = 10, scrollY = "27vh", server = T, language = "es") {
+  labelsNC <- ifelse(language == c("es", "es"), c("Num\u00E9rico","Categ\u00F3rico"), c("Numerical","Categorical"))
   data <- head(data, n = 100)
   nombre.columnas <- c("ID", colnames(data))
   tipo.columnas <- sapply(colnames(data), function(i) ifelse(class(data[,i]) %in% c("numeric", "integer"),
                                                              paste0("<span data-id='numerico'>", labelsNC[1], "</span>"),
                                                              paste0("<span data-id='categorico'>", labelsNC[2], "</span>")))
   tipo.columnas <- lapply(tipo.columnas, function(i)tags$th(HTML(i)))
-  sketch <- htmltools::withTags(table(tableHeader(nombre.columnas),
+  sketch <- withTags(table(DT::tableHeader(nombre.columnas),
                                       tags$tfoot(tags$tr(tags$th(), tipo.columnas))))
   
   return(DT::renderDT(DT::datatable(data, selection = 'none', editable = editable,  container = sketch,
                                     options = list(dom = dom, pageLength = pageLength, scrollY = scrollY)), server = server))
 }
+
+
+
+
+
