@@ -62,7 +62,7 @@ particion.code <- function(data = "datos", p = "0.5", variable = NULL, semilla =
   semilla <- ifelse(is.numeric(semilla), semilla, 5)
   codigo <- ifelse(perm.semilla, paste0("set.seed(",semilla,")"), "rm(.Random.seed, envir = globalenv())")
   codigo <- paste0(codigo,"\nvariable.predecir <<- '",variable,"'\nparticion <- sample(1:nrow(datos),size = nrow(datos)*",p/100,", replace = FALSE)\n
-datos.prueba <<- datos[-particion,]\ndatos.aprendizaje <<- datos[particion,]")
+datos.prueba <<- datos[-particion,]\ndatos.aprendizaje <<- datos[particion,]\nreal.val <<- datos.prueba[, '",variable.predecir,"', drop = F]")
   codigo <- ifelse(perm.semilla, paste0(codigo, "\nset.seed(",semilla,")"),codigo)
   return(codigo)
 }
@@ -775,11 +775,14 @@ overwrite.cat <- function(){
 # VARIABLES GLOBALES --------------------------------------------------------------------------------------------------------
 
 # -------------------  Datos
+
 datos <<- NULL
 datos.originales <<- NULL
 datos.prueba <<- NULL
 datos.aprendizaje <<- NULL
 variable.predecir <<- NULL
+real.val <<- NULL
+
 contador <<- 0
 semilla <<- FALSE
 

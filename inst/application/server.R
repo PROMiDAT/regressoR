@@ -4,6 +4,14 @@
 # The server for RegressoR
 shinyServer(function(input, output, session) {
   
+  # The following variables belong to the server environment
+  # variable.predecir = The name of the variable to predict
+  # datos = The full dataset
+  # datos.prueba = The test dataset partition
+  # datos.aprendizaje = The learning dataset partition
+  # real.val = The values of the variable to predict (test data)
+  
+  # SERVER UTILITY FUNCTIONS ----------------------------------------------------------------------------------------------
   
   error.variables <- function(num = T){
     regressoR::error.variables(num, input$idioma)
@@ -12,23 +20,25 @@ shinyServer(function(input, output, session) {
   translate <- function(labelid){
     regressoR::translate(labelid, input$idioma)
   }
-  
-  # UTILITY FUNCTIONS -----------------------------------------------------------------------------------------------------
 
-  # Acualiza las distintas tablas
-  actualizar.tabla <- function(x = c("datos", "datos.aprendizaje", "datos.prueba")){
-    if(any("datos" %in% x)){ # Cambia la tabla de datos
-      output$contents <- render_table_data(datos,editable = T, server=F)
+  render_table_data <- function(data, editable = TRUE, dom = "frtip", pageLength = 10, scrollY = "27vh", server = T, language = "es"){
+    regressoR::render_table_data(data, editable, dom, pageLength, scrollY, server, input$idioma)
+  }
+  
+  # Updates the different tables
+  update_table <- function(x = c("datos", "datos.aprendizaje", "datos.prueba")){
+    if(any("datos" %in% x)){ # Change data table
+      output$contents <- render_table_data(datos, editable = T, server=F)
     }
-    if(any("datos.aprendizaje" %in% x)){ # Cambia la tabla de datos de aprendizaje
-      output$contentsAprend <- render_table_data(datos.aprendizaje,editable=T,scrollY="15vh", server=F)
+    if(any("datos.aprendizaje" %in% x)){ # Change learning data table
+      output$contentsAprend <- render_table_data(datos.aprendizaje, editable=T, scrollY="15vh", server=F)
     }
-    if(any("datos.prueba" %in% x)){ # Cambia la tabla de datos de prueba
-      output$contentsPrueba <- render_table_data(datos.prueba,editable = T,scrollY="15vh",server=F)
+    if(any("datos.prueba" %in% x)){ # Change test data table
+      output$contentsPrueba <- render_table_data(datos.prueba, editable = T, scrollY="15vh", server=F)
     }
   }
 
-  # Cierra un menu segun su tabName
+  # Close a menu according to your tabName
   close.menu <- function(tabname = NA, valor = T) {
     select <- paste0("a[href^='#shiny-tab-", tabname, "']")
     if(valor){
@@ -39,9 +49,8 @@ shinyServer(function(input, output, session) {
     }
   }
 
-  # Validacion comun para todos los modelos
+  # Common validation for all models
   validar.datos <- function(print = TRUE) {
-    # Validaciones
     if (is.null(variable.predecir) & print) {
       showNotification(translate("tieneVP"), duration = 10, type = "error")
     }
@@ -52,21 +61,6 @@ shinyServer(function(input, output, session) {
       showNotification(translate("tieneDAP"), duration = 10, type = "error")
     }
     return(!is.null(datos) & !is.null(variable.predecir) & !is.null(datos.aprendizaje))
-  }
-
-  # Crea la tabla de comparacion entre prediccion y datos reales (datos de prueba)
-  tb_predic <- function(predic.var = NULL){
-    real <- datos.prueba[, variable.predecir, drop = F]
-    df <- cbind(real, predic.var,  abs(real - predic.var))
-    colns <- c(translate("reald"), translate("pred"), translate("dif"))
-    colnames(df) <- colns
-    sketch <- htmltools::withTags(table(tableHeader(c("ID",colns))))
-    return(DT::datatable(df,
-                         selection = "none",
-                         editable = FALSE,
-                         escape = FALSE,
-                         container = sketch,
-                         options = list(dom = "frtip", pageLength = 10)))
   }
   
   # CONFIGURACIONES INICIALES ---------------------------------------------------------------------------------------------
@@ -89,8 +83,6 @@ shinyServer(function(input, output, session) {
   shinyjs::disable(selector = 'a[href^="#shiny-tab-poderPred"]')
   shinyjs::disable(selector = 'a[href^="#shiny-tab-parte1"]')
 
-  #actualizar.tabla()
-
   updateAceEditor(session, "fieldCodeResum", value = cod.resum())
   updateAceEditor(session, "fieldModelCor", value = modelo.cor())
   updateAceEditor(session, "fieldFuncNum", extract.code("distribucion.numerico"))
@@ -106,7 +98,7 @@ shinyServer(function(input, output, session) {
 
   # PAGINA DE CARGAR Y TRANSFORMAR DATOS ------------------------------------------------------------------------------------
 
-  # Carga datos
+  # Executes the data upload code
   cargar.datos <- function(codigo.carga = "") {
     tryCatch({
       isolate(exe(codigo.carga))
@@ -124,7 +116,7 @@ shinyServer(function(input, output, session) {
     })
   }
 
-  # Limpiado datos
+  # Executes data cleanup code
   limpiar.datos <- function(){
     if (any(is.na(datos))) {
       tryCatch({
@@ -143,7 +135,7 @@ shinyServer(function(input, output, session) {
     return(codigo.na)
   }
 
-  # Transforma los datos
+  # Transforma los datos - OJO
   transformar.datos <- function() {
     var.noactivas <- c()
     code.res <- "datos <<- datos.originales \n"
@@ -174,7 +166,7 @@ shinyServer(function(input, output, session) {
     return(code.res)
   }
 
-  # Actualizar los distintos selectores
+  # Update the different selectors
   acualizar.selecctores <- function() {
     updateSelectizeInput(session, "sel.normal", choices = colnames.empty(var.numerical(datos)))
     updateSelectizeInput(session, "select.var", choices = colnames.empty(var.numerical(datos)))
@@ -184,7 +176,7 @@ shinyServer(function(input, output, session) {
     updateSelectInput(session, "sel.predic.var", choices = rev(colnames.empty(var.numerical(datos))))
   }
 
-  # Crea las correlaciones
+  # Executes the code of correlations
   ejecutar.modelo.cor <- function() {
     tryCatch({
       isolate(exe(text = modelo.cor()))
@@ -194,12 +186,13 @@ shinyServer(function(input, output, session) {
     })
   }
 
-  # Borra los datos de los modelos
+  # Clears model data
   borrar.modelos <- function(flag.datos = TRUE) {
     if (flag.datos) {
       datos.prueba <<- NULL
       datos.aprendizaje <<- NULL
       variable.predecir <<- NULL
+      real.val <<- NULL
     }
 
     IndicesM <<- list()
@@ -213,10 +206,10 @@ shinyServer(function(input, output, session) {
                                checkIcon = list(yes = icon("ok", lib = "glyphicon"),
                                                 no = icon("remove", lib = "glyphicon")))
 
-    updateSelectInput(session,"kernel.knn",selected = "optimal")
+    updateSelectInput(session,"kernel.knn", selected = "optimal")
   }
 
-  # Cunado es precionado el boton de cargar datos
+  # When the load data button is pressed
   observeEvent(input$loadButton, {
     codigo.carga <- code.carga(nombre.filas = input$rowname, ruta = input$file1$datapath,
                                separador = input$sep, sep.decimal = input$dec, encabezado = input$header)
@@ -246,10 +239,10 @@ shinyServer(function(input, output, session) {
     close.menu("poderPred", is.null(datos.aprendizaje))
 
     # Cambia las tablas de datos
-    actualizar.tabla()
+    update_table()
   }, priority = 4)
 
-  # Cunado es precionado el boton de transformar datos
+  # When the button to transform data is pressed
   observeEvent(input$transButton, {
     # transforma los datos
     code.res <- transformar.datos()
@@ -273,10 +266,10 @@ shinyServer(function(input, output, session) {
     close.menu("poderPred", is.null(datos.aprendizaje))
 
     # Cambia las tablas de datos
-    actualizar.tabla()
+    update_table()
   }, priority = 4)
 
-  # Crea los select box del panel de trasnformar datos
+  # Crea los select box del panel de trasnformar datos - OJO
   update.trans <- eventReactive(input$loadButton, {
     contador <<- contador + 1
     if(!is.null(datos) && ncol(datos) > 0){
@@ -294,7 +287,7 @@ shinyServer(function(input, output, session) {
     return(res)
   })
 
-  # Cambia la tabla de con las opciones del panel de transformar
+  # Change the table with the options of the transform panel
   output$transData <- DT::renderDT({sketch <- htmltools::withTags(table(tags$thead(tags$tr(tags$th(tags$span(`data-id` = "variables", "Variables")),
                                                                                            tags$th(tags$span(`data-id` = "tipo", "Tipo")),
                                                                                            tags$th(tags$span(`data-id` = "activa", "Activa"))))))
@@ -309,6 +302,7 @@ shinyServer(function(input, output, session) {
                                                         Shiny.bindAll(table.table().node());"))
                                     }, server = FALSE)
 
+  # The download of full data
   output$downloaDatos <- downloadHandler(
     filename = function() {
       input$file1$name
@@ -320,7 +314,7 @@ shinyServer(function(input, output, session) {
 
   # PAGINA DE SEGMENTAR DATOS -----------------------------------------------------------------------------------------------
 
-  # Crea los datos de aprendizaje y prueba
+  # Executes data segmentation code
   segmentar.datos <- function(codigo) {
     tryCatch({
       isolate(exe(codigo))
@@ -330,15 +324,15 @@ shinyServer(function(input, output, session) {
     })
   }
 
-  # Actualiza los selecctores relacionados con los datos de prueba y aprendizaje
-  acualizar.selecctores.seg <- function() {
-    nombres <- colnames.empty(var.numerical(datos))
-    choices <- as.character(unique(datos[, variable.predecir]))
-    cat.sin.pred <- colnames.empty(var.categorical(datos))
-    cat.sin.pred <- cat.sin.pred[cat.sin.pred != input$sel.predic.var]
-    updateSelectInput(session, "sel.distribucion.poder", choices = cat.sin.pred)
-    updateSelectInput(session, "sel.density.poder", choices = nombres)
-  }
+  # # Actualiza los selecctores relacionados con los datos de prueba y aprendizaje 
+  # acualizar.selecctores.seg <- function() {
+  #   nombres <- colnames.empty(var.numerical(datos))
+  #   choices <- as.character(unique(datos[, variable.predecir]))
+  #   cat.sin.pred <- colnames.empty(var.categorical(datos))
+  #   cat.sin.pred <- cat.sin.pred[cat.sin.pred != input$sel.predic.var]
+  #   updateSelectInput(session, "sel.distribucion.poder", choices = cat.sin.pred)
+  #   updateSelectInput(session, "sel.density.poder", choices = nombres)
+  # }
 
   # Segmenta los datos en aprendizaje y prueba
   observeEvent(input$segmentButton, {
@@ -352,18 +346,18 @@ shinyServer(function(input, output, session) {
       knn.stop.excu <<- FALSE
       rf.stop.excu <<- FALSE
 
-      segmentar.datos(codigo)
+      segmentar.datos(codigo) #Se ejecuta el codigo
 
-      new.secction.report()
+      new.secction.report() #Reporte
       insert.report("segmentar.datos",paste0("\n# Datos de Aprendizaje\n```{r}\n",codigo,
                                              "\nhead(datos.aprendizaje)\n```\n\n# Datos de Prueba\n```{r}\nhead(datos.prueba)\n```\n"))
-
-      acualizar.selecctores.seg()
+      
+      # acualizar.selecctores.seg()
 
       # borra los datos de modelos
       borrar.modelos(FALSE)
 
-      # Cambia los codigos de los modelos
+      # cambia los codigos de los modelos
       deafult.codigo.rl()
       deafult.codigo.rlr()
       default.codigo.knn(k.def = TRUE)
@@ -372,16 +366,18 @@ shinyServer(function(input, output, session) {
       deafult.codigo.rf(rf.def = TRUE)
       deault.codigo.boosting()
       default.codigo.nn()
+      
     } else {
       showNotification(translate("tieneSVP"), duration = 15, type = "error")
     }
 
-    # Cierre o abre el menu
+    # cierre o abre el menu
     close.menu("parte2", is.null(datos.aprendizaje))
     close.menu("comparar", is.null(datos.aprendizaje))
     close.menu("poderPred", is.null(datos.aprendizaje))
-    # Cambia las tablas de aprendizaje y de prueba
-    actualizar.tabla(c("datos.aprendizaje", "datos.prueba"))
+    
+    # cambia las tablas de aprendizaje y de prueba
+    update_table(c("datos.aprendizaje", "datos.prueba"))
   },priority = 5)
 
   # Habilitada o deshabilitada la semilla
@@ -824,11 +820,11 @@ shinyServer(function(input, output, session) {
     tryCatch({ # Se corren los codigo
       isolate(exe(cod.rl.pred))
       
-      output$rlPrediTable <- DT::renderDataTable(tb_predic(prediccion.rl), server = FALSE)
+      output$rlPrediTable <- DT::renderDataTable(tb_predic(real.val, prediccion.rl), server = FALSE)
       
       insert.report("pred.rl",
                     paste0("## Predicción del Modelo Bosques Aleatorios\n```{r}\n", cod.rl.pred,
-                           "\nhead(tb_predic(prediccion.rl)x$data)\n```"))
+                           "\nhead(tb_predic(real.val, prediccion.rl)x$data)\n```"))
       
       plot.disp.rl()
       
@@ -1052,11 +1048,11 @@ shinyServer(function(input, output, session) {
     tryCatch({ # Se corren los codigo
       isolate(exe(cod.rlr.pred))
       isolate(tipo <- rlr.type())
-      output$rlrPrediTable <- DT::renderDataTable(tb_predic(exe("prediccion.rlr.",tipo)), server = FALSE)
+      output$rlrPrediTable <- DT::renderDataTable(tb_predic(real.val, exe("prediccion.rlr.",tipo)), server = FALSE)
 
       insert.report(paste0("pred.rlr.",tipo),
                     paste0("## Predicción del R/L\n```{r}\n", cod.rlr.pred,
-                           "\nhead(tb_predic(prediccion.rlr.",tipo,")x$data)\n```"))
+                           "\nhead(tb_predic(real.val, prediccion.rlr.",tipo,")x$data)\n```"))
 
       plot.disp.rlr()
       nombres.modelos <<- c(nombres.modelos, "prediccion.rlr")
@@ -1218,10 +1214,10 @@ shinyServer(function(input, output, session) {
       exe(cod.knn.pred)
       isolate(kernel <- input$kernel.knn)
       # Cambia la tabla con la prediccion de knn
-      output$knnPrediTable <- DT::renderDataTable(tb_predic(exe("prediccion.knn.",kernel)),server = FALSE)
+      output$knnPrediTable <- DT::renderDataTable(tb_predic(real.val, exe("prediccion.knn.",kernel)),server = FALSE)
       insert.report(paste0("pred.knn.",kernel),
                     paste0("## Predicción del Modelo KNN - ",kernel,"\n```{r}\n", cod.knn.pred,
-                           "\nhead(tb_predic(prediccion.knn.",kernel,")x$data)\n```"))
+                           "\nhead(tb_predic(real.val, prediccion.knn.",kernel,")x$data)\n```"))
 
       plot.disp.knn()
       nombres.modelos <<- c(nombres.modelos, paste0("prediccion.knn.",kernel))
@@ -1377,10 +1373,10 @@ shinyServer(function(input, output, session) {
       isolate(kernel <- input$kernel.svm)
       
       # Cambia la tabla con la prediccion de knn
-      output$svmPrediTable <- DT::renderDataTable(exe("tb_predic(prediccion.svm.",kernel,")"),server = FALSE)
+      output$svmPrediTable <- DT::renderDataTable(exe("tb_predic(real.val, prediccion.svm.",kernel,")"),server = FALSE)
       insert.report(paste0("pred.svm.",input$kernel.svm),
                     paste0("## Predicción del Modelo SVM - ",kernel,"\n```{r}\n", cod.svm.pred,
-                           "\nhead(tb_predic(prediccion.svm.",kernel,")x$data)\n```"))
+                           "\nhead(tb_predic(real.val, prediccion.svm.",kernel,")x$data)\n```"))
 
       nombres.modelos <<- c(nombres.modelos, paste0("prediccion.svm.",kernel))
 
@@ -1558,11 +1554,11 @@ shinyServer(function(input, output, session) {
     tryCatch({ # Se corren los codigo
       isolate(exe(cod.dt.pred))
       # Cambia la tabla con la prediccion de dt
-      output$dtPrediTable <- DT::renderDataTable(tb_predic(prediccion.dt),server = FALSE)
+      output$dtPrediTable <- DT::renderDataTable(tb_predic(real.val, prediccion.dt),server = FALSE)
 
       insert.report("pred.dt",
                     paste0("## Predicción del Modelo Árboles de Decisión\n```{r}\n", cod.dt.pred,
-                           "\nhead(tb_predic(prediccion.dt)x$data)\n```"))
+                           "\nhead(tb_predic(real.val, prediccion.dt)x$data)\n```"))
 
       plot.disp.dt()
       nombres.modelos <<- c(nombres.modelos, "prediccion.dt")
@@ -1752,11 +1748,11 @@ shinyServer(function(input, output, session) {
     tryCatch({ # Se corren los codigo
       isolate(exe(cod.rf.pred))
 
-      output$rfPrediTable <- DT::renderDataTable(tb_predic(prediccion.rf), server = FALSE)
+      output$rfPrediTable <- DT::renderDataTable(tb_predic(real.val, prediccion.rf), server = FALSE)
 
       insert.report("pred.rf",
                     paste0("## Predicción del Modelo Bosques Aleatorios\n```{r}\n", cod.rf.pred,
-                           "\nhead(tb_predic(prediccion.rf)x$data)\n```"))
+                           "\nhead(tb_predic(real.val, prediccion.rf)x$data)\n```"))
 
       nombres.modelos <<- c(nombres.modelos, "prediccion.rf")
       updatePlot$tablaCom <- !updatePlot$tablaCom #graficar otra vez la tabla comprativa
@@ -1936,10 +1932,10 @@ shinyServer(function(input, output, session) {
       isolate(exe(cod.b.pred))
       isolate(tipo <- input$tipo.boosting)
       # Cambia la tabla con la prediccion de boosting
-      output$boostingPrediTable <- DT::renderDataTable(tb_predic(exe("prediccion.boosting.",tipo)),server = FALSE)
+      output$boostingPrediTable <- DT::renderDataTable(tb_predic(real.val, exe("prediccion.boosting.",tipo)),server = FALSE)
       insert.report(paste0("pred.b.",tipo),
                     paste0("## Predicción del Modelo BOOSTING - ",tipo,"\n```{r}\n",
-                    cod.b.pred,"\nhead(tb_predic(prediccion.boosting.",input$tipo.boosting,")x$data)\n```"))
+                    cod.b.pred,"\nhead(tb_predic(real.val, prediccion.boosting.",input$tipo.boosting,")x$data)\n```"))
 
       plot.disp.boosting()
       nombres.modelos <<- c(nombres.modelos, paste0("modelo.boosting.",tipo))
@@ -2138,11 +2134,11 @@ shinyServer(function(input, output, session) {
       isolate(exe(cod.nn.pred))
       
       # Cambia la tabla con la prediccion de nn
-      output$nnPrediTable <- DT::renderDataTable(tb_predic(prediccion.nn),server = FALSE)
+      output$nnPrediTable <- DT::renderDataTable(tb_predic(real.val, prediccion.nn),server = FALSE)
 
       insert.report("pred.nn",
                     paste0("## Predicción del Modelo Redes Neuronales\n```{r}\n", cod.nn.pred,
-                           "\nhead(tb_predic(prediccion.nn)x$data)\n```"))
+                           "\nhead(tb_predic(real.val, prediccion.nn)x$data)\n```"))
 
       plot.disp.nn()
       nombres.modelos <<- c(nombres.modelos,"prediccion.nn")
@@ -2262,7 +2258,7 @@ shinyServer(function(input, output, session) {
     }
   }
 
-  actualizar.tabla.pn <- function(tablas = c("contentsPred", "contentsPred2")){
+  update_table.pn <- function(tablas = c("contentsPred", "contentsPred2")){
     if("contentsPred2" %in% tablas){
       output$contentsPred <- render_table_data(datos.aprendizaje.completos,editable = F,
                                                     scrollY = "25vh", server = F)
@@ -2375,7 +2371,7 @@ shinyServer(function(input, output, session) {
     actualizar.pred.pn("")
 
     actualizar.texto.modelo.pn("")
-    actualizar.tabla.pn()
+    update_table.pn()
   })
 
   update.trans.pn <- eventReactive(c(input$loadButtonNPred), {
@@ -2484,7 +2480,7 @@ shinyServer(function(input, output, session) {
     actualizar.pred.pn("")
 
     actualizar.texto.modelo.pn("")
-    actualizar.tabla.pn()
+    update_table.pn()
   })
 
   observeEvent(input$PredNuevosBttnModelo,{
@@ -2569,7 +2565,7 @@ shinyServer(function(input, output, session) {
         showNotification(translate("errorSeg"), duration = 10, type = "error")
         return(NULL)
       }
-      actualizar.tabla.pn("contentsPred3")
+      update_table.pn("contentsPred3")
     },
     error = function(e) {
       showNotification(paste0("Error: ", e), duration = 10, type = "error")
