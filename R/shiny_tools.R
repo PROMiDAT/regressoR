@@ -207,6 +207,40 @@ render_table_data <- function(data, editable = TRUE, dom = "frtip", pageLength =
 }
 
 
+#' tb_predic
+#' 
+#' @description Creates comparison table between prediction and real data (test data).
+#' 
+#' @param real a data.frame with the real values.
+#' @param predic.var a vector with the prediction value.
+#'
+#' @export
+#'
+#' @examples
+#' if(interactive()) {
+#'   library(shiny)
+#'   library(DT)
+#'   shinyApp( 
+#'     ui = fluidPage(fluidRow(column(12, DTOutput('tbl')))),
+#'    server = function(input, output) {
+#'      real <- iris[,'Petal.Width',drop = F]
+#'      pred <- sample(iris$Petal.Width, nrow(iris), replace =  T)
+#'      output$tbl = DT::renderDT(tb_predic(real, pred))
+#'    })
+#' }
+#' 
+tb_predic <- function(real, predic.var){
+  df   <- cbind(real, predic.var,  abs(real - predic.var))
+  colns <- c(translate("reald"), translate("pred"), translate("dif"))
+  colnames(df) <- colns
+  sketch <- htmltools::withTags(table(DT::tableHeader(c("ID",colns))))
+  return(DT::datatable(df,
+                       selection = "none",
+                       editable = FALSE,
+                       escape  = FALSE,
+                       container = sketch,
+                       options = list(dom = "frtip", pageLength = 10)))
+}
 
 
 
