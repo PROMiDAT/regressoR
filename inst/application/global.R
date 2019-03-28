@@ -45,7 +45,7 @@ code.trans <- function(variable, nuevo.tipo, d.o = "datos.originales",d="datos")
   } else {
     es.factor <- ifelse( eval(parse(text = paste0("class(",d.o,"[, variable]) %in% c('numeric', 'integer')"))),
                         paste0(d,"[, '", variable, "'] <<- as.factor(",d,"[, '", variable, "']) \n"), "")
-    return(paste0(es.factor, d, " <<- disjunctive.data(",d,", '", variable,"')"))
+    return(paste0(es.factor, d, " <<- disjunctive_data(",d,", '", variable,"')"))
   }
 }
 
@@ -175,7 +175,7 @@ fisher.calc <- function (x, na.rm = FALSE, ...) {
 #Genera  la tabla de normalidad
 default.calc.normal <- function(data = "datos", labelsi = "Positiva", labelno = "Negativa",labelsin = "Sin Asimetría") {
   return(paste0(
-    "calc <- lapply(var.numerical(", data,"), function(i) fisher.calc(i)[1]) \n",
+    "calc <- lapply(var_numerical(", data,"), function(i) fisher.calc(i)[1]) \n",
     "calc <- as.data.frame(calc) \n",
     "calc <- rbind(calc, lapply(calc, function(i) ifelse(i > 0, '", labelsi,
     "',\n  ifelse(i < 0, '", labelno, "', '", labelsin, "')))) \n",
@@ -239,7 +239,7 @@ distribucion.categorico <- function(var) {
 
 #Calcula la matriz de correlacion
 modelo.cor <- function(data = "datos"){
-  return(paste0("correlacion <<- cor(var.numerical(", data, "))"))
+  return(paste0("correlacion <<- cor(var_numerical(", data, "))"))
 }
 
 #Codigo de la generacion de correlaciones
@@ -253,7 +253,7 @@ correlaciones <- function(metodo = 'circle', tipo = "lower"){
 #Grafica el pairs
 
 pairs.poder <<- 
-"pairs.panels(var.numerical(datos), bg='black', ellipses=FALSE, smooth=FALSE, 
+"pairs.panels(var_numerical(datos), bg='black', ellipses=FALSE, smooth=FALSE, 
   lm=TRUE, cex=0.5, cex.main=0.1, pch=20, main='',
 hist.col=gg_color_hue(3)[3], oma=c(1,1,1,1) )"
 
@@ -646,75 +646,6 @@ nn.plot <- function(){
 
 # Pagina de REPORTE ---------------------------------------------------------------------------------------------------------
 
-#Ordena el reporte
-ordenar.reporte <- function(lista){
-  nombres <- names(lista)
-  orden <- c("carga.datos","na.delete","transformar.datos","segmentar.datos","resumen",
-             nombres[grepl("normalidad.", nombres)],
-             nombres[grepl("dispersion.", nombres)],
-             nombres[grepl("dya.num.", nombres)],
-             nombres[grepl("dya.cat.", nombres)],
-             "correlacion","poder.pred",
-             nombres[grepl("poder.cat.", nombres)],
-             "poder.num",nombres[grepl("poder.den.", nombres)],
-             "modelo.rl","pred.rl","disp.rl","ind.rl",
-             combine.names(c("modelo.rlr","posib.landa.rlr","coeff.landa.rlr","gcoeff.landa.rlr","pred.rlr","disp.rlr","ind.rlr"),
-                              c("ridge", "lasso")),
-             combine.names(c("modelo.knn","pred.knn","disp.knn","ind.knn"),
-                              c("optimal", "rectangular", "triangular","epanechnikov",
-                                "biweight","triweight", "cos","inv","gaussian")),
-             combine.names(c("modelo.svm","pred.svm","disp.svm","ind.svm"),
-                              c("linear", "polynomial", "radial","sigmoid")),
-             "modelo.dt","modelo.dt.graf","pred.dt",
-             "disp.dt","ind.dt","modelo.dt.rules",
-             "modelo.rf","modelo.rf.graf",
-             "pred.rf","disp.rf","ind.rf",
-             nombres[grepl("modelo.rf.rules.", nombres)],
-             combine.names(c("modelo.b","modelo.b.imp","pred.b","disp.boosting","ind.b"),
-                              c("gaussian", "laplace", "tdist")),
-             "modelo.nn", "modelo.nn.graf", "pred.nn", "disp.nn", "ind.nn",
-             "tabla.comparativa")
-
-  orden <- c(orden, nombres[!(nombres %in% orden)])
-  lista <- lista[orden]
-  lista <- lista[!as.logical(lapply(lista, is.null))]
-  return(lista)
-}
-
-def.reporte <- function(titulo = "Sin Titulo", nombre = "PROMiDAT", entradas) {
-  codigo.usuario <- ""
-  codigos <- env.report$codigo.reporte
-  for (lista in codigos) {
-    lista <- ordenar.reporte(lista)
-    for (codigo in lista) {
-      if(!is.data.frame(codigo)){
-        codigo.usuario <- paste0(codigo.usuario, codigo)
-      }
-    }
-  }
-  paste0(
-    "---\n", "title: '", titulo, "'\n", "author: '", nombre, "'\n",
-    "date: ", Sys.Date(), "\n", "output:\n  word_document:\n",
-    "    df_print: paged\n---\n\n",
-    "```{r setup, include=FALSE}\n",
-    "knitr::opts_chunk$set(echo = FALSE,  fig.height = 10, fig.width = 15)\n",
-    "```\n\n",
-    "```{r message=FALSE, warning=FALSE}\n",
-    "library(promises)\nlibrary(ggplot2)\nlibrary(neuralnet)\n",
-    "library(corrplot)\n\nlibrary(scatterplot3d)\nlibrary(rattle)\n",
-    "library(stringr)\nlibrary(gbm)\nlibrary(DT)\nlibrary(glmnet)\n",
-    "library(kknn)\nlibrary(e1071)\nlibrary(rpart)\n",
-    "library(rpart.plot)\nlibrary(randomForest)\nlibrary(ada)\nlibrary(xgboost)\n",
-    "library(dplyr)\nlibrary(forcats)\n",
-    "library(xtable)\n",
-    "```\n\n", "```{r}\n", extract.code("var.numerical"), "\n\n",
-    extract.code("var.categorical"), "\n\n", extract.code("disjunctive.data"),
-    "\n\n", extract.code("distribucion.numerico"), "\n\n",
-    extract.code("distribucion.categorico"), "\n\n```",
-    codigo.usuario)
-}
-
-
 recover_cat <- function(){
   unlockBinding("cat", .BaseNamespaceEnv)
   
@@ -773,6 +704,33 @@ overwrite.cat <- function(){
 
 
 # VARIABLES GLOBALES --------------------------------------------------------------------------------------------------------
+
+
+order_report <- c("carga.datos","na.delete","transformar.datos","segmentar.datos","resumen",
+                 nombres[grepl("normalidad.", nombres)],
+                 nombres[grepl("dispersion.", nombres)],
+                 nombres[grepl("dya.num.", nombres)],
+                 nombres[grepl("dya.cat.", nombres)],
+                 "correlacion","poder.pred",
+                 nombres[grepl("poder.cat.", nombres)],
+                 "poder.num",nombres[grepl("poder.den.", nombres)],
+                 "modelo.rl","pred.rl","disp.rl","ind.rl",
+                 combine_names(c("modelo.rlr","posib.landa.rlr","coeff.landa.rlr","gcoeff.landa.rlr","pred.rlr","disp.rlr","ind.rlr"),
+                               c("ridge", "lasso")),
+                 combine_names(c("modelo.knn","pred.knn","disp.knn","ind.knn"),
+                               c("optimal", "rectangular", "triangular","epanechnikov",
+                                 "biweight","triweight", "cos","inv","gaussian")),
+                 combine_names(c("modelo.svm","pred.svm","disp.svm","ind.svm"),
+                               c("linear", "polynomial", "radial","sigmoid")),
+                 "modelo.dt","modelo.dt.graf","pred.dt",
+                 "disp.dt","ind.dt","modelo.dt.rules",
+                 "modelo.rf","modelo.rf.graf",
+                 "pred.rf","disp.rf","ind.rf",
+                 nombres[grepl("modelo.rf.rules.", nombres)],
+                 combine_names(c("modelo.b","modelo.b.imp","pred.b","disp.boosting","ind.b"),
+                               c("gaussian", "laplace", "tdist")),
+                 "modelo.nn", "modelo.nn.graf", "pred.nn", "disp.nn", "ind.nn",
+                 "tabla.comparativa")
 
 # -------------------  Datos
 
@@ -873,7 +831,3 @@ code.trans.pn <<- ""
 modelo.nuevos <<- NULL
 predic.nuevos <<- NULL
 
-# -------------------  Reporte
-
-env.report <<- new.env()
-env.report$codigo.reporte <- list()
