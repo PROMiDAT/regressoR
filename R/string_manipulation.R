@@ -4,6 +4,7 @@
 #' @description Concat and execute a text in R
 #'
 #' @param ... one or more texts to be concatenated and executed
+#' @param envir the environment in which expr is to be evaluated
 #' 
 #' @return the result of the execute
 #' @export
@@ -13,8 +14,8 @@
 #' exe("5","+","5")
 #' exe("plot(iris$Species)")
 #' 
-exe <- function(...){
-  eval(parse(text = paste0(...)))
+exe <- function(..., envir = parent.frame()){
+  eval(parse(text = paste0(...)), envir = envir)
 }
 
 #' extract.code
@@ -86,6 +87,33 @@ translate <- function(text, language = "es") {
     Encoding(elem) <- enc
     elem
   }, USE.NAMES = F)
+}
+
+
+#' models_mode
+#'
+#' @param list.names a list whose names function as keys for \code{\link{translate}}. The names have to have the key-mode form.
+#' @param language the language to choose. It can be "es" or "en".
+#' 
+#' @return a vector with the names
+#' @export
+#'
+#' @examples
+#' x <- list('knnl-mode1' = 1, 'knnl-mode2' = 2, 'knnl-mode2' = 5)
+#' models_mode(x)
+#' 
+models_mode <- function(list.names = list(), language = "es"){
+  if(length(list.names) == 0) {
+    return("---X---")
+  }
+  nombres <- c()
+  for (nom in names(list.names)){
+    nom.aux <- unlist(strsplit(nom, "-"))
+    nombres <- c(nombres,ifelse(length(nom.aux) == 1,
+                                translate(nom.aux, language),
+                                paste0(translate(nom.aux[1], language),"-",nom.aux[2])))
+  }
+  return(nombres)
 }
 
 
