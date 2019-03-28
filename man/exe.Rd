@@ -4,10 +4,12 @@
 \alias{exe}
 \title{exe}
 \usage{
-exe(...)
+exe(..., envir = parent.frame())
 }
 \arguments{
 \item{...}{one or more texts to be concatenated and executed}
+
+\item{envir}{the environment in which expr is to be evaluated}
 }
 \value{
 the result of the execute
