@@ -1,5 +1,5 @@
 
-#' general.indices
+#' general_indices
 #'
 #' @description calculates indices to measure accuracy of a model 
 #'
@@ -13,9 +13,9 @@
 #' real <- rnorm(45)
 #' prediction <- rnorm(45)
 #' model <- "KNN"
-#' general.indices(real, prediction)
+#' general_indices(real, prediction)
 #' 
-general.indices <- function(real, prediccion) {
+general_indices <- function(real, prediccion) {
   RMSE <- sqrt(sum((real - prediccion) ^ 2) / length(prediccion))
   MAE  <- sum(abs(real - prediccion)) / length(prediccion)
   RE   <- sum(abs(real - prediccion)) / sum(abs(real))
@@ -27,7 +27,7 @@ general.indices <- function(real, prediccion) {
               Correlacion = COR))
 }
 
-#' combine.names
+#' combine_names
 #'
 #' @param x a vector to combine with y. The combination is grouped by this parameter.
 #' @param y a vector to combine with x.
@@ -39,13 +39,13 @@ general.indices <- function(real, prediccion) {
 #' @examples
 #' x = c("A", "B", "C")
 #' y = c("1", "2", "3")
-#' combine.names(x, y)
+#' combine_names(x, y)
 #' 
-combine.names <- function(x, y, sep = "."){
+combine_names <- function(x, y, sep = "."){
   unlist(lapply(y, function(y1)lapply(x, function(x1)paste0(x1,sep,y1))))
 }
 
-#' colnames.empty
+#' colnames_empty
 #'
 #' @param data the dataset
 #'
@@ -53,17 +53,17 @@ combine.names <- function(x, y, sep = "."){
 #' @export
 #'
 #' @examples
-#' colnames.empty(iris)
-#' colnames.empty(NULL)
+#' colnames_empty(iris)
+#' colnames_empty(NULL)
 #' 
-colnames.empty <- function(data){
+colnames_empty <- function(data){
   res <- colnames(data)
   if(is.null(res))
     return("")
   return(res)
 }
 
-#' var.numerical
+#' var_numerical
 #'
 #' @description gets only the numerical columns
 #'
@@ -73,15 +73,15 @@ colnames.empty <- function(data){
 #' @export
 #'
 #' @examples
-#' var.numerical(iris)
+#' var_numerical(iris)
 #' 
-var.numerical <- function(data){
+var_numerical <- function(data){
   if(is.null(data)) return(NULL)
   res <- base::subset(data, select = sapply(data, class) %in% c('numeric', 'integer'))
   return(res)
 }
 
-#' var.categorical
+#' var_categorical
 #'
 #' @description gets only the categorical columns
 #'
@@ -91,14 +91,13 @@ var.numerical <- function(data){
 #' @export
 #'
 #' @examples
-#' var.categorical(iris)
+#' var_categorical(iris)
 #' 
-var.categorical <- function(data){
+var_categorical <- function(data){
   if(is.null(data)) return(NULL)
   res <- base::subset(data, select = !sapply(data, class) %in% c('numeric', 'integer'))
   return(res)
 }
-
 
 #' summary_indices
 #'
@@ -118,7 +117,7 @@ summary_indices <- function(data){
        "Max" = max(data))
 }
 
-#' disjunctive.data
+#' disjunctive_data
 #' 
 #' @description Convert the columns selected to disjunctive
 #'
@@ -129,8 +128,8 @@ summary_indices <- function(data){
 #' @export
 #'
 #' @examples
-#' disjunctive.data(iris, "Species")
-disjunctive.data <- function(data, vars){
+#' disjunctive_data(iris, "Species")
+disjunctive_data <- function(data, vars){
   if(is.null(data)) return(NULL)
   cualitativas <- base::subset(data, select = colnames(data) %in% c(vars))
   data <- data[, !colnames(data) %in% vars]
@@ -144,7 +143,7 @@ disjunctive.data <- function(data, vars){
   return(data)
 }
 
-#' comparative.table
+#' comparative_table
 #'
 #' @description creates the comparison table
 #'
@@ -159,9 +158,9 @@ disjunctive.data <- function(data, vars){
 #'                'dtl-mode2'  = list(0.12,0.23,0.34,0.45),
 #'                'rfl-mode1'  = list(0.51,0.42,0.13,0.24))
 #' sel <- c("K Vecinos Más Cercanos-mode1", "Bosques Aleatorios-mode1")
-#' comparative.table(sel, models)
+#' comparative_table(sel, models)
 #' 
-comparative.table <- function(sel, indices, language = "es") {
+comparative_table <- function(sel, indices, language = "es") {
   tryCatch({
     nombres <- models_mode(indices, language)
     
@@ -183,10 +182,7 @@ comparative.table <- function(sel, indices, language = "es") {
   })
 }
 
-
-
 ############################ NP
-
 
 #' validate_pn_data
 #' 
@@ -228,4 +224,20 @@ validate_pn_data <- function(x, y, var.pred = "", language = "es"){
 }
 
 
-
+#' new_col
+#' 
+#' @description creates a new column
+#'
+#' @param data the data.frame to join with the new column
+#' @param name the name of the new column
+#' @param values the values of the new column
+#'
+#' @export
+#'
+#' @examples
+#' new_col(iris)
+#' new_col(iris, "var1", c(1,2,3))
+new_col <- function(data, name = "new_", values = NA){
+  data[,name] <- values
+  return(data)
+}
