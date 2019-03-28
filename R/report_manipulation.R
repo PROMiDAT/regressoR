@@ -190,7 +190,7 @@ order_report <- function(list_report, order){
 
 word_report <- function(title = "Sin Titulo", name = "PROMiDAT", order_by = c("")) {
   codigo.usuario <- ""
-  codigos <- env.report$codigo.reporte
+  codigos <- env_report$codigo.reporte
   
   for (list_r in codigos) {
     list_r <- order_report(list_r, order_by)
