@@ -715,7 +715,7 @@ def.reporte <- function(titulo = "Sin Titulo", nombre = "PROMiDAT", entradas) {
 }
 
 
-recover.cat <- function(){
+recover_cat <- function(){
   unlockBinding("cat", .BaseNamespaceEnv)
   
   .BaseNamespaceEnv$cat <- function (..., file = "", sep = " ", fill = FALSE, labels = NULL, append = FALSE){
@@ -733,7 +733,7 @@ recover.cat <- function(){
       .Internal(cat(list(...), file, sep, fill, labels, append))
   }
   
-  lockBinding("cat",.BaseNamespaceEnv)
+  lockBinding("cat", .BaseNamespaceEnv)
 }
 
 overwrite.cat <- function(){

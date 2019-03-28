@@ -16,7 +16,7 @@ suppressMessages(suppressWarnings({
   library(shinyjs)
   library(ggplot2)
   library(stringr)
-  #library(forcats)
+  library(forcats)
   library(shinyAce)
   library(corrplot)
   library(neuralnet)
@@ -693,7 +693,7 @@ b.options <- list(fluidRow(column(width = 9,h4(labelInput("opciones"))),
                             column(width = 2,br(),actionButton("runBoosting", label = labelInput("ejecutar"), icon = icon("play")))),
                    hr(),
                    fluidRow(column(numericInput("iter.boosting", labelInput("numTree"), 20, width = "100%",min = 1), width = 6),
-                            column(numericInput("shrinkage.boosting", labelInput("shrinkage"), 0.001, width = "100%",min = 0.001, step = 0.001), width=6)),
+                            column(numericInput("shrinkage.boosting", labelInput("shrinkage"), 0.01, width = "100%",min = 0.001, step = 0.001), width=6)),
                    fluidRow(column(selectInput(inputId = "tipo.boosting", label = labelInput("selectAlg"),selected = 1,
                                                choices =  c("gaussian", "laplace", "tdist")), width = 6)))
 
