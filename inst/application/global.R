@@ -667,7 +667,7 @@ recover_cat <- function(){
   lockBinding("cat", .BaseNamespaceEnv)
 }
 
-overwrite.cat <- function(){
+overwrite_cat <- function(){
   unlockBinding("cat", .BaseNamespaceEnv)
   
   .BaseNamespaceEnv$cat <- function(..., file = "", sep = " ", fill = FALSE, labels = NULL, append = FALSE){
@@ -706,31 +706,7 @@ overwrite.cat <- function(){
 # VARIABLES GLOBALES --------------------------------------------------------------------------------------------------------
 
 
-order_report <- c("carga.datos","na.delete","transformar.datos","segmentar.datos","resumen",
-                 nombres[grepl("normalidad.", nombres)],
-                 nombres[grepl("dispersion.", nombres)],
-                 nombres[grepl("dya.num.", nombres)],
-                 nombres[grepl("dya.cat.", nombres)],
-                 "correlacion","poder.pred",
-                 nombres[grepl("poder.cat.", nombres)],
-                 "poder.num",nombres[grepl("poder.den.", nombres)],
-                 "modelo.rl","pred.rl","disp.rl","ind.rl",
-                 combine_names(c("modelo.rlr","posib.landa.rlr","coeff.landa.rlr","gcoeff.landa.rlr","pred.rlr","disp.rlr","ind.rlr"),
-                               c("ridge", "lasso")),
-                 combine_names(c("modelo.knn","pred.knn","disp.knn","ind.knn"),
-                               c("optimal", "rectangular", "triangular","epanechnikov",
-                                 "biweight","triweight", "cos","inv","gaussian")),
-                 combine_names(c("modelo.svm","pred.svm","disp.svm","ind.svm"),
-                               c("linear", "polynomial", "radial","sigmoid")),
-                 "modelo.dt","modelo.dt.graf","pred.dt",
-                 "disp.dt","ind.dt","modelo.dt.rules",
-                 "modelo.rf","modelo.rf.graf",
-                 "pred.rf","disp.rf","ind.rf",
-                 nombres[grepl("modelo.rf.rules.", nombres)],
-                 combine_names(c("modelo.b","modelo.b.imp","pred.b","disp.boosting","ind.b"),
-                               c("gaussian", "laplace", "tdist")),
-                 "modelo.nn", "modelo.nn.graf", "pred.nn", "disp.nn", "ind.nn",
-                 "tabla.comparativa")
+
 
 # -------------------  Datos
 
