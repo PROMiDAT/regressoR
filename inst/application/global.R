@@ -5,8 +5,6 @@ disp.modelos <- function(prediccion, modelo){
 
 # Pagina de Cargar y Transformar Datos --------------------------------------------------------------------------------------
 
-
-
 #Genera el codigo para cargar datos
 code.carga <- function(nombre.filas = T, ruta = NULL, separador = ";", sep.decimal = ",", encabezado = T, d.o = "datos.originales", d = "datos" ){
   if(!is.null(ruta)){
@@ -704,9 +702,6 @@ overwrite_cat <- function(){
 
 
 # VARIABLES GLOBALES --------------------------------------------------------------------------------------------------------
-
-
-
 
 # -------------------  Datos
 
