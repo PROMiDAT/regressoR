@@ -2515,7 +2515,7 @@ shinyServer(function(input, output, session) {
     })
   })
 
-  # PAGINA DE REPORTE -------------------------------------------------------------------------------------------------------
+  # PAGINA DE REPORTE -----------------------------------------------------------------------------------------------------
 
   # When the user enters the report page
   observeEvent(input$principal, {
@@ -2574,15 +2574,12 @@ shinyServer(function(input, output, session) {
     }
   )
 
-  # CAMBIAR IDIOMA ----------------------------------------------------------------------------------------------------------
+  # CHANGE LANGUAGE -------------------------------------------------------------------------------------------------------
 
-  #Elimina NULLs
-  dropNulls <- function (x) {
-    x[!vapply(x, is.null, FUN.VALUE = logical(1))]
-  }
-
+  # Updates the labelInputs that the language changes
   updateLabelInput <- function (session, labelid, value = NULL) {
-    message <- dropNulls(list(labelid = labelid))
+    message <- list(labelid = labelid)
+    message <- message[!vapply(message, is.null, FUN.VALUE = logical(1))]
     if(length(labelid) == 1) {
       labelid <- list(labelid)
     }
@@ -2592,6 +2589,7 @@ shinyServer(function(input, output, session) {
                               message = list(ids = labelid, values = sentvalue))
   }
 
+  # When the user changes the language
   observeEvent(c(input$idioma), {
     updateLabelInput(session, c("idioma","selidioma","data","basico","resumen","normalidad",
                                 "dispersion","distribucion","correlacion","poderpred","reporte",
@@ -2625,7 +2623,7 @@ shinyServer(function(input, output, session) {
     execute_rl_ind()
   })
 
-  # TERMINA LA SESION -------------------------------------------------------------------------------------------------------
+  # END THE SESSION -------------------------------------------------------------------------------------------------------
 
   # When the session closes
   session$onSessionEnded(function() {
