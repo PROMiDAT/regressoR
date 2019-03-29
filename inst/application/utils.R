@@ -1,11 +1,11 @@
 
 #Funciones tomadas del paquete CARET
 
-prettySeq <- function (x) {
+prettySeq <<- function (x) {
   paste("Resample", gsub(" ", "0", format(seq(along = x))), sep = "")
 }
 
-createDataPartition <- function (y, times = 1, p = 0.5, list = TRUE, groups = min(5,
+createDataPartition <<- function (y, times = 1, p = 0.5, list = TRUE, groups = min(5,
                                                            length(y))) {
   if (class(y)[1] == "Surv")
     y <- y[, "time"]
@@ -57,7 +57,7 @@ createDataPartition <- function (y, times = 1, p = 0.5, list = TRUE, groups = mi
 
 #Funciones tomadas del paquete PSYCH
 
-pairs.panels <- function (x, smooth = TRUE, scale = FALSE, density = TRUE, ellipses = TRUE,
+pairs.panels <<- function (x, smooth = TRUE, scale = FALSE, density = TRUE, ellipses = TRUE,
           digits = 2, method = "pearson", pch = 20, lm = FALSE, cor = TRUE,
           jiggle = FALSE, factor = 2, hist.col = "cyan", show.points = TRUE,
           rug = TRUE, breaks = "Sturges", cex.cor = 1, wt = NULL, smoother = FALSE,
@@ -309,7 +309,7 @@ pairs.panels <- function (x, smooth = TRUE, scale = FALSE, density = TRUE, ellip
 
 #Funciones tomadas del paquete DUMMIES
 
-dummy <- function (x, data = NULL, sep = "", drop = TRUE, fun = as.integer, verbose = FALSE) {
+dummy <<- function (x, data = NULL, sep = "", drop = TRUE, fun = as.integer, verbose = FALSE) {
   if (is.null(data)) {
     name <- as.character(sys.call(1))[2]
     name <- sub("^(.*\\$)", "", name)
@@ -345,7 +345,7 @@ dummy <- function (x, data = NULL, sep = "", drop = TRUE, fun = as.integer, verb
   return(mm)
 }
 
-dummy.data.frame <- function (data, names = NULL, omit.constants = TRUE, dummy.classes = c("factor" ,"character"), all = TRUE, ...) {
+dummy.data.frame <<- function (data, names = NULL, omit.constants = TRUE, dummy.classes = c("factor" ,"character"), all = TRUE, ...) {
   df <- data.frame(row.names = row.names(data))
   new.attr <- list()
   for (nm in names(data)) {
@@ -372,18 +372,18 @@ dummy.data.frame <- function (data, names = NULL, omit.constants = TRUE, dummy.c
 #Funciones tomadas del paquete scatterplot3d
 
 scatterplot3d <- function (x, y = NULL, z = NULL, color = par("col"), pch = par("pch"),
-          main = NULL, sub = NULL, xlim = NULL, ylim = NULL, zlim = NULL,
-          xlab = NULL, ylab = NULL, zlab = NULL, scale.y = 1, angle = 40,
-          axis = TRUE, tick.marks = TRUE, label.tick.marks = TRUE,
-          x.ticklabs = NULL, y.ticklabs = NULL, z.ticklabs = NULL,
-          y.margin.add = 0, grid = TRUE, box = TRUE, lab = par("lab"),
-          lab.z = mean(lab[1:2]), type = "p", highlight.3d = FALSE,
-          mar = c(5, 3, 4, 3) + 0.1, bg = par("bg"), col.axis = par("col.axis"),
-          col.grid = "grey", col.lab = par("col.lab"), cex.symbols = par("cex"),
-          cex.axis = 0.8 * par("cex.axis"), cex.lab = par("cex.lab"),
-          font.axis = par("font.axis"), font.lab = par("font.lab"),
-          lty.axis = par("lty"), lty.grid = par("lty"), lty.hide = NULL,
-          lty.hplot = par("lty"), log = "", asp = NA, ...)
+                           main = NULL, sub = NULL, xlim = NULL, ylim = NULL, zlim = NULL,
+                           xlab = NULL, ylab = NULL, zlab = NULL, scale.y = 1, angle = 40,
+                           axis = TRUE, tick.marks = TRUE, label.tick.marks = TRUE,
+                           x.ticklabs = NULL, y.ticklabs = NULL, z.ticklabs = NULL,
+                           y.margin.add = 0, grid = TRUE, box = TRUE, lab = par("lab"),
+                           lab.z = mean(lab[1:2]), type = "p", highlight.3d = FALSE,
+                           mar = c(5, 3, 4, 3) + 0.1, bg = par("bg"), col.axis = par("col.axis"),
+                           col.grid = "grey", col.lab = par("col.lab"), cex.symbols = par("cex"),
+                           cex.axis = 0.8 * par("cex.axis"), cex.lab = par("cex.lab"),
+                           font.axis = par("font.axis"), font.lab = par("font.lab"),
+                           lty.axis = par("lty"), lty.grid = par("lty"), lty.hide = NULL,
+                           lty.hplot = par("lty"), log = "", asp = NA, ...)
 {
   mem.par <- par(mar = mar)
   x.scal <- y.scal <- z.scal <- 1

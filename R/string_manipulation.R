@@ -18,7 +18,7 @@ exe <- function(..., envir = parent.frame()){
   eval(parse(text = paste0(...)), envir = envir)
 }
 
-#' extract.code
+#' extract_code
 #' 
 #' @description Gets the code of a function in text form
 #'
@@ -28,12 +28,12 @@ exe <- function(..., envir = parent.frame()){
 #' @export
 #'
 #' @examples
-#' extract.code("cat")
-#' extract.code("plot")
+#' extract_code("cat")
+#' extract_code("plot")
 #' 
-#' parse(text = extract.code("plot"))
+#' parse(text = extract_code("plot"))
 #' 
-extract.code <- function(funcion) {
+extract_code <- function(funcion) {
   code <- paste(head(exe(funcion), 100), collapse = "\n")
   code <- paste(funcion, "<-", code)
   return(code)

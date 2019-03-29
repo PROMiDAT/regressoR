@@ -85,9 +85,9 @@ chunk <- function(content = ""){
 new_report <- function(data, name = ""){
   n <- len_report() + 1
   env_report$codigo.reporte[[n]] <- list(datos.originales = data)
-  env_report$codigo.reporte[[n]][["carga.datos"]] <- paste0("\n# Carga de Datos (",name,")",
+  env_report$codigo.reporte[[n]][["carga.datos"]] <- paste0("\n## Carga de Datos (",name,")",
                                                              "\n```{r}\ndatos.originales <<- codigo.reporte[[",n,"]]$datos.originales\n",
-                                                             "datos <<- datos.originales\n```\n```{r}\nhead(datos)\n```\n```{r}\nstr(datos)\n```\n",
+                                                             "datos <<- datos.originales\n```\n```{r}\nkt(head(datos))\n```\n```{r}\nstr(datos)\n```\n",
                                                              "```{r}\nIndicesM <<- list()\n```\n")
 }
 
@@ -113,11 +113,11 @@ new_report <- function(data, name = ""){
 insert_report <- function(id, title = NA, ... ,  interpretation =  TRUE, is.chunk = TRUE, add = FALSE){
   n <- len_report()
   content <- paste0(...)
-  title <- ifelse(is.na(title), "\n", paste0("## ", title, "\n"))
+  title <- ifelse(is.na(title), "\n\n", paste0("\n##  ", title, "\n"))
   content <- ifelse(is.chunk, chunk(content), content)
-  inter <- ifelse(interpretation, "\n\n#### <Interpretaci\u00F3n>\n\n", "")
+  inter <- ifelse(interpretation, "\n\n####Interpretaci\u00F3n:\n", "\n")
   if(!add){
-    env_report$codigo.reporte[[n]][[id]] <- ifelse(interpretation, paste0(title, content, inter), paste0(title, content))
+    env_report$codigo.reporte[[n]][[id]] <- ifelse(interpretation, paste0(title, content, inter), paste0(title, content,"\n"))
   }else{
     aux <- env_report$codigo.reporte[[n]][[id]]
     env_report$codigo.reporte[[n]][[id]] <- paste0(aux , "\n", title, content, inter)
@@ -179,21 +179,63 @@ new_section_report <- function(){
 }
 
 
-
-order_report <- function(list_report, order){
+#' order_report
+#' 
+#' @description sort the report list according to the 'regressoR' logic.
+#'
+#' @param list_report la lista del con los elementos del reporte.
+#'
+#' @keywords internal
+#'
+order_report <- function(list_report){
   nombres <- names(list_report)
+  order <- c("carga.datos","na.delete","transformar.datos","segmentar.datos","resumen",
+             nombres[grepl("normalidad.", nombres)],
+             nombres[grepl("dispersion.", nombres)],
+             nombres[grepl("dya.num.", nombres)],
+             nombres[grepl("dya.cat.", nombres)],
+             "correlacion","poder.pred",
+             nombres[grepl("poder.cat.", nombres)],
+             "poder.num",nombres[grepl("poder.den.", nombres)],
+             "modelo.rl","pred.rl","disp.rl","ind.rl",
+             combine_names(c("modelo.rlr","posib.landa.rlr","coeff.landa.rlr","gcoeff.landa.rlr","pred.rlr","disp.rlr","ind.rlr"),
+                           c("ridge", "lasso")),
+             combine_names(c("modelo.knn","pred.knn","disp.knn","ind.knn"),
+                           c("optimal", "rectangular", "triangular","epanechnikov",
+                             "biweight","triweight", "cos","inv","gaussian")),
+             combine_names(c("modelo.svm","pred.svm","disp.svm","ind.svm"),
+                           c("linear", "polynomial", "radial","sigmoid")),
+             "modelo.dt","modelo.dt.graf","pred.dt",
+             "disp.dt","ind.dt","modelo.dt.rules",
+             "modelo.rf","modelo.rf.graf",
+             "pred.rf","disp.rf","ind.rf",
+             nombres[grepl("modelo.rf.rules.", nombres)],
+             combine_names(c("modelo.b","modelo.b.imp","pred.b","disp.boosting","ind.b"),
+                           c("gaussian", "laplace", "tdist")),
+             "modelo.nn", "modelo.nn.graf", "pred.nn", "disp.nn", "ind.nn",
+             "tabla.comparativa")
+  
   order <- c(order, nombres[!(nombres %in% order)])
+  
   list_report <- list_report[order]
   list_report <- list_report[!as.logical(lapply(list_report, is.null))]
   return(list_report)
 }
 
-word_report <- function(title = "Sin Titulo", name = "PROMiDAT", order_by = c("")) {
+
+#' word_report
+#'
+#' @param title report title.
+#' @param name name of the author of the report.
+#'
+#' @export
+#'
+word_report <- function(title = "Sin Titulo", name = "PROMiDAT") {
   codigo.usuario <- ""
   codigos <- env_report$codigo.reporte
   
   for (list_r in codigos) {
-    list_r <- order_report(list_r, order_by)
+    list_r <- order_report(list_r)
     for (codigo in list_r) {
       if(!is.data.frame(codigo)){
         codigo.usuario <- paste0(codigo.usuario, codigo)
@@ -214,14 +256,12 @@ word_report <- function(title = "Sin Titulo", name = "PROMiDAT", order_by = c(""
     "library(stringr)\nlibrary(gbm)\nlibrary(DT)\nlibrary(glmnet)\n",
     "library(kknn)\nlibrary(e1071)\nlibrary(rpart)\n",
     "library(rpart.plot)\nlibrary(randomForest)\nlibrary(ada)\nlibrary(xgboost)\n",
-    "library(dplyr)\nlibrary(forcats)\n",
+    "library(dplyr)\nlibrary(forcats)\nlibrary(knitr)\n",
     "library(xtable)\n",
+    "kt<-function(x)\n{\nif(class(x)!=\"table\")\nreturn(kable(as.data.frame(x),align = \"l\"))\nelse\nreturn(kable(x,align =\"l\"))\n}\n",
     "```\n\n",
     codigo.usuario)
 }
-
-
-
 
 
 
