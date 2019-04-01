@@ -146,13 +146,13 @@ shinyServer(function(input, output, session) {
     for (var in colnames(datos.originales)) {
       if (input[[paste0("box", var, contador)]]) {
         if (input[[paste0("sel", var, contador)]] == "categorico" & class(datos.originales[, var]) %in% c("numeric", "integer")) {
-          code.res <- paste0(code.res, code.trans(var, "categorico"), "\n")
+          code.res <- paste0(code.res, code_transf(var, "categorico"), "\n")
         }
         if (input[[paste0("sel", var, contador)]] == "numerico" & !(class(datos.originales[, var]) %in% c("numeric", "integer"))) {
-          code.res <- paste0(code.res, code.trans(var, "numerico"), "\n")
+          code.res <- paste0(code.res, code_transf(var, "numerico"), "\n")
         }
         if (input[[paste0("sel", var, contador)]] == "disyuntivo") {
-          code.res <- paste0(code.res, code.trans(var, "disyuntivo"), "\n")
+          code.res <- paste0(code.res, code_transf(var, "disyuntivo"), "\n")
         }
       } else {
         var.noactivas <- c(var.noactivas, var)
@@ -161,10 +161,10 @@ shinyServer(function(input, output, session) {
 
     isolate(exe(code.res))
     if (length(var.noactivas) > 0) {
-      isolate(exe(code.desactivar(var.noactivas)))
+      isolate(exe(code_deactivate(var.noactivas)))
     }
 
-    code.res <- paste0(code.res, "\n", code.desactivar(var.noactivas))
+    code.res <- paste0(code.res, "\n", code_deactivate(var.noactivas))
     new_section_report()
     insert_report("transformar.datos","Transformando Datos", code.res,"\nstr(datos)")
     return(code.res)
@@ -2312,13 +2312,13 @@ shinyServer(function(input, output, session) {
     for (var in colnames(datos.originales.completos)) {
       if (input[[paste0("Predbox", var, contadorPN)]]) {
         if (input[[paste0("Predsel", var, contadorPN)]] == "categorico" & class(datos.originales.completos[, var]) %in% c("numeric", "integer")) {
-          code.res <- paste0(code.res, code.trans(var, "categorico", d.o = "datos.originales.completos", d = "datos.aprendizaje.completos" ), "\n")
+          code.res <- paste0(code.res, code_transf(var, "categorico", d.o = "datos.originales.completos", d = "datos.aprendizaje.completos" ), "\n")
         }
         if (input[[paste0("Predsel", var, contadorPN)]] == "numerico" & !(class(datos.originales.completos[, var]) %in% c("numeric", "integer"))) {
-          code.res <- paste0(code.res, code.trans(var, "numerico",  d.o = "datos.originales.completos", d = "datos.aprendizaje.completos" ), "\n")
+          code.res <- paste0(code.res, code_transf(var, "numerico",  d.o = "datos.originales.completos", d = "datos.aprendizaje.completos" ), "\n")
         }
         if (input[[paste0("Predsel", var, contadorPN)]] == "disyuntivo") {
-          code.res <- paste0(code.res, code.trans(var, "disyuntivo", d.o = "datos.originales.completos", d = "datos.aprendizaje.completos" ), "\n")
+          code.res <- paste0(code.res, code_transf(var, "disyuntivo", d.o = "datos.originales.completos", d = "datos.aprendizaje.completos" ), "\n")
         }
       } else {
         var.noactivas <- c(var.noactivas, var)
@@ -2327,7 +2327,7 @@ shinyServer(function(input, output, session) {
 
     isolate(exe(code.res))
     if (length(var.noactivas) > 0) {
-      des <- code.desactivar(var.noactivas,"datos.aprendizaje.completos")
+      des <- code_deactivate(var.noactivas,"datos.aprendizaje.completos")
       isolate(exe(des))
       code.res <- paste0(code.res, "\n", des)
     }
