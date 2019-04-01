@@ -250,5 +250,8 @@ bigPlot;El gráfico es demasiado grande para desplegarse;The graph is too large 
 ErrorModelo;Aún no genera el modelo;The model has not yet been generated
 ErrorDatosPN;Aún no carga los datos a predecir;It still doesn't load the data to predict
 ErrorBsize;La tabla de aprendizaje es muy pequeña para ejecutar este modelo;The learning table is too small to run this model
-rd;Reducción de Dimensiones;Reduction of Dimensions
+rd;Reducción de Dimensión;Dimension Reduction
 ncomp;Cantidad de Componentes;Quantity of Components
+RdPred;Varianza Explicada en Predictores;Variance Explained in Predictors
+RdVarPred;Varianza Explicada en Variable a Predecir;Variance Explained in Variable to Predict
+errRDnCom;La cantidad de componentes excede la cantidad existente;The quantity of components exceeds the existing quantity
