@@ -615,10 +615,10 @@ opciones.rd  <- list(fluidRow(column(width = 9,h4(labelInput("opciones"))),
                               column(width = 2,br(),actionButton("runRd", label = labelInput("ejecutar"), icon = icon("play")))),
                      hr(),
                      fluidRow(column(selectInput(inputId = "modo.rd", label = labelInput("selectAlg"),selected = 0,
-                                                 choices = list("ACP" = 0, "PLS" = 1)),width = 6),
+                                                 choices = list("ACP" = 0, "MCP" = 1)),width = 6),
                               column(br(), switchInput(inputId = "switch.scale.rd", onStatus = "success", offStatus = "danger", value = T,
                                                        label = labelInput("escal"), onLabel = labelInput("si"), offLabel = labelInput("no"), labelWidth = "100%"), width=6)),
-                     fluidRow(column(id = "colManualCom",width = 6, numericInput("ncomp.rd", labelInput("ncomp"),value = 2, min = 0, "NULL", width = "100%")), br(),
+                     fluidRow(column(id = "colManualCom",width = 6, numericInput("ncomp.rd", labelInput("ncomp"),value = 2, min = 1, width = "100%")), br(),
                               column(width = 6, switchInput(inputId = "permitir.ncomp", onStatus = "success", offStatus = "danger", value = F, width = "100%",
                                                             label = "", onLabel = "Manual", offLabel = labelInput("automatico"), labelWidth = "100%"))))
 
@@ -627,15 +627,15 @@ codigo.rd   <- list(fluidRow(column(width = 9,h4(labelInput("codigo")))),
                     conditionalPanel("input.BoxRd == 'tabRdModelo'",
                                      aceEditor("fieldCodeRd", mode = "r", theme = "monokai",
                                                value = "", height = "8vh", readOnly = F, autoComplete = "enabled")),
-                    conditionalPanel("input.BoxRd == 'tabRdLanda'",
-                                     aceEditor("fieldCodeRdLanda", mode = "r", theme = "monokai",
-                                               value = "", height = "8vh", readOnly = F, autoComplete = "enabled")),
-                    conditionalPanel("input.BoxRd == 'tabRdPosibLanda'",
-                                     aceEditor("fieldCodeRdPosibLanda", mode = "r", theme = "monokai",
-                                               value = "", height = "8vh", readOnly = F, autoComplete = "enabled")),
-                    conditionalPanel("input.BoxRd == 'tabRdCoeff'",
-                                     aceEditor("fieldCodeRdCoeff", mode = "r", theme = "monokai",
-                                               value = "", height = "8vh", readOnly = F, autoComplete = "enabled")),
+                    conditionalPanel("input.BoxRd == 'tabRdRMSE'",
+                                     aceEditor("fieldCodeRdRMSE", mode = "r", theme = "monokai",
+                                               value = "", height = "14vh", readOnly = F, autoComplete = "enabled")),
+                    conditionalPanel("input.BoxRd == 'tabRdPlotPred'",
+                                     aceEditor("fieldCodeRdPlotPred", mode = "r", theme = "monokai",
+                                               value = "", height = "14vh", readOnly = F, autoComplete = "enabled")),
+                    conditionalPanel("input.BoxRd == 'tabRdPlotVarPred'",
+                                     aceEditor("fieldCodeRdPlotVarPred", mode = "r", theme = "monokai",
+                                               value = "", height = "14vh", readOnly = F, autoComplete = "enabled")),
                     conditionalPanel("input.BoxRd == 'tabRdPred'",
                                      aceEditor("fieldCodeRdPred", mode = "r", theme = "monokai",
                                                value = "", height = "10vh", readOnly = F, autoComplete = "enabled")),
@@ -652,14 +652,14 @@ tabs.rd  <- tabsOptions(botones = list(icon("gear"),icon("code")), widths = c(50
 panel.generar.rd <- tabPanel(title = labelInput("generatem"),value = "tabRdModelo",
                               verbatimTextOutput("txtRd"))
 
-panel.posib.landa.rd <- tabPanel(title = labelInput("posibLanda"),value = "tabRdPosibLanda",
-                                  plotOutput('plot.rd.posiblanda', height = "55vh"))
+panel.rmse.rd <- tabPanel(title = labelInput("RMSE"),value = "tabRdRMSE",
+                          plotOutput('plot.rd.rmse', height = "55vh"))
 
-panel.coeff.rd <- tabPanel(title = labelInput("coeff"),value = "tabRdCoeff",
-                            verbatimTextOutput("txtRdCoeff"))
+panel.plot.pred.rd <- tabPanel(title = labelInput("RdPred"), value = "tabRdPlotPred",
+                          plotOutput('plot.rd.pred', height = "55vh"))
 
-panel.landa.rd <- tabPanel(title = labelInput("gcoeff"),value = "tabRdLanda",
-                            plotOutput('plot.rd.landa', height = "55vh"))
+panel.plot.var.pred.rd <- tabPanel(title = labelInput("RdVarPred"), value = "tabRdPlotVarPred",
+                               plotOutput('plot.rd.var.pred', height = "55vh"))
 
 panel.prediccion.rd <- tabPanel(title = labelInput("predm"), value = "tabRdPred",
                                  DT::dataTableOutput("rdPrediTable"))
@@ -675,16 +675,15 @@ panel.indices.generales.rd <- tabPanel(title = labelInput("indices"), value = "t
                                         br(),
                                         fluidRow(tableOutput('indexdfrd2')))
 
-
 pagina.rd <- tabItem(tabName = "rd",
                       tabBox(id = "BoxRd", width = NULL, height ="80%",
                              panel.generar.rd,
-                             # panel.posib.landa.rd,
-                             # panel.landa.rd,
-                             # panel.coeff.rd,
-                             # panel.prediccion.rd,
-                             # panel.disp.rd,
-                             # panel.indices.generales.rd,
+                             panel.rmse.rd,
+                             panel.plot.pred.rd,
+                             panel.plot.var.pred.rd,
+                             panel.prediccion.rd,
+                             panel.disp.rd,
+                             panel.indices.generales.rd,
                              tabs.rd))
 
 # PAGINA DE DT ------------------------------------------------------------------------------------------------------------

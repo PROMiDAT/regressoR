@@ -556,17 +556,20 @@ svm.disp <- function(kernel = "linear"){
 
 # Pagina de RD -------------------------------------------------------------------------------------------------------------
 
-# rlr.type <- function(){
-#   ifelse(input$alpha.rlr == 0, "ridge", "lasso")
-# }
-# 
-# #Crea el modelo RL
-# rlr.modelo <- function(variable.pr = NULL, alpha = 0, escalar = TRUE){
-#   return(paste0("x <- model.matrix(",variable.pr,"~., datos.aprendizaje)[, -1]\n",
-#                 "y <- datos.aprendizaje[, '",variable.pr,"']\n",
-#                 "modelo.rlr.",rlr.type()," <<- glmnet(x, y, standardize = ",escalar,", alpha = ",alpha,")"))
-# }
-# 
+rd.type <- function(){
+  ifelse(input$modo.rd == 0, "ACP", "MCP")
+}
+
+#Crea el modelo Rd
+rd.modelo <- function(variable.pr = NULL, mode = 0, escalar = TRUE){
+  if(mode == 0){
+     x <- paste0("modelo.rd.",rd.type()," <<- pcr(",variable.pr,"~.,data = datos.aprendizaje, scale = ",escalar,", validation = 'CV')")
+  }else{
+    x <- paste0("modelo.rd.",rd.type()," <<- plsr(",variable.pr,"~.,data = datos.aprendizaje, scale = ",escalar,", validation = 'CV')")
+  }
+  paste0(x,"\n","n.comp.rd <<- which.min(RMSEP(modelo.rd.",rd.type(),")$val[1, 1, ]) - 1")
+}
+
 # rlr.modelo.np <- function(alpha = 0, escalar = TRUE, manual = FALSE, landa = 2){
 #   landa <- ifelse(manual,"",paste0("cv.glm.nuevos <<- cv.glmnet(x, y, standardize = ",escalar,", alpha = ",alpha,")\n"))
 #   return(paste0("x <- model.matrix(",variable.predecir.pn,"~., datos.aprendizaje.completos)[, -1]\n",
@@ -574,36 +577,51 @@ svm.disp <- function(kernel = "linear"){
 #                 landa,
 #                 "modelo.nuevos <<- glmnet(x, y,standardize = ",escalar,", alpha = ",alpha,")"))
 # }
-# 
-# select.landa <- function(variable.pr = NULL, alpha = 0, escalar = TRUE){
-#   paste0("x <- model.matrix(",variable.pr,"~., datos.aprendizaje)[, -1]\n",
-#          "y <- datos.aprendizaje[, '",variable.pr,"']\n",
-#          "cv.glm.",rlr.type()," <<- cv.glmnet(x, y, standardize = ",escalar,", alpha = ",alpha,")")
-# }
-# 
-# coeff.landas <- function(landa = NULL){
-#   landa <- ifelse(is.null(landa),paste0("cv.glm.",rlr.type(),"$lambda.min"), landa)
-#   paste0("x <- model.matrix(",variable.predecir,"~., datos.aprendizaje)[, -1]\n",
-#          "y <- datos.aprendizaje[, '",variable.predecir,"']\n",
-#          "predict(modelo.rlr.",rlr.type(),", s = ",landa,", type = 'coefficients', exact = TRUE, x = x, y = y)")
-# }
-# 
-# plot.coeff.landa <- function(landa = NULL){
-#   landa <- ifelse(is.null(landa),paste0("cv.glm.",rlr.type(),"$lambda.min"), landa)
-#   paste0("plot(modelo.rlr.",rlr.type(),", 'lambda', label = TRUE)\n",
-#          "abline(v = log(",landa,"), col = 'blue', lwd = 2, lty = 3)")
-# }
-# 
-# #Codigo de la prediccion de rlr
-# rlr.prediccion <- function(landa = NULL) {
-#   landa <- ifelse(is.null(landa),paste0("cv.glm.",rlr.type(),"$lambda.min"), landa)
-#   paste0("x <- model.matrix(",variable.predecir,"~., datos.aprendizaje)[, -1]\n",
-#          "y <- datos.aprendizaje[, '",variable.predecir,"']\n",
-#          "prueba <- model.matrix(",variable.predecir,"~., datos.prueba)[, -1]\n",
-#          "prediccion.rlr.",rlr.type()," <<- predict(modelo.rlr.",rlr.type(),",newx = prueba,",
-#          "s = ",landa,", exact = TRUE, x = x, y = y)")
-# }
-# 
+
+# Gráfico error RMSE de validación cruzada según componentes usados
+plot.RMSE <- function(modelo){
+  RMSE.CV <- RMSEP(modelo)$val[1, 1, ]
+  
+  ggplot(data = data.frame(Componentes = 0:(length(RMSE.CV) - 1), Error = RMSE.CV), mapping = aes(x = Componentes, y = Error)) +
+    geom_point(size = 1, col = "dodgerblue3") +
+    geom_line(size = 0.5, col = "dodgerblue3") +
+    labs(title = "RMSE según Número de Componentes",
+         x = "Número de Componentes",
+         y = "RMSE")
+}
+
+# Gráfico de varianza explicada en los predictores según componentes usados
+plot.pred <- function(modelo){
+  var.explicada <- cumsum(explvar(modelo)) / 100
+  ggplot(data = data.frame(Componentes = 1:length(var.explicada), Varianza = var.explicada), 
+         mapping = aes(x = Componentes, y = Varianza)) +
+    geom_point(size = 1, col = "dodgerblue3") +
+    geom_line(size = 0.5, col = "dodgerblue3") +
+    scale_y_continuous(labels = scales::percent) +
+    labs(title = "Varianza Explicada en los Predictores",
+         x = "Número de Componentes",
+         y = "Varianza Explicada")
+}
+
+# Gráfico de varianza explicada en la variable a predecir según componentes usados
+plot.var.pred <- function(modelo){
+  var.explicada <- drop(R2(modelo, estimate = "train", intercept = FALSE)$val)
+  
+  ggplot(data = data.frame(Componentes = 1:length(var.explicada), Varianza = var.explicada), mapping = aes(x = Componentes, y = Varianza)) +
+    geom_point(size = 1, col = "dodgerblue3") +
+    geom_line(size = 0.5, col = "dodgerblue3") +
+    scale_y_continuous(labels = scales::percent) +
+    labs(title = "Varianza Explicada en la Variable a Predecir",
+         x = "Número de Componentes",
+         y = "Varianza Explicada")
+}
+
+#Codigo de la prediccion de rlr
+rd.prediccion <- function(ncomp = NULL) {
+  ncomp <- ifelse(is.null(ncomp), "n.comp.rd", ncomp)
+  paste0("prediccion.rd.",rd.type()," <<- predict(modelo.rd.",rd.type(),", datos.prueba, ncomp = ",ncomp,")")
+}
+
 # rlr.prediccion.np <- function(alpha = 0, escalar = TRUE, manual = FALSE, landa = 2) {
 #   landa <- ifelse(manual, landa, "cv.glm.nuevos$lambda.min")
 #   paste0("x <- model.matrix(",variable.predecir.pn,"~., datos.aprendizaje.completos)[, -1]\n",
@@ -614,12 +632,17 @@ svm.disp <- function(kernel = "linear"){
 #          "predic.nuevos <<- predict(modelo.nuevos, newx = prueba,",
 #          "s = ",landa,", exact = TRUE, x = x, y = y)")
 # }
-# 
-# #Codigo de la dispersion de knn
-# rlr.disp <- function(){
-#   return(disp.modelos(paste0("prediccion.rlr.",rlr.type()), modelo = tr("rlr")))
+
+# select.landa <- function(variable.pr = NULL, alpha = 0, escalar = TRUE){
+#   paste0("x <- model.matrix(",variable.pr,"~., datos.aprendizaje)[, -1]\n",
+#          "y <- datos.aprendizaje[, '",variable.pr,"']\n",
+#          "cv.glm.",rlr.type()," <<- cv.glmnet(x, y, standardize = ",escalar,", alpha = ",alpha,")")
 # }
 
+#Codigo de la dispersion de knn
+rd.disp <- function(){
+  return(disp.modelos(paste0("prediccion.rd.",rd.type()), modelo = tr("rd")))
+}
 
 # Pagina de DT --------------------------------------------------------------------------------------------------------------
 
@@ -898,6 +921,8 @@ ordenar.reporte <- function(lista){
                                 "biweight","triweight", "cos","inv","gaussian")),
              combinar.nombres(c("modelo.svm","pred.svm","disp.svm","ind.svm"),
                               c("linear", "polynomial", "radial","sigmoid")),
+             combinar.nombres(c("modelo.rd","rmse.rd","plot.pred.rd","plot.var.pred.rd","pred.rd","disp.rd","ind.rd"),
+                              c("ACP", "MCP")),
              "modelo.dt","modelo.dt.graf","pred.dt",
              "disp.dt","ind.dt","modelo.dt.rules",
              "modelo.rf","modelo.rf.graf",
@@ -1055,6 +1080,10 @@ knn.stop.excu <<- FALSE
 cod.svm.modelo <<-  NULL
 cod.svm.pred <<-  NULL
 cod.svm.ind <<- NULL
+
+# -------------------  RD
+
+n.comp.rd <<- NULL
 
 # -------------------  DT
 
