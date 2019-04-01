@@ -29,7 +29,6 @@ suppressMessages(suppressWarnings({
   library(zip)
 }))
 
-
 # FUNCIONES --------------------------------------------------------------------------------------------------------------
 
 # Crea un campo de codigo con boton de ejecutar y cargar
@@ -116,7 +115,7 @@ menu.aprendizaje.supervisado <- menuItem(labelInput("aprendizaje"), tabName = "p
                                          menuSubItem(labelInput("bl"),tabName = "boosting",icon = icon("superscript")),
                                          menuSubItem(labelInput("knnl"),tabName = "knn",icon = icon("dot-circle-o")),
                                          menuSubItem(labelInput("svml"),tabName = "svm",icon = icon("line-chart")),
-                                         # menuSubItem(labelInput("rd"), tabName = "rd",icon = icon("line-chart")),
+                                         menuSubItem(labelInput("rd"), tabName = "rd",icon = icon("line-chart")),
                                          menuSubItem(labelInput("nn"),tabName = "nn",icon = icon("brain")))
 
 menu.reporte <- menuItem(labelInput("reporte"), tabName = "reporte", icon = icon("save-file",lib = "glyphicon"))
@@ -1171,7 +1170,7 @@ shinyUI(
                          pagina.rlr,
                          pagina.knn,
                          pagina.svm,
-                         # pagina.rd,
+                         pagina.rd,
                          pagina.dt,
                          pagina.rf,
                          pagina.boosting,
