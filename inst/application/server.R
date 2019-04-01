@@ -15,49 +15,6 @@ shinyServer(function(input, output, session) {
   
   # SERVER UTILITY FUNCTIONS ----------------------------------------------------------------------------------------------
   
-  # Wrapper of regressoR::error.variables to set the language
-  error.variables <- function(num = T){
-    regressoR::error.variables(num, input$idioma)
-  }
-  
-  # Wrapper of regressoR::translate to set the language
-  translate <- function(labelid){
-    regressoR::translate(labelid, input$idioma)
-  }
-
-  # Wrapper of regressoR::render_table_data to set the language
-  render_table_data <- function(data, editable = TRUE, dom = "frtip", pageLength = 10, scrollY = "27vh", server = T, language = "es"){
-    regressoR::render_table_data(data, editable, dom, pageLength, scrollY, server, input$idioma)
-  }
-  
-  # Wrapper of regressoR::exe to set the environment
-  exe <- function(...){
-    regressoR::exe(..., envir = parent.frame())
-  }
-  
-  # Wrapper of regressoR::models_mode to set the list of values and the language
-  models_mode <- function(){
-    regressoR::models_mode(IndicesM, input$idioma)
-  }
-  
-  # Wrapper of regressoR::comparative_table to set the list of values and the language
-  comparative_table <- function(sel){
-    regressoR::comparative_table(sel, IndicesM, input$idioma)
-  }
-  
-  #
-  validate_pn_data <- function(){
-    regressoR::validate_pn_data(datos.originales.completos, datos.prueba.completos, variable.predecir.pn, input$idioma)
-  }
-  
-  new_col <- function(){
-    regressoR::new_col(datos.prueba.completos, variable.predecir.pn, predic.nuevos)
-  }
-  
-  new_report <- function(){
-    regressoR::new_report(datos.originales, input$file1$name)
-  }
-  
   # Update the different tables in the "shiny" application
   update_table <- function(x = c("datos", "datos.aprendizaje", "datos.prueba")){
     if(any("datos" %in% x)){ # Change data table
@@ -165,7 +122,7 @@ shinyServer(function(input, output, session) {
   clean_data <- function(){
     if (any(is.na(datos))) {
       tryCatch({
-        codigo.na <- paste0(code.NA(deleteNA = input$deleteNA), "\n", "datos <<- datos.originales")
+        codigo.na <- paste0(code_NA(deleteNA = input$deleteNA), "\n", "datos <<- datos.originales")
         isolate(exe(codigo.na))
         
         insert_report("na.delete", "Imputaci\u00F3n de Datos", codigo.na,"\nhead(datos)\nstr(datos)")
@@ -258,8 +215,11 @@ shinyServer(function(input, output, session) {
 
   # When the load data button is pressed
   observeEvent(input$loadButton, {
-    codigo.carga <- code.carga(nombre.filas = input$rowname, ruta = input$file1$datapath,
-                               separador = input$sep, sep.decimal = input$dec, encabezado = input$header)
+    codigo.carga <- code_load(row.names = input$rowname, 
+                              path = input$file1$datapath,
+                              sep = input$sep, 
+                              sep.dec = input$dec, 
+                              header = input$header)
 
     upload_data(codigo.carga)
 
@@ -2276,13 +2236,13 @@ shinyServer(function(input, output, session) {
   
   # When learning data is loaded
   observeEvent(input$loadButtonNPred,{
-    codigo.carga <- code.carga(nombre.filas = input$rownameNPred,
-                               ruta = input$file2$datapath,
-                               separador = input$sepNPred,
-                               sep.decimal = input$decNPred,
-                               encabezado = input$headerNPred,
-                               d.o = "datos.originales.completos",
-                               d = "datos.aprendizaje.completos")
+    codigo.carga <- code_load(row.names = input$rownameNPred,
+                              path = input$file2$datapath,
+                              sep = input$sepNPred,
+                              sep.dec = input$decNPred,
+                              header = input$headerNPred,
+                              d.o = "datos.originales.completos",
+                              d = "datos.aprendizaje.completos")
 
     tryCatch({
       isolate(exe(codigo.carga))
@@ -2291,7 +2251,7 @@ shinyServer(function(input, output, session) {
         return(NULL)
       }
       codigo.na <- ""
-      codigo.na <- paste0(code.NA(deleteNA = input$deleteNAnPred, d.o = "datos.originales.completos"), 
+      codigo.na <- paste0(code_NA(deleteNA = input$deleteNAnPred, d.o = "datos.originales.completos"), 
                           "\n", "datos.aprendizaje.completos <<- datos.originales.completos")
       isolate(exe(codigo.na))
 
@@ -2481,18 +2441,18 @@ shinyServer(function(input, output, session) {
 
   # When the user loads the data
   observeEvent(input$loadButtonNPred2,{
-    codigo.carga <- code.carga( nombre.filas = input$rownameNPred2,
-                                ruta = input$file3$datapath,
-                                separador = input$sep.nPred2,
-                                sep.decimal = input$dec.nPred2,
-                                encabezado = input$headerNPred2,
-                                d.o = "datos.prueba.completos",
-                                d = "datos.prueba.completos")
+    codigo.carga <- code_load(row.names = input$rownameNPred2,
+                              path = input$file3$datapath,
+                              sep = input$sep.nPred2,
+                              sep.dec = input$dec.nPred2,
+                              header  = input$headerNPred2,
+                              d.o = "datos.prueba.completos",
+                              d = "datos.prueba.completos")
 
     tryCatch({
       isolate(exe(codigo.carga))
       codigo.na <- ""
-      codigo.na <- paste0(code.NA(deleteNA = input$deleteNAnPred2,
+      codigo.na <- paste0(code_NA(deleteNA = input$deleteNAnPred2,
                                   d.o = paste0("datos.prueba.completos")))
       datos.prueba.completos[,variable.predecir.pn] <<- NULL
       validate_pn_data()

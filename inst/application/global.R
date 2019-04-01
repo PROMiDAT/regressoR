@@ -1,76 +1,56 @@
 
-disp.modelos <- function(prediccion, modelo){
-  paste0("plot_real_prediction(datos.prueba[,'",variable.predecir,"'], ",prediccion,", '",modelo,"')")
+
+# Wrapper of regressoR::error.variables to set the language
+error.variables <- function(num = T){
+  regressoR::error.variables(num, input$idioma)
 }
 
-# Pagina de Cargar y Transformar Datos --------------------------------------------------------------------------------------
-
-#Genera el codigo para cargar datos
-code.carga <- function(nombre.filas = T, ruta = NULL, separador = ";", sep.decimal = ",", encabezado = T, d.o = "datos.originales", d = "datos" ){
-  if(!is.null(ruta)){
-    ruta <-  gsub("\\", "/", ruta, fixed=TRUE)
-  }
-  if(nombre.filas){
-    return(paste0( d.o ," <<- read.table('", ruta, "', header=",
-                  encabezado, ", sep='", separador, "', dec = '", sep.decimal, "', row.names = 1) \n",d," <<- ",d.o))
-  } else {
-    return(paste0(d.o, "<<- read.table('", ruta, "', header=", encabezado, ", sep='", separador, "', dec = '", sep.decimal,
-                  "') \n",d," <<- ",d.o))
-  }
+# Wrapper of regressoR::translate to set the language
+translate <- function(labelid){
+  regressoR::translate(labelid, input$idioma)
 }
 
-#Eliminar NAs
-code.NA <- function(deleteNA = T, d.o = "datos.originales") {
-  res <- ifelse(deleteNA, paste0(d.o, "<<- na.omit(",d.o,")\n"),
-                paste0("Mode <- function(x) {\n  x[which.max(summary(x))]\n}\n",
-                       "for (variable in colnames(",d.o,")) {\n",
-                       "  if(any(is.na(",d.o,"[, variable]))){\n",
-                       "   ifelse(class(",d.o,"[, variable]) %in% c('numeric', 'integer'),\n",
-                       "           ",d.o,"[, variable][is.na(",d.o,"[, variable])] <<- \n",
-                       "                                              mean(",d.o,"[, variable], na.rm = T),\n",
-                       "           ",d.o,"[, variable][is.na(",d.o,"[, variable])] <<- \n",
-                       "                                     Mode(",d.o,"[, variable]))",
-                       "\n   }\n}"))
-  return(res)
+# Wrapper of regressoR::render_table_data to set the language
+render_table_data <- function(data, editable = TRUE, dom = "frtip", pageLength = 10, scrollY = "27vh", server = T, language = "es"){
+  regressoR::render_table_data(data, editable, dom, pageLength, scrollY, server, input$idioma)
 }
 
-#Genera el codigo para transformar datos
-code.trans <- function(variable, nuevo.tipo, d.o = "datos.originales",d="datos"){
-  if(nuevo.tipo == "categorico"){
-    return(paste0(d,"[, '", variable, "'] <<- as.factor(",d,"[, '", variable, "'])"))
-  } else if(nuevo.tipo == "numerico") {
-    return(paste0(d,"[, '", variable, "'] <<- as.numeric(sub(',', '.', ",d,"[, '", variable, "'], fixed = TRUE))"))
-  } else {
-    es.factor <- ifelse( eval(parse(text = paste0("class(",d.o,"[, variable]) %in% c('numeric', 'integer')"))),
-                        paste0(d,"[, '", variable, "'] <<- as.factor(",d,"[, '", variable, "']) \n"), "")
-    return(paste0(es.factor, d, " <<- disjunctive_data(",d,", '", variable,"')"))
-  }
+# Wrapper of regressoR::exe to set the environment
+exe <- function(...){
+  regressoR::exe(..., envir = parent.frame())
 }
 
-#Desactiva las variables seleccionadas de los datos
-code.desactivar <- function(variables, d = "datos"){
-  return(paste0(d, " <<- subset(",d,", select = -c(", paste(variables, collapse = ","), "))"))
+# Wrapper of regressoR::models_mode to set the list of values and the language
+models_mode <- function(){
+  regressoR::models_mode(IndicesM, input$idioma)
 }
 
-# Pagina de Segmentar Datos -------------------------------------------------------------------------------------------------
-
-#Crea el código de la particion en testing y learning data
-particion.code <- function(data = "datos", p = "0.5", variable = NULL, semilla = 5, perm.semilla = FALSE){
-  variable.predecir <<- variable
-  semilla <- ifelse(is.numeric(semilla), semilla, 5)
-  codigo <- ifelse(perm.semilla, paste0("set.seed(",semilla,")"), "rm(.Random.seed, envir = globalenv())")
-  codigo <- paste0(codigo,"\nvariable.predecir <<- '",variable,"'\nparticion <- sample(1:nrow(datos),size = nrow(datos)*",p/100,", replace = FALSE)\n
-datos.prueba <<- datos[-particion,]\ndatos.aprendizaje <<- datos[particion,]\nreal.val <<- datos.prueba[, '",variable.predecir,"', drop = F]")
-  codigo <- ifelse(perm.semilla, paste0(codigo, "\nset.seed(",semilla,")"),codigo)
-  return(codigo)
+# Wrapper of regressoR::comparative_table to set the list of values and the language
+comparative_table <- function(sel){
+  regressoR::comparative_table(sel, IndicesM, input$idioma)
 }
 
-# Pagina de Resumen ---------------------------------------------------------------------------------------------------------
-
-#Resumen Completo
-cod.resum <- function(data = "datos"){
-  return(paste0("summary(", data, ")"))
+#
+validate_pn_data <- function(){
+  regressoR::validate_pn_data(datos.originales.completos, datos.prueba.completos, variable.predecir.pn, input$idioma)
 }
+
+new_col <- function(){
+  regressoR::new_col(datos.prueba.completos, variable.predecir.pn, predic.nuevos)
+}
+
+new_report <- function(){
+  regressoR::new_report(datos.originales, input$file1$name)
+}
+
+#####
+
+disp_models <- function(prediction, model_name){
+  regressoR::disp_models(prediction, model_name, variable.predecir)
+}
+
+
+
 
 #Genera el resumen numerico de una variable
 resumen.numerico <- function(data, variable) {
@@ -135,79 +115,6 @@ resumen.categorico <- function(data, variable){
   return(res)
 }
 
-# Pagina del Test de Normalidad ---------------------------------------------------------------------------------------------
-
-#Codigo de la genracion de la curva normal (test de normalidad)
-default.normal <- function(data = "datos", vars = NULL, color = "#00FF22AA", labelcurva = "Curva Normal"){
-  if(is.null(vars)){
-    return(NULL)
-  } else {
-    return(paste0(
-      "promedio <- mean(", data, "[, '", vars, "']) \n",
-      "desviacion <- sd(", data, "[, '", vars, "']) \n",
-      "values <- dnorm(", data, "[, '", vars, "'], mean = promedio, sd = desviacion) \n",
-      "values <- c(values, hist(", data, "[, '", vars, "'],  plot = F)$density) \n",
-      "hist(", data, "[, '", vars, "'], col = '", color, "', border=F, axes=F,\n",
-      "  freq = F, ylim = range(0, max(values)), ylab = '',xlab = '",vars,"', \n",
-      "  main = '", vars, "') \n",
-      "axis(1, col=par('bg'), col.ticks='grey81', lwd.ticks=1, tck=-0.025) \n",
-      "axis(2, col=par('bg'), col.ticks='grey81', lwd.ticks=1, tck=-0.025) \n",
-      "curve(dnorm(x, mean = promedio, sd = desviacion), add=T, col='blue', lwd=2)\n",
-      "legend('bottom', legend = '", labelcurva, "', col = 'blue', lty=1, cex=1.5)"))
-  }
-}
-
-fisher.calc <- function (x, na.rm = FALSE, ...) {
-  if (!is.numeric(x)) {
-    stop("argument 'x' is must be numeric")
-  }
-  if (na.rm)
-    x <- x[!is.na(x)]
-  nx <- length(x)
-
-  sk <- sum((x - mean(x))^3/stats::sd(x)^3)/nx
-
-  return(sk)
-}
-
-#Genera  la tabla de normalidad
-default.calc.normal <- function(data = "datos", labelsi = "Positiva", labelno = "Negativa",labelsin = "Sin Asimetría") {
-  return(paste0(
-    "calc <- lapply(var_numerical(", data,"), function(i) fisher.calc(i)[1]) \n",
-    "calc <- as.data.frame(calc) \n",
-    "calc <- rbind(calc, lapply(calc, function(i) ifelse(i > 0, '", labelsi,
-    "',\n  ifelse(i < 0, '", labelno, "', '", labelsin, "')))) \n",
-    "calc <- t(calc)\ncalc"))
-}
-
-# Pagina de Dispersion ------------------------------------------------------------------------------------------------------
-
-#Codigo del grafico de dispersion
-default.disp <- function(data = "datos", vars = NULL, color = "#FF0000AA"){
-  if(length(vars) < 2) {
-    return(NULL)
-  } else if(length(vars) == 2) {
-    return(paste0("ggplot(data = ", data, ", aes(x = ", vars[1], ", y = ", vars[2], ", label = rownames(", data, "))) +
-geom_point(color = '", color, "', size = 3) + geom_text(vjust = -0.7) + theme_minimal()"))
-  } else{
-    return(paste0("scatterplot3d(", data, "[, '", vars[1], "'], ", data, "[, '",
-                  vars[2], "'], ", data, "[, '", vars[3], "'], pch = 16, color = '", color, "')"))
-  }
-}
-
-# Pagina de Distribucion ----------------------------------------------------------------------------------------------------
-
-#Llama a la funcion que crea la distribuccion numerica
-def.code.num <- function(data = "datos", variable = "input$sel.distribucion", color = 'input$col.dist'){
-  return(paste0("distribucion.numerico(", data, "[, ", variable, "], ", variable, ", color = ", color,")"))
-}
-
-#Llama a la funcion que crea la distribuccion categorica
-def.code.cat <- function(data = "datos", variable, titulox = translate("cantidadcasos"), tituloy = translate("categorias")) {
-  paste0("distribucion.categorico(", data, "[, '", variable,"']) + ",
-         "labs(title = '", variable, "', x = '",titulox, "', y = '", tituloy, "')")
-}
-
 #Hace el grafico de la distribucion numerica
 distribucion.numerico <- function(var, nombre.var, color){
   nf <- graphics::layout(mat = matrix(c(1, 2), 2, 1, byrow=TRUE),  height = c(3,1))
@@ -224,36 +131,13 @@ distribucion.numerico <- function(var, nombre.var, color){
 
 #Hace el grafico de la distribucion categorica
 distribucion.categorico <- function(var) {
-  colores <- sapply(levels(var),
-                    function(i) rgb(runif(1), runif(1), runif(1), 0.8))
+  colores <- sapply(levels(var),function(i) rgb(runif(1), runif(1), runif(1), 0.8))
   data <- data.frame(label = levels(var), value = summary(var))
   ggplot(data, aes(label, value)) +
     geom_bar(stat = 'identity', fill = colores) +
     geom_text(aes(label = value, y = value), vjust = -0.5, size = 4) +
     theme_minimal()
 }
-
-# Pagina de Correlacion -----------------------------------------------------------------------------------------------------
-
-#Calcula la matriz de correlacion
-modelo.cor <- function(data = "datos"){
-  return(paste0("correlacion <<- cor(var_numerical(", data, "))"))
-}
-
-#Codigo de la generacion de correlaciones
-correlaciones <- function(metodo = 'circle', tipo = "lower"){
-  return(paste0("corrplot(correlacion, method='", metodo,"', shade.col=NA, tl.col='black',
-                tl.srt=20, addCoef.col='black', order='AOE', type = '", tipo, "')"))
-}
-
-# Pagina de Poder Predictivo ------------------------------------------------------------------------------------------------
-
-#Grafica el pairs
-
-pairs.poder <<- 
-"pairs.panels(var_numerical(datos), bg='black', ellipses=FALSE, smooth=FALSE, 
-  lm=TRUE, cex=0.5, cex.main=0.1, pch=20, main='',
-hist.col=gg_color_hue(3)[3], oma=c(1,1,1,1) )"
 
 # Pagina de RL --------------------------------------------------------------------------------------------------------------
 
@@ -277,7 +161,7 @@ rl.prediccion.np <- function() {
 
 #Codigo de la dispersion de knn
 rl.disp <- function(){
-  return(disp.modelos("prediccion.rl", modelo = translate("rll")))
+  return(disp_models("prediccion.rl", translate("rll")))
 }
 
 # Pagina de RLR -------------------------------------------------------------------------------------------------------------
@@ -343,7 +227,7 @@ rlr.prediccion.np <- function(alpha = 0, escalar = TRUE, manual = FALSE, landa =
 
 #Codigo de la dispersion de knn
 rlr.disp <- function(){
-  return(disp.modelos(paste0("prediccion.rlr.",rlr.type()), modelo = translate("rlr")))
+  return(disp_models(paste0("prediccion.rlr.",rlr.type()), translate("rlr")))
 }
 
 # Pagina de KNN -------------------------------------------------------------------------------------------------------------
@@ -370,7 +254,7 @@ kkn.prediccion.pn <- function() {
 
 #Codigo de la dispersion de knn
 knn.disp <- function(kernel = "optimal"){
-  return(disp.modelos(paste0("prediccion.knn.",kernel), modelo = translate("knnl")))
+  return(disp_models(paste0("prediccion.knn.",kernel), translate("knnl")))
 }
 
 # Pagina de SVM -------------------------------------------------------------------------------------------------------------
@@ -395,7 +279,7 @@ svm.prediccion.np <- function() {
 
 #Codigo de la dispersion de knn
 svm.disp <- function(kernel = "linear"){
-  return(disp.modelos(paste0("prediccion.svm.",kernel), modelo = translate("svml")))
+  return(disp_models(paste0("prediccion.svm.",kernel), translate("svml")))
 }
 
 # Pagina de DT --------------------------------------------------------------------------------------------------------------
@@ -435,7 +319,7 @@ fallen.leaves = TRUE, branch.lty = 6, shadow.col = '#dedede',box.col = '#c8b028'
 
 #Codigo de la dispersion de knn
 dt.disp <- function(){
-  return(disp.modelos("prediccion.dt", modelo = translate("dtl")))
+  return(disp_models("prediccion.dt", translate("dtl")))
 }
 
 # Pagina de RF --------------------------------------------------------------------------------------------------------------
@@ -483,7 +367,7 @@ importance.plor.rf <- function(modelo.rf, titulo.1, titulo.2){
 
 #Codigo de la dispersion de knn
 rf.disp <- function(){
-  return(disp.modelos("prediccion.rf", modelo = translate("rfl")))
+  return(disp_models("prediccion.rf", translate("rfl")))
 }
 
 # Pagina de BOOSTING --------------------------------------------------------------------------------------------------------
@@ -576,7 +460,7 @@ boosting.plot.import <- function(type = "gaussian"){
 
 #Codigo de la dispersion de knn
 boosting.disp <- function(type = "gaussian"){
-  return(disp.modelos(paste0("prediccion.boosting.",type), modelo = translate("bl")))
+  return(disp_models(paste0("prediccion.boosting.",type), translate("bl")))
 }
 
 # Pagina de NN ------------------------------------------------------------------------------------------------------------
@@ -633,7 +517,7 @@ nn.prediccion.np <- function(){
 
 #Codigo de la dispersion de nn
 nn.disp <- function(){
-  return(disp.modelos("prediccion.nn", modelo = translate("nn")))
+  return(disp_models("prediccion.nn", translate("nn")))
 }
 
 nn.plot <- function(){
@@ -703,102 +587,93 @@ overwrite_cat <- function(){
 
 # VARIABLES GLOBALES --------------------------------------------------------------------------------------------------------
 
-# -------------------  Datos
+# ------------------- Datos
 
-datos <<- NULL
-datos.originales <<- NULL
-datos.prueba <<- NULL
+datos             <<- NULL
+datos.originales  <<- NULL
+datos.prueba      <<- NULL
 datos.aprendizaje <<- NULL
 variable.predecir <<- NULL
-real.val <<- NULL
+real.val          <<- NULL
+contador          <<- 0
+semilla           <<- FALSE
+nombres.modelos   <<- c()
 
-contador <<- 0
-semilla <<- FALSE
+# ------------------- Estadisticas Basicas
 
-nombres.modelos <<- c()
+correlacion   <<- NULL
+cod.poder.cat <<- NULL
+cod.poder.num <<- NULL
 
-# -------------------  Estadisticas Basicas
+# ------------------- Modelos
 
-correlacion <<- NULL
-cod.poder.cat <- NULL
-cod.poder.num <- NULL
+IndicesM  <<- list()
 
-# -------------------  Modelos
+# ------------------- RL
 
-IndicesM <<- list()
+cod.rl.modelo <<- NULL
+cod.rl.pred   <<- NULL
+cod.rl.ind    <<- NULL
 
-# -------------------  RL
+# ------------------- RLR
 
-cod.rl.modelo <<-  NULL
-cod.rl.pred <<-  NULL
-cod.rl.ind <<- NULL
-
-# -------------------  RLR
-
-cod.rlr.modelo <<-  NULL
-cod.rlr.pred <<-  NULL
-cod.rlr.ind <<- NULL
-
+cod.rlr.modelo   <<- NULL
+cod.rlr.pred     <<- NULL
+cod.rlr.ind      <<- NULL
 cod.select.landa <<- NULL
 
-# -------------------  KNN
+# ------------------- KNN
 
-cod.knn.modelo <<-  NULL
-cod.knn.pred <<-  NULL
-cod.knn.ind <<- NULL
+cod.knn.modelo <<- NULL
+cod.knn.pred   <<- NULL
+cod.knn.ind    <<- NULL
+knn.stop.excu  <<- FALSE
 
-knn.stop.excu <<- FALSE
+# ------------------- SVM
 
-# -------------------  SVM
+cod.svm.modelo <<- NULL
+cod.svm.pred   <<- NULL
+cod.svm.ind    <<- NULL
 
-cod.svm.modelo <<-  NULL
-cod.svm.pred <<-  NULL
-cod.svm.ind <<- NULL
+# ------------------- DT
 
-# -------------------  DT
+cod.dt.modelo <<- NULL
+cod.dt.pred   <<- NULL
+cod.dt.ind    <<- NULL
 
-cod.dt.modelo <<-  NULL
-cod.dt.pred <<-  NULL
-cod.dt.ind <<- NULL
+# ------------------- RF
 
-# -------------------  RF
+cod.rf.modelo <<- NULL
+cod.rf.pred   <<- NULL
+cod.rf.ind    <<- NULL
+rf.stop.excu  <<- FALSE
 
-cod.rf.modelo <<-  NULL
-cod.rf.pred <<-  NULL
-cod.rf.ind <<- NULL
+# ------------------- BOOSTING
 
-rf.stop.excu <<- FALSE
+cod.b.modelo <<- NULL
+cod.b.pred   <<- NULL
+cod.b.ind    <<- NULL
 
-# -------------------  BOOSTING
+# ------------------- NN
 
-cod.b.modelo <<-  NULL
-cod.b.pred <<-  NULL
-cod.b.ind <<- NULL
+cod.nn.modelo <<- NULL
+cod.nn.pred   <<- NULL
+cod.nn.ind    <<- NULL
+NN_EXECUTION  <<- TRUE
+mean.nn       <<- NULL
+sd.nn         <<- NULL
+mean.nn.np    <<- NULL
+sd.nn.np      <<- NULL
 
-# -------------------  NN
+# ------------------- Prediccion Nuevos
 
-cod.nn.modelo <<-  NULL
-cod.nn.pred <<-  NULL
-cod.nn.ind <<- NULL
-
-NN_EXECUTION <<- TRUE
-
-mean.nn <<- NULL
-sd.nn <<- NULL
-mean.nn.np <<- NULL
-sd.nn.np <<- NULL
-
-# -------------------  Prediccion Nuevos
-
-datos.originales.completos <<- NULL
+datos.originales.completos  <<- NULL
 datos.aprendizaje.completos <<- NULL
-datos.prueba.completos <<- NULL
-
-variable.predecir.pn <<- NULL
-modelo.seleccionado.pn <<- NULL
-contadorPN <<- 0
-code.trans.pn <<- ""
-
-modelo.nuevos <<- NULL
-predic.nuevos <<- NULL
+datos.prueba.completos      <<- NULL
+variable.predecir.pn        <<- NULL
+modelo.seleccionado.pn      <<- NULL
+contadorPN                  <<- 0
+code.trans.pn               <<- ""
+modelo.nuevos               <<- NULL
+predic.nuevos               <<- NULL
 
