@@ -6,6 +6,9 @@
 \usage{
 pairs_power(data = "datos")
 }
+\arguments{
+\item{data}{the name of the current data.}
+}
 \description{
 pairs_power
 }

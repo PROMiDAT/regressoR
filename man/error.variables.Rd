@@ -17,4 +17,5 @@ Draws an error of missing data
 \examples{
 error.variables(TRUE)
 error.variables(FALSE)
+
 }
