@@ -79,8 +79,8 @@ shinyServer(function(input, output, session) {
   # Some code fields that are not parameter-dependent
   updateAceEditor(session, "fieldCodeResum", value = code_summary())
   updateAceEditor(session, "fieldModelCor" , value = modelo.cor())
-  updateAceEditor(session, "fieldFuncNum"  , extract_code("distribucion.numerico"))
-  updateAceEditor(session, "fieldFuncCat"  , extract_code("distribucion.categorico"))
+  updateAceEditor(session, "fieldFuncNum"  , extract_code("numerical_distribution"))
+  updateAceEditor(session, "fieldFuncCat"  , extract_code("categorical_distribution"))
 
   # REACTIVE VALUES -------------------------------------------------------------------------------------------------------
 
@@ -569,8 +569,8 @@ shinyServer(function(input, output, session) {
 
   # Executes the code when parameters change
   observeEvent(c(input$sel.distribucion.num, input$col.dist), {
-    updatePlot$dya.num <<- def_code_num(data = "datos", color = paste0("'", input$col.dist, "'"),
-                                        variable = paste0("'", input$sel.distribucion.num, "'"))
+    updatePlot$dya.num <<- def_code_num(data = "datos", color = input$col.dist,
+                                        variable = input$sel.distribucion.num)
   })
   
   # Creates the atypical table
@@ -611,7 +611,7 @@ shinyServer(function(input, output, session) {
 
   # Executes the code when parameters change
   observeEvent(input$sel.distribucion.cat, {
-    updatePlot$dya.cat <<- def.code.cat(variable = input$sel.distribucion.cat)
+    updatePlot$dya.cat <<- def_code_cat(variable = input$sel.distribucion.cat)
   })
 
   # CORRELATION PAGE ------------------------------------------------------------------------------------------------------
@@ -2573,7 +2573,7 @@ shinyServer(function(input, output, session) {
                                 "automatico","landa","shrinkage","resumenVarPre", "R2"))
 
     updatePlot$normal <- normal_default("datos", input$sel.normal, input$col.normal, translate("curvanormal"))
-    updatePlot$dya.cat <- def.code.cat(variable = input$sel.distribucion.cat, titulox = translate("cantidadcasos"), tituloy = translate("categorias"))
+    updatePlot$dya.cat <- def_code_cat(variable = input$sel.distribucion.cat)
     updatePlot$calc.normal <- default_calc_normal(labelsi = translate("positivo"),labelno=translate("negativo"),labelsin=translate("sinasimetria"))
 
     execute_knn_ind()

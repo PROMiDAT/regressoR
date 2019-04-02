@@ -49,6 +49,10 @@ disp_models <- function(prediction, model_name){
   regressoR::disp_models(prediction, model_name, variable.predecir)
 }
 
+def_code_cat <- function(data = "datos", variable){
+  regressoR::def_code_cat(data, variable, input$idioma)
+}
+
 # Pagina de Correlacion -----------------------------------------------------------------------------------------------------
 
 #Calcula la matriz de correlacion
@@ -127,18 +131,6 @@ resumen.categorico <- function(data, variable){
     )
   })
   return(res)
-}
-
-
-
-#Hace el grafico de la distribucion categorica
-distribucion.categorico <- function(var) {
-  colores <- sapply(levels(var),function(i) rgb(runif(1), runif(1), runif(1), 0.8))
-  data <- data.frame(label = levels(var), value = summary(var))
-  ggplot(data, aes(label, value)) +
-    geom_bar(stat = 'identity', fill = colores) +
-    geom_text(aes(label = value, y = value), vjust = -0.5, size = 4) +
-    theme_minimal()
 }
 
 # Pagina de RL --------------------------------------------------------------------------------------------------------------
