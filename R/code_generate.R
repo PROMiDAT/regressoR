@@ -210,7 +210,7 @@ normal_default <- function(data = "datos", vars = NULL, color = "#00FF22AA", lab
 #' x <- default_calc_normal('iris')
 #' exe(x)
 #' 
-default_calc_normal <- function(data = "datos", label.yes = "Positiva", label.no = "Negativa", label.without = "Sin Asimetría") {
+default_calc_normal <- function(data = "datos", label.yes = "Positiva", label.no = "Negativa", label.without = "Sin Asimetr\u00EDa") {
   return(paste0(
     "calc <- lapply(var_numerical(", data,"), function(i) fisher_calc(i)[1]) \n",
     "calc <- as.data.frame(calc) \n",
@@ -237,8 +237,8 @@ default_disp <- function(data = "datos", vars = NULL, color = "#FF0000AA"){
   if(length(vars) < 2) {
     return(NULL)
   } else if(length(vars) == 2) {
-    return(paste0("ggplot(data = ", data, ", aes(x = ", vars[1], ", y = ", vars[2], ", label = rownames(", data, "))) +
-                  geom_point(color = '", color, "', size = 3) + geom_text(vjust = -0.7) + theme_minimal()"))
+    return(paste0("ggplot2::ggplot(data = ", data, ", ggplot2::aes(x = ", vars[1], ", y = ", vars[2], ", label = rownames(", data, "))) +",
+                  "ggplot2::geom_point(color = '", color, "', size = 3) + ggplot2::geom_text(vjust = -0.7) + ggplot2::theme_minimal()"))
   } else{
     return(paste0("scatterplot3d(", data, "[, '", vars[1], "'], ", data, "[, '",
                   vars[2], "'], ", data, "[, '", vars[3], "'], pch = 16, color = '", color, "')"))
@@ -246,6 +246,8 @@ default_disp <- function(data = "datos", vars = NULL, color = "#FF0000AA"){
 }
 
 #' pairs_power
+#' 
+#' @param data the name of the current data.
 #'
 #' @export
 #'
@@ -258,16 +260,37 @@ pairs_power <- function(data = "datos"){
          "hist.col = gg_color_hue(3)[3], oma=c(1,1,1,1) )")
 }
 
-
-
-#Llama a la funcion que crea la distribuccion numerica
+#' def_code_num
+#'
+#' @param data the name of the current data.
+#' @param variable the name of the variable for the numerical distribution chart.
+#' @param color the color of the chart.
+#'
+#' @export
+#'
+#' @examples
+#' x <- def_code_num('iris', 'Petal.Length')
+#' exe(x)
+#' 
 def_code_num <- function(data = "datos", variable, color = 'red'){
-  return(paste0("numerical_distribution(", data, "[, ", variable, "], ", variable, ", color = ", color,")"))
+  return(paste0("numerical_distribution(",data,"[, '",variable,"' ],'", variable,"',color = '", color,"')"))
 }
 
-#Llama a la funcion que crea la distribuccion categorica
-def.code.cat <- function(data = "datos", variable, titulox = translate("cantidadcasos"), tituloy = translate("categorias")) {
-  paste0("distribucion.categorico(", data, "[, '", variable,"']) + ",
-         "labs(title = '", variable, "', x = '",titulox, "', y = '", tituloy, "')")
+#' def_code_cat
+#'
+#' @param data the name of the current data.
+#' @param variable the name of the variable for the categorical distribution chart.
+#' @param language the language to choose. It can be "es" or "en".
+#'
+#' @export
+#'
+#' @examples
+#' def_code_cat('iris', 'Species')
+#' 
+def_code_cat <- function(data = "datos", variable, language = "es") {
+  xlab = translate("cantidadcasos",language)
+  ylab = translate("categorias", language)
+  paste0("categorical_distribution(", data, "[, '", variable,"']) + ",
+         "labs(title = '", variable, "', x = '",xlab, "', y = '", ylab, "')")
 }
 

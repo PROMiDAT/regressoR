@@ -263,29 +263,3 @@ fisher_calc <- function (x, na.rm = FALSE) {
   return(sum((x - mean(x))^3/sd(x)^3)/length(x))
 }
 
-#' numerical_distribution
-#'
-#' @description Hace el grafico de la distribucion numerica.
-#'
-#' @param var 
-#' @param nombre.var 
-#' @param color 
-#'
-#' @return
-#' @export
-#'
-#' @examples
-#' numerical_distribution
-numerical_distribution <- function(var, nombre.var, color){
-  nf <- graphics::layout(mat = matrix(c(1, 2), 2, 1, byrow=TRUE),  height = c(3,1))
-  par(mar=c(3.1, 3.1, 1.1, 2.1))
-  hist(var, col = color, border=F, axes=F, main = nombre.var)
-  axis(1, col=par('bg'), col.ticks='grey81', lwd.ticks=1, tck=-0.025)
-  axis(2, col=par('bg'), col.ticks='grey81', lwd.ticks=1, tck=-0.025)
-  boxplot(var, col = color, boxcol = color, boxlty = 1, boxlwd = 3,
-          boxwex = 1.5, edcol = color, medlty = 1, medlwd = 8, axes=F,
-          medcol = color, whiskcol = color, whisklty = 3, staplecol = color,
-          staplelty = 1, staplelwd = 3, horizontal = TRUE, outline=TRUE,
-          frame=F, whisklwd = 2.5, outpch = 20, outcex = 1.5, outcol = 'red')
-}
-
