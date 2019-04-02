@@ -18,8 +18,3 @@ code_transf(variable, new.type, d.o = "datos.originales", d = "datos")
 \description{
 generate code to transform data.
 }
-\examples{
-code_transf('Species', 'numerico', 'iris', 'iris')
-code_transf('Species', 'disyuntivo', 'iris', 'iris')
-
-}

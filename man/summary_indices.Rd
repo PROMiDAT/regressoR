@@ -17,4 +17,5 @@ resume una variable retornando el mínimo, el primer cuartil, el tercer cuartil 
 }
 \examples{
 summary_indices(iris$Sepal.Length)
+
 }

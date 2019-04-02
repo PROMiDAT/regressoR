@@ -1,12 +1,12 @@
 
 #' general_indices
 #'
-#' @description calculates indices to measure accuracy of a model 
+#' @description calculates indices to measure accuracy of a model.
 #'
 #' @param real the real values in traning-testing.
 #' @param prediccion the prediction values in traning-testing.
 #'
-#' @return a list with Correlation, Relative Error, Mean Absolute Error, Root Mean Square Error
+#' @return a list with Correlation, Relative Error, Mean Absolute Error, Root Mean Square Error.
 #' @export
 #'
 #' @examples
@@ -47,9 +47,9 @@ combine_names <- function(x, y, sep = "."){
 
 #' colnames_empty
 #'
-#' @param data the dataset
+#' @param data the dataset.
 #'
-#' @return a vector with the names of the columns or an empty string if the data is NULL
+#' @return a vector with the names of the columns or an empty string if the data is NULL.
 #' @export
 #'
 #' @examples
@@ -65,11 +65,11 @@ colnames_empty <- function(data){
 
 #' var_numerical
 #'
-#' @description gets only the numerical columns
+#' @description gets only the numerical columns.
 #'
-#' @param data the dataset
+#' @param data the dataset.
 #'
-#' @return a vector with the names of the numerical columns
+#' @return a vector with the names of the numerical columns.
 #' @export
 #'
 #' @examples
@@ -83,11 +83,11 @@ var_numerical <- function(data){
 
 #' var_categorical
 #'
-#' @description gets only the categorical columns
+#' @description gets only the categorical columns.
 #'
-#' @param data the dataset
+#' @param data the dataset.
 #'
-#' @return a vector with the names of the categorical columns
+#' @return a vector with the names of the categorical columns.
 #' @export
 #'
 #' @examples
@@ -110,6 +110,7 @@ var_categorical <- function(data){
 #'
 #' @examples
 #' summary_indices(iris$Sepal.Length)
+#' 
 summary_indices <- function(data){
   list("Min" = min(data),
        "1Q"  = quantile(data, prob=c(0.25)),
@@ -119,16 +120,17 @@ summary_indices <- function(data){
 
 #' disjunctive_data
 #' 
-#' @description Convert the columns selected to disjunctive
+#' @description Convert the columns selected to disjunctive.
 #'
-#' @param data the dataset to be converted
-#' @param vars a vector with the name of columns
+#' @param data the dataset to be converted.
+#' @param vars a vector with the name of columns.
 #'
 #' @return a dataset
 #' @export
 #'
 #' @examples
 #' disjunctive_data(iris, "Species")
+#' 
 disjunctive_data <- function(data, vars){
   if(is.null(data)) return(NULL)
   cualitativas <- base::subset(data, select = colnames(data) %in% c(vars))
@@ -145,10 +147,10 @@ disjunctive_data <- function(data, vars){
 
 #' comparative_table
 #'
-#' @description creates the comparison table
+#' @description creates the comparison table.
 #'
-#' @param sel the selection of the models to be shown
-#' @param indices the values to be shown
+#' @param sel the selection of the models to be shown.
+#' @param indices the values to be shown.
 #' @param language the language to choose. It can be "es" or "en".
 #' 
 #' @export
@@ -188,10 +190,10 @@ comparative_table <- function(sel, indices, language = "es") {
 #' 
 #' @description Verify that a data.frame has the same columns with the same types.
 #'
-#' @param x a data.frame with criteria to compare
-#' @param y a data.frame to be comprared
-#' @param var.pred a vector with the names of variables to be excluded from the comparison
-#' @param language the language to choose. It can be "es" or "en"
+#' @param x a data.frame with criteria to compare.
+#' @param y a data.frame to be comprared.
+#' @param var.pred a vector with the names of variables to be excluded from the comparison.
+#' @param language the language to choose. It can be "es" or "en".
 #' 
 #' @export
 #'
@@ -223,21 +225,67 @@ validate_pn_data <- function(x, y, var.pred = "", language = "es"){
   }
 }
 
-
 #' new_col
 #' 
-#' @description creates a new column
+#' @description creates a new column.
 #'
-#' @param data the data.frame to join with the new column
-#' @param name the name of the new column
-#' @param values the values of the new column
+#' @param data the data.frame to join with the new column.
+#' @param name the name of the new column.
+#' @param values the values of the new column.
 #'
 #' @export
 #'
 #' @examples
 #' new_col(iris)
 #' new_col(iris, "var1", c(1,2,3))
+#' 
 new_col <- function(data, name = "new_", values = NA){
   data[,name] <- values
   return(data)
 }
+
+#' fisher_calc
+#' 
+#' @description calculate the fisher skewness.
+#'
+#' @param x a vector with the data to make the calculation.
+#' @param na.rm a logical value indicating whether the NAs have to be eliminated.
+#'
+#' @export
+#'
+#' @examples
+#' fisher_calc(iris$Petal.Length)
+#' 
+fisher_calc <- function (x, na.rm = FALSE) {
+  if (na.rm){
+    x <- x[!is.na(x)]
+  }
+  return(sum((x - mean(x))^3/sd(x)^3)/length(x))
+}
+
+#' numerical_distribution
+#'
+#' @description Hace el grafico de la distribucion numerica.
+#'
+#' @param var 
+#' @param nombre.var 
+#' @param color 
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#' numerical_distribution
+numerical_distribution <- function(var, nombre.var, color){
+  nf <- graphics::layout(mat = matrix(c(1, 2), 2, 1, byrow=TRUE),  height = c(3,1))
+  par(mar=c(3.1, 3.1, 1.1, 2.1))
+  hist(var, col = color, border=F, axes=F, main = nombre.var)
+  axis(1, col=par('bg'), col.ticks='grey81', lwd.ticks=1, tck=-0.025)
+  axis(2, col=par('bg'), col.ticks='grey81', lwd.ticks=1, tck=-0.025)
+  boxplot(var, col = color, boxcol = color, boxlty = 1, boxlwd = 3,
+          boxwex = 1.5, edcol = color, medlty = 1, medlwd = 8, axes=F,
+          medcol = color, whiskcol = color, whisklty = 3, staplecol = color,
+          staplelty = 1, staplelwd = 3, horizontal = TRUE, outline=TRUE,
+          frame=F, whisklwd = 2.5, outpch = 20, outcex = 1.5, outcol = 'red')
+}
+

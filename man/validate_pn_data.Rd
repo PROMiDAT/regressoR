@@ -7,13 +7,13 @@
 validate_pn_data(x, y, var.pred = "", language = "es")
 }
 \arguments{
-\item{x}{a data.frame with criteria to compare}
+\item{x}{a data.frame with criteria to compare.}
 
-\item{y}{a data.frame to be comprared}
+\item{y}{a data.frame to be comprared.}
 
-\item{var.pred}{a vector with the names of variables to be excluded from the comparison}
+\item{var.pred}{a vector with the names of variables to be excluded from the comparison.}
 
-\item{language}{the language to choose. It can be "es" or "en"}
+\item{language}{the language to choose. It can be "es" or "en".}
 }
 \description{
 Verify that a data.frame has the same columns with the same types.

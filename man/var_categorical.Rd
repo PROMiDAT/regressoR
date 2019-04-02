@@ -7,13 +7,13 @@
 var_categorical(data)
 }
 \arguments{
-\item{data}{the dataset}
+\item{data}{the dataset.}
 }
 \value{
-a vector with the names of the categorical columns
+a vector with the names of the categorical columns.
 }
 \description{
-gets only the categorical columns
+gets only the categorical columns.
 }
 \examples{
 var_categorical(iris)

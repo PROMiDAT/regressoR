@@ -77,14 +77,14 @@ shinyServer(function(input, output, session) {
   shinyjs::disable(selector = 'a[href^="#shiny-tab-parte1"]')
 
   # Some code fields that are not parameter-dependent
-  updateAceEditor(session, "fieldCodeResum", value = cod.resum())
+  updateAceEditor(session, "fieldCodeResum", value = code_summary())
   updateAceEditor(session, "fieldModelCor" , value = modelo.cor())
   updateAceEditor(session, "fieldFuncNum"  , extract_code("distribucion.numerico"))
   updateAceEditor(session, "fieldFuncCat"  , extract_code("distribucion.categorico"))
 
   # REACTIVE VALUES -------------------------------------------------------------------------------------------------------
 
-  updatePlot <- reactiveValues(calc.normal = default.calc.normal(), 
+  updatePlot <- reactiveValues(calc.normal = default_calc_normal(), 
                                normal      = NULL, 
                                disp        = NULL,
                                cor         = NULL, 
@@ -319,7 +319,7 @@ shinyServer(function(input, output, session) {
   # When the segment data button is pressed
   observeEvent(input$segmentButton, {
     if(input$sel.predic.var != ""){
-      codigo <- particion.code("datos", input$segmentacionDatosA,
+      codigo <- partition_code("datos", input$segmentacionDatosA,
                                input$sel.predic.var,
                                input$semilla,
                                input$permitir.semilla)
@@ -442,7 +442,7 @@ shinyServer(function(input, output, session) {
 
   # Executes the code when parameters change
   observeEvent(c(input$sel.normal, input$col.normal), {
-    updatePlot$normal <- default.normal(data = "datos", vars = input$sel.normal, color = input$col.normal, translate("curvanormal"))
+    updatePlot$normal <- normal_default(data = "datos", vars = input$sel.normal, color = input$col.normal, translate("curvanormal"))
   })
 
   # Show the comparative table of the normality test page
@@ -535,7 +535,7 @@ shinyServer(function(input, output, session) {
     if (length(input$select.var) < 2) {
       updatePlot$disp <- ""
     } else {
-      updatePlot$disp <<- default.disp(data = "datos", vars = input$select.var, color = input$col.disp)
+      updatePlot$disp <<- default_disp(data = "datos", vars = input$select.var, color = input$col.disp)
     }
   })
 
@@ -569,7 +569,7 @@ shinyServer(function(input, output, session) {
 
   # Executes the code when parameters change
   observeEvent(c(input$sel.distribucion.num, input$col.dist), {
-    updatePlot$dya.num <<- def.code.num(data = "datos", color = paste0("'", input$col.dist, "'"),
+    updatePlot$dya.num <<- def_code_num(data = "datos", color = paste0("'", input$col.dist, "'"),
                                         variable = paste0("'", input$sel.distribucion.num, "'"))
   })
   
@@ -682,13 +682,13 @@ shinyServer(function(input, output, session) {
     if(input$fieldCodePoderNum != "") {
       updatePlot$poder.num <- input$fieldCodePoderNum
     } else {
-      updatePlot$poder.num <- pairs.poder
+      updatePlot$poder.num <- pairs_power()
     }
   })
 
   # Change the graphic code
   observeEvent(input$segmentButton,{
-    updatePlot$poder.num <- pairs.poder
+    updatePlot$poder.num <- pairs_power()
   }, priority = 3)
   
   # RL PAGE ---------------------------------------------------------------------------------------------------------------
@@ -2572,9 +2572,9 @@ shinyServer(function(input, output, session) {
                                 "stepmax","redPlot","rll","rlr","posibLanda","coeff","gcoeff",
                                 "automatico","landa","shrinkage","resumenVarPre", "R2"))
 
-    updatePlot$normal <- default.normal("datos", input$sel.normal, input$col.normal, translate("curvanormal"))
+    updatePlot$normal <- normal_default("datos", input$sel.normal, input$col.normal, translate("curvanormal"))
     updatePlot$dya.cat <- def.code.cat(variable = input$sel.distribucion.cat, titulox = translate("cantidadcasos"), tituloy = translate("categorias"))
-    updatePlot$calc.normal <- default.calc.normal(labelsi = translate("positivo"),labelno=translate("negativo"),labelsin=translate("sinasimetria"))
+    updatePlot$calc.normal <- default_calc_normal(labelsi = translate("positivo"),labelno=translate("negativo"),labelsin=translate("sinasimetria"))
 
     execute_knn_ind()
     execute_svm_ind()

@@ -12,10 +12,10 @@ general_indices(real, prediccion)
 \item{prediccion}{the prediction values in traning-testing.}
 }
 \value{
-a list with Correlation, Relative Error, Mean Absolute Error, Root Mean Square Error
+a list with Correlation, Relative Error, Mean Absolute Error, Root Mean Square Error.
 }
 \description{
-calculates indices to measure accuracy of a model
+calculates indices to measure accuracy of a model.
 }
 \examples{
 real <- rnorm(45)

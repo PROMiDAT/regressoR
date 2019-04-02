@@ -7,10 +7,10 @@
 colnames_empty(data)
 }
 \arguments{
-\item{data}{the dataset}
+\item{data}{the dataset.}
 }
 \value{
-a vector with the names of the columns or an empty string if the data is NULL
+a vector with the names of the columns or an empty string if the data is NULL.
 }
 \description{
 colnames_empty

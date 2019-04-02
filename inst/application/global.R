@@ -49,80 +49,6 @@ disp_models <- function(prediction, model_name){
   regressoR::disp_models(prediction, model_name, variable.predecir)
 }
 
-
-# Pagina del Test de Normalidad ---------------------------------------------------------------------------------------------
-
-#Codigo de la genracion de la curva normal (test de normalidad)
-default.normal <- function(data = "datos", vars = NULL, color = "#00FF22AA", labelcurva = "Curva Normal"){
-  if(is.null(vars)){
-    return(NULL)
-  } else {
-    return(paste0(
-      "promedio <- mean(", data, "[, '", vars, "']) \n",
-      "desviacion <- sd(", data, "[, '", vars, "']) \n",
-      "values <- dnorm(", data, "[, '", vars, "'], mean = promedio, sd = desviacion) \n",
-      "values <- c(values, hist(", data, "[, '", vars, "'],  plot = F)$density) \n",
-      "hist(", data, "[, '", vars, "'], col = '", color, "', border=F, axes=F,\n",
-      "  freq = F, ylim = range(0, max(values)), ylab = '',xlab = '",vars,"', \n",
-      "  main = '", vars, "') \n",
-      "axis(1, col=par('bg'), col.ticks='grey81', lwd.ticks=1, tck=-0.025) \n",
-      "axis(2, col=par('bg'), col.ticks='grey81', lwd.ticks=1, tck=-0.025) \n",
-      "curve(dnorm(x, mean = promedio, sd = desviacion), add=T, col='blue', lwd=2)\n",
-      "legend('bottom', legend = '", labelcurva, "', col = 'blue', lty=1, cex=1.5)"))
-  }
-}
-
-fisher.calc <- function (x, na.rm = FALSE, ...) {
-  if (!is.numeric(x)) {
-    stop("argument 'x' is must be numeric")
-  }
-  if (na.rm)
-    x <- x[!is.na(x)]
-  nx <- length(x)
-  
-  sk <- sum((x - mean(x))^3/stats::sd(x)^3)/nx
-  
-  return(sk)
-}
-
-#Genera  la tabla de normalidad
-default.calc.normal <- function(data = "datos", labelsi = "Positiva", labelno = "Negativa",labelsin = "Sin Asimetría") {
-  return(paste0(
-    "calc <- lapply(var_numerical(", data,"), function(i) fisher.calc(i)[1]) \n",
-    "calc <- as.data.frame(calc) \n",
-    "calc <- rbind(calc, lapply(calc, function(i) ifelse(i > 0, '", labelsi,
-    "',\n  ifelse(i < 0, '", labelno, "', '", labelsin, "')))) \n",
-    "calc <- t(calc)\ncalc"))
-}
-
-# Pagina de Dispersion ------------------------------------------------------------------------------------------------------
-
-#Codigo del grafico de dispersion
-default.disp <- function(data = "datos", vars = NULL, color = "#FF0000AA"){
-  if(length(vars) < 2) {
-    return(NULL)
-  } else if(length(vars) == 2) {
-    return(paste0("ggplot(data = ", data, ", aes(x = ", vars[1], ", y = ", vars[2], ", label = rownames(", data, "))) +
-                  geom_point(color = '", color, "', size = 3) + geom_text(vjust = -0.7) + theme_minimal()"))
-  } else{
-    return(paste0("scatterplot3d(", data, "[, '", vars[1], "'], ", data, "[, '",
-                  vars[2], "'], ", data, "[, '", vars[3], "'], pch = 16, color = '", color, "')"))
-  }
-}
-
-# Pagina de Distribucion ----------------------------------------------------------------------------------------------------
-
-#Llama a la funcion que crea la distribuccion numerica
-def.code.num <- function(data = "datos", variable = "input$sel.distribucion", color = 'input$col.dist'){
-  return(paste0("distribucion.numerico(", data, "[, ", variable, "], ", variable, ", color = ", color,")"))
-}
-
-#Llama a la funcion que crea la distribuccion categorica
-def.code.cat <- function(data = "datos", variable, titulox = translate("cantidadcasos"), tituloy = translate("categorias")) {
-  paste0("distribucion.categorico(", data, "[, '", variable,"']) + ",
-         "labs(title = '", variable, "', x = '",titulox, "', y = '", tituloy, "')")
-}
-
 # Pagina de Correlacion -----------------------------------------------------------------------------------------------------
 
 #Calcula la matriz de correlacion
@@ -139,15 +65,6 @@ correlaciones <- function(metodo = 'circle', tipo = "lower"){
 # Pagina de Poder Predictivo ------------------------------------------------------------------------------------------------
 
 #Grafica el pairs
-
-pairs.poder <<- 
-  "pairs.panels(var_numerical(datos), bg='black', ellipses=FALSE, smooth=FALSE, 
-lm=TRUE, cex=0.5, cex.main=0.1, pch=20, main='',
-hist.col=gg_color_hue(3)[3], oma=c(1,1,1,1) )"
-
-
-
-
 
 #Genera el resumen numerico de una variable
 resumen.numerico <- function(data, variable) {
@@ -181,7 +98,7 @@ resumen.numerico <- function(data, variable) {
       Value = format(round(sd(data[, variable]), 3), scientific = FALSE, nsmall = 3)
     )
   )
-
+  
   res <- lapply(datos.numericos, function(i) {
     tags$div(
       class='shiny-html-output col-sm-6 shiny-bound-output', id=i$id,
@@ -212,19 +129,7 @@ resumen.categorico <- function(data, variable){
   return(res)
 }
 
-#Hace el grafico de la distribucion numerica
-distribucion.numerico <- function(var, nombre.var, color){
-  nf <- graphics::layout(mat = matrix(c(1, 2), 2, 1, byrow=TRUE),  height = c(3,1))
-  par(mar=c(3.1, 3.1, 1.1, 2.1))
-  hist(var, col = color, border=F, axes=F, main = nombre.var)
-  axis(1, col=par('bg'), col.ticks='grey81', lwd.ticks=1, tck=-0.025)
-  axis(2, col=par('bg'), col.ticks='grey81', lwd.ticks=1, tck=-0.025)
-  boxplot(var, col = color, boxcol = color, boxlty = 1, boxlwd = 3,
-          boxwex = 1.5, edcol = color, medlty = 1, medlwd = 8, axes=F,
-          medcol = color, whiskcol = color, whisklty = 3, staplecol = color,
-          staplelty = 1, staplelwd = 3, horizontal=TRUE, outline=TRUE,
-          frame=F, whisklwd = 2.5, outpch = 20, outcex = 1.5, outcol = 'red')
-}
+
 
 #Hace el grafico de la distribucion categorica
 distribucion.categorico <- function(var) {

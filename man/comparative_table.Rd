@@ -7,14 +7,14 @@
 comparative_table(sel, indices, language = "es")
 }
 \arguments{
-\item{sel}{the selection of the models to be shown}
+\item{sel}{the selection of the models to be shown.}
 
-\item{indices}{the values to be shown}
+\item{indices}{the values to be shown.}
 
 \item{language}{the language to choose. It can be "es" or "en".}
 }
 \description{
-creates the comparison table
+creates the comparison table.
 }
 \examples{
 models <- list('knnl-mode1' = list(0.11,0.22,0.33,0.44),

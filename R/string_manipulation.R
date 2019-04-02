@@ -115,6 +115,3 @@ models_mode <- function(list.names = list(), language = "es"){
   }
   return(nombres)
 }
-
-
-

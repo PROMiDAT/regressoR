@@ -387,12 +387,9 @@ scatterplot3d <- function (x, y = NULL, z = NULL, color = par("col"), pch = par(
 {
   mem.par <- par(mar = mar)
   x.scal <- y.scal <- z.scal <- 1
-  xlabel <- if (!missing(x))
-    deparse(substitute(x))
-  ylabel <- if (!missing(y))
-    deparse(substitute(y))
-  zlabel <- if (!missing(z))
-    deparse(substitute(z))
+  xlabel <- if (!missing(x))deparse(substitute(x))
+  ylabel <- if (!missing(y))deparse(substitute(y))
+  zlabel <- if (!missing(z))deparse(substitute(z))
   if (highlight.3d && !missing(color))
     warning("color is ignored when highlight.3d = TRUE")
   if (!is.null(d <- dim(x)) && (length(d) == 2) && (d[2] >=

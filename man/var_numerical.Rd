@@ -7,13 +7,13 @@
 var_numerical(data)
 }
 \arguments{
-\item{data}{the dataset}
+\item{data}{the dataset.}
 }
 \value{
-a vector with the names of the numerical columns
+a vector with the names of the numerical columns.
 }
 \description{
-gets only the numerical columns
+gets only the numerical columns.
 }
 \examples{
 var_numerical(iris)
