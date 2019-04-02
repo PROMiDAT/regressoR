@@ -941,7 +941,7 @@ shinyServer(function(input, output, session) {
   deafult.codigo.rlr <- function(){
     landa <- NULL
     if (input$permitir.landa) {
-      if (input$landa >= 0) {
+      if (!is.na(input$landa) && input$landa >= 0) {
         landa <- input$landa
       }
     }
