@@ -27,6 +27,7 @@ suppressMessages(suppressWarnings({
   library(shinydashboardPlus)
   library(dplyr)
   library(zip)
+  library(pls)
 }))
 
 # FUNCIONES --------------------------------------------------------------------------------------------------------------
@@ -115,7 +116,7 @@ menu.aprendizaje.supervisado <- menuItem(labelInput("aprendizaje"), tabName = "p
                                          menuSubItem(labelInput("bl"),tabName = "boosting",icon = icon("superscript")),
                                          menuSubItem(labelInput("knnl"),tabName = "knn",icon = icon("dot-circle-o")),
                                          menuSubItem(labelInput("svml"),tabName = "svm",icon = icon("line-chart")),
-                                         menuSubItem(labelInput("rd"), tabName = "rd",icon = icon("line-chart")),
+                                         menuSubItem(labelInput("rd"), tabName = "rd",icon = icon("chart-pie")),
                                          menuSubItem(labelInput("nn"),tabName = "nn",icon = icon("brain")))
 
 menu.reporte <- menuItem(labelInput("reporte"), tabName = "reporte", icon = icon("save-file",lib = "glyphicon"))
@@ -1027,6 +1028,14 @@ opciones.rlr.pred <- fluidRow(column(selectInput(inputId = "alpha.rlr.pred", lab
                               column(width = 3, switchInput(inputId = "permitir.landa.pred", onStatus = "success", offStatus = "danger", value = F, width = "100%",
                                                             label = "", onLabel = "Manual", offLabel = labelInput("automatico"), labelWidth = "100%")))
 
+opciones.rd.pred <- fluidRow(column(selectInput(inputId = "mode.rd.pred", label = labelInput("selectAlg"),selected = 0,
+                                                 choices = list("ACP" = 0, "MCP" = 1)),width = 3),
+                              column(br(), switchInput(inputId = "switch.scale.rd.pred", onStatus = "success", offStatus = "danger", value = T,
+                                                       label = labelInput("escal"), onLabel = labelInput("si"), offLabel = labelInput("no"), labelWidth = "100%"), width=3),
+                              column(id = "colManualCom.pred",width = 3, numericInput("ncomp.rd.pred", labelInput("ncomp"),value = 2, min = 0, "NULL", width = "100%")), br(),
+                              column(width = 3, switchInput(inputId = "permitir.ncomp.pred", onStatus = "success", offStatus = "danger", value = F, width = "100%",
+                                                            label = "", onLabel = "Manual", offLabel = labelInput("automatico"), labelWidth = "100%")))
+
 opciones.knn.pred <- fluidRow(column(width = 4, br() , switchInput(inputId = "switch.scale.knn.pred", onStatus = "success", offStatus = "danger", value = T,
                                                               label = labelInput("escal"), onLabel = labelInput("si"), offLabel = labelInput("no"), labelWidth = "100%", width = "100%")),
                               column(width = 4, numericInput("kmax.knn.pred", labelInput("kmax"), min = 1,step = 1, value = 7,width="100%")),
@@ -1064,6 +1073,7 @@ opciones.modelo <- list(selectInput(inputId = "sel.predic.var.nuevos", label = l
                         radioGroupButtons("selectModelsPred", labelInput("selectMod"), 
                                           list("<span data-id=\"rll\"></span>" = "rl",
                                                "<span data-id=\"rlr\"></span>" = "rlr",
+                                               "<span data-id=\"rd\"></span>" = "rd",
                                                "<span data-id=\"knnl\"></span>" = "knn",
                                                "<span data-id=\"dtl\"></span>" = "dt",
                                                "<span data-id=\"rfl\"></span>" = "rf",
@@ -1092,6 +1102,8 @@ panel.crear.modelo.pred <- tabPanel(title = labelInput("seleParModel"),solidHead
                                                      opciones.svm.pred),
                                     conditionalPanel(condition =  "input.selectModelsPred == 'nn'",
                                                      opciones.nn.pred),
+                                    conditionalPanel(condition =  "input.selectModelsPred == 'rd'",
+                                                     opciones.rd.pred),
                                     verbatimTextOutput("txtPredNuevos"),
                                     actionButton("PredNuevosBttnModelo", labelInput("generarM"), width  = "100%", style = "background-color:#CBB051;color:#fff;margin-top:9px;"))
 

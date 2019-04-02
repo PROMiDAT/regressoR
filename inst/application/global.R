@@ -560,6 +560,10 @@ rd.type <- function(){
   ifelse(input$modo.rd == 0, "ACP", "MCP")
 }
 
+rd.type.np <- function(){
+  ifelse(input$modo.rd.pn == 0, "ACP", "MCP")
+}
+
 #Crea el modelo Rd
 rd.modelo <- function(variable.pr = NULL, mode = 0, escalar = TRUE){
   if(mode == 0){
@@ -570,13 +574,19 @@ rd.modelo <- function(variable.pr = NULL, mode = 0, escalar = TRUE){
   paste0(x,"\n","n.comp.rd <<- which.min(RMSEP(modelo.rd.",rd.type(),")$val[1, 1, ]) - 1")
 }
 
-# rlr.modelo.np <- function(alpha = 0, escalar = TRUE, manual = FALSE, landa = 2){
-#   landa <- ifelse(manual,"",paste0("cv.glm.nuevos <<- cv.glmnet(x, y, standardize = ",escalar,", alpha = ",alpha,")\n"))
-#   return(paste0("x <- model.matrix(",variable.predecir.pn,"~., datos.aprendizaje.completos)[, -1]\n",
-#                 "y <- datos.aprendizaje.completos[, '",variable.predecir.pn,"']\n",
-#                 landa,
-#                 "modelo.nuevos <<- glmnet(x, y,standardize = ",escalar,", alpha = ",alpha,")"))
-# }
+rd.modelo.np <- function(escalar = TRUE, mode = FALSE, manual = FALSE, ncomp = NA){
+  if(mode == 0){
+    x <- paste0("modelo.nuevos <<- pcr(",variable.predecir.pn,"~.,data = datos.aprendizaje.completos, scale = ",escalar,", validation = 'CV')")
+  }else{
+    x <- paste0("modelo.nuevos <<- plsr(",variable.predecir.pn,"~.,data = datos.aprendizaje.completos, scale = ",escalar,", validation = 'CV')")
+  }
+  if(manual && !is.na(ncomp) && ncomp > 0){
+    y <- ncomp
+  }else{
+    y <- "which.min(RMSEP(modelo.nuevos)$val[1, 1, ]) - 1"
+  }
+  paste0(x,"\n","n.comp.rd.np <<- ", y)
+}
 
 # Gráfico error RMSE de validación cruzada según componentes usados
 plot.RMSE <- function(modelo){
@@ -622,22 +632,9 @@ rd.prediccion <- function(ncomp = NULL) {
   paste0("prediccion.rd.",rd.type()," <<- predict(modelo.rd.",rd.type(),", datos.prueba, ncomp = ",ncomp,")")
 }
 
-# rlr.prediccion.np <- function(alpha = 0, escalar = TRUE, manual = FALSE, landa = 2) {
-#   landa <- ifelse(manual, landa, "cv.glm.nuevos$lambda.min")
-#   paste0("x <- model.matrix(",variable.predecir.pn,"~., datos.aprendizaje.completos)[, -1]\n",
-#          "y <- datos.aprendizaje.completos[, '",variable.predecir.pn,"']\n",
-#          "dp <- datos.prueba.completos\n",
-#          "dp[, '",variable.predecir.pn,"'] <- 0\n",
-#          "prueba <- model.matrix(",variable.predecir.pn,"~., dp)[, -1]\n",
-#          "predic.nuevos <<- predict(modelo.nuevos, newx = prueba,",
-#          "s = ",landa,", exact = TRUE, x = x, y = y)")
-# }
-
-# select.landa <- function(variable.pr = NULL, alpha = 0, escalar = TRUE){
-#   paste0("x <- model.matrix(",variable.pr,"~., datos.aprendizaje)[, -1]\n",
-#          "y <- datos.aprendizaje[, '",variable.pr,"']\n",
-#          "cv.glm.",rlr.type()," <<- cv.glmnet(x, y, standardize = ",escalar,", alpha = ",alpha,")")
-# }
+rd.prediccion.np <- function() {
+  paste0("predic.nuevos <<- predict(modelo.nuevos, datos.prueba.completos, ncomp = ",n.comp.rd.np,")")
+}
 
 #Codigo de la dispersion de knn
 rd.disp <- function(){

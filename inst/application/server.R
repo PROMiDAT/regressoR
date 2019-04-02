@@ -2618,6 +2618,14 @@ shinyServer(function(input, output, session) {
     }
   })
   
+  observeEvent(input$permitir.ncomp.pred, {
+    if (input$permitir.ncomp.pred) {
+      shinyjs::enable("ncomp.rd.pred")
+    } else {
+      shinyjs::disable("ncomp.rd.pred")
+    }
+  })
+  
   observeEvent(input$loadButtonNPred,{
     codigo.carga <- code.carga(nombre.filas = input$rownameNPred,
                                ruta = input$file2$datapath,
@@ -2730,6 +2738,7 @@ shinyServer(function(input, output, session) {
                          rf  = rf.prediccion.np(),
                          boosting = boosting.prediccion.np(),
                          svm = svm.prediccion.np(),
+                         rd  =  rd.prediccion.np(),
                          nn = nn.prediccion.np())
         tryCatch({
           exe(codigo)
@@ -2768,7 +2777,7 @@ shinyServer(function(input, output, session) {
   observeEvent(input$PredNuevosBttnModelo,{
     variable.predecir.pn <<- input$sel.predic.var.nuevos
     modelo.seleccionado.pn  <<- input$selectModelsPred
-    
+
     codigo <- switch(input$selectModelsPred,
                      rl  = rl.modelo.np(),
                      rlr  = rlr.modelo.np(alpha = input$alpha.rlr.pred,
@@ -2790,6 +2799,10 @@ shinyServer(function(input, output, session) {
                                               minsplit = input$shrinkage.boosting.pred),
                      svm = svm.modelo.np(scale = input$switch.scale.svm.pred,
                                          kernel = input$kernel.svm.pred),
+                     rd  = rd.modelo.np(escalar = input$switch.scale.rd.pred, 
+                                        mode = input$mode.rd.pred,
+                                        manual = input$permitir.ncomp.pred,
+                                        ncomp = input$ncomp.rd.pred),
                      nn = nn.modelo.np(variable.pr=input$sel.predic.var.nuevos,
                                         input$threshold.nn.pred,
                                         input$stepmax.nn.pred,
