@@ -1156,7 +1156,7 @@ pagina.info <- tabItem(tabName = "acercaDe",
                        infoBoxPROMiDAT(labelInput("copyright"), "PROMiDAT S.A.", icono = icon("copyright")),
                        infoBoxPROMiDAT(labelInput("info"), tags$a( href="https://www.promidat.com/", style = "color:white;",
                                                                    target = "_blank", "https://www.promidat.com"), icono = icon("info")),
-                       infoBoxPROMiDAT(labelInput("version"), "1.0.1", icono = icon("file-code-o")))
+                       infoBoxPROMiDAT(labelInput("version"), "1.0.2", icono = icon("file-code-o")))
 
 # PAGINA COMPLETA ---------------------------------------------------------------------------------------------------------
 
