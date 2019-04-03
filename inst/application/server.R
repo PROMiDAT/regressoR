@@ -78,7 +78,7 @@ shinyServer(function(input, output, session) {
 
   # Some code fields that are not parameter-dependent
   updateAceEditor(session, "fieldCodeResum", value = code_summary())
-  updateAceEditor(session, "fieldModelCor" , value = modelo.cor())
+  updateAceEditor(session, "fieldModelCor" , value = cor_model())
   updateAceEditor(session, "fieldFuncNum"  , extract_code("numerical_distribution"))
   updateAceEditor(session, "fieldFuncCat"  , extract_code("categorical_distribution"))
 
@@ -160,11 +160,12 @@ shinyServer(function(input, output, session) {
     }
 
     isolate(exe(code.res))
+    code.res <- paste0(code.res, "\n")
     if (length(var.noactivas) > 0) {
       isolate(exe(code_deactivate(var.noactivas)))
+      code.res <- paste0(code.res, code_deactivate(var.noactivas))
     }
 
-    code.res <- paste0(code.res, "\n", code_deactivate(var.noactivas))
     new_section_report()
     insert_report("transformar.datos","Transformando Datos", code.res,"\nstr(datos)")
     return(code.res)
@@ -183,7 +184,7 @@ shinyServer(function(input, output, session) {
   # Executes the code of correlations
   run_cor_model <- function() {
     tryCatch({
-      isolate(exe(text = modelo.cor()))
+      isolate(exe(text = cor_model()))
       output$txtcor <- renderPrint(print(correlacion))
     }, error = function(e) {
       return(datos <- NULL)
@@ -407,7 +408,7 @@ shinyServer(function(input, output, session) {
   # Change summary tables by variable
   output$resumen <- renderUI({
     if (input$sel.resumen %in% colnames(var_numerical(datos))){
-      resumen.numerico(datos, input$sel.resumen)
+      numerical_summary(datos, input$sel.resumen)
     }else{
       resumen.categorico(datos, input$sel.resumen)
     }
@@ -645,7 +646,7 @@ shinyServer(function(input, output, session) {
 
   # Executes the code when parameters change
   observeEvent(c(input$cor.metodo, input$cor.tipo), {
-    updatePlot$cor <- correlaciones(metodo = input$cor.metodo, tipo = input$cor.tipo)
+    updatePlot$cor <- correlations_plot(method = input$cor.metodo, type = input$cor.tipo)
   })
 
   # PREDICTIVE POWER PAGE -------------------------------------------------------------------------------------------------
@@ -2574,7 +2575,7 @@ shinyServer(function(input, output, session) {
 
     updatePlot$normal <- normal_default("datos", input$sel.normal, input$col.normal, translate("curvanormal"))
     updatePlot$dya.cat <- def_code_cat(variable = input$sel.distribucion.cat)
-    updatePlot$calc.normal <- default_calc_normal(labelsi = translate("positivo"),labelno=translate("negativo"),labelsin=translate("sinasimetria"))
+    updatePlot$calc.normal <- default_calc_normal(label.yes = translate("positivo"),label.no = translate("negativo"),label.without = translate("sinasimetria"))
 
     execute_knn_ind()
     execute_svm_ind()
