@@ -294,3 +294,43 @@ def_code_cat <- function(data = "datos", variable, language = "es") {
          "labs(title = '", variable, "', x = '",xlab, "', y = '", ylab, "')")
 }
 
+
+#' cor_model
+#' 
+#' @description generates the code to calculate the correlation matrix.
+#'
+#' @param data the name of the current data.
+#'
+#' @export
+#'
+#' @examples
+#' x <- cor_model('iris')
+#' exe(x)
+#' correlacion
+#' 
+cor_model <- function(data = "datos"){
+  return(paste0("correlacion <<- cor(var_numerical(", data, "))"))
+}
+
+#' correlations_plot
+#' 
+#' @description generates the code of the correlation chart.
+#'
+#' @param method the visualization method of correlation matrix to be used. 
+#' @param type display full matrix, lower triangular or upper triangular matrix.
+#'
+#' @seealso \code{\link[corrplot]{corrplot}}
+#'
+#' @export
+#'
+#' @examples
+#' x <- cor_model('iris')
+#' exe(x)
+#' correlacion
+#' x <- correlations_plot()
+#' exe(x)
+#' 
+correlations_plot <- function(method = 'circle', type = "lower"){
+  return(paste0("corrplot::corrplot(correlacion, method='", method,"', shade.col=NA, tl.col='black',
+                tl.srt=20, addCoef.col='black', order='AOE', type = '", type, "')"))
+}

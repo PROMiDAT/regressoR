@@ -243,4 +243,69 @@ tb_predic <- function(real, predic.var){
 }
 
 
+#' numerical_summary
+#' 
+#' @description generates the fields for individual numerical analysis.
+#'
+#' @param data a data.frame with the data for analysis.
+#' @param variable the name of the variable for analysis.
+#'
+#' @export
+#'
+#' @examples
+#' if(interactive()) {
+#'   library(shiny)
+#'   library(DT)
+#'   shinyApp(ui = fluidPage(fluidRow(uiOutput("resumen"))),
+#'            server = function(input, output) {
+#'                          output$resumen = renderUI(numerical_summary(iris, "Sepal.Width"))
+#'            })
+#' }
+numerical_summary <- function(data, variable) {
+  datos.numericos <- list(
+    Q1 = list(
+      id = "q1", Label = tags$span(`data-id`="q1", translate("q1")), color = "green",
+      Value = format(round(quantile(data[, variable], .25), 3), scientific = F)
+    ),
+    Mediana = list(
+      id = "mediana", Label = tags$span(`data-id`="mediana", translate("mediana")),
+      Value = format(round(median(data[, variable]), 3), scientific = F),
+      color = "orange"),
+    Q3 = list(
+      id = "q3", Label = tags$span(`data-id`="q3", translate("q3")), color = "maroon",
+      Value = format(round(quantile(data[, variable], .75), 3), scientific = F)
+    ),
+    Minimo = list(
+      id = "minimo", Label = tags$span(`data-id`="minimo", translate("minimo")),
+      Value = format(round(min(data[, variable]), 3), scientific = F),
+      color = "red"),
+    Promedio = list(
+      id = "promedio", Label = tags$span(`data-id`="promedio", translate("promedio")),
+      Value = format(round(mean(data[, variable]), 3), scientific = F),
+      color = "blue"),
+    Maximo = list(
+      id = "maximo", Label = tags$span(`data-id`="maximo", translate("maximo")),
+      Value = format(round(max(data[, variable]), 3), scientific = F),
+      color = "purple"),
+    DS <- list(
+      id = "ds", Label = tags$span(`data-id`="ds", translate("ds")), color = "yellow",
+      Value = format(round(sd(data[, variable]), 3), scientific = FALSE, nsmall = 3)
+    )
+  )
+  
+  res <- lapply(datos.numericos, function(i) {
+    tags$div(
+      class='shiny-html-output col-sm-6 shiny-bound-output', id=i$id,
+      tags$div(
+        class=paste0('small-box bg-', i$color),
+        tags$div(class='inner', tags$h3(i$Value), tags$p(i$Label)),
+        tags$div(class='icon-large', tags$i(class=i$icon))
+      )
+    )
+  })
+  return(res)
+}
+
+
+
 

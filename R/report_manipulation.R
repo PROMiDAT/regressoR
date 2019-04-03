@@ -229,13 +229,24 @@ order_report <- function(list_report){
 #' @param name name of the author of the report.
 #'
 #' @export
-#'
-word_report <- function(title = "Sin Titulo", name = "PROMiDAT") {
+#' new_report(iris, 'iris')
+#' 
+#' new_section_report()
+#' insert_report('1_part', 'Title 1', 'head(iris)\n', 'summary(iris)')
+#' 
+#' new_section_report()
+#' insert_report('1_part', 'Title 1', 'head(iris)\n', 'summary(iris)')
+#' 
+#' word_report()
+#' 
+word_report <- function(title = "Sin Titulo", name = "PROMiDAT", order_by_promidat = TRUE) {
   codigo.usuario <- ""
   codigos <- env_report$codigo.reporte
   
   for (list_r in codigos) {
-    list_r <- order_report(list_r)
+    if(order_by_promidat){
+      list_r <- order_report(list_r)
+    }
     for (codigo in list_r) {
       if(!is.data.frame(codigo)){
         codigo.usuario <- paste0(codigo.usuario, codigo)
