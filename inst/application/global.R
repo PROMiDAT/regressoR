@@ -53,8 +53,6 @@ def_code_cat <- function(data = "datos", variable){
   regressoR::def_code_cat(data, variable, input$idioma)
 }
 
-# Pagina de Correlacion -----------------------------------------------------------------------------------------------------
-
 #Calcula la matriz de correlacion
 modelo.cor <- function(data = "datos"){
   return(paste0("correlacion <<- cor(var_numerical(", data, "))"))
