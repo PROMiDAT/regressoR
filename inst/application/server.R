@@ -202,11 +202,12 @@ shinyServer(function(input, output, session) {
     }
 
     isolate(exe(code.res))
+    code.res <- paste0(code.res, "\n")
     if (length(var.noactivas) > 0) {
       isolate(exe(code.desactivar(var.noactivas)))
+      code.res <- paste0(code.res, code.desactivar(var.noactivas))
     }
-
-    code.res <- paste0(code.res, "\n", code.desactivar(var.noactivas))
+    
     new.secction.report()
     insert.report("transformar.datos",paste0("# Transformando Datos\n```{r}\n",code.res,"\nstr(datos)\n```"))
     return(code.res)
