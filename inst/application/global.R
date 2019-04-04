@@ -53,28 +53,6 @@ def_code_cat <- function(data = "datos", variable){
   regressoR::def_code_cat(data, variable, input$idioma)
 }
 
-
-
-
-
-
-#Genera el resumen categorico de una variable
-resumen.categorico <- function(data, variable){
-  color <- c("red","yellow","aqua","navy","teal","olive","purple","maroon",
-             "black","blue","lime","orange","light-blue","green","fuchsia")
-  datos.categoricos <- levels(data[, variable])
-  res <- lapply(datos.categoricos, function(i) {
-    tags$div(
-      class='shiny-html-output col-sm-6 shiny-bound-output', id=paste0(variable, i),
-      tags$div(
-        class=paste0('small-box bg-', sample(color, 1)),
-        tags$div(class='inner', tags$h3(summary(data[, variable])[i]), tags$p(i))
-      )
-    )
-  })
-  return(res)
-}
-
 # Pagina de RL --------------------------------------------------------------------------------------------------------------
 
 #Crea el modelo RL

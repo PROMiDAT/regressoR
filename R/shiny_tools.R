@@ -58,7 +58,6 @@ infoBoxPROMiDAT <- function(title, value, icon) {
                     tags$span(class = "info-box-number", value)))
 }
 
-
 #' inputRadio
 #' 
 #' @description Create a radio button input 
@@ -164,8 +163,6 @@ render.index.table <- function(table){
               align = 'c')
 }
 
-
-
 #' render.table.data
 #'
 #' @param data a data.frame to create a the table.
@@ -206,7 +203,6 @@ render_table_data <- function(data, editable = TRUE, dom = "frtip", pageLength =
                                     options = list(dom = dom, pageLength = pageLength, scrollY = scrollY)), server = server))
 }
 
-
 #' tb_predic
 #' 
 #' @description Creates comparison table between prediction and real data (test data).
@@ -241,7 +237,6 @@ tb_predic <- function(real, predic.var){
                        container = sketch,
                        options = list(dom = "frtip", pageLength = 10)))
 }
-
 
 #' numerical_summary
 #' 
@@ -308,4 +303,19 @@ numerical_summary <- function(data, variable) {
 
 
 
-
+#Genera el resumen categorico de una variable
+resumen.categorico <- function(data, variable){
+  color <- c("red","yellow","aqua","navy","teal","olive","purple","maroon",
+             "black","blue","lime","orange","light-blue","green","fuchsia")
+  datos.categoricos <- levels(data[, variable])
+  res <- lapply(datos.categoricos, function(i) {
+    tags$div(
+      class='shiny-html-output col-sm-6 shiny-bound-output', id=paste0(variable, i),
+      tags$div(
+        class=paste0('small-box bg-', sample(color, 1)),
+        tags$div(class='inner', tags$h3(summary(data[, variable])[i]), tags$p(i))
+      )
+    )
+  })
+  return(res)
+}
