@@ -227,6 +227,7 @@ order_report <- function(list_report){
 #'
 #' @param title report title.
 #' @param name name of the author of the report.
+#' @param order_by_regressor It's the order for the default "regressoR" report.
 #'
 #' @export
 #' new_report(iris, 'iris')
@@ -237,14 +238,14 @@ order_report <- function(list_report){
 #' new_section_report()
 #' insert_report('1_part', 'Title 1', 'head(iris)\n', 'summary(iris)')
 #' 
-#' word_report()
+#' word_report(order_by_regressor = FALSE)
 #' 
-word_report <- function(title = "Sin Titulo", name = "PROMiDAT", order_by_promidat = TRUE) {
+word_report <- function(title = "Sin Titulo", name = "PROMiDAT", order_by_regressor = TRUE) {
   codigo.usuario <- ""
   codigos <- env_report$codigo.reporte
   
   for (list_r in codigos) {
-    if(order_by_promidat){
+    if(order_by_regressor){
       list_r <- order_report(list_r)
     }
     for (codigo in list_r) {
