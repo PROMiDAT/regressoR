@@ -597,7 +597,9 @@ plot.RMSE <- function(modelo){
     geom_line(size = 0.5, col = "dodgerblue3") +
     labs(title = "RMSE según Número de Componentes",
          x = "Número de Componentes",
-         y = "RMSE")
+         y = "RMSE")+
+    geom_vline(xintercept = n.comp.rd, linetype="dashed", 
+               color = "blue", size=1)
 }
 
 # Gráfico de varianza explicada en los predictores según componentes usados
@@ -610,7 +612,9 @@ plot.pred <- function(modelo){
     scale_y_continuous(labels = scales::percent) +
     labs(title = "Varianza Explicada en los Predictores",
          x = "Número de Componentes",
-         y = "Varianza Explicada")
+         y = "Varianza Explicada")+
+    geom_vline(xintercept = n.comp.rd, linetype="dashed", 
+               color = "blue", size=1)
 }
 
 # Gráfico de varianza explicada en la variable a predecir según componentes usados
@@ -623,7 +627,9 @@ plot.var.pred <- function(modelo){
     scale_y_continuous(labels = scales::percent) +
     labs(title = "Varianza Explicada en la Variable a Predecir",
          x = "Número de Componentes",
-         y = "Varianza Explicada")
+         y = "Varianza Explicada")+
+    geom_vline(xintercept = n.comp.rd, linetype="dashed", 
+               color = "blue", size=1)
 }
 
 #Codigo de la prediccion de rlr
