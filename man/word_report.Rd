@@ -4,12 +4,15 @@
 \alias{word_report}
 \title{word_report}
 \usage{
-word_report(title = "Sin Titulo", name = "PROMiDAT")
+word_report(title = "Sin Titulo", name = "PROMiDAT",
+  order_by_regressor = TRUE)
 }
 \arguments{
 \item{title}{report title.}
 
 \item{name}{name of the author of the report.}
+
+\item{order_by_regressor}{It's the order for the default "regressoR" report.}
 }
 \description{
 word_report
