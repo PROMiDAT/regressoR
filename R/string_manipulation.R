@@ -1,4 +1,8 @@
 
+load("inst/extdata/translation.bin") # Load translation.bin (dictionary to change language)
+enc <- ifelse(toupper(.Platform$OS.type) != "WINDOWS", "utf8", "UTF-8")
+options(language = "es")
+
 #' exe
 #' 
 #' @description Concat and execute a text in R
@@ -39,7 +43,7 @@ extract_code <- function(funcion) {
   return(code)
 }
 
-#' as.string.c
+#' as_string_c
 #' 
 #' @description Creates a string representative of a vector
 #'
@@ -50,12 +54,12 @@ extract_code <- function(funcion) {
 #' @export
 #' 
 #' @examples
-#' as.string.c(c("A", "B", "C"))
-#' as.string.c(c(5, 6, 7))
-#' as.string.c(c(5, 6, 7), quote = FALSE)
-#' as.string.c(iris$Species)
+#' as_string_c(c("A", "B", "C"))
+#' as_string_c(c(5, 6, 7))
+#' as_string_c(c(5, 6, 7), quote = FALSE)
+#' as_string_c(iris$Species)
 #'
-as.string.c <- function(vect, quote = TRUE){
+as_string_c <- function(vect, quote = TRUE){
   if(quote){
     return(paste0("c('",paste0(vect, collapse = "','"),"')"))
   }
@@ -63,9 +67,6 @@ as.string.c <- function(vect, quote = TRUE){
     return(paste0("c(",paste0(vect, collapse = ","),")"))
   }
 }
-
-load("inst/extdata/translation.bin") # Load translation.bin (dictionary to change language)
-enc <- ifelse(toupper(.Platform$OS.type) != "WINDOWS", "utf8", "UTF-8")
 
 #' translate
 #' 
@@ -81,7 +82,11 @@ enc <- ifelse(toupper(.Platform$OS.type) != "WINDOWS", "utf8", "UTF-8")
 #' translate("knnl")
 #' translate("knnl", "en")
 #' 
-translate <- function(text, language = "es") {
+translate <- function(text, language = options("language")) {
+  if(is.null(language) || !any(language %in% c("es", "en"))){
+    language <- "es"
+  }
+  language <- as.character(language)
   sapply(text, function(s) {
     elem <- ifelse(is.null(translation[[s]][[language]]), s, translation[[s]][[language]])
     Encoding(elem) <- enc
@@ -89,11 +94,9 @@ translate <- function(text, language = "es") {
   }, USE.NAMES = F)
 }
 
-
 #' models_mode
 #'
 #' @param list.names a list whose names function as keys for \code{\link{translate}}. The names have to have the key-mode form.
-#' @param language the language to choose. It can be "es" or "en".
 #' 
 #' @return a vector with the names
 #' @export
@@ -102,7 +105,7 @@ translate <- function(text, language = "es") {
 #' x <- list('knnl-mode1' = 1, 'knnl-mode2' = 2, 'knnl-mode2' = 5)
 #' models_mode(x)
 #' 
-models_mode <- function(list.names = list(), language = "es"){
+models_mode <- function(list.names = list()){
   if(length(list.names) == 0) {
     return("---X---")
   }
@@ -110,8 +113,8 @@ models_mode <- function(list.names = list(), language = "es"){
   for (nom in names(list.names)){
     nom.aux <- unlist(strsplit(nom, "-"))
     nombres <- c(nombres,ifelse(length(nom.aux) == 1,
-                                translate(nom.aux, language),
-                                paste0(translate(nom.aux[1], language),"-",nom.aux[2])))
+                                translate(nom.aux),
+                                paste0(translate(nom.aux[1]),"-",nom.aux[2])))
   }
   return(nombres)
 }

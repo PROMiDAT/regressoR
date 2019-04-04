@@ -230,6 +230,8 @@ order_report <- function(list_report){
 #' @param order_by_regressor It's the order for the default "regressoR" report.
 #'
 #' @export
+#' 
+#' @examples
 #' new_report(iris, 'iris')
 #' 
 #' new_section_report()

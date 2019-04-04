@@ -74,24 +74,23 @@ error_plot <- function(msg) {
 }
 
 
-#' error.variables
+#' error_variables
 #'
 #' @description Draws an error of missing data 
 #'
 #' @param num if TRUE shows a message of missing numerical variables, if FALSE shows a message of missing categorical variables.
-#' @param language The language to choose. It can be "es" or "en".
 #' 
 #' @export
 #'
 #' @examples
-#' error.variables(TRUE)
-#' error.variables(FALSE)
+#' error_variables(TRUE)
+#' error_variables(FALSE)
 #' 
-error.variables <- function(num = T, language = "es") {
+error_variables <- function(num = T) {
   if(num){
-    error_plot(translate("errornum", language))
+    error_plot(translate("errornum"))
   } else {
-    error_plot(translate("errorcat", language))
+    error_plot(translate("errorcat"))
   }
 }
 

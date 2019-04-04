@@ -280,16 +280,15 @@ def_code_num <- function(data = "datos", variable, color = 'red'){
 #'
 #' @param data the name of the current data.
 #' @param variable the name of the variable for the categorical distribution chart.
-#' @param language the language to choose. It can be "es" or "en".
 #'
 #' @export
 #'
 #' @examples
 #' def_code_cat('iris', 'Species')
 #' 
-def_code_cat <- function(data = "datos", variable, language = "es") {
-  xlab = translate("cantidadcasos",language)
-  ylab = translate("categorias", language)
+def_code_cat <- function(data = "datos", variable) {
+  xlab = translate("cantidadcasos")
+  ylab = translate("categorias")
   paste0("categorical_distribution(", data, "[, '", variable,"']) + ",
          "labs(title = '", variable, "', x = '",xlab, "', y = '", ylab, "')")
 }
@@ -333,4 +332,66 @@ cor_model <- function(data = "datos"){
 correlations_plot <- function(method = 'circle', type = "lower"){
   return(paste0("corrplot::corrplot(correlacion, method='", method,"', shade.col=NA, tl.col='black',
                 tl.srt=20, addCoef.col='black', order='AOE', type = '", type, "')"))
+}
+
+#' rl_model
+#'
+#' @param variable.pr 
+#' @param data 
+#'
+#' @export
+#'
+#' @examples
+#' x <- rl_model('iris', 'Petal.Length')
+#' exe(x)
+#' print(modelo.rl)
+#' 
+rl_model <- function(data = "datos.aprendizaje", variable.pred = NULL, model.var = "modelo.rl"){
+  return(paste0(model.var," <<- lm(`",variable.pr,"`~., data = ",data,")"))
+}
+
+#' Title
+#'
+#' @param variable.predecir.pn 
+#'
+#' @return
+#' @export
+#'
+#' @examples
+rl_model_np <- function(variable.predecir.pn = NULL){ # "datos.aprendizaje.completos"
+  return(paste0("modelo.nuevos <<- lm(`",variable.predecir.pn,"`~., data = datos.aprendizaje.completos)"))
+}
+
+#Codigo de la prediccion de rl
+#' Title
+#'
+#' @return
+#' @export
+#'
+#' @examples
+rl.prediccion <- function() {
+  return(paste0("prediccion.rl <<- predict(modelo.rl, datos.prueba)"))
+}
+
+#' Title
+#'
+#' @return
+#' @export
+#'
+#' @examples
+rl.prediccion.np <- function() {
+  return(paste0("predic.nuevos <<- predict(modelo.nuevos, datos.prueba.completos)"))
+}
+
+#Codigo de la dispersion de knn
+#' Title
+#'
+#' @param language 
+#'
+#' @return
+#' @export
+#'
+#' @examples
+rl.disp <- function(language = options("language")){
+  return(disp_models("prediccion.rl", translate("rll", language)))
 }

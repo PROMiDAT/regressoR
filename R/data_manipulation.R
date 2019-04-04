@@ -151,7 +151,6 @@ disjunctive_data <- function(data, vars){
 #'
 #' @param sel the selection of the models to be shown.
 #' @param indices the values to be shown.
-#' @param language the language to choose. It can be "es" or "en".
 #' 
 #' @export
 #'
@@ -162,17 +161,17 @@ disjunctive_data <- function(data, vars){
 #' sel <- c("K Vecinos Más Cercanos-mode1", "Bosques Aleatorios-mode1")
 #' comparative_table(sel, models)
 #' 
-comparative_table <- function(sel, indices, language = "es") {
+comparative_table <- function(sel, indices) {
   tryCatch({
-    nombres <- models_mode(indices, language)
+    nombres <- models_mode(indices)
     
     if(nombres[1] == "---X---") {
       return(data.frame())
     }
     resp <- do.call(rbind, indices)
     rownames(resp) <- nombres
-    colnames(resp) <- c(translate("RMSE", language), translate("MAE", language),
-                        translate("ER", language)  , translate("correlacion", language))
+    colnames(resp) <- c(translate("RMSE"), translate("MAE"),
+                        translate("ER")  , translate("correlacion"))
     resp <- as.data.frame(resp)
     resp[] <- lapply(resp, as.numeric)
     resp <- round(resp, 4)
@@ -193,7 +192,6 @@ comparative_table <- function(sel, indices, language = "es") {
 #' @param x a data.frame with criteria to compare.
 #' @param y a data.frame to be comprared.
 #' @param var.pred a vector with the names of variables to be excluded from the comparison.
-#' @param language the language to choose. It can be "es" or "en".
 #' 
 #' @export
 #'
@@ -205,7 +203,7 @@ comparative_table <- function(sel, indices, language = "es") {
 #' x$Species <- as.numeric(x$Species)
 #' validate_pn_data(iris, x)
 #' }
-validate_pn_data <- function(x, y, var.pred = "", language = "es"){
+validate_pn_data <- function(x, y, var.pred = ""){
   nombres <- colnames(x)
   selec <- -which(nombres == var.pred)
   if(length(selec) > 0){

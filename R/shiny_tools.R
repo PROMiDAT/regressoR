@@ -15,7 +15,7 @@ labelInput <- function(inputId, value = ""){
   tags$span(`data-id` = inputId, value)
 }
 
-#' code.field
+#' code_field
 #' 
 #' @description create an \code{\link{aceEditor}} wrapper with a button to execute the code
 #' 
@@ -28,7 +28,7 @@ labelInput <- function(inputId, value = ""){
 #' @return shiny.tag object
 #' @keywords internal
 #' 
-code.field <- function(runid, fieldid, ...) {
+code_field <- function(runid, fieldid, ...) {
   tags$div(class = "box box-solid bg-black",
            tags$div(style = "text-align:right;padding-right: 10px;",
                     tags$button(id = runid, type = "button", class = "run-button action-button",
@@ -163,7 +163,7 @@ render.index.table <- function(table){
               align = 'c')
 }
 
-#' render.table.data
+#' render_table_data
 #'
 #' @param data a data.frame to create a the table.
 #' @param editable whether to make an editable table. The default value is TRUE.
@@ -171,7 +171,6 @@ render.index.table <- function(table){
 #' @param pageLength the number of rows to show. The default value is 10.
 #' @param scrollY the heigth of the table.
 #' @param server whether to use server-side processing. If TRUE, then the data is kept on the server and the browser requests a page at a time; if FALSE, then the entire data frame is sent to the browser at once.
-#' @param language the language to choose. It can be "es" or "en".
 #'
 #' @return a shiny.render.function
 #' @export
@@ -183,12 +182,13 @@ render.index.table <- function(table){
 #'    shinyApp(
 #'       ui = fluidPage(fluidRow(column(12, DTOutput('tbl')))),
 #'       server = function(input, output) {
-#'          output$tbl = render.table.data(iris)
+#'          output$tbl = render_table_data(iris)
 #'       }
 #'    )
 #' }
 #'
-render_table_data <- function(data, editable = TRUE, dom = "frtip", pageLength = 10, scrollY = "27vh", server = T, language = "es") {
+render_table_data <- function(data, editable = TRUE, dom = "frtip", pageLength = 10, scrollY = "27vh", server = T) {
+  language <- ifelse(!is.null(options("language")), options("language"), "es")
   labelsNC <- ifelse(language == c("es", "es"), c("Num\u00E9rico","Categ\u00F3rico"), c("Numerical","Categorical"))
   data <- head(data, n = 100)
   nombre.columnas <- c("ID", colnames(data))
@@ -301,10 +301,25 @@ numerical_summary <- function(data, variable) {
   return(res)
 }
 
-
-
-#Genera el resumen categorico de una variable
-resumen.categorico <- function(data, variable){
+#' categorical_summary
+#' 
+#' @description generates the fields for individual categorical analysis.
+#'
+#' @param data a data.frame with the data for analysis.
+#' @param variable the name of the variable for analysis.
+#'
+#' @export
+#'
+#' @examples
+#' if(interactive()) {
+#'   library(shiny)
+#'   library(DT)
+#'   shinyApp(ui = fluidPage(fluidRow(uiOutput("resumen"))),
+#'            server = function(input, output) {
+#'                          output$resumen = renderUI(categorical_summary(iris, "Species"))
+#'            })
+#' }
+categorical_summary <- function(data, variable){
   color <- c("red","yellow","aqua","navy","teal","olive","purple","maroon",
              "black","blue","lime","orange","light-blue","green","fuchsia")
   datos.categoricos <- levels(data[, variable])
