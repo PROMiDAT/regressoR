@@ -4,14 +4,12 @@
 \alias{comparative_table}
 \title{comparative_table}
 \usage{
-comparative_table(sel, indices, language = "es")
+comparative_table(sel, indices)
 }
 \arguments{
 \item{sel}{the selection of the models to be shown.}
 
 \item{indices}{the values to be shown.}
-
-\item{language}{the language to choose. It can be "es" or "en".}
 }
 \description{
 creates the comparison table.

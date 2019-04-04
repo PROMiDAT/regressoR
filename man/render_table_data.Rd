@@ -2,10 +2,10 @@
 % Please edit documentation in R/shiny_tools.R
 \name{render_table_data}
 \alias{render_table_data}
-\title{render.table.data}
+\title{render_table_data}
 \usage{
 render_table_data(data, editable = TRUE, dom = "frtip",
-  pageLength = 10, scrollY = "27vh", server = T, language = "es")
+  pageLength = 10, scrollY = "27vh", server = T)
 }
 \arguments{
 \item{data}{a data.frame to create a the table.}
@@ -19,14 +19,12 @@ render_table_data(data, editable = TRUE, dom = "frtip",
 \item{scrollY}{the heigth of the table.}
 
 \item{server}{whether to use server-side processing. If TRUE, then the data is kept on the server and the browser requests a page at a time; if FALSE, then the entire data frame is sent to the browser at once.}
-
-\item{language}{the language to choose. It can be "es" or "en".}
 }
 \value{
 a shiny.render.function
 }
 \description{
-render.table.data
+render_table_data
 }
 \examples{
 if(interactive()) {
@@ -35,7 +33,7 @@ if(interactive()) {
    shinyApp(
       ui = fluidPage(fluidRow(column(12, DTOutput('tbl')))),
       server = function(input, output) {
-         output$tbl = render.table.data(iris)
+         output$tbl = render_table_data(iris)
       }
    )
 }

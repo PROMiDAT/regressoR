@@ -17,3 +17,15 @@ word_report(title = "Sin Titulo", name = "PROMiDAT",
 \description{
 word_report
 }
+\examples{
+new_report(iris, 'iris')
+
+new_section_report()
+insert_report('1_part', 'Title 1', 'head(iris)\\n', 'summary(iris)')
+
+new_section_report()
+insert_report('1_part', 'Title 1', 'head(iris)\\n', 'summary(iris)')
+
+word_report(order_by_regressor = FALSE)
+
+}

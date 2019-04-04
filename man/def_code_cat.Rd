@@ -4,14 +4,12 @@
 \alias{def_code_cat}
 \title{def_code_cat}
 \usage{
-def_code_cat(data = "datos", variable, language = "es")
+def_code_cat(data = "datos", variable)
 }
 \arguments{
 \item{data}{the name of the current data.}
 
 \item{variable}{the name of the variable for the categorical distribution chart.}
-
-\item{language}{the language to choose. It can be "es" or "en".}
 }
 \description{
 def_code_cat

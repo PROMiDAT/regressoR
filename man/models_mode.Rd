@@ -4,12 +4,10 @@
 \alias{models_mode}
 \title{models_mode}
 \usage{
-models_mode(list.names = list(), language = "es")
+models_mode(list.names = list())
 }
 \arguments{
 \item{list.names}{a list whose names function as keys for \code{\link{translate}}. The names have to have the key-mode form.}
-
-\item{language}{the language to choose. It can be "es" or "en".}
 }
 \value{
 a vector with the names
