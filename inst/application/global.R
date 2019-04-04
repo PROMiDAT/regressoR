@@ -1,20 +1,4 @@
 
-
-# Wrapper of regressoR::error.variables to set the language
-error.variables <- function(num = T){
-  regressoR::error.variables(num, input$idioma)
-}
-
-# Wrapper of regressoR::translate to set the language
-translate <- function(labelid){
-  regressoR::translate(labelid, input$idioma)
-}
-
-# Wrapper of regressoR::render_table_data to set the language
-render_table_data <- function(data, editable = TRUE, dom = "frtip", pageLength = 10, scrollY = "27vh", server = T, language = "es"){
-  regressoR::render_table_data(data, editable, dom, pageLength, scrollY, server, input$idioma)
-}
-
 # Wrapper of regressoR::exe to set the environment
 exe <- function(...){
   regressoR::exe(..., envir = parent.frame())
@@ -22,17 +6,17 @@ exe <- function(...){
 
 # Wrapper of regressoR::models_mode to set the list of values and the language
 models_mode <- function(){
-  regressoR::models_mode(IndicesM, input$idioma)
+  regressoR::models_mode(IndicesM)
 }
 
 # Wrapper of regressoR::comparative_table to set the list of values and the language
 comparative_table <- function(sel){
-  regressoR::comparative_table(sel, IndicesM, input$idioma)
+  regressoR::comparative_table(sel, IndicesM)
 }
 
 #
 validate_pn_data <- function(){
-  regressoR::validate_pn_data(datos.originales.completos, datos.prueba.completos, variable.predecir.pn, input$idioma)
+  regressoR::validate_pn_data(datos.originales.completos, datos.prueba.completos, variable.predecir.pn)
 }
 
 new_col <- function(){
@@ -43,40 +27,11 @@ new_report <- function(){
   regressoR::new_report(datos.originales, input$file1$name)
 }
 
-#####
-
 disp_models <- function(prediction, model_name){
   regressoR::disp_models(prediction, model_name, variable.predecir)
 }
 
-def_code_cat <- function(data = "datos", variable){
-  regressoR::def_code_cat(data, variable, input$idioma)
-}
-
-# Pagina de RL --------------------------------------------------------------------------------------------------------------
-
-#Crea el modelo RL
-rl.modelo <- function(variable.pr = NULL){
-  return(paste0("modelo.rl <<- lm(",variable.pr,"~., data = datos.aprendizaje)"))
-}
-
-rl.modelo.np <- function(){
-  return(paste0("modelo.nuevos <<- lm(",variable.predecir.pn,"~., data = datos.aprendizaje.completos)"))
-}
-
-#Codigo de la prediccion de rl
-rl.prediccion <- function(variable.pr = NULL) {
-  return(paste0("prediccion.rl <<- predict(modelo.rl, datos.prueba)"))
-}
-
-rl.prediccion.np <- function() {
-  return(paste0("predic.nuevos <<- predict(modelo.nuevos, datos.prueba.completos)"))
-}
-
-#Codigo de la dispersion de knn
-rl.disp <- function(){
-  return(disp_models("prediccion.rl", translate("rll")))
-}
+##########
 
 # Pagina de RLR -------------------------------------------------------------------------------------------------------------
 
@@ -383,7 +338,7 @@ boosting.disp <- function(type = "gaussian"){
 nn.modelo <- function(threshold = 0.01, stepmax = 1000, cant.cap = 2, ...){
   threshold <- ifelse(threshold == 0, 0.01, threshold)
   stepmax <- ifelse(stepmax < 100, 100, stepmax)
-  capas <- as.string.c(as.numeric(list(...)[1:cant.cap]), quote = FALSE)
+  capas <- as_string_c(as.numeric(list(...)[1:cant.cap]), quote = FALSE)
 
   paste0("datos.dummies.apren <- dummy.data.frame(datos.aprendizaje)\n",
          "mean.nn <<- sapply(datos.dummies.apren, mean)\n",
@@ -398,7 +353,7 @@ nn.modelo <- function(threshold = 0.01, stepmax = 1000, cant.cap = 2, ...){
 nn.modelo.np <- function(variable.pr = "",threshold = 0.01, stepmax = 1000, cant.cap = 2, ...){
   threshold <- ifelse(threshold == 0, 0.01, threshold)
   stepmax <- ifelse(stepmax < 100, 100, stepmax)
-  capas <- as.string.c(as.numeric(list(...)[1:cant.cap]), quote = FALSE)
+  capas <- as_string_c(as.numeric(list(...)[1:cant.cap]), quote = FALSE)
   
   paste0("datos.dummies.apren <- dummy.data.frame(datos.aprendizaje.completos)\n",
          "mean.nn.np <<- sapply(datos.dummies.apren, mean)\n",
@@ -500,6 +455,8 @@ overwrite_cat <- function(){
 
 
 # VARIABLES GLOBALES --------------------------------------------------------------------------------------------------------
+
+options(language = "es")
 
 # ------------------- Datos
 

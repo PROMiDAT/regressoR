@@ -410,7 +410,7 @@ shinyServer(function(input, output, session) {
     if (input$sel.resumen %in% colnames(var_numerical(datos))){
       numerical_summary(datos, input$sel.resumen)
     }else{
-      resumen.categorico(datos, input$sel.resumen)
+      categorical_summary(datos, input$sel.resumen)
     }
   })
 
@@ -427,7 +427,7 @@ shinyServer(function(input, output, session) {
         return(res)
       }, error = function(e){
         if(ncol(var_numerical(datos)) <= 0){
-          error.variables( T)
+          error_variables( T)
         } else {
           showNotification(paste0("ERROR: ", e), duration = 10, type = "error")
           return(NULL)
@@ -483,7 +483,7 @@ shinyServer(function(input, output, session) {
         return(isolate(exe(cod.disp)))
       }, error = function(e) {
         if(ncol(var_numerical(datos)) <= 1){
-          error.variables( T)
+          error_variables( T)
         } else {
           showNotification(paste0("ERROR: ", e), duration = 10, type = "error")
           return(NULL)
@@ -554,7 +554,7 @@ shinyServer(function(input, output, session) {
         return(res)
       }, error = function(e) {
         if (ncol(var_numerical(datos)) == 0){
-          error.variables( T)
+          error_variables( T)
         }else{
           showNotification(paste0("ERROR: ", e), duration = 10, type = "error")
           return(NULL)
@@ -596,7 +596,7 @@ shinyServer(function(input, output, session) {
         return(res)
       }, error = function(e) {
         if (ncol(var_categorical(datos)) == 0){
-          error.variables( T)
+          error_variables( T)
         }else{
           showNotification(paste0("ERROR: ", e), duration = 10, type = "error")
           return(NULL)
@@ -628,7 +628,7 @@ shinyServer(function(input, output, session) {
         return(res)
       }, error = function(e) {
         if (ncol(var_numerical(datos)) == 0){
-          error.variables( T)
+          error_variables( T)
         }else{
           showNotification(paste0("ERROR EN Correlacion: ", e),
                            duration = 10,
@@ -667,7 +667,7 @@ shinyServer(function(input, output, session) {
             return(NULL)
           }
         }else{
-          error.variables( T)
+          error_variables( T)
         }
       }, error = function(e) {
         showNotification(paste0("Error en Poder Predictivo: ", e),
@@ -704,13 +704,13 @@ shinyServer(function(input, output, session) {
   # Upgrade code fields to default version
   deafult_codigo_rl <- function(){
     # Se acualiza el codigo del modelo
-    codigo <- rl.modelo(variable.pr = variable.predecir)
+    codigo <- rl_model(variable.pred = variable.predecir)
     
     updateAceEditor(session, "fieldCodeRl", value = codigo)
     cod.rl.modelo <<- codigo
     
     # Se genera el codigo de la prediccion
-    codigo <- rl.prediccion(variable.predecir)
+    codigo <- rl.prediccion()
     updateAceEditor(session, "fieldCodeRlPred", value = codigo)
     cod.rl.pred <<- codigo
     
@@ -2146,7 +2146,7 @@ shinyServer(function(input, output, session) {
     graficar <- updatePlot$tablaCom
     if (!is.null(datos.aprendizaje)) {
       
-      insert_report("tabla.comparativa","Tabla Comparativa","kt(comparative_table(",as.string.c(input$select.models),",IndicesM,'",input$idioma,"'))")
+      insert_report("tabla.comparativa","Tabla Comparativa","kt(comparative_table(",as_string_c(input$select.models),",IndicesM))")
       
       DT::datatable(comparative_table(input$select.models),
                     selection = "none", editable = FALSE,
@@ -2388,7 +2388,7 @@ shinyServer(function(input, output, session) {
     modelo.seleccionado.pn  <<- input$selectModelsPred
     
     codigo <- switch(input$selectModelsPred,
-                     rl   = rl.modelo.np(),
+                     rl   = rl_model_np(),
                      rlr  = rlr.modelo.np(alpha = input$alpha.rlr.pred,
                                           escalar = input$switch.scale.rlr.pred,
                                           manual = input$permitir.landa.pred,
@@ -2552,6 +2552,8 @@ shinyServer(function(input, output, session) {
 
   # When the user changes the language
   observeEvent(c(input$idioma), {
+    options(language = input$idioma)
+    
     updateLabelInput(session, c("idioma","selidioma","data","basico","resumen","normalidad",
                                 "dispersion","distribucion","correlacion","poderpred","reporte",
                                 "aprendizaje","acercade","comparacion","predicnuevos","knnl","dtl",

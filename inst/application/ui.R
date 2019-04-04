@@ -35,7 +35,7 @@ suppressMessages(suppressWarnings({
 
 #These functions only work correctly on the server side because they need the css and js file
 labelInput <- regressoR:::labelInput
-code.field <- regressoR:::code.field
+code_field <- regressoR:::code_field
 infoBoxPROMiDAT <- regressoR:::infoBoxPROMiDAT
 inputRadio <- regressoR:::inputRadio
 radioButtonsTr <- regressoR:::radioButtonsTr
@@ -199,9 +199,9 @@ boton.colores <- list(h4(labelInput("opciones")), hr(),
 
 normality.code <- list(h4(labelInput("codigo")), hr(),
                           conditionalPanel("input.BoxNormal == 'tabNormalCalc'",
-                                           code.field("run.calc.normal", "fieldCalcNormal", height = "20vh")),
+                                           code_field("run.calc.normal", "fieldCalcNormal", height = "20vh")),
                           conditionalPanel("input.BoxNormal == 'tabNormalPlot'",
-                                           code.field("run.normal", "fieldCodeNormal", height = "25vh")))
+                                           code_field("run.normal", "fieldCodeNormal", height = "25vh")))
 
 tabs.normal <- tabsOptions(heights = c(33, 63), tabs.content = list(boton.colores, normality.code))
 
@@ -221,9 +221,9 @@ tabs.dispersion  <-  tabsOptions(heights = c(30, 39),
                                                      colourpicker::colourInput("col.disp", labelInput("selcolor"),
                                                                                value = "#FF0000AA",allowTransparent = T)),
                                                      list(h4(labelInput("codigo")), hr(),
-                                                          column(width = 12, code.field("run.disp", "fieldCodeDisp", height = "7vh")))))
+                                                          column(width = 12, code_field("run.disp", "fieldCodeDisp", height = "7vh")))))
 
-#dispersion.code <- column(width = 12, code.field(runid = "run.disp", fieldid = "fieldCodeDisp", height = "8vh"))
+#dispersion.code <- column(width = 12, code_field(runid = "run.disp", fieldid = "fieldCodeDisp", height = "8vh"))
 
 dispersion.data <- column(width = 4, DT::dataTableOutput('mostrar.disp.zoom'), hr(), plotOutput('plot.disp.zoom', height = "41vh"))
 
@@ -248,9 +248,9 @@ distribution.options <- list(h4(labelInput("opciones")), hr(), colourpicker::col
 
 distribution.codes.fields <- list(h4(labelInput("codigo")), hr(),
                                       conditionalPanel(condition = "input.tabDyA == 'numericas'",
-                                                       code.field("run.dya.num","fieldCodeNum", height = "7vh")),
+                                                       code_field("run.dya.num","fieldCodeNum", height = "7vh")),
                                       conditionalPanel(condition = "input.tabDyA == 'categoricas'",
-                                                       code.field("run.dya.cat","fieldCodeCat", height = "7vh")))
+                                                       code_field("run.dya.cat","fieldCodeCat", height = "7vh")))
 
 code.distributions <- list(h4(labelInput("codigo")), hr(),
                               tabBox(id = "tabCodeDyA", width = NULL, title = labelInput("codedist"),
@@ -294,7 +294,7 @@ cor.options <-list(h4(labelInput("opciones")), hr(),
 
 cor.code <- list(h4(labelInput("codigo")), hr(),
                    aceEditor("fieldModelCor", height = "6vh", mode = "r", theme = "monokai", value = "", readOnly = T),
-                   code.field("run.code.cor","fieldCodeCor", height = "7vh"))
+                   code_field("run.code.cor","fieldCodeCor", height = "7vh"))
 
 cor.tabs <- tabsOptions(heights = c(48, 53),
                                       tabs.content = list(cor.options, cor.code))
@@ -312,7 +312,7 @@ page.correlations <- tabItem(tabName = "correlacion",
 # PREDICTIVE POWER PAGE ---------------------------------------------------------------------------------------------------
 
 code.power.num <- list(h4(labelInput("codigo")), hr(),
-                         code.field(runid = "run.code.poder.num", fieldid = "fieldCodePoderNum", height = "16vh"))
+                         code_field(runid = "run.code.poder.num", fieldid = "fieldCodePoderNum", height = "16vh"))
 
 
 tabs.power.num <- tabsOptions(buttons = list(icon("terminal")), widths = 100, heights = 55,
