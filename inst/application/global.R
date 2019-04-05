@@ -397,7 +397,7 @@ modelo.cor <- function(data = "datos"){
 
 #Codigo de la generacion de correlaciones
 correlaciones <- function(metodo = 'circle', tipo = "lower"){
-  return(paste0("corrplot(correlacion, method='", metodo,"', shade.col=NA, tl.col='black',
+  return(paste0("corrplot::corrplot(correlacion, method='", metodo,"', shade.col=NA, tl.col='black',
                 tl.srt=20, addCoef.col='black', order='AOE', type = '", tipo, "')"))
 }
 
@@ -552,6 +552,99 @@ svm.prediccion.np <- function() {
 #Codigo de la dispersion de knn
 svm.disp <- function(kernel = "linear"){
   return(disp.modelos(paste0("prediccion.svm.",kernel), modelo = tr("svml")))
+}
+
+# Pagina de RD -------------------------------------------------------------------------------------------------------------
+
+rd.type <- function(){
+  ifelse(input$modo.rd == 0, "ACP", "MCP")
+}
+
+rd.type.np <- function(){
+  ifelse(input$modo.rd.pn == 0, "ACP", "MCP")
+}
+
+#Crea el modelo Rd
+rd.modelo <- function(variable.pr = NULL, mode = 0, escalar = TRUE){
+  if(mode == 0){
+     x <- paste0("modelo.rd.",rd.type()," <<- pcr(",variable.pr,"~.,data = datos.aprendizaje, scale = ",escalar,", validation = 'CV')")
+  }else{
+    x <- paste0("modelo.rd.",rd.type()," <<- plsr(",variable.pr,"~.,data = datos.aprendizaje, scale = ",escalar,", validation = 'CV')")
+  }
+  paste0(x,"\n","n.comp.rd <<- which.min(RMSEP(modelo.rd.",rd.type(),")$val[1, 1, ]) - 1")
+}
+
+rd.modelo.np <- function(escalar = TRUE, mode = FALSE, manual = FALSE, ncomp = NA){
+  if(mode == 0){
+    x <- paste0("modelo.nuevos <<- pcr(",variable.predecir.pn,"~.,data = datos.aprendizaje.completos, scale = ",escalar,", validation = 'CV')")
+  }else{
+    x <- paste0("modelo.nuevos <<- plsr(",variable.predecir.pn,"~.,data = datos.aprendizaje.completos, scale = ",escalar,", validation = 'CV')")
+  }
+  if(manual && !is.na(ncomp) && ncomp > 0){
+    y <- ncomp
+  }else{
+    y <- "which.min(RMSEP(modelo.nuevos)$val[1, 1, ]) - 1"
+  }
+  paste0(x,"\n","n.comp.rd.np <<- ", y)
+}
+
+# Gráfico error RMSE de validación cruzada según componentes usados
+plot.RMSE <- function(modelo){
+  RMSE.CV <- RMSEP(modelo)$val[1, 1, ]
+  
+  ggplot(data = data.frame(Componentes = 0:(length(RMSE.CV) - 1), Error = RMSE.CV), mapping = aes(x = Componentes, y = Error)) +
+    geom_point(size = 1, col = "dodgerblue3") +
+    geom_line(size = 0.5, col = "dodgerblue3") +
+    labs(title = "RMSE según Número de Componentes",
+         x = "Número de Componentes",
+         y = "RMSE")+
+    geom_vline(xintercept = n.comp.rd, linetype="dashed", 
+               color = "blue", size=1)
+}
+
+# Gráfico de varianza explicada en los predictores según componentes usados
+plot.pred <- function(modelo){
+  var.explicada <- cumsum(explvar(modelo)) / 100
+  ggplot(data = data.frame(Componentes = 1:length(var.explicada), Varianza = var.explicada), 
+         mapping = aes(x = Componentes, y = Varianza)) +
+    geom_point(size = 1, col = "dodgerblue3") +
+    geom_line(size = 0.5, col = "dodgerblue3") +
+    scale_y_continuous(labels = scales::percent) +
+    labs(title = "Varianza Explicada en los Predictores",
+         x = "Número de Componentes",
+         y = "Varianza Explicada")+
+    geom_vline(xintercept = n.comp.rd, linetype="dashed", 
+               color = "blue", size=1)
+}
+
+# Gráfico de varianza explicada en la variable a predecir según componentes usados
+plot.var.pred <- function(modelo){
+  var.explicada <- drop(R2(modelo, estimate = "train", intercept = FALSE)$val)
+  
+  ggplot(data = data.frame(Componentes = 1:length(var.explicada), Varianza = var.explicada), mapping = aes(x = Componentes, y = Varianza)) +
+    geom_point(size = 1, col = "dodgerblue3") +
+    geom_line(size = 0.5, col = "dodgerblue3") +
+    scale_y_continuous(labels = scales::percent) +
+    labs(title = "Varianza Explicada en la Variable a Predecir",
+         x = "Número de Componentes",
+         y = "Varianza Explicada")+
+    geom_vline(xintercept = n.comp.rd, linetype="dashed", 
+               color = "blue", size=1)
+}
+
+#Codigo de la prediccion de rlr
+rd.prediccion <- function(ncomp = NULL) {
+  ncomp <- ifelse(is.null(ncomp), "n.comp.rd", ncomp)
+  paste0("prediccion.rd.",rd.type()," <<- predict(modelo.rd.",rd.type(),", datos.prueba, ncomp = ",ncomp,")")
+}
+
+rd.prediccion.np <- function() {
+  paste0("predic.nuevos <<- predict(modelo.nuevos, datos.prueba.completos, ncomp = ",n.comp.rd.np,")")
+}
+
+#Codigo de la dispersion de knn
+rd.disp <- function(){
+  return(disp.modelos(paste0("prediccion.rd.",rd.type()), modelo = tr("rd")))
 }
 
 # Pagina de DT --------------------------------------------------------------------------------------------------------------
@@ -831,6 +924,8 @@ ordenar.reporte <- function(lista){
                                 "biweight","triweight", "cos","inv","gaussian")),
              combinar.nombres(c("modelo.svm","pred.svm","disp.svm","ind.svm"),
                               c("linear", "polynomial", "radial","sigmoid")),
+             combinar.nombres(c("modelo.rd","rmse.rd","plot.pred.rd","plot.var.pred.rd","pred.rd","disp.rd","ind.rd"),
+                              c("ACP", "MCP")),
              "modelo.dt","modelo.dt.graf","pred.dt",
              "disp.dt","ind.dt","modelo.dt.rules",
              "modelo.rf","modelo.rf.graf",
@@ -988,6 +1083,10 @@ knn.stop.excu <<- FALSE
 cod.svm.modelo <<-  NULL
 cod.svm.pred <<-  NULL
 cod.svm.ind <<- NULL
+
+# -------------------  RD
+
+n.comp.rd <<- NULL
 
 # -------------------  DT
 
