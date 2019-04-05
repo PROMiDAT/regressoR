@@ -2388,7 +2388,7 @@ shinyServer(function(input, output, session) {
     modelo.seleccionado.pn  <<- input$selectModelsPred
     
     codigo <- switch(input$selectModelsPred,
-                     rl   = rl_model_np(),
+                     rl   = rl_model(data = "datos.aprendizaje.completos", variable.pred = variable.predecir.pn, model.var = "modelo.nuevos"),
                      rlr  = rlr.modelo.np(alpha = input$alpha.rlr.pred,
                                           escalar = input$switch.scale.rlr.pred,
                                           manual = input$permitir.landa.pred,
