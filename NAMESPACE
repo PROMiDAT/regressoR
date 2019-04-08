@@ -5,7 +5,8 @@ export(init_regressor, exe, extract_code, as_string_c, gg_color_hue, plot_real_p
        insert_report, remove_report_elem, new_section_report, word_report, disp_models, code_load, code_NA,
        code_transf, code_deactivate, partition_code, code_summary, normal_default, fisher_calc, default_calc_normal,
        default_disp, def_code_cat, def_code_num, pairs_power, categorical_distribution, numerical_distribution, 
-       numerical_summary, cor_model, correlations_plot)
+       numerical_summary, cor_model, correlations_plot, rl_model, rl_prediction, rlr_type, kkn_model, kkn_prediction
+       )
 
 import(ggplot2)
 import(shiny)

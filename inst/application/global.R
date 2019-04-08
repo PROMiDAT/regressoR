@@ -27,23 +27,13 @@ new_report <- function(){
   regressoR::new_report(datos.originales, input$file1$name)
 }
 
-disp_models <- function(prediction, model_name){
-  regressoR::disp_models(prediction, model_name, variable.predecir)
-}
-
-##########
-
 # Pagina de RLR -------------------------------------------------------------------------------------------------------------
-
-rlr.type <- function(){
-  ifelse(input$alpha.rlr == 0, "ridge", "lasso")
-}
 
 #Crea el modelo RL
 rlr.modelo <- function(variable.pr = NULL, alpha = 0, escalar = TRUE){
   return(paste0("x <- model.matrix(",variable.pr,"~., datos.aprendizaje)[, -1]\n",
                 "y <- datos.aprendizaje[, '",variable.pr,"']\n",
-                "modelo.rlr.",rlr.type()," <<- glmnet(x, y, standardize = ",escalar,", alpha = ",alpha,")"))
+                "modelo.rlr.",rlr_type()," <<- glmnet(x, y, standardize = ",escalar,", alpha = ",alpha,")"))
 }
 
 rlr.modelo.np <- function(alpha = 0, escalar = TRUE, manual = FALSE, landa = 2){
@@ -57,29 +47,29 @@ rlr.modelo.np <- function(alpha = 0, escalar = TRUE, manual = FALSE, landa = 2){
 select.landa <- function(variable.pr = NULL, alpha = 0, escalar = TRUE){
   paste0("x <- model.matrix(",variable.pr,"~., datos.aprendizaje)[, -1]\n",
          "y <- datos.aprendizaje[, '",variable.pr,"']\n",
-         "cv.glm.",rlr.type()," <<- cv.glmnet(x, y, standardize = ",escalar,", alpha = ",alpha,")")
+         "cv.glm.",rlr_type()," <<- cv.glmnet(x, y, standardize = ",escalar,", alpha = ",alpha,")")
 }
 
 coeff.landas <- function(landa = NULL){
-  landa <- ifelse(is.null(landa),paste0("cv.glm.",rlr.type(),"$lambda.min"), landa)
+  landa <- ifelse(is.null(landa),paste0("cv.glm.",rlr_type(),"$lambda.min"), landa)
   paste0("x <- model.matrix(",variable.predecir,"~., datos.aprendizaje)[, -1]\n",
          "y <- datos.aprendizaje[, '",variable.predecir,"']\n",
-         "predict(modelo.rlr.",rlr.type(),", s = ",landa,", type = 'coefficients', exact = TRUE, x = x, y = y)")
+         "predict(modelo.rlr.",rlr_type(),", s = ",landa,", type = 'coefficients', exact = TRUE, x = x, y = y)")
 }
 
 plot.coeff.landa <- function(landa = NULL){
-  landa <- ifelse(is.null(landa),paste0("cv.glm.",rlr.type(),"$lambda.min"), landa)
-  paste0("plot(modelo.rlr.",rlr.type(),", 'lambda', label = TRUE)\n",
+  landa <- ifelse(is.null(landa),paste0("cv.glm.",rlr_type(),"$lambda.min"), landa)
+  paste0("plot(modelo.rlr.",rlr_type(),", 'lambda', label = TRUE)\n",
          "abline(v = log(",landa,"), col = 'blue', lwd = 2, lty = 3)")
 }
 
 #Codigo de la prediccion de rlr
 rlr.prediccion <- function(landa = NULL) {
-  landa <- ifelse(is.null(landa),paste0("cv.glm.",rlr.type(),"$lambda.min"), landa)
+  landa <- ifelse(is.null(landa),paste0("cv.glm.",rlr_type(),"$lambda.min"), landa)
   paste0("x <- model.matrix(",variable.predecir,"~., datos.aprendizaje)[, -1]\n",
          "y <- datos.aprendizaje[, '",variable.predecir,"']\n",
          "prueba <- model.matrix(",variable.predecir,"~., datos.prueba)[, -1]\n",
-         "prediccion.rlr.",rlr.type()," <<- predict(modelo.rlr.",rlr.type(),",newx = prueba,",
+         "prediccion.rlr.",rlr_type()," <<- predict(modelo.rlr.",rlr_type(),",newx = prueba,",
          "s = ",landa,", exact = TRUE, x = x, y = y)")
 }
 
@@ -96,36 +86,10 @@ rlr.prediccion.np <- function(alpha = 0, escalar = TRUE, manual = FALSE, landa =
 
 #Codigo de la dispersion de knn
 rlr.disp <- function(){
-  return(disp_models(paste0("prediccion.rlr.",rlr.type()), translate("rlr")))
+  return(disp_models(paste0("prediccion.rlr.",rlr_type()), translate("rlr"), variable.predecir))
 }
 
 # Pagina de KNN -------------------------------------------------------------------------------------------------------------
-
-#Crea el modelo KNN
-kkn.modelo <- function(variable.pr = NULL, scale = TRUE,kmax = 7, kernel = "optimal"){
-  kmax <- ifelse(!is.numeric(kmax), round(sqrt(nrow(datos.aprendizaje))), kmax)
-  return(paste0("modelo.knn.",kernel," <<- train.kknn(",variable.pr,"~., data = datos.aprendizaje, scale =",scale,", kmax=",kmax,", kernel = '",kernel,"')"))
-}
-
-kkn.modelo.np <- function(scale = TRUE,kmax = 7, kernel = "optimal"){
-  kmax <- ifelse(!is.numeric(kmax), round(sqrt(nrow(datos.aprendizaje))), kmax)
-  return(paste0("modelo.nuevos <<- train.kknn(",variable.predecir.pn,"~., data = datos.aprendizaje.completos, scale =",scale,", kmax=",kmax,", kernel = '",kernel,"')"))
-}
-
-#Codigo de la prediccion de knn
-kkn.prediccion <- function(kernel = "optimal") {
-  return(paste0("prediccion.knn.",kernel," <<- predict(modelo.knn.",kernel,", datos.prueba[,-which(colnames(datos.prueba) == '",variable.predecir,"')])"))
-}
-
-kkn.prediccion.pn <- function() {
-  return(paste0("predic.nuevos <<- predict(modelo.nuevos, datos.prueba.completos[,-which(colnames(datos.prueba.completos) == '",variable.predecir.pn,"')])"))
-}
-
-#Codigo de la dispersion de knn
-knn.disp <- function(kernel = "optimal"){
-  return(disp_models(paste0("prediccion.knn.",kernel), translate("knnl")))
-}
-
 # Pagina de SVM -------------------------------------------------------------------------------------------------------------
 
 #Crea el modelo SVM
@@ -148,7 +112,7 @@ svm.prediccion.np <- function() {
 
 #Codigo de la dispersion de knn
 svm.disp <- function(kernel = "linear"){
-  return(disp_models(paste0("prediccion.svm.",kernel), translate("svml")))
+  return(disp_models(paste0("prediccion.svm.",kernel), translate("svml"), variable.predecir))
 }
 
 # Pagina de DT --------------------------------------------------------------------------------------------------------------
@@ -188,7 +152,7 @@ fallen.leaves = TRUE, branch.lty = 6, shadow.col = '#dedede',box.col = '#c8b028'
 
 #Codigo de la dispersion de knn
 dt.disp <- function(){
-  return(disp_models("prediccion.dt", translate("dtl")))
+  return(disp_models("prediccion.dt", translate("dtl"), variable.predecir))
 }
 
 # Pagina de RF --------------------------------------------------------------------------------------------------------------
@@ -236,7 +200,7 @@ importance.plor.rf <- function(modelo.rf, titulo.1, titulo.2){
 
 #Codigo de la dispersion de knn
 rf.disp <- function(){
-  return(disp_models("prediccion.rf", translate("rfl")))
+  return(disp_models("prediccion.rf", translate("rfl"), variable.predecir))
 }
 
 # Pagina de BOOSTING --------------------------------------------------------------------------------------------------------
@@ -329,7 +293,7 @@ boosting.plot.import <- function(type = "gaussian"){
 
 #Codigo de la dispersion de knn
 boosting.disp <- function(type = "gaussian"){
-  return(disp_models(paste0("prediccion.boosting.",type), translate("bl")))
+  return(disp_models(paste0("prediccion.boosting.",type), translate("bl"), variable.predecir))
 }
 
 # Pagina de NN ------------------------------------------------------------------------------------------------------------
@@ -386,7 +350,7 @@ nn.prediccion.np <- function(){
 
 #Codigo de la dispersion de nn
 nn.disp <- function(){
-  return(disp_models("prediccion.nn", translate("nn")))
+  return(disp_models("prediccion.nn", translate("nn"), variable.predecir))
 }
 
 nn.plot <- function(){
@@ -456,7 +420,8 @@ overwrite_cat <- function(){
 
 # VARIABLES GLOBALES --------------------------------------------------------------------------------------------------------
 
-options(language = "es")
+options(language  = "es")
+options(rlr.alpha = 0)
 
 # ------------------- Datos
 

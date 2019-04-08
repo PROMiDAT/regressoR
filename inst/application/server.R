@@ -710,12 +710,12 @@ shinyServer(function(input, output, session) {
     cod.rl.modelo <<- codigo
     
     # Se genera el codigo de la prediccion
-    codigo <- rl.prediccion()
+    codigo <- rl_prediction()
     updateAceEditor(session, "fieldCodeRlPred", value = codigo)
     cod.rl.pred <<- codigo
     
     # Se genera el codigo de la dispersion
-    codigo <- rl.disp()
+    codigo <- disp_models("prediccion.rl", translate("rll"), variable.predecir)
     updateAceEditor(session, "fieldCodeRlDisp", value = codigo)
     
     # Se genera el codigo de la indices
@@ -842,6 +842,7 @@ shinyServer(function(input, output, session) {
   # When the user changes the parameters
   observeEvent(c(input$alpha.rlr, input$switch.scale.rlr, input$landa, input$permitir.landa), {
     if (validate_data(print = FALSE)) {
+      options(rlr.alpha = input$alpha.rlr)
       deafult_codigo_rlr()
     }
   })
@@ -909,16 +910,16 @@ shinyServer(function(input, output, session) {
       switch(i, {
         modelo.rlr <<- NULL
         output$txtRlr <- renderPrint(invisible(""))
-        remove_report_elem(paste0("modelo.rlr.",rlr.type()))
-        remove_report_elem(paste0("disp.rlr.",rlr.type()))
-        remove_report_elem(paste0("landa.rlr.",rlr.type()))
+        remove_report_elem(paste0("modelo.rlr.",rlr_type()))
+        remove_report_elem(paste0("disp.rlr.",rlr_type()))
+        remove_report_elem(paste0("landa.rlr.",rlr_type()))
       }, {
         prediccion.rlr <<- NULL
-        remove_report_elem(paste0("pred.rlr.",rlr.type()))
+        remove_report_elem(paste0("pred.rlr.",rlr_type()))
         output$rlrPrediTable <- DT::renderDataTable(NULL)
       },{
         indices.rlr <<- rep(0, 10)
-        remove_report_elem(paste0("ind.rlr",rlr.type()))
+        remove_report_elem(paste0("ind.rlr",rlr_type()))
       })
     }
   }
@@ -928,7 +929,7 @@ shinyServer(function(input, output, session) {
     tryCatch({ # Se corren los codigo
       codigo <- input$fieldCodeRlrDisp
       output$plot.rlr.disp <- renderPlot(isolate(exe(codigo)))
-      insert_report(paste0("disp.rlr.",rlr.type()), paste0("Dispersi\u00F3n del Modelo Regresi\u00F3n Penalizada (",rlr.type(),")"), codigo)
+      insert_report(paste0("disp.rlr.",rlr_type()), paste0("Dispersi\u00F3n del Modelo Regresi\u00F3n Penalizada (",rlr_type(),")"), codigo)
     },
     error = function(e) { # Regresamos al estado inicial y mostramos un error
       clean_rlr(2)
@@ -940,8 +941,8 @@ shinyServer(function(input, output, session) {
   plot_posib_landa_rlr <- function(){
     tryCatch({ # Se corren los codigo
       isolate(exe(cod.select.landa))
-      output$plot.rlr.posiblanda <- renderPlot(exe("plot(cv.glm.",rlr.type(),")"))
-      insert_report(paste0("posib.landa.rlr.",rlr.type()), paste0("Posible lambda (",rlr.type(),")"),cod.select.landa,"\nplot(cv.glm.",rlr.type(),")")
+      output$plot.rlr.posiblanda <- renderPlot(exe("plot(cv.glm.",rlr_type(),")"))
+      insert_report(paste0("posib.landa.rlr.",rlr_type()), paste0("Posible lambda (",rlr_type(),")"),cod.select.landa,"\nplot(cv.glm.",rlr_type(),")")
     },
     error = function(e) { # Regresamos al estado inicial y mostramos un error
       clean_rlr(2)
@@ -954,7 +955,7 @@ shinyServer(function(input, output, session) {
     tryCatch({ # Se corren los codigo
       codigo <- input$fieldCodeRlrCoeff
       output$txtRlrCoeff <- renderPrint(print(isolate(exe(codigo))))
-      insert_report(paste0("coeff.landa.rlr.",rlr.type()),paste0("Coeficientes (",rlr.type(),")"), codigo)
+      insert_report(paste0("coeff.landa.rlr.",rlr_type()),paste0("Coeficientes (",rlr_type(),")"), codigo)
     },
     error = function(e) { # Regresamos al estado inicial y mostramos un error
       clean_rlr(2)
@@ -967,7 +968,7 @@ shinyServer(function(input, output, session) {
     tryCatch({ # Se corren los codigo
       codigo <- input$fieldCodeRlrLanda
       output$plot.rlr.landa <- renderPlot(isolate(exe(codigo)))
-      insert_report(paste0("gcoeff.landa.rlr.",rlr.type()),paste0("Coeficientes y lamdas (",rlr.type(),")"),codigo)
+      insert_report(paste0("gcoeff.landa.rlr.",rlr_type()),paste0("Coeficientes y lamdas (",rlr_type(),")"),codigo)
     },
     error = function(e){ # Regresamos al estado inicial y mostramos un error
       clean_rlr(2)
@@ -986,10 +987,10 @@ shinyServer(function(input, output, session) {
   execute_rlr <- function() {
     tryCatch({ # Se corren los codigo
       isolate(exe(cod.rlr.modelo))
-      isolate(tipo <- rlr.type())
+      isolate(tipo <- rlr_type())
       output$txtRlr <- renderPrint(print(exe("modelo.rlr.",tipo)))
 
-      insert_report(paste0("modelo.rlr.",tipo),paste0("Generaci\u00F3n del Modelo Regresi\u00F3n Penalizada (",rlr.type(),")"),
+      insert_report(paste0("modelo.rlr.",tipo),paste0("Generaci\u00F3n del Modelo Regresi\u00F3n Penalizada (",rlr_type(),")"),
                     cod.rlr.modelo,"\nmodelo.rlr.",tipo)
 
       plot_posib_landa_rlr()
@@ -1008,10 +1009,10 @@ shinyServer(function(input, output, session) {
   execute_rlr_pred <- function() {
     tryCatch({ # Se corren los codigo
       isolate(exe(cod.rlr.pred))
-      isolate(tipo <- rlr.type())
+      isolate(tipo <- rlr_type())
       output$rlrPrediTable <- DT::renderDataTable(tb_predic(real.val, exe("prediccion.rlr.",tipo)), server = FALSE)
 
-      insert_report(paste0("pred.rlr.",tipo), paste0("Predicci\u00F3n del Modelo Regresi\u00F3n Penalizada (",rlr.type(),")"),
+      insert_report(paste0("pred.rlr.",tipo), paste0("Predicci\u00F3n del Modelo Regresi\u00F3n Penalizada (",rlr_type(),")"),
                     cod.rlr.pred,"\nkt(head(tb_predic(real.val, prediccion.rlr.",tipo,")$x$data[,-1]))")
 
       plot_disp_rlr()
@@ -1026,16 +1027,16 @@ shinyServer(function(input, output, session) {
 
   # Generates the indices
   execute_rlr_ind <- function() {
-    if(exists(paste0("prediccion.rlr.",rlr.type()))){
+    if(exists(paste0("prediccion.rlr.",rlr_type()))){
       tryCatch({ # Se corren los codigo
         isolate(exe(cod.rlr.ind))
 
-        indices.rlr <- general_indices(datos.prueba[,variable.predecir], exe("prediccion.rlr.",rlr.type()))
+        indices.rlr <- general_indices(datos.prueba[,variable.predecir], exe("prediccion.rlr.",rlr_type()))
         
-        insert_report(paste0("ind.rlr.",rlr.type()),paste0("\u00CDndices Generales del Modelo Regresi\u00F3n Penalizada (",rlr.type(),")"),
-                      cod.rlr.ind, "\nkt(general_indices(datos.prueba[,'",variable.predecir,"'], prediccion.rlr.",rlr.type(),"))\n",
-                      "indices.rlr <- general_indices(datos.prueba[,'",variable.predecir,"'], prediccion.rlr.",rlr.type(),")\n",
-                      "IndicesM[['rlr-",rlr.type(),"']] <<- indices.rlr")
+        insert_report(paste0("ind.rlr.",rlr_type()),paste0("\u00CDndices Generales del Modelo Regresi\u00F3n Penalizada (",rlr_type(),")"),
+                      cod.rlr.ind, "\nkt(general_indices(datos.prueba[,'",variable.predecir,"'], prediccion.rlr.",rlr_type(),"))\n",
+                      "indices.rlr <- general_indices(datos.prueba[,'",variable.predecir,"'], prediccion.rlr.",rlr_type(),")\n",
+                      "IndicesM[['rlr-",rlr_type(),"']] <<- indices.rlr")
 
         
         df <- as.data.frame(indices.rlr)
@@ -1046,7 +1047,7 @@ shinyServer(function(input, output, session) {
         colnames(df2) <- c(translate("minimo"),translate("q1"),translate("q3"),translate("maximo"))
         output$indexdfrlr2 <- render.index.table(df2)
 
-        IndicesM[[paste0("rlr-",rlr.type())]] <<- indices.rlr
+        IndicesM[[paste0("rlr-",rlr_type())]] <<- indices.rlr
         actualizar.selector.comparativa()
       },
       error = function(e) { # Regresamos al estado inicial y mostramos un error
@@ -1084,22 +1085,24 @@ shinyServer(function(input, output, session) {
     }
 
     # Se acualiza el codigo del modelo
-    codigo <- kkn.modelo(
-      variable.pr = variable.predecir,
-      scale = input$switch.scale.knn,
-      kmax = k.value,
-      kernel = input$kernel.knn)
+    codigo <- kkn_model(variable.pred = variable.predecir,
+                        scale = input$switch.scale.knn,
+                        kmax = k.value,
+                        kernel = input$kernel.knn,
+                        model.var = paste0("modelo.knn.", input$kernel.knn))
     
     updateAceEditor(session, "fieldCodeKnn", value = codigo)
     cod.knn.modelo <<- codigo
 
     # Se genera el codigo de la prediccion
-    codigo <- kkn.prediccion(kernel = input$kernel.knn)
+    codigo <- kkn_prediction(model.var = paste0("modelo.knn.", input$kernel.knn), 
+                             pred.var  = paste0("prediccion.knn.", input$kernel.knn))
+    
     updateAceEditor(session, "fieldCodeKnnPred", value = codigo)
     cod.knn.pred <<- codigo
 
     # Se genera el codigo de la dispersion
-    codigo <- knn.disp(input$kernel.knn)
+    codigo <- disp_models(paste0("prediccion.knn.",kernel), translate("knnl"), variable.predecir)
     updateAceEditor(session, "fieldCodeKnnDisp", value = codigo)
 
     # Se genera el codigo de la indices
@@ -2341,12 +2344,15 @@ shinyServer(function(input, output, session) {
     if(!is.null(datos.prueba.completos)){
       if(exists("modelo.nuevos") && !is.null(modelo.nuevos)){
         codigo <- switch(modelo.seleccionado.pn,
-                         rl  =  rl.prediccion.np(),
+                         rl  =  rl_prediction('datos.prueba.completos', 'modelo.nuevos', 'predic.nuevos'),
                          rlr =  rlr.prediccion.np(alpha = input$alpha.rlr.pred,
                                                   escalar = input$switch.scale.rlr.pred,
                                                   manual = input$permitir.landa.pred,
                                                   landa = input$landa.pred),
-                         knn =  kkn.prediccion.pn(),
+                         knn =  kkn_prediction(data = 'datos.prueba.completos',
+                                               variable.pred = variable.predecir.pn,
+                                               model.var = 'modelo.nuevos', 
+                                               pred.var  = 'predic.nuevos'),
                          dt  = dt.prediccion.np(),
                          rf  = rf.prediccion.np(),
                          boosting = boosting.prediccion.np(),
@@ -2393,9 +2399,9 @@ shinyServer(function(input, output, session) {
                                           escalar = input$switch.scale.rlr.pred,
                                           manual = input$permitir.landa.pred,
                                           landa = input$landa.pred),
-                     knn =  kkn.modelo.np(scale = input$switch.scale.knn.pred,
-                                          kmax = input$kmax.knn.pred,
-                                          kernel = input$kernel.knn.pred),
+                     knn =  kkn_model(data = "datos.aprendizaje.completos",variable.pred = variable.predecir.pn,
+                                      scale = input$switch.scale.knn.pred, kmax = input$kmax.knn.pred,
+                                      kernel = input$kernel.knn.pred, model.var = "modelo.nuevos"),
                      dt  = dt.modelo.np(variable.pr = input$sel.predic.var.nuevos,
                                         minsplit = input$minsplit.dt.pred,
                                         maxdepth = input$maxdepth.dt.pred),

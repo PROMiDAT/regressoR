@@ -8,14 +8,15 @@
 #' @param prediction the name of the prediction object.
 #' @param model_name the name of the model.
 #' @param var_pred the name of the variable to be predicted.
+#' @param data the name of the current data.
 #'
 #' @export
 #'
 #' @examples
 #' disp_models("prediction.knn", "KNN", "Species")
 #' 
-disp_models <- function(prediction, model_name, var_pred){
-  paste0("plot_real_prediction(datos.prueba[,'",var_pred,"'], ", prediction,", '",model_name,"')")
+disp_models <- function(prediction, model_name, var_pred, data = "datos.prueba"){
+  paste0("plot_real_prediction(",data,"[,'",var_pred,"'], ", prediction,", '",model_name,"')")
 }
 
 #' code_load
@@ -233,6 +234,7 @@ default_calc_normal <- function(data = "datos", label.yes = "Positiva", label.no
 #' exe(x)
 #' #x <- default_disp('iris', c('Sepal.Length', 'Sepal.Width', 'Petal.Length'))
 #' #exe(x)
+#' 
 default_disp <- function(data = "datos", vars = NULL, color = "#FF0000AA"){
   if(length(vars) < 2) {
     return(NULL)
@@ -334,10 +336,17 @@ correlations_plot <- function(method = 'circle', type = "lower"){
                 tl.srt=20, addCoef.col='black', order='AOE', type = '", type, "')"))
 }
 
+# Pagina de RL --------------------------------------------------------------------------------------------------------------
+
 #' rl_model
+#' 
+#' @description generates the code to create the linear regression model.
 #'
-#' @param variable.pr 
-#' @param data 
+#' @param data the name of the learning data.
+#' @param variable.pred the name of the variable to be predicted.
+#' @param model.var the name of the variable that stores the resulting model.
+#' 
+#' @seealso \code{\link[stats]{lm}}
 #'
 #' @export
 #'
@@ -347,51 +356,98 @@ correlations_plot <- function(method = 'circle', type = "lower"){
 #' print(modelo.rl)
 #' 
 rl_model <- function(data = "datos.aprendizaje", variable.pred = NULL, model.var = "modelo.rl"){
-  return(paste0(model.var," <<- lm(`",variable.pr,"`~., data = ",data,")"))
+  return(paste0(model.var," <<- lm(`",variable.pred,"`~., data = ",data,")"))
 }
 
-#' Title
+#' rl_prediction
+#' 
+#' @description generates the code to create the prediction of the linear regression model
 #'
-#' @param variable.predecir.pn 
+#' @param data the name of the test data.
+#' @param model.var the name of the variable that stores the resulting prediction.
+#' @param pred.var the name of the variable that stores the resulting model.
 #'
-#' @return
+#' @seealso \code{\link[stats]{predict}}
+#'
 #' @export
 #'
 #' @examples
-rl_model_np <- function(variable.predecir.pn = NULL){ # "datos.aprendizaje.completos"
-  return(paste0("modelo.nuevos <<- lm(`",variable.predecir.pn,"`~., data = datos.aprendizaje.completos)"))
+#' x <- rl_model('iris', 'Petal.Length', 'model_rl')
+#' exe(x)
+#' print(model_rl)
+#' x <- rl_prediction('iris', 'model_rl', 'my_prediction')
+#' exe(x)
+#' print(my_prediction)
+#' 
+rl_prediction <- function(data = "datos.prueba", model.var = "modelo.rl" , pred.var = "prediccion.rl") {
+  return(paste0(pred.var, " <<- predict(",model.var,", ",data,")"))
 }
 
-#Codigo de la prediccion de rl
-#' Title
+# Pagina de RLR -------------------------------------------------------------------------------------------------------------
+
+#' rlr_type
+#' 
+#' @description returns the name of the penalty according to the alpha.
 #'
-#' @return
+#' @param alpha_rlr the penalty is defined as alpha=1 is the lasso penalty, and alpha=0 the ridge penalty.
+#' 
+#' @seealso \code{\link[glmnet]{glmnet}}
+#'
 #' @export
 #'
 #' @examples
-rl.prediccion <- function() {
-  return(paste0("prediccion.rl <<- predict(modelo.rl, datos.prueba)"))
+#' rlr_type(1)
+#' rlr_type(0)
+#' 
+rlr_type <- function(alpha_rlr = options("rlr.alpha")){
+  ifelse(alpha_rlr == 0, "ridge", "lasso")
 }
 
-#' Title
-#'
-#' @return
+# Pagina de KNN -------------------------------------------------------------------------------------------------------------
+
+#' kkn_model
+#' 
+#' @description generates the code to create the k nearest neighbors model.
+#' 
+#' @param data the name of the learning data.
+#' @param variable.pred the name of the variable to be predicted.
+#' @param scale the scale parameter of the model.
+#' @param kmax the kmax parameter of the model.
+#' @param kernel the kernel parameter of the model.
+#' @param model.var the name of the variable that stores the resulting model.
+#' 
+#' @seealso \code{\link[kknn]{train.kknn}}
+#' 
 #' @export
 #'
 #' @examples
-rl.prediccion.np <- function() {
-  return(paste0("predic.nuevos <<- predict(modelo.nuevos, datos.prueba.completos)"))
+#' x <- kkn_model('iris', 'Petal.Length')
+#' exe(x)
+#' print(modelo.knn)
+#' 
+kkn_model <- function(data = "datos.aprendizaje", variable.pred = NULL, scale = TRUE, kmax = 7, kernel = "optimal", model.var = "modelo.knn"){
+  kmax <- ifelse(!is.numeric(kmax), exe("round(sqrt(nrow(",data,"))"), kmax)
+  return(paste0(model.var," <<- train.kknn(`",variable.pred,"`~., data = ",data,", scale =",scale,", kmax=",kmax,", kernel = '",kernel,"')"))
 }
 
-#Codigo de la dispersion de knn
-#' Title
+
+#' kkn_prediction
 #'
-#' @param language 
+#' @param data the name of the test data.
+#' @param variable.pred the name of the variable to be predicted.
+#' @param model.var the name of the variable that stores the resulting prediction.
+#' @param pred.var the name of the variable that stores the resulting model.
 #'
-#' @return
 #' @export
 #'
 #' @examples
-rl.disp <- function(language = options("language")){
-  return(disp_models("prediccion.rl", translate("rll", language)))
+#' x <- kkn_model('iris', 'Petal.Length', model.var = 'model_knn')
+#' exe(x)
+#' print(model_knn)
+#' x <- kkn_prediction('iris', 'Petal.Length', 'model_knn', 'my_prediction')
+#' exe(x)
+#' print(my_prediction)
+#'  
+kkn_prediction <- function(data = "datos.prueba", variable.pred = NULL, model.var = "modelo.knn", pred.var = "prediccion.knn") {
+  return(paste0(pred.var," <<- predict(",model.var,", ",data," %>% select(-`",variable.pred,"`))"))
 }
