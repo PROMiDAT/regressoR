@@ -421,17 +421,66 @@ rlr_type <- function(alpha_rlr = options("rlr.alpha")){
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' x <- kkn_model('iris', 'Petal.Length')
 #' exe(x)
 #' print(modelo.knn)
-#' 
+#' }
 kkn_model <- function(data = "datos.aprendizaje", variable.pred = NULL, scale = TRUE, kmax = 7, kernel = "optimal", model.var = "modelo.knn"){
   kmax <- ifelse(!is.numeric(kmax), exe("round(sqrt(nrow(",data,"))"), kmax)
   return(paste0(model.var," <<- train.kknn(`",variable.pred,"`~., data = ",data,", scale =",scale,", kmax=",kmax,", kernel = '",kernel,"')"))
 }
 
-
 #' kkn_prediction
+#'
+#' @param data the name of the test data.
+#' @param variable.pred the name of the variable to be predicted.
+#' @param model.var the name of the variable that stores the resulting prediction.
+#' @param pred.var the name of the variable that stores the resulting model.
+#'
+#'
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' x <- kkn_model('iris', 'Petal.Length', model.var = 'model_knn')
+#' exe(x)
+#' print(model_knn)
+#' x <- kkn_prediction('iris', 'Petal.Length', 'model_knn', 'my_prediction')
+#' exe(x)
+#' print(my_prediction)
+#' }
+kkn_prediction <- function(data = "datos.prueba", variable.pred = NULL, model.var = "modelo.knn", pred.var = "prediccion.knn") {
+  return(paste0(pred.var," <<- predict(",model.var,", ",data," %>% select(-`",variable.pred,"`))"))
+}
+
+# Pagina de SVM -------------------------------------------------------------------------------------------------------------
+
+#' svm_model
+#' 
+#' @description generates the code to create the support vector machines model.
+#'
+#' @param data the name of the learning data.
+#' @param variable.pred the name of the variable to be predicted.
+#' @param model.var the name of the variable that stores the resulting model.
+#' @param scale the scale parameter of the model.
+#' @param kernel the kernel parameter of the model.
+#'
+#' @seealso \code{\link[e1071]{svm}}
+#'
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' x <- svm_model('iris', 'Petal.Length')
+#' exe(x)
+#' print(modelo.svm)
+#' }
+svm_model <- function(data = "datos.aprendizaje", variable.pred = NULL, model.var = "modelo.svm", scale = TRUE, kernel = "linear"){
+  return(paste0(model.var," <<- svm(`",variable.pred,"`~., data = ",data,", scale =",scale,", kernel = '",kernel,"')"))
+}
+
+#' svm_prediction
 #'
 #' @param data the name of the test data.
 #' @param variable.pred the name of the variable to be predicted.
@@ -441,13 +490,15 @@ kkn_model <- function(data = "datos.aprendizaje", variable.pred = NULL, scale = 
 #' @export
 #'
 #' @examples
-#' x <- kkn_model('iris', 'Petal.Length', model.var = 'model_knn')
+#' \dontrun{
+#' \dontrun{
+#' x <- svm_model('iris', 'Petal.Length', model.var = 'model_svm')
 #' exe(x)
-#' print(model_knn)
-#' x <- kkn_prediction('iris', 'Petal.Length', 'model_knn', 'my_prediction')
+#' print(model_svm)
+#' x <- svm_prediction('iris', 'Petal.Length', 'model_svm', 'my_prediction')
 #' exe(x)
 #' print(my_prediction)
-#'  
-kkn_prediction <- function(data = "datos.prueba", variable.pred = NULL, model.var = "modelo.knn", pred.var = "prediccion.knn") {
-  return(paste0(pred.var," <<- predict(",model.var,", ",data," %>% select(-`",variable.pred,"`))"))
+#' }
+svm_prediction <- function(data = "datos.prueba", variable.pred = NULL, model.var = "modelo.svm", pred.var = "prediccion.svm"){
+  return(paste0(pred.var," <<- predict(",model.var," , ",data," %>% select(-`",variable.pred,"`))"))
 }
