@@ -143,6 +143,8 @@ categorical_distribution <- function(var) {
 # Pagina de RF --------------------------------------------------------------------------------------------------------------
 
 #' importance_plot_rf
+#' 
+#' @description graphs the importance of variables for the random forest model.
 #'
 #' @param model.rf a random forest model.
 #' @param title.1 the title of the first chart.
@@ -153,20 +155,22 @@ categorical_distribution <- function(var) {
 #' @export
 #'
 #' @examples
-#' \dontrun{
+#' library(randomForest)
 #' x <- rf_model('iris', 'Petal.Length')
 #' exe(x)
 #' importance_plot_rf(modelo.rf, translate('impVarA'), translate('impVarRSS'))
-#' }
+#' 
 importance_plot_rf <- function(model.rf, title.1, title.2){
   importancia <- randomForest::importance(model.rf) %>% as.data.frame() %>% tibble::rownames_to_column("Variable")
-  g1 <- ggplot(importancia, aes(x = forcats::fct_reorder(.$Variable, `%IncMSE`), y = `%IncMSE`, fill = forcats::fct_reorder(.$Variable, `%IncMSE`))) + 
+  g1 <- ggplot(importancia, aes(x = forcats::fct_reorder(importancia$Variable, importancia$`%IncMSE`), y = importancia$`%IncMSE`, 
+                                fill = forcats::fct_reorder(importancia$Variable, importancia$`%IncMSE`))) + 
     geom_bar(stat = 'identity', position = 'identity', width = 0.1) +
     labs(title = title.1,  y = "", x = "") +
     scale_y_continuous(labels = scales::comma) + coord_flip() +
     theme(axis.text.x = element_text(angle = 45, hjust = 1),
           plot.title = element_text(size = 10),legend.position = "none")
-  g2 <- ggplot(importancia, aes(x = forcats::fct_reorder(.$Variable, IncNodePurity), y = IncNodePurity, fill = forcats::fct_reorder(.$Variable, IncNodePurity))) + 
+  g2 <- ggplot(importancia, aes(x = forcats::fct_reorder(importancia$Variable, importancia$IncNodePurity), 
+                                y = importancia$IncNodePurity, fill = forcats::fct_reorder(importancia$Variable, importancia$IncNodePurity))) + 
     geom_bar(stat = 'identity', position = 'identity', width = 0.1) +
     labs(title = title.2,  y = "", x = "") +
     scale_y_continuous(labels = scales::comma) + coord_flip() +

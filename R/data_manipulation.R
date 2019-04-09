@@ -261,3 +261,28 @@ fisher_calc <- function (x, na.rm = FALSE) {
   return(sum((x - mean(x))^3/sd(x)^3)/length(x))
 }
 
+
+#' calibrate_boosting
+#' 
+#' @description helps to get the maximum of n.minobsinnode and bag.fraction values with which no error is generated in the model.
+#'
+#' @param data the name of the learning data.
+#' 
+#' @seealso \code{\link[gbm]{gbm}}
+#'
+#' @export
+#'
+#' @examples
+#' calibrate_boosting(iris)
+#' 
+calibrate_boosting <- function(data){
+  nr <- nrow(data)
+  for(i in 10:1){
+    for (j in seq(0.5, 1, 0.1)) {
+      if(nr * j > i*2 + 1){
+        return(list(n.minobsinnode = i, bag.fraction = j))
+      }
+    }
+  }
+  return(NULL)
+}

@@ -1790,7 +1790,7 @@ shinyServer(function(input, output, session) {
     cod.b.pred <<- codigo
 
     # Se genera el codigo de la dispersion
-    codigo <- boosting.disp(input$tipo.boosting)
+    codigo <- disp_models(paste0("prediccion.boosting.",input$tipo.boosting), translate("bl"), variable.predecir)
     updateAceEditor(session, "fieldCodeBoostingDisp", value = codigo)
     
     # Cambia el codigo del grafico de importancia
@@ -1852,7 +1852,7 @@ shinyServer(function(input, output, session) {
   
   # Execute model, prediction and indices
   boosting_full <- function() {
-    if(!is.null(calibrar.boosting())){
+    if(!is.null(calibrate_boosting(datos.aprendizaje))){
       execute_boosting()
       execute_boosting_pred()
       execute_boosting_ind()
@@ -2448,7 +2448,9 @@ shinyServer(function(input, output, session) {
       update_pred_pn("")
       
       tryCatch({
-        if( (input$selectModelsPred == "boosting" && !is.null(calibrar.boosting.np()) ) || input$selectModelsPred != "boosting" ){
+        if( (input$selectModelsPred == "boosting" &&
+             !is.null(calibrate_boosting(datos.aprendizaje.completos)) ) ||
+             input$selectModelsPred != "boosting" ){
           exe(codigo)
           update_model_text_pn(codigo)
         }else{

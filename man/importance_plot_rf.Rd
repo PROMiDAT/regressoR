@@ -17,11 +17,11 @@ importance_plot_rf(model.rf, title.1, title.2)
 importance_plot_rf
 }
 \examples{
-\dontrun{
+library(randomForest)
 x <- rf_model('iris', 'Petal.Length')
 exe(x)
 importance_plot_rf(modelo.rf, translate('impVarA'), translate('impVarRSS'))
-}
+
 }
 \seealso{
 \code{\link[randomForest]{randomForest}}

@@ -623,3 +623,60 @@ rf_model <- function(data = "datos.aprendizaje", variable.pred = NULL, model.var
 rf_prediction <- function(data = "datos.prueba", variable.pred = NULL, model.var = "modelo.rf", pred.var = "prediccion.rf"){
   return(paste0(pred.var," <<- predict(",model.var,", ",data," %>% select(-`",variable.pred,"`))"))
 }
+
+# Pagina de BOOSTING --------------------------------------------------------------------------------------------------------
+
+#Crea el modelo BOOSTING
+boosting.modelo <- function(variable.pr = NULL, iter = 50, type = "gaussian", minsplit = 0.1){
+  iter <- ifelse(!is.numeric(iter), 50, iter)
+  minsplit <- ifelse(!is.numeric(minsplit), 0.1, minsplit)
+  extra.values <- calibrate_boosting(datos.aprendizaje)
+  if(is.null(extra.values)){
+    codigo <- paste0("modelo.boosting.",type," <<- gbm(",variable.pr,
+                     "~ ., data = datos.aprendizaje, distribution = '",
+                     type,"', n.trees = ",iter,", shrinkage = ",minsplit,")")
+  }else{
+    codigo <- paste0("modelo.boosting.",type," <<- gbm(",variable.pr,
+                     "~ ., data = datos.aprendizaje, distribution = '",
+                     type,"', n.trees = ",iter,", shrinkage = ",minsplit,",n.minobsinnode = ",extra.values[["n.minobsinnode"]],
+                     ",bag.fraction = ",extra.values[["bag.fraction"]],")")
+  }
+  return(codigo)
+}
+
+boosting.modelo.np <- function(variable.pr = NULL, iter = 50, type = "gaussian", minsplit = 0.1){
+  iter <- ifelse(!is.numeric(iter), 50, iter)
+  minsplit <- ifelse(!is.numeric(minsplit), 0.1, minsplit)
+  extra.values <- calibrate_boosting(datos.aprendizaje.completos)
+  if(is.null(extra.values)){
+    codigo <- paste0("modelo.nuevos <<- gbm(",variable.pr,
+                     "~ ., data = datos.aprendizaje.completos, distribution = '",
+                     type,"', n.trees = ",iter,", shrinkage = ",minsplit,")")
+  }else{
+    codigo <- paste0("modelo.nuevos <<- gbm(",variable.pr,
+                     "~ ., data = datos.aprendizaje.completos, distribution = '",
+                     type,"', n.trees = ",iter,", shrinkage = ",minsplit,",n.minobsinnode = ",extra.values[["n.minobsinnode"]],
+                     ",bag.fraction = ",extra.values[["bag.fraction"]],")")
+  }
+  return(codigo)
+}
+
+#Codigo de la prediccion de boosting
+boosting.prediccion <- function(variable.pr = NULL, type = "gaussian") {
+  return(paste0("prediccion.boosting.",type," <<- predict(modelo.boosting.",type,
+                ", datos.prueba[,-which(colnames(datos.prueba) == '",variable.pr,"')],n.trees = ",input$iter.boosting,")"))
+}
+
+boosting.prediccion.np <- function() {
+  return(paste0("predic.nuevos <<- predict(modelo.nuevos, datos.prueba.completos[,-which(colnames(datos.prueba.completos) == '",variable.predecir.pn,"')]",
+                ",n.trees = ",input$iter.boosting.pred,")"))
+}
+
+#Codigo del grafico de boosting
+boosting.plot.import <- function(type = "gaussian"){
+  paste0("ggplot(summary(modelo.boosting.",type,"), aes(x = fct_reorder(var, rel.inf), y = rel.inf, fill = fct_reorder(var, rel.inf))) +\n",
+         "geom_bar(stat = 'identity', position = 'identity', width = 0.1) +\n",
+         "labs(title = '",translate("impVarRI"),"', y = '",translate("RI"),"', x = '') +\n",
+         "scale_y_continuous(labels = scales::comma) + coord_flip() +\n",
+         "theme(axis.text.x = element_text(angle = 45, hjust = 1), legend.position = 'none')\n")
+}
