@@ -139,3 +139,38 @@ categorical_distribution <- function(var) {
     geom_text(aes(label = data$value, y = data$value), vjust = -0.5, size = 4) +
     theme_minimal() + labs(x = "label", y = "value")
 }
+
+# Pagina de RF --------------------------------------------------------------------------------------------------------------
+
+#' importance_plot_rf
+#'
+#' @param model.rf a random forest model.
+#' @param title.1 the title of the first chart.
+#' @param title.2 the title of the second chart.
+#'
+#' @seealso \code{\link[randomForest]{randomForest}}
+#'
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' x <- rf_model('iris', 'Petal.Length')
+#' exe(x)
+#' importance_plot_rf(modelo.rf, translate('impVarA'), translate('impVarRSS'))
+#' }
+importance_plot_rf <- function(model.rf, title.1, title.2){
+  importancia <- randomForest::importance(model.rf) %>% as.data.frame() %>% tibble::rownames_to_column("Variable")
+  g1 <- ggplot(importancia, aes(x = forcats::fct_reorder(.$Variable, `%IncMSE`), y = `%IncMSE`, fill = forcats::fct_reorder(.$Variable, `%IncMSE`))) + 
+    geom_bar(stat = 'identity', position = 'identity', width = 0.1) +
+    labs(title = title.1,  y = "", x = "") +
+    scale_y_continuous(labels = scales::comma) + coord_flip() +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1),
+          plot.title = element_text(size = 10),legend.position = "none")
+  g2 <- ggplot(importancia, aes(x = forcats::fct_reorder(.$Variable, IncNodePurity), y = IncNodePurity, fill = forcats::fct_reorder(.$Variable, IncNodePurity))) + 
+    geom_bar(stat = 'identity', position = 'identity', width = 0.1) +
+    labs(title = title.2,  y = "", x = "") +
+    scale_y_continuous(labels = scales::comma) + coord_flip() +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1), 
+          plot.title = element_text(size = 10), legend.position = 'none')
+  print(gridExtra::grid.arrange(g1, g2, ncol = 2, nrow = 1))
+}

@@ -1400,7 +1400,7 @@ shinyServer(function(input, output, session) {
   default_codigo_dt <- function() {
 
     # Se acualiza el codigo del modelo
-    codigo <- dt.modelo(variable.pr = variable.predecir,
+    codigo <- dt_model(variable.pred =  variable.predecir,
                         minsplit = input$minsplit.dt,
                         maxdepth = input$maxdepth.dt)
 
@@ -1408,15 +1408,15 @@ shinyServer(function(input, output, session) {
     cod.dt.modelo <<- codigo
 
     # Cambia el codigo del grafico del árbol
-    updateAceEditor(session, "fieldCodeDtPlot", value = dt.plot())
+    updateAceEditor(session, "fieldCodeDtPlot", value = dt_plot())
 
     # Se genera el codigo de la prediccion
-    codigo <- dt.prediccion()
+    codigo <- dt_prediction()
     updateAceEditor(session, "fieldCodeDtPred", value = codigo)
     cod.dt.pred <<- codigo
     
     # Se genera el codigo de la dispersion
-    codigo <- dt.disp()
+    codigo <- disp_models("prediccion.dt", translate("dtl"), variable.predecir)
     updateAceEditor(session, "fieldCodeDtDisp", value = codigo)
 
     # Se genera el codigo de la indices
@@ -1429,7 +1429,7 @@ shinyServer(function(input, output, session) {
   plot_tree <- function(){
     tryCatch({
       output$plot.dt <- renderPlot(isolate(exe(input$fieldCodeDtPlot)))
-      cod <- ifelse(input$fieldCodeDtPlot == "", dt.plot(), input$fieldCodeDtPlot)
+      cod <- ifelse(input$fieldCodeDtPlot == "", dt_plot(), input$fieldCodeDtPlot)
       insert_report("modelo.dt.graf", "\u00C1rboles de Decisi\u00F3n", cod)
     },
     error = function(e){
@@ -1587,7 +1587,7 @@ shinyServer(function(input, output, session) {
     }
 
     # Se acualiza el codigo del modelo
-    codigo <- rf.modelo(variable.pr = variable.predecir,
+    codigo <- rf_model(variable.pred = variable.predecir,
                         ntree = input$ntree.rf,
                         mtry = mtry.value)
 
@@ -1595,16 +1595,16 @@ shinyServer(function(input, output, session) {
     cod.rf.modelo <<- codigo
 
     # Se genera el codigo de la prediccion
-    codigo <- rf.prediccion(variable.predecir)
+    codigo <- rf_prediction(variable.pred = variable.predecir)
     updateAceEditor(session, "fieldCodeRfPred", value = codigo)
     cod.rf.pred <<- codigo
     
     # Se genera el codigo de la dispersion
-    codigo <- rf.disp()
+    codigo <- disp_models("prediccion.rf", translate("rfl"), variable.predecir)
     updateAceEditor(session, "fieldCodeRfDisp", value = codigo)
 
     # Cambia el codigo del grafico de rf
-    updateAceEditor(session, "fieldCodeRfPlot", value = extract_code("importance.plor.rf"))
+    updateAceEditor(session, "fieldCodeRfPlot", value = extract_code("importance_plot_rf"))
 
     # Se genera el codigo de la indices
     codigo <- extract_code("general_indices")
@@ -1635,10 +1635,10 @@ shinyServer(function(input, output, session) {
   # Shows the chart of importance
   plotear_rf_imp <- function() {
     tryCatch({
-      output$plot.rf <- renderPlot(isolate(importance.plor.rf(modelo.rf,translate("impVarA"),translate("impVarRSS"))))
-      cod <- ifelse(input$fieldCodeRfPlot == "", extract_code("importance.plor.rf"), input$fieldCodeRfPlot)
+      output$plot.rf <- renderPlot(isolate(importance_plot_rf(modelo.rf,translate("impVarA"),translate("impVarRSS"))))
+      cod <- ifelse(input$fieldCodeRfPlot == "", extract_code("importance_plot_rf"), input$fieldCodeRfPlot)
       insert_report("modelo.rf.graf", "Importancia de las Variables", cod,
-                    "\nimportance.plor.rf(modelo.rf,'",translate('impVarA'),"','",translate('impVarRSS'),"')")
+                    "\nimportance_plot_rf(modelo.rf,'",translate('impVarA'),"','",translate('impVarRSS'),"')")
       
     }, error = function(e) {
       output$plot.rf <- renderPlot(NULL)
@@ -2356,8 +2356,13 @@ shinyServer(function(input, output, session) {
                                                variable.pred = variable.predecir.pn,
                                                model.var = 'modelo.nuevos', 
                                                pred.var  = 'predic.nuevos'),
-                         dt  = dt.prediccion.np(),
-                         rf  = rf.prediccion.np(),
+                         dt  = dt_prediction(data = "datos.prueba.completos",
+                                             model.var = "modelo.nuevos",
+                                             pred.var = "predic.nuevos"),
+                         rf  = rf_prediction(data = "datos.prueba.completos",
+                                             variable.pred = variable.predecir.pn,
+                                             model.var = "modelo.nuevos",
+                                             pred.var = "predic.nuevos"),
                          boosting = boosting.prediccion.np(),
                          svm = svm_prediction.np(data = "datos.prueba.completos", 
                                                  variable.pred = variable.predecir.pn,
@@ -2399,7 +2404,9 @@ shinyServer(function(input, output, session) {
     modelo.seleccionado.pn  <<- input$selectModelsPred
     
     codigo <- switch(input$selectModelsPred,
-                     rl   = rl_model(data = "datos.aprendizaje.completos", variable.pred = variable.predecir.pn, model.var = "modelo.nuevos"),
+                     rl   = rl_model(data = "datos.aprendizaje.completos", 
+                                     variable.pred = variable.predecir.pn, 
+                                     model.var = "modelo.nuevos"),
                      rlr  = rlr.modelo.np(alpha = input$alpha.rlr.pred,
                                           escalar = input$switch.scale.rlr.pred,
                                           manual = input$permitir.landa.pred,
@@ -2407,12 +2414,16 @@ shinyServer(function(input, output, session) {
                      knn =  kkn_model(data = "datos.aprendizaje.completos",variable.pred = variable.predecir.pn,
                                       scale = input$switch.scale.knn.pred, kmax = input$kmax.knn.pred,
                                       kernel = input$kernel.knn.pred, model.var = "modelo.nuevos"),
-                     dt  = dt.modelo.np(variable.pr = input$sel.predic.var.nuevos,
-                                        minsplit = input$minsplit.dt.pred,
-                                        maxdepth = input$maxdepth.dt.pred),
-                     rf  = rf.modelo.np(variable.pr = input$sel.predic.var.nuevos,
-                                        ntree = input$ntree.rf.pred,
-                                        mtry = input$mtry.rf.pred),
+                     dt  = dt_model(data = "datos.aprendizaje.completos",
+                                     variable.pred = variable.predecir.pn,
+                                     model.var = "modelo.nuevos",
+                                     minsplit = input$minsplit.dt.pred,
+                                     maxdepth = input$maxdepth.dt.pred),
+                     rf  = rf_model(data = "datos.aprendizaje.completos",
+                                     variable.pred = variable.predecir.pn,
+                                     model.var = "modelo.nuevos",
+                                     ntree = input$ntree.rf.pred,
+                                     mtry = input$mtry.rf.pred),
                      boosting = boosting.modelo.np(variable.pr = input$sel.predic.var.nuevos,
                                               iter = input$iter.boosting.pred,
                                               type = input$tipo.boosting.pred,
@@ -2423,14 +2434,14 @@ shinyServer(function(input, output, session) {
                                       scale = input$switch.scale.svm.pred,
                                       kernel = input$kernel.svm.pred),
                      nn = nn.modelo.np(variable.pr=input$sel.predic.var.nuevos,
-                                        input$threshold.nn.pred,
-                                        input$stepmax.nn.pred,
-                                        input$cant.capas.nn.pred,
-                                        input$nn.cap.pred.1,input$nn.cap.pred.2,
-                                        input$nn.cap.pred.3,input$nn.cap.pred.4,
-                                        input$nn.cap.pred.5,input$nn.cap.pred.6,
-                                        input$nn.cap.pred.7,input$nn.cap.pred.8,
-                                        input$nn.cap.pred.9,input$nn.cap.pred.10))
+                                       input$threshold.nn.pred,
+                                       input$stepmax.nn.pred,
+                                       input$cant.capas.nn.pred,
+                                       input$nn.cap.pred.1,input$nn.cap.pred.2,
+                                       input$nn.cap.pred.3,input$nn.cap.pred.4,
+                                       input$nn.cap.pred.5,input$nn.cap.pred.6,
+                                       input$nn.cap.pred.7,input$nn.cap.pred.8,
+                                       input$nn.cap.pred.9,input$nn.cap.pred.10))
 
       modelo.nuevos <<- NULL
       predic.nuevos <<- NULL

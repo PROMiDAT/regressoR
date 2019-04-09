@@ -491,7 +491,6 @@ svm_model <- function(data = "datos.aprendizaje", variable.pred = NULL, model.va
 #'
 #' @examples
 #' \dontrun{
-#' \dontrun{
 #' x <- svm_model('iris', 'Petal.Length', model.var = 'model_svm')
 #' exe(x)
 #' print(model_svm)
@@ -501,4 +500,126 @@ svm_model <- function(data = "datos.aprendizaje", variable.pred = NULL, model.va
 #' }
 svm_prediction <- function(data = "datos.prueba", variable.pred = NULL, model.var = "modelo.svm", pred.var = "prediccion.svm"){
   return(paste0(pred.var," <<- predict(",model.var," , ",data," %>% select(-`",variable.pred,"`))"))
+}
+
+# Pagina de DT --------------------------------------------------------------------------------------------------------------
+
+#' dt_model
+#'
+#' @param data the name of the learning data.
+#' @param variable.pred the name of the variable to be predicted.
+#' @param model.var the name of the variable that stores the resulting model.
+#' @param minsplit the minsplit parameter of the model.
+#' @param maxdepth the maxdepth parameter of the model.
+#'
+#' @seealso \code{\link[rpart]{rpart}}
+#'
+#' @export
+#'
+#' @examples
+#' library(rpart)
+#' 
+#' x <- dt_model('iris', 'Petal.Length')
+#' exe(x)
+#' print(modelo.dt)
+#' 
+dt_model <- function(data = "datos.aprendizaje", variable.pred = NULL, model.var = "modelo.dt", minsplit =  20, maxdepth = 15){
+  minsplit <- ifelse(!is.numeric(minsplit), 1, minsplit)
+  maxdepth <- ifelse(!is.numeric(maxdepth) || maxdepth > 30, 15, maxdepth)
+  codigo <- paste0(model.var," <<- rpart(`",variable.pred,"`~., data = ",data,",
+                   control = rpart.control(minsplit = ",minsplit,", maxdepth = ", maxdepth,"))")
+  return(codigo)
+}
+
+#' dt_prediction
+#'
+#' @param data the name of the test data.
+#' @param model.var the name of the variable that stores the resulting prediction.
+#' @param pred.var the name of the variable that stores the resulting model.
+#'
+#' @export
+#'
+#' @examples
+#' library(rpart)
+#' 
+#' x <- dt_model('iris', 'Petal.Length', model.var = 'model_dt')
+#' exe(x)
+#' print(model_dt)
+#' 
+#' x <- dt_prediction('iris', 'model_dt', 'my_prediction')
+#' exe(x)
+#' print(my_prediction)
+#' 
+dt_prediction <- function(data = "datos.prueba", model.var = "modelo.dt", pred.var = "prediccion.dt") {
+  return(paste0(pred.var," <<- predict(",model.var,", ",data,")"))
+}
+
+#' dt_plot
+#'
+#' @param model.var the name of the variable that stores the resulting prediction.
+#'
+#' @export
+#'
+#' @examples
+#' library(rpart)
+#' 
+#' x <- dt_model('iris', 'Petal.Length', model.var = 'model_dt')
+#' exe(x)
+#' print(model_dt)
+#' 
+#' x <- dt_plot('model_dt')
+#' exe(x)
+#' 
+dt_plot <- function(model.var = "modelo.dt"){
+  return(paste0("rpart.plot::prp(",model.var,", type = 2, extra = 100, nn = TRUE, varlen = 0, faclen = 0,
+                fallen.leaves = TRUE, branch.lty = 6, shadow.col = '#dedede',box.col = '#c8b028')"))
+}
+
+# Pagina de RF --------------------------------------------------------------------------------------------------------------
+
+#' rf_model
+#'
+#' @param data the name of the learning data.
+#' @param variable.pred the name of the variable to be predicted.
+#' @param model.var the name of the variable that stores the resulting model.
+#' @param ntree the ntree parameter of the model.
+#' @param mtry the mtry parameter of the model.
+#'
+#' @seealso \code{\link[randomForest]{randomForest}}
+#'
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' x <- rf_model('iris', 'Petal.Length')
+#' exe(x)
+#' print(modelo.rf)
+#' }
+rf_model <- function(data = "datos.aprendizaje", variable.pred = NULL, model.var = "modelo.rf", ntree = 500, mtry = 1){
+  ntree <- ifelse(!is.numeric(ntree), 500, ntree)
+  codigo <- paste0(model.var," <<- randomForest(`",variable.pred,"`~., data = ",data,",importance = TRUE,",
+                   " ntree =",ntree,",mtry =",mtry,")")
+  return(codigo)
+}
+
+#' rf_prediction
+#'
+#' @param data the name of the test data.
+#' @param variable.pred the name of the variable to be predicted.
+#' @param model.var the name of the variable that stores the resulting prediction.
+#' @param pred.var the name of the variable that stores the resulting model.
+#'
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' x <- rf_model('iris', 'Petal.Length', model.var = 'model_rf')
+#' exe(x)
+#' print(model_svm)
+#' x <- rf_prediction('iris', 'Petal.Length', 'model_rf', 'my_prediction')
+#' exe(x)
+#' print(my_prediction)
+#' }
+rf_prediction <- function(data = "datos.prueba", variable.pred = NULL, model.var = "modelo.rf", pred.var = "prediccion.rf"){
+  return(paste0(pred.var," <<- predict(",model.var,", ",data," %>% select(-`",variable.pred,"`))"))
 }
