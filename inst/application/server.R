@@ -1242,20 +1242,23 @@ shinyServer(function(input, output, session) {
   # Upgrade code fields to default version
   default_codigo_svm <- function() {
     # Se acualiza el codigo del modelo
-    codigo <- svm.modelo(variable.pr = variable.predecir,
-                         scale = input$switch.scale.svm,
-                         kernel = input$kernel.svm)
+    codigo <- svm_model(variable.pred = variable.predecir,
+                        model.var = paste0("modelo.svm.",input$kernel.svm),
+                        scale = input$switch.scale.svm,
+                        kernel = input$kernel.svm)
 
     updateAceEditor(session, "fieldCodeSvm", value = codigo)
     cod.svm.modelo <<- codigo
 
     # Se genera el codigo de la prediccion
-    codigo <- svm.prediccion(input$kernel.svm)
+    codigo <- svm_prediction(variable.pred = variable.predecir,
+                             model.var = paste0("modelo.svm.",input$kernel.svm),
+                             pred.var = paste0("prediccion.svm.",input$kernel.svm))
     updateAceEditor(session, "fieldCodeSvmPred", value = codigo)
     cod.svm.pred <<- codigo
     
     # Se genera el codigo de la dispersion
-    codigo <- svm.disp(input$kernel.svm)
+    codigo <- disp_models(paste0("prediccion.svm.",input$kernel.svm), translate("svml"), variable.predecir)
     updateAceEditor(session, "fieldCodeSvmDisp", value = codigo)
 
     # Se genera el codigo de la indices
@@ -2356,7 +2359,9 @@ shinyServer(function(input, output, session) {
                          dt  = dt.prediccion.np(),
                          rf  = rf.prediccion.np(),
                          boosting = boosting.prediccion.np(),
-                         svm = svm.prediccion.np(),
+                         svm = svm_prediction.np(data = "datos.prueba.completos", 
+                                                 variable.pred = variable.predecir.pn,
+                                                 model.var = "modelo.nuevos", pred.var = "predic.nuevos"),
                          nn = nn.prediccion.np())
         tryCatch({
           exe(codigo)
@@ -2412,8 +2417,11 @@ shinyServer(function(input, output, session) {
                                               iter = input$iter.boosting.pred,
                                               type = input$tipo.boosting.pred,
                                               minsplit = input$shrinkage.boosting.pred),
-                     svm = svm.modelo.np(scale = input$switch.scale.svm.pred,
-                                         kernel = input$kernel.svm.pred),
+                     svm = svm_model(data = "datos.aprendizaje.completos",
+                                      variable.pred = variable.predecir.pn,
+                                      model.var = "modelo.nuevos",
+                                      scale = input$switch.scale.svm.pred,
+                                      kernel = input$kernel.svm.pred),
                      nn = nn.modelo.np(variable.pr=input$sel.predic.var.nuevos,
                                         input$threshold.nn.pred,
                                         input$stepmax.nn.pred,

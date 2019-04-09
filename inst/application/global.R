@@ -89,7 +89,6 @@ rlr.disp <- function(){
   return(disp_models(paste0("prediccion.rlr.",rlr_type()), translate("rlr"), variable.predecir))
 }
 
-# Pagina de KNN -------------------------------------------------------------------------------------------------------------
 # Pagina de SVM -------------------------------------------------------------------------------------------------------------
 
 #Crea el modelo SVM

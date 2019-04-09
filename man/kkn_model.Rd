@@ -25,10 +25,11 @@ kkn_model(data = "datos.aprendizaje", variable.pred = NULL,
 generates the code to create the k nearest neighbors model.
 }
 \examples{
+\dontrun{
 x <- kkn_model('iris', 'Petal.Length')
 exe(x)
 print(modelo.knn)
-
+}
 }
 \seealso{
 \code{\link[kknn]{train.kknn}}

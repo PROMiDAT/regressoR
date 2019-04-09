@@ -20,11 +20,12 @@ kkn_prediction(data = "datos.prueba", variable.pred = NULL,
 kkn_prediction
 }
 \examples{
+\dontrun{
 x <- kkn_model('iris', 'Petal.Length', model.var = 'model_knn')
 exe(x)
 print(model_knn)
 x <- kkn_prediction('iris', 'Petal.Length', 'model_knn', 'my_prediction')
 exe(x)
 print(my_prediction)
- 
+}
 }
