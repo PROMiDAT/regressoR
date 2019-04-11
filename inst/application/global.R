@@ -7,31 +7,10 @@ exe <- function(...){
   regressoR::exe(..., envir = parent.frame())
 }
 
-# Wrapper of regressoR::models_mode to set the list of values and the language
-models_mode <- function(){
-  regressoR::models_mode(IndicesM)
-}
-
 # Wrapper of regressoR::comparative_table to set the list of values and the language
 comparative_table <- function(sel){
   regressoR::comparative_table(sel, IndicesM)
 }
-
-# Wrapper of regressoR::validate_pn_data to set the datos.originales.completos, datos.prueba.completos and variable.predecir.pn
-validate_pn_data <- function(){
-  regressoR::validate_pn_data(datos.originales.completos, datos.prueba.completos, variable.predecir.pn)
-}
-
-# Wrapper of regressoR::new_col to set the datos.prueba.completos, variable.predecir.pn and predic.nuevos
-new_col <- function(){
-  regressoR::new_col(datos.prueba.completos, variable.predecir.pn, predic.nuevos)
-}
-
-# Wrapper of regressoR::new_report to set the datos.originales and input$file1$name
-new_report <- function(){
-  regressoR::new_report(datos.originales, input$file1$name)
-}
-
 
 # GLOBAL VARIABLES --------------------------------------------------------------------------------------------------------
 
