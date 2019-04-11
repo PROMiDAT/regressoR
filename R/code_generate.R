@@ -565,6 +565,8 @@ rlr_type <- function(alpha_rlr = options("rlr.alpha")){
   ifelse(alpha_rlr == 0, "ridge", "lasso")
 }
 
+options(rlr.alpha = 0)
+
 # KNN PAGE ----------------------------------------------------------------------------------------------------------------
 
 #' kkn_model
@@ -674,6 +676,112 @@ svm_model <- function(data = "datos.aprendizaje", variable.pred = NULL, model.va
 svm_prediction <- function(data = "datos.prueba", variable.pred = NULL, model.var = "modelo.svm", pred.var = "prediccion.svm"){
   return(paste0(pred.var," <<- predict(",model.var," , ",data," %>% select(-`",variable.pred,"`))"))
 }
+
+# RD PAGE -----------------------------------------------------------------------------------------------------------------
+
+#' rd_type
+#' 
+#' @description returns the name of the method of dimension reduction.
+#'
+#' @param mode the method of dimension reduction is defined as mode=1 is the MCP, and mode=0 the ACP.
+#' 
+#' @seealso \code{\link[pls]{pcr}}, \code{\link[pls]{plsr}}
+#'
+#' @export
+#'
+#' @examples
+#' rd_type(1)
+#' rd_type(0)
+#' 
+rd_type <- function(mode = options("rd.mode")){
+  ifelse(mode == 0, "ACP", "MCP")
+}
+
+options(rd.mode = 0)
+
+# rd_type.np <- function(){
+#   ifelse(input$modo.rd.pn == 0, "ACP", "MCP")
+# }
+
+#' rd_model
+#'
+#' @description generates the code to create the dimension reduction model.
+#'
+#' @param data the name of the learning data.
+#' @param variable.pred the name of the variable to be predicted.
+#' @param model.var the name of the variable that stores the resulting model.
+#' @param n.comp the name of the variable that stores the optimum number of components.
+#' @param mode the method of dimension reduction is defined as mode=1 is the MCP, and mode=0 the ACP.
+#' @param scale the scale parameter of the model.
+#'
+#' @seealso \code{\link[pls]{pcr}}, \code{\link[pls]{plsr}}
+#'
+#' @export
+#'
+#' @examples
+#' library(pls)
+#' 
+#' x <- rd_model('iris', 'Petal.Length')
+#' exe(x)
+#' print(modelo.rd)
+#' 
+rd_model <- function(data = "datos.aprendizaje", variable.pred = NULL, model.var = "modelo.rd",
+                      n.comp = "n.comp.rd", mode = options("rd.mode"), scale = TRUE){
+  if(mode == 0){
+    x <- paste0(model.var," <<- pcr(`",variable.pred,"`~.,data = ",data,", scale = ",scale,", validation = 'CV')")
+  }else{
+    x <- paste0(model.var," <<- plsr(`",variable.pred,"`~.,data = ",data,", scale = ",scale,", validation = 'CV')")
+  }
+  paste0(x,"\n",n.comp, " <<- which.min(RMSEP(",model.var,")$val[1, 1, ]) - 1")
+}
+
+# rd.modelo.np <- function(escalar = TRUE, mode = FALSE, manual = FALSE, ncomp = NA){
+#   if(mode == 0){
+#     x <- paste0("modelo.nuevos <<- pcr(",variable.predecir.pn,"~.,data = datos.aprendizaje.completos, scale = ",escalar,", validation = 'CV')")
+#   }else{
+#     x <- paste0("modelo.nuevos <<- plsr(",variable.predecir.pn,"~.,data = datos.aprendizaje.completos, scale = ",escalar,", validation = 'CV')")
+#   }
+#   if(manual && !is.na(ncomp) && ncomp > 0){
+#     y <- ncomp
+#   }else{
+#     y <- "which.min(RMSEP(modelo.nuevos)$val[1, 1, ]) - 1"
+#   }
+#   paste0(x,"\n","n.comp.rd.np <<- ", y)
+# }
+
+#' rd_prediction
+#' 
+#' @description generates the code to create the prediction of the dimension reduction model.
+#'
+#' @param data the name of the test data.
+#' @param model.var the name of the variable that stores the resulting model.
+#' @param pred.var the name of the variable that stores the resulting prediction.
+#' @param n.comp the name of the variable that stores the optimum number of components.
+#' @param ncomp a numerical value in case you don't want to use the optimum number of components.
+#'
+#' @export
+#'
+#' @examples
+#' library(pls)
+#' 
+#' x <- rd_model('iris', 'Petal.Length')
+#' exe(x)
+#' print(modelo.rd)
+#' 
+#' x <- rd_prediction('iris', 'modelo.rd', 'my_prediction')
+#' exe(x)
+#' print(my_prediction)
+#' 
+rd_prediction <- function(data = "datos.prueba", model.var = "modelo.svm", pred.var = "prediccion.rd", 
+                          n.comp = "n.comp.rd", ncomp = NULL) {   #"prediccion.rd.",rd_type()
+  ncomp <- ifelse(is.null(ncomp), exe(n.comp), ncomp)
+  paste0(pred.var," <<- predict(",model.var,", ",data,", ncomp = ",ncomp,")")
+}
+
+# rd_prediction.np <- function() {
+#   paste0("predic.nuevos <<- predict(modelo.nuevos, datos.prueba.completos, ncomp = ",n.comp.rd.np,")")
+# }
+
 
 # DT PAGE ------------------------------------------------------------------------------------------------------------
 

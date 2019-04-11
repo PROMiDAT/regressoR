@@ -179,3 +179,49 @@ importance_plot_rf <- function(model.rf, title.1, title.2){
           plot.title = element_text(size = 10), legend.position = 'none')
   print(gridExtra::grid.arrange(g1, g2, ncol = 2, nrow = 1))
 }
+
+
+
+# Gráfico error RMSE de validación cruzada según componentes usados
+plot.RMSE <- function(model){
+  RMSE.CV <- RMSEP(model)$val[1, 1, ]
+  
+  ggplot(data = data.frame(Componentes = 0:(length(RMSE.CV) - 1), Error = RMSE.CV), mapping = aes(x = Componentes, y = Error)) +
+    geom_point(size = 1, col = "dodgerblue3") +
+    geom_line(size = 0.5, col = "dodgerblue3") +
+    labs(title = "RMSE seg\u00fan N\u00famero de Componentes",
+         x = "N\u00famero de Componentes",
+         y = "RMSE")+
+    geom_vline(xintercept = n.comp.rd, linetype="dashed", 
+               color = "blue", size=1)
+}
+
+# Gráfico de varianza explicada en los predictores según componentes usados
+plot.pred <- function(model){
+  var.explicada <- cumsum(explvar(model)) / 100
+  ggplot(data = data.frame(Componentes = 1:length(var.explicada), Varianza = var.explicada), 
+         mapping = aes(x = Componentes, y = Varianza)) +
+    geom_point(size = 1, col = "dodgerblue3") +
+    geom_line(size = 0.5, col = "dodgerblue3") +
+    scale_y_continuous(labels = scales::percent) +
+    labs(title = "Varianza Explicada en los Predictores",
+         x = "N\u00famero de Componentes",
+         y = "Varianza Explicada")+
+    geom_vline(xintercept = n.comp.rd, linetype="dashed", 
+               color = "blue", size=1)
+}
+
+# Gráfico de varianza explicada en la variable a predecir según componentes usados
+plot.var.pred <- function(model){
+  var.explicada <- drop(R2(model, estimate = "train", intercept = FALSE)$val)
+  
+  ggplot(data = data.frame(Componentes = 1:length(var.explicada), Varianza = var.explicada), mapping = aes(x = Componentes, y = Varianza)) +
+    geom_point(size = 1, col = "dodgerblue3") +
+    geom_line(size = 0.5, col = "dodgerblue3") +
+    scale_y_continuous(labels = scales::percent) +
+    labs(title = "Varianza Explicada en la Variable a Predecir",
+         x = "N\u00famero de Componentes",
+         y = "Varianza Explicada")+
+    geom_vline(xintercept = n.comp.rd, linetype="dashed", 
+               color = "blue", size=1)
+}

@@ -59,6 +59,7 @@ supervised.learning.menu    <- menuItem(labelInput("aprendizaje"), tabName = "pa
                                          menuSubItem(labelInput("bl"),tabName = "boosting",icon = icon("superscript")),
                                          menuSubItem(labelInput("knnl"),tabName = "knn",icon = icon("dot-circle-o")),
                                          menuSubItem(labelInput("svml"),tabName = "svm",icon = icon("line-chart")),
+                                         menuSubItem(labelInput("rd"), tabName = "rd",icon = icon("chart-pie")),
                                          menuSubItem(labelInput("nn"),tabName = "nn",icon = icon("brain")))
 
 report.menu <- menuItem(labelInput("reporte"), tabName = "reporte", icon = icon("save-file",lib = "glyphicon"))
@@ -562,6 +563,83 @@ page.svm <- tabItem(tabName = "svm",
                              general.index.svm.panel,
                              tabs.svm))
 
+# RD PAGE -----------------------------------------------------------------------------------------------------------------
+
+rd.options  <- list(fluidRow(column(width = 9,h4(labelInput("opciones"))),
+                              column(width = 2,br(),actionButton("runRd", label = labelInput("ejecutar"), icon = icon("play")))),
+                     hr(),
+                     fluidRow(column(selectInput(inputId = "modo.rd", label = labelInput("selectAlg"),selected = 0,
+                                                 choices = list("ACP" = 0, "MCP" = 1)),width = 6),
+                              column(br(), switchInput(inputId = "switch.scale.rd", onStatus = "success", offStatus = "danger", value = T,
+                                                       label = labelInput("escal"), onLabel = labelInput("si"), offLabel = labelInput("no"), labelWidth = "100%"), width=6)),
+                     fluidRow(column(id = "colManualCom",width = 6, numericInput("ncomp.rd", labelInput("ncomp"),value = 2, min = 1, width = "100%")), br(),
+                              column(width = 6, switchInput(inputId = "permitir.ncomp", onStatus = "success", offStatus = "danger", value = F, width = "100%",
+                                                            label = "", onLabel = "Manual", offLabel = labelInput("automatico"), labelWidth = "100%"))))
+
+rd.code   <- list(fluidRow(column(width = 9,h4(labelInput("codigo")))),
+                    hr(),
+                    conditionalPanel("input.BoxRd == 'tabRdModelo'",
+                                     aceEditor("fieldCodeRd", mode = "r", theme = "monokai",
+                                               value = "", height = "8vh", readOnly = F, autoComplete = "enabled")),
+                    conditionalPanel("input.BoxRd == 'tabRdRMSE'",
+                                     aceEditor("fieldCodeRdRMSE", mode = "r", theme = "monokai",
+                                               value = "", height = "14vh", readOnly = F, autoComplete = "enabled")),
+                    conditionalPanel("input.BoxRd == 'tabRdPlotPred'",
+                                     aceEditor("fieldCodeRdPlotPred", mode = "r", theme = "monokai",
+                                               value = "", height = "14vh", readOnly = F, autoComplete = "enabled")),
+                    conditionalPanel("input.BoxRd == 'tabRdPlotVarPred'",
+                                     aceEditor("fieldCodeRdPlotVarPred", mode = "r", theme = "monokai",
+                                               value = "", height = "14vh", readOnly = F, autoComplete = "enabled")),
+                    conditionalPanel("input.BoxRd == 'tabRdPred'",
+                                     aceEditor("fieldCodeRdPred", mode = "r", theme = "monokai",
+                                               value = "", height = "10vh", readOnly = F, autoComplete = "enabled")),
+                    conditionalPanel("input.BoxRd == 'tabRdDisp'",
+                                     aceEditor("fieldCodeRdDisp", mode = "r", theme = "monokai",
+                                               value = "", height = "3vh", readOnly = F, autoComplete = "enabled")),
+                    conditionalPanel("input.BoxRd == 'tabRdIndex'",
+                                     aceEditor("fieldCodeRdIG", mode = "r", theme = "monokai",
+                                               value = "", height = "22vh", readOnly = F, autoComplete = "enabled")))
+
+tabs.rd  <- tabsOptions(botones = list(icon("gear"),icon("code")), widths = c(50,100), heights = c(80, 95),
+                        tabs.content = list(rd.options, rd.code))
+
+generate.rd.panel <- tabPanel(title = labelInput("generatem"),value = "tabRdModelo",
+                             verbatimTextOutput("txtRd"))
+
+rmse.rd.panel <- tabPanel(title = labelInput("RMSE"),value = "tabRdRMSE",
+                          plotOutput('plot.rd.rmse', height = "55vh"))
+
+plot.pred.rd.panel <- tabPanel(title = labelInput("RdPred"), value = "tabRdPlotPred",
+                               plotOutput('plot.rd.pred', height = "55vh"))
+
+panel.plot.var.pred.rd <- tabPanel(title = labelInput("RdVarPred"), value = "tabRdPlotVarPred",
+                                   plotOutput('plot.rd.var.pred', height = "55vh"))
+
+prediction.rd.panel <- tabPanel(title = labelInput("predm"), value = "tabRdPred",
+                                DT::dataTableOutput("rdPrediTable"))
+
+disp.rd.panel <- tabPanel(title = labelInput("dispersion"), value = "tabRdDisp",
+                          plotOutput('plot.rd.disp', height = "55vh"))
+
+general.index.rd.panel <- tabPanel(title = labelInput("indices"), value = "tabRdIndex",
+                                       br(),
+                                       fluidRow(tableOutput('indexdfrd')),
+                                       br(),
+                                       fluidRow(column(width = 12, align="center", tags$h3(labelInput("resumenVarPre")))),
+                                       br(),
+                                       fluidRow(tableOutput('indexdfrd2')))
+
+page.rd <- tabItem(tabName = "rd",
+                     tabBox(id = "BoxRd", width = NULL, height ="80%",
+                            generate.rd.panel,
+                            rmse.rd.panel,
+                            plot.pred.rd.panel,
+                            panel.plot.var.pred.rd,
+                            prediction.rd.panel,
+                            disp.rd.panel,
+                            general.index.rd.panel,
+                            tabs.rd))
+
 # DT PAGE ------------------------------------------------------------------------------------------------------------
 
 dt.options <- list(fluidRow(column(width = 9, h4(labelInput("opciones"))),
@@ -900,6 +978,14 @@ options.rlr.pred <- fluidRow(column(selectInput(inputId = "alpha.rlr.pred", labe
                               column(width = 3, switchInput(inputId = "permitir.landa.pred", onStatus = "success", offStatus = "danger", value = F, width = "100%",
                                                             label = "", onLabel = "Manual", offLabel = labelInput("automatico"), labelWidth = "100%")))
 
+options.rd.pred <-  fluidRow(column(selectInput(inputId = "mode.rd.pred", label = labelInput("selectAlg"),selected = 0,
+                                                choices = list("ACP" = 0, "MCP" = 1)),width = 3),
+                             column(br(), switchInput(inputId = "switch.scale.rd.pred", onStatus = "success", offStatus = "danger", value = T,
+                                                      label = labelInput("escal"), onLabel = labelInput("si"), offLabel = labelInput("no"), labelWidth = "100%"), width=3),
+                             column(id = "colManualCom.pred",width = 3, numericInput("ncomp.rd.pred", labelInput("ncomp"),value = 2, min = 0, "NULL", width = "100%")), br(),
+                             column(width = 3, switchInput(inputId = "permitir.ncomp.pred", onStatus = "success", offStatus = "danger", value = F, width = "100%",
+                                                           label = "", onLabel = "Manual", offLabel = labelInput("automatico"), labelWidth = "100%")))
+
 options.knn.pred <- fluidRow(column(width = 3, br() , switchInput(inputId = "switch.scale.knn.pred", onStatus = "success", offStatus = "danger", value = T,
                                                               label = labelInput("escal"), onLabel = labelInput("si"), offLabel = labelInput("no"), labelWidth = "100%", width = "100%")),
                               column(width = 3, numericInput("kmax.knn.pred", labelInput("kmax"), min = 1,step = 1, value = 7,width="100%")),
@@ -943,6 +1029,7 @@ options.model <- list(selectInput(inputId = "sel.predic.var.nuevos", label = lab
                                                "<span data-id=\"rfl\"></span>" = "rf",
                                                "<span data-id=\"bl\"></span>" = "boosting",
                                                "<span data-id=\"svml\"></span>" = "svm",
+                                               "<span data-id=\"rd\"></span>" = "rd",
                                                "<span data-id=\"nn\"></span>" = "nn"),
                                           size = "sm", status = "primary",individual = FALSE, justified = FALSE, selected = "knn",
                                           checkIcon = list(yes = icon("ok", lib = "glyphicon"),
@@ -966,6 +1053,8 @@ create.pred.model.panel <- tabPanel(title = labelInput("seleParModel"),solidHead
                                                      options.svm.pred),
                                     conditionalPanel(condition =  "input.selectModelsPred == 'nn'",
                                                      options.nn.pred),
+                                    conditionalPanel(condition =  "input.selectModelsPred == 'rd'",
+                                                     opciones.rd.pred),
                                     verbatimTextOutput("txtPredNuevos"),
                                     actionButton("PredNuevosBttnModelo", labelInput("generarM"), width  = "100%", style = "background-color:#CBB051;color:#fff;margin-top:9px;"))
 
@@ -1043,6 +1132,7 @@ shinyUI(
                          page.rlr,
                          page.knn,
                          page.svm,
+                         page.rd,
                          page.dt,
                          page.rf,
                          pagina.boosting,
