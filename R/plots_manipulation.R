@@ -1,7 +1,7 @@
 
 #' gg_color_hue
 #' 
-#' @description Create colors
+#' @description create colors.
 #'
 #' @param n an integer specifying the number of colors to create.
 #'
@@ -20,13 +20,12 @@ gg_color_hue <- function(n) {
 
 #' plot_real_prediction
 #'
-#' @description Scatter plot between the actual value of the variable to be predicted and the prediction of the model.
+#' @description scatter plot between the actual value of the variable to be predicted and the prediction of the model.
 #'
 #' @param real the real values in traning-testing.
 #' @param prediction the prediction values in traning-testing.
 #' @param model the name of the model of the scatter plot.
 #'
-#' @return a ggplot graphic
 #' @export
 #'
 #' @examples
@@ -51,11 +50,11 @@ plot_real_prediction <- function(real, prediction, model = "") {
 #'
 #' @param msg the message to be displayed in the graph
 #'
-#' @return a ggplot graphic
 #' @export
 #'
 #' @examples
 #' error_plot("My Warning")
+#' 
 error_plot <- function(msg) {
   x <- c(2, 2.5, 3)
   y <- c(2 ,3 ,2)
@@ -76,7 +75,7 @@ error_plot <- function(msg) {
 
 #' error_variables
 #'
-#' @description Draws an error of missing data 
+#' @description draws an error of missing data.
 #'
 #' @param num if TRUE shows a message of missing numerical variables, if FALSE shows a message of missing categorical variables.
 #' 
@@ -109,7 +108,11 @@ error_variables <- function(num = T) {
 #' 
 numerical_distribution <- function(var, var.name, color){
   nf <- graphics::layout(mat = matrix(c(1, 2), 2, 1, byrow=TRUE),  height = c(3,1))
-  par(mar=c(3.1, 3.1, 1.1, 2.1))
+  opar <- par(mar=c(3.1, 3.1, 1.1, 2.1))
+  on.exit({
+    par(opar)
+    nf <- graphics::layout(mat = matrix(c(1, 1), 2, 1, byrow=TRUE),  height = c(3,1))
+  })
   hist(var, col = color, border=F, axes=F, main = var.name)
   axis(1, col=par('bg'), col.ticks='grey81', lwd.ticks=1, tck=-0.025)
   axis(2, col=par('bg'), col.ticks='grey81', lwd.ticks=1, tck=-0.025)
@@ -137,10 +140,8 @@ categorical_distribution <- function(var) {
   ggplot(data, aes(data$label, data$value)) +
     geom_bar(stat = 'identity', fill = colores) +
     geom_text(aes(label = data$value, y = data$value), vjust = -0.5, size = 4) +
-    theme_minimal() + labs(x = "label", y = "value")
+    theme_minimal() + ggplot2::labs(x = "label", y = "value")
 }
-
-# Pagina de RF --------------------------------------------------------------------------------------------------------------
 
 #' importance_plot_rf
 #' 

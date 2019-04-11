@@ -5,12 +5,12 @@ options(language = "es")
 
 #' exe
 #' 
-#' @description Concat and execute a text in R
+#' @description concat and execute a text in R.
 #'
-#' @param ... one or more texts to be concatenated and executed
-#' @param envir the environment in which expr is to be evaluated
+#' @param ... one or more texts to be concatenated and executed.
+#' @param envir the environment in which expr is to be evaluated.
 #' 
-#' @return the result of the execute
+#' @return the result of the execute.
 #' @export
 #'
 #' @examples
@@ -24,11 +24,10 @@ exe <- function(..., envir = parent.frame()){
 
 #' extract_code
 #' 
-#' @description Gets the code of a function in text form
+#' @description gets the code of a function in text form.
 #'
-#' @param funcion the name of the function to be extracted
+#' @param funcion the name of the function to be extracted.
 #'
-#' @return the code in text form
 #' @export
 #'
 #' @examples
@@ -45,12 +44,11 @@ extract_code <- function(funcion) {
 
 #' as_string_c
 #' 
-#' @description Creates a string representative of a vector
+#' @description creates a string representative of a vector
 #'
-#' @param vect a vector
+#' @param vect a vector with values
 #' @param quote a logical value. If TRUE, the values on the vector will be surrounded by quotes.
 #' 
-#' @return a text
 #' @export
 #' 
 #' @examples
@@ -70,12 +68,10 @@ as_string_c <- function(vect, quote = TRUE){
 
 #' translate
 #' 
-#' @description translates text id into current language
+#' @description translates text id into current language.
 #' 
 #' @param text the id for the text.
 #' @param language the language to choose. It can be "es" or "en".
-#' 
-#' @details Use data(dictionary) to see the data
 #' 
 #' @export
 #' @examples
@@ -95,10 +91,11 @@ translate <- function(text, language = options("language")) {
 }
 
 #' models_mode
-#'
-#' @param list.names a list whose names function as keys for \code{\link{translate}}. The names have to have the key-mode form.
 #' 
-#' @return a vector with the names
+#' @description transforms the names of a list from key-mode form to value-mode form.
+#'
+#' @param list.names a list whose names function as keys for \code{\link[regressoR]{translate}}. The names have to have the key-mode form.
+#' 
 #' @export
 #'
 #' @examples

@@ -1,11 +1,10 @@
 
-
 env_report <- new.env()
 env_report$codigo.reporte <- list()
 
 #' get_env_report
 #'
-#' @description gets the environment where the list is found with the report
+#' @description gets the environment where the list is found with the report.
 #'
 #' @export
 #'
@@ -19,7 +18,7 @@ get_env_report <- function(){
 
 #' clean_report
 #'
-#' @description clean the full report
+#' @description clean the full report.
 #'
 #' @export
 #'
@@ -35,7 +34,7 @@ clean_report <- function(){
 
 #' get_report
 #'
-#' @description gets the list of report values
+#' @description gets the list of report values.
 #'
 #' @export
 #'
@@ -115,7 +114,7 @@ insert_report <- function(id, title = NA, ... ,  interpretation =  TRUE, is.chun
   content <- paste0(...)
   title <- ifelse(is.na(title), "\n\n", paste0("\n##  ", title, "\n"))
   content <- ifelse(is.chunk, chunk(content), content)
-  inter <- ifelse(interpretation, "\n\n####Interpretaci\u00F3n:\n", "\n")
+  inter <- ifelse(interpretation, "\n\n#### Interpretaci\u00F3n:\n", "\n")
   if(!add){
     env_report$codigo.reporte[[n]][[id]] <- ifelse(interpretation, paste0(title, content, inter), paste0(title, content,"\n"))
   }else{
@@ -148,7 +147,7 @@ remove_report_elem <- function(id){
 
 #' new_section_report
 #'
-#' @description Creates a new section in the report, this way you can overwrite keys and delete an element only affects the current section.
+#' @description creates a new section in the report, this way you can overwrite keys and delete an element only affects the current section.
 #'
 #' @export
 #'
@@ -197,7 +196,7 @@ order_report <- function(list_report){
              "correlacion","poder.pred",
              nombres[grepl("poder.cat.", nombres)],
              "poder.num",nombres[grepl("poder.den.", nombres)],
-             "modelo.rl","pred.rl","disp.rl","ind.rl",
+             "modelo.rl","coeff.rl","pred.rl","disp.rl","ind.rl",
              combine_names(c("modelo.rlr","posib.landa.rlr","coeff.landa.rlr","gcoeff.landa.rlr","pred.rlr","disp.rlr","ind.rlr"),
                            c("ridge", "lasso")),
              combine_names(c("modelo.knn","pred.knn","disp.knn","ind.knn"),
@@ -224,6 +223,8 @@ order_report <- function(list_report){
 
 
 #' word_report
+#' 
+#' @description creates a header for the report that allows you to generate a word file.
 #'
 #' @param title report title.
 #' @param name name of the author of the report.

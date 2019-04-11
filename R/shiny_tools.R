@@ -3,7 +3,7 @@
 #' 
 #' @description label with identifier for language change 
 #'
-#' @details This function only work correctly on the server side because they need the css and js file.
+#' @details this function only work correctly on the server side because they need the css and js file.
 #'
 #' @param inputId The id of the label.
 #' @param value Default Value of the label (optional). Default value is "".
@@ -17,13 +17,13 @@ labelInput <- function(inputId, value = ""){
 
 #' code_field
 #' 
-#' @description create an \code{\link{aceEditor}} wrapper with a button to execute the code
+#' @description create an \code{\link[shinyAce]{aceEditor}} wrapper with a button to execute the code
 #' 
-#' @details This function only work correctly on the server side because they need the css and js file.
+#' @details this function only work correctly on the server side because they need the css and js file.
 #'
-#' @param runid The id of the execute button.
-#' @param fieldid The id of the code field.
-#' @param ... Arguments to be passed to \code{\link{aceEditor}}
+#' @param runid the id of the execute button.
+#' @param fieldid the id of the code field.
+#' @param ... arguments to be passed to \code{\link[shinyAce]{aceEditor}}
 #'
 #' @return shiny.tag object
 #' @keywords internal
@@ -41,7 +41,7 @@ code_field <- function(runid, fieldid, ...) {
 #' 
 #' @description create a box for the information tab
 #' 
-#' @details This function only work correctly on the server side because they need the css and js file.
+#' @details this function only work correctly on the server side because they need the css and js file.
 #'
 #' @param title title of the box
 #' @param value the content of the box
@@ -60,9 +60,9 @@ infoBoxPROMiDAT <- function(title, value, icon) {
 
 #' inputRadio
 #' 
-#' @description Create a radio button input 
+#' @description create a radio button input 
 #'
-#' @details This function only work correctly on the server side because they need the css and js file.
+#' @details this function only work correctly on the server side because they need the css and js file.
 #'
 #' @param inputId the id of the radio button
 #' @param value a text value of the radio button
@@ -83,7 +83,7 @@ inputRadio <- function(inputId, value, isSelected) {
 #' 
 #' @description create multples with names for language change.
 #' 
-#' @details This function only work correctly on the server side because they need the css and js file.
+#' @details this function only work correctly on the server side because they need the css and js file.
 #'
 #' @param inputId the id of the group.
 #' @param label label of the radio buttons group.
@@ -107,7 +107,7 @@ radioButtonsTr <- function(inputId, label, values, names){
 #'
 #' @description create tabs options on panels.
 #' 
-#' @details This function only work correctly on the server side because they need the css and js file.
+#' @details this function only work correctly on the server side because they need the css and js file.
 #'
 #' @param buttons vector or list with icons of each tab.
 #' @param widths vector or list with widths of each tab.
@@ -138,7 +138,7 @@ tabsOptions <- function(buttons = list(icon("gear"), icon("terminal")), widths =
   return(tags$div(HTML(res)))
 }
 
-#' render.index.table
+#' render_index_table
 #' 
 #' @description creates a reactive table for indices panels.
 #'
@@ -152,18 +152,20 @@ tabsOptions <- function(buttons = list(icon("gear"), icon("terminal")), widths =
 #'    shinyApp(
 #'       ui = fluidPage(fluidRow(column(12, tableOutput('tbl')))),
 #'       server = function(input, output) {
-#'          output$tbl = render.index.table(iris)
+#'          output$tbl = render_index_table(iris)
 #'       }
 #'    )
 #' }
 #'
-render.index.table <- function(table){
+render_index_table <- function(table){
   renderTable({table}, striped = TRUE, bordered = TRUE,  
               spacing = 'l', width = '100%',  digits = 5,
               align = 'c')
 }
 
 #' render_table_data
+#' 
+#' @description create a table for the shiny application and render it.
 #'
 #' @param data a data.frame to create a the table.
 #' @param editable whether to make an editable table. The default value is TRUE.
@@ -171,6 +173,8 @@ render.index.table <- function(table){
 #' @param pageLength the number of rows to show. The default value is 10.
 #' @param scrollY the heigth of the table.
 #' @param server whether to use server-side processing. If TRUE, then the data is kept on the server and the browser requests a page at a time; if FALSE, then the entire data frame is sent to the browser at once.
+#'
+#' @seealso  \code{\link[DT]{datatable}}, \code{\link[DT]{renderDT}}
 #'
 #' @return a shiny.render.function
 #' @export
@@ -205,7 +209,7 @@ render_table_data <- function(data, editable = TRUE, dom = "frtip", pageLength =
 
 #' tb_predic
 #' 
-#' @description Creates comparison table between prediction and real data (test data).
+#' @description creates comparison table between prediction and real data (test data).
 #' 
 #' @param real a data.frame with the real values.
 #' @param predic.var a vector with the prediction value.

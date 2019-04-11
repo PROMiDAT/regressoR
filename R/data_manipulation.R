@@ -6,7 +6,7 @@
 #' @param real the real values in traning-testing.
 #' @param prediccion the prediction values in traning-testing.
 #'
-#' @return a list with Correlation, Relative Error, Mean Absolute Error, Root Mean Square Error.
+#' @return a list with the Correlation, Relative Error, Mean Absolute Error and Root Mean Square Error.
 #' @export
 #'
 #' @examples
@@ -28,6 +28,8 @@ general_indices <- function(real, prediccion) {
 }
 
 #' combine_names
+#' 
+#' @description combine two string vector by grouping according to the first vector.
 #'
 #' @param x a vector to combine with y. The combination is grouped by this parameter.
 #' @param y a vector to combine with x.
@@ -46,10 +48,11 @@ combine_names <- function(x, y, sep = "."){
 }
 
 #' colnames_empty
+#' 
+#' @description gets names of the columns or an empty string if the data is NULL.
 #'
-#' @param data the dataset.
+#' @param data a data.frame with the data.
 #'
-#' @return a vector with the names of the columns or an empty string if the data is NULL.
 #' @export
 #'
 #' @examples
@@ -101,11 +104,10 @@ var_categorical <- function(data){
 
 #' summary_indices
 #'
-#' @description resume una variable retornando el mínimo, el primer cuartil, el tercer cuartil y el valor máximo.
+#' @description summarizes a variable by returning the minimum, first quartile, third quartile and maximum value.
 #'
 #' @param data a numeric vector. 
 #'
-#' @return a list with the summary.
 #' @export
 #'
 #' @examples
@@ -120,12 +122,11 @@ summary_indices <- function(data){
 
 #' disjunctive_data
 #' 
-#' @description Convert the columns selected to disjunctive.
+#' @description convert the columns selected to disjunctive.
 #'
 #' @param data the dataset to be converted.
 #' @param vars a vector with the name of columns.
 #'
-#' @return a dataset
 #' @export
 #'
 #' @examples
@@ -183,11 +184,9 @@ comparative_table <- function(sel, indices) {
   })
 }
 
-############################ NP
-
 #' validate_pn_data
 #' 
-#' @description Verify that a data.frame has the same columns with the same types.
+#' @description verify that a data.frame has the same columns with the same types.
 #'
 #' @param x a data.frame with criteria to compare.
 #' @param y a data.frame to be comprared.
@@ -260,7 +259,6 @@ fisher_calc <- function (x, na.rm = FALSE) {
   }
   return(sum((x - mean(x))^3/sd(x)^3)/length(x))
 }
-
 
 #' calibrate_boosting
 #' 
