@@ -86,7 +86,7 @@ new_report <- function(data, name = ""){
   env_report$codigo.reporte[[n]] <- list(datos.originales = data)
   env_report$codigo.reporte[[n]][["carga.datos"]] <- paste0("\n## Carga de Datos (",name,")",
                                                              "\n```{r}\ndatos.originales <<- codigo.reporte[[",n,"]]$datos.originales\n",
-                                                             "datos <<- datos.originales\n```\n```{r}\nkt(head(datos))\n```\n```{r}\nstr(datos)\n```\n",
+                                                             "datos <<- datos.originales\n```\n```{r}\nhead(datos)\n```\n```{r}\nstr(datos)\n```\n",
                                                              "```{r}\nIndicesM <<- list()\n```\n")
 }
 

@@ -206,7 +206,7 @@ validate_pn_data <- function(x, y, var.pred = ""){
   nombres <- colnames(x)
   selec <- -which(nombres == var.pred)
   if(length(selec) > 0){
-    nombres  <- nombres[]
+    nombres <- nombres[selec]
   }
   nombres.prueba <- colnames(y)
   
