@@ -1,6 +1,5 @@
 
 
-
 # The server for RegressoR
 shinyServer(function(input, output, session) {
   
@@ -55,8 +54,7 @@ shinyServer(function(input, output, session) {
   
   # INITIAL SETTINGS ------------------------------------------------------------------------------------------------------
 
-  source("global.R", local = T) 
-  source("utils.R" , local = T)
+  source("global.R", local = T)
   
   clean_report()
   
@@ -139,7 +137,7 @@ shinyServer(function(input, output, session) {
     return(codigo.na)
   }
 
-  # Transforma los datos - OJO
+  # Use and show the codes to transform the data
   transformar.datos <- function() {
     var.noactivas <- c()
     code.res <- "datos <<- datos.originales \n"
@@ -709,6 +707,11 @@ shinyServer(function(input, output, session) {
     updateAceEditor(session, "fieldCodeRl", value = codigo)
     cod.rl.modelo <<- codigo
     
+    #Se genera el codigo de los coeficientes
+    codigo <- rl_coeff()
+    updateAceEditor(session, "fieldCodeRlCoef", value = codigo)
+    
+    
     # Se genera el codigo de la prediccion
     codigo <- rl_prediction()
     updateAceEditor(session, "fieldCodeRlPred", value = codigo)
@@ -755,6 +758,20 @@ shinyServer(function(input, output, session) {
     })
   }
   
+  # Displays model coefficients
+  coefficients_rl <- function(){
+    tryCatch({ # Se corren los codigo
+      isolate(exe(input$fieldCodeRlCoef))
+      
+      output$rlCoefTable <- regressoR::render_table_data(df.rl[,c(1,4)], server = FALSE)
+      insert_report("coeff.rl", "Coeficientes del Modelo Regresi\u00F3n Lineal", input$fieldCodeRlCoef)
+    },
+    error = function(e) { # Regresamos al estado inicial y mostramos un error
+      clean_rl(1)
+      showNotification(paste0("Error (RL-01) : ", e), duration = 15, type = "error")
+    })
+  }
+  
   # Execute model, prediction and indices
   rl_full <- function(){
     execute_rl()
@@ -769,6 +786,8 @@ shinyServer(function(input, output, session) {
       output$txtRl <- renderPrint(print(summary(modelo.rl)))
       
       insert_report("modelo.rl","Generaci\u00F3n del Modelo Regresi\u00F3n Lineal", cod.rl.modelo,"\nsummary(modelo.rl)")
+      
+      coefficients_rl()
       
       nombres.modelos <<- c(nombres.modelos, "modelo.rl")
     },
@@ -802,6 +821,7 @@ shinyServer(function(input, output, session) {
   execute_rl_ind <- function() {
     if(exists("prediccion.rl")){
       tryCatch({ # Se corren los codigo
+        isolate(exe(input$fieldCodeRlCoef))
         isolate(exe(cod.rl.ind))
         
         indices.rl <<- general_indices(datos.prueba[,variable.predecir], prediccion.rl)
@@ -810,14 +830,15 @@ shinyServer(function(input, output, session) {
                       "\nkt(general_indices(datos.prueba[,'", variable.predecir, "'], prediccion.rl))\n",
                       "indices.rl<- general_indices(datos.prueba[,'",variable.predecir,"'], prediccion.rl)\n",
                       "IndicesM[['rll']] <<- indices.rl")
-
-        df <- as.data.frame(indices.rl)
-        colnames(df) <- c(translate("RMSE"), translate("MAE"), translate("ER"), translate("correlacion"))
-        output$indexdfrl <- render.index.table(df)
+        
+        df <- cbind(as.data.frame(indices.rl), r2)
+        df <- df[,c(1,2,3,5,4)]
+        colnames(df) <- c(translate("RMSE"), translate("MAE"), translate("ER"), translate("R2"), translate("correlacion"))
+        output$indexdfrl <- render_index_table(df)
         
         df2 <- as.data.frame(summary_indices(datos.aprendizaje[,variable.predecir]))
         colnames(df2) <- c(translate("minimo"),translate("q1"),translate("q3"),translate("maximo"))
-        output$indexdfrl2 <- render.index.table(df2)
+        output$indexdfrl2 <- render_index_table(df2)
         
         nombres.modelos <<- c(nombres.modelos, "indices.rl")
         IndicesM[["rll"]] <<- indices.rl
@@ -867,35 +888,47 @@ shinyServer(function(input, output, session) {
     }
     
     # The model code is updated
-    codigo <- rlr.modelo(variable.pr = variable.predecir,
-                         input$alpha.rlr,
-                         input$switch.scale.rlr)
+    codigo <- rlr_model(variable.pred = variable.predecir,
+                         model.var = paste0("modelo.rlr.", rlr_type()),
+                         cv.var = paste0("cv.glm.", rlr_type()),
+                         alpha = input$alpha.rlr,
+                         standardize = input$switch.scale.rlr)
 
     updateAceEditor(session, "fieldCodeRlr", value = codigo)
     cod.rlr.modelo <<- codigo
 
     # The code of the possible landa is generated
-    codigo <- select.landa(variable.predecir,
-                           input$alpha.rlr,
-                           input$switch.scale.rlr)
+    codigo <- paste0("plot(cv.glm.", rlr_type(),")")
     updateAceEditor(session, "fieldCodeRlrPosibLanda", value = codigo)
     cod.select.landa <<- codigo
 
     # The code that prints the coefficients is generated
-    codigo <- coeff.landas(landa)
+    codigo <- coef_lambda(variable.pred = variable.predecir,
+                          model.var = paste0("modelo.rlr.", rlr_type()),
+                          lambda = landa,
+                          cv.var = paste0("cv.glm.", rlr_type()))
+    
     updateAceEditor(session, "fieldCodeRlrCoeff", value = codigo)
     
     # The code of the coefficients is generated with the best lambda
-    codigo <- plot.coeff.landa(landa)
+    codigo <- plot_coef_lambda(model.var = paste0("modelo.rlr.", rlr_type()),
+                               lambda = landa,
+                               cv.var = paste0("cv.glm.", rlr_type()))
+    
     updateAceEditor(session, "fieldCodeRlrLanda", value = codigo)
     
     # The prediction code is generated
-    codigo <- rlr.prediccion(landa)
+    codigo <- rlr.prediction(variable.pred = variable.predecir,
+                             model.var = paste0("modelo.rlr.", rlr_type()),
+                             pred.var = paste0("prediccion.rlr.", rlr_type()),
+                             lambda = landa,
+                             cv.var =  paste0("cv.glm.", rlr_type()))
+    
     updateAceEditor(session, "fieldCodeRlrPred", value = codigo)
     cod.rlr.pred <<- codigo
 
     # The dispersion code is generated
-    codigo <- rlr.disp()
+    codigo <- disp_models(paste0("prediccion.rlr.",rlr_type()), translate("rlr"), variable.predecir)
     updateAceEditor(session, "fieldCodeRlrDisp", value = codigo)
 
     # The index code is generated
@@ -940,7 +973,6 @@ shinyServer(function(input, output, session) {
   # Show the graph of the possible lambda
   plot_posib_landa_rlr <- function(){
     tryCatch({ # Se corren los codigo
-      isolate(exe(cod.select.landa))
       output$plot.rlr.posiblanda <- renderPlot(exe("plot(cv.glm.",rlr_type(),")"))
       insert_report(paste0("posib.landa.rlr.",rlr_type()), paste0("Posible lambda (",rlr_type(),")"),cod.select.landa,"\nplot(cv.glm.",rlr_type(),")")
     },
@@ -1041,11 +1073,11 @@ shinyServer(function(input, output, session) {
         
         df <- as.data.frame(indices.rlr)
         colnames(df) <- c(translate("RMSE"), translate("MAE"), translate("ER"), translate("correlacion"))
-        output$indexdfrlr <- render.index.table(df)
+        output$indexdfrlr <- render_index_table(df)
         
         df2 <- as.data.frame(summary_indices(datos.aprendizaje[,variable.predecir]))
         colnames(df2) <- c(translate("minimo"),translate("q1"),translate("q3"),translate("maximo"))
-        output$indexdfrlr2 <- render.index.table(df2)
+        output$indexdfrlr2 <- render_index_table(df2)
 
         IndicesM[[paste0("rlr-",rlr_type())]] <<- indices.rlr
         actualizar.selector.comparativa()
@@ -1067,7 +1099,7 @@ shinyServer(function(input, output, session) {
   })
 
   # When the user changes the parameters
-  observeEvent(c(input$switch.scale.knn, input$kmax.knn, input$kernel.knn), {
+  observeEvent(c(input$switch.scale.knn, input$kmax.knn, input$kernel.knn, input$distance.knn), {
     if (validate_data(print = FALSE) & knn.stop.excu) {
       default_codigo_knn()
     }else{
@@ -1089,20 +1121,22 @@ shinyServer(function(input, output, session) {
                         scale = input$switch.scale.knn,
                         kmax = k.value,
                         kernel = input$kernel.knn,
-                        model.var = paste0("modelo.knn.", input$kernel.knn))
+                        model.var = paste0("modelo.knn.", input$kernel.knn),
+                        distance = input$distance.knn)
     
     updateAceEditor(session, "fieldCodeKnn", value = codigo)
     cod.knn.modelo <<- codigo
 
     # Se genera el codigo de la prediccion
-    codigo <- kkn_prediction(model.var = paste0("modelo.knn.", input$kernel.knn), 
+    codigo <- kkn_prediction(variable.pred = variable.predecir,
+                             model.var = paste0("modelo.knn.", input$kernel.knn), 
                              pred.var  = paste0("prediccion.knn.", input$kernel.knn))
     
     updateAceEditor(session, "fieldCodeKnnPred", value = codigo)
     cod.knn.pred <<- codigo
 
     # Se genera el codigo de la dispersion
-    codigo <- disp_models(paste0("prediccion.knn.",kernel), translate("knnl"), variable.predecir)
+    codigo <- disp_models(paste0("prediccion.knn.", input$kernel.knn), translate("knnl"), variable.predecir)
     updateAceEditor(session, "fieldCodeKnnDisp", value = codigo)
 
     # Se genera el codigo de la indices
@@ -1206,11 +1240,11 @@ shinyServer(function(input, output, session) {
         
         df <- as.data.frame(indices.knn)
         colnames(df) <- c(translate("RMSE"), translate("MAE"), translate("ER"), translate("correlacion"))
-        output$indexdfknn <- render.index.table(df)
+        output$indexdfknn <- render_index_table(df)
         
         df2 <- as.data.frame(summary_indices(datos.aprendizaje[,variable.predecir]))
         colnames(df2) <- c(translate("minimo"),translate("q1"),translate("q3"),translate("maximo"))
-        output$indexdfknn2 <- render.index.table(df2)
+        output$indexdfknn2 <- render_index_table(df2)
 
         nombres.modelos <<- c(nombres.modelos, paste0("indices.knn.",kernel))
         IndicesM[[paste0("knnl-",kernel)]] <<- indices.knn
@@ -1362,11 +1396,11 @@ shinyServer(function(input, output, session) {
         
         df <- as.data.frame(indices.svm)
         colnames(df) <- c(translate("RMSE"), translate("MAE"), translate("ER"), translate("correlacion"))
-        output$indexdfsvm <- render.index.table(df)
+        output$indexdfsvm <- render_index_table(df)
         
         df2 <- as.data.frame(summary_indices(datos.aprendizaje[,variable.predecir]))
         colnames(df2) <- c(translate("minimo"),translate("q1"),translate("q3"),translate("maximo"))
-        output$indexdfsvm2 <- render.index.table(df2)
+        output$indexdfsvm2 <- render_index_table(df2)
         
         plot_disp_svm()
         nombres.modelos <<- c(nombres.modelos, paste0("indices.svm.",kernel))
@@ -1536,11 +1570,11 @@ shinyServer(function(input, output, session) {
 
         df <- as.data.frame(indices.dt)
         colnames(df) <- c(translate("RMSE"), translate("MAE"), translate("ER"), translate("correlacion"))
-        output$indexdfdt <- render.index.table(df)
+        output$indexdfdt <- render_index_table(df)
         
         df2 <- as.data.frame(summary_indices(datos.aprendizaje[,variable.predecir]))
         colnames(df2) <- c(translate("minimo"),translate("q1"),translate("q3"),translate("maximo"))
-        output$indexdfdt2 <- render.index.table(df2)
+        output$indexdfdt2 <- render_index_table(df2)
         
         IndicesM[["dtl"]] <<- indices.dt
         actualizar.selector.comparativa()
@@ -1733,11 +1767,11 @@ shinyServer(function(input, output, session) {
 
         df <- as.data.frame(indices.rf)
         colnames(df) <- c(translate("RMSE"), translate("MAE"), translate("ER"), translate("correlacion"))
-        output$indexdfrf <- render.index.table(df)
+        output$indexdfrf <- render_index_table(df)
         
         df2 <- as.data.frame(summary_indices(datos.aprendizaje[,variable.predecir]))
         colnames(df2) <- c(translate("minimo"),translate("q1"),translate("q3"),translate("maximo"))
-        output$indexdfrf2 <- render.index.table(df2)
+        output$indexdfrf2 <- render_index_table(df2)
 
         nombres.modelos <<- c(nombres.modelos, "indices.rf")
         IndicesM[["rfl"]] <<- indices.rf
@@ -1776,16 +1810,21 @@ shinyServer(function(input, output, session) {
   # Upgrade code fields to default version
   deault_codigo_boosting <- function() {
     # Se acualiza el codigo del modelo
-    codigo <- boosting.modelo(variable.pr = variable.predecir,
-                              iter = input$iter.boosting,
-                              type = input$tipo.boosting,
-                              minsplit = input$shrinkage.boosting)
+    codigo <- boosting_model(variable.pred = variable.predecir,
+                              model.var = paste0("modelo.boosting.",input$tipo.boosting),
+                              n.trees = input$iter.boosting,
+                              distribution = input$tipo.boosting,
+                              shrinkage = input$shrinkage.boosting)
 
     updateAceEditor(session, "fieldCodeBoosting", value = codigo)
     cod.b.modelo <<- codigo
 
     # Se genera el codigo de la prediccion
-    codigo <- boosting.prediccion(variable.predecir, input$tipo.boosting)
+    codigo <- boosting_prediction(variable.pred = variable.predecir, 
+                                  model.var = paste0("modelo.boosting.",input$tipo.boosting),
+                                  pred.var = paste0("prediccion.boosting.",input$tipo.boosting),
+                                  n.trees = input$iter.boosting)
+    
     updateAceEditor(session, "fieldCodeBoostingPred", value = codigo)
     cod.b.pred <<- codigo
 
@@ -1794,7 +1833,7 @@ shinyServer(function(input, output, session) {
     updateAceEditor(session, "fieldCodeBoostingDisp", value = codigo)
     
     # Cambia el codigo del grafico de importancia
-    updateAceEditor(session, "fieldCodeBoostingPlotImport", value = boosting.plot.import(input$tipo.boosting))
+    updateAceEditor(session, "fieldCodeBoostingPlotImport", value = boosting_importance_plot(paste0("modelo.boosting.",input$tipo.boosting)))
 
     # Se genera el codigo de la indices
     codigo <- extract_code("general_indices")
@@ -1829,8 +1868,10 @@ shinyServer(function(input, output, session) {
       codigo <- input$fieldCodeBoostingPlotImport
       tipo <- input$tipo.boosting
       output$plot.boosting.import <- renderPlot(isolate(exe(codigo)))
-      cod <- ifelse(codigo == "",boosting.plot.import(), codigo)
-      insert_report(paste0("modelo.b.imp.",tipo),paste0("## Importancia de las Variables (",tipo,")\n```{r}\n", cod , "\n```"))
+      cod <- ifelse(codigo == "",boosting_importance_plot(paste0("modelo.boosting.",input$tipo.boosting)), codigo)
+      insert_report(paste0("modelo.b.imp.",tipo), 
+                    paste0("Importancia de las Variables (",tipo,")"),
+                    cod)
     }, error = function(e) {
       clean_boosting(1)
     })
@@ -1919,11 +1960,11 @@ shinyServer(function(input, output, session) {
         
         df <- as.data.frame(indices.boosting)
         colnames(df) <- c(translate("RMSE"), translate("MAE"), translate("ER"), translate("correlacion"))
-        output$indexdfb <- render.index.table(df)
+        output$indexdfb <- render_index_table(df)
         
         df2 <- as.data.frame(summary_indices(datos.aprendizaje[,variable.predecir]))
         colnames(df2) <- c(translate("minimo"),translate("q1"),translate("q3"),translate("maximo"))
-        output$indexdfb2 <- render.index.table(df2)
+        output$indexdfb2 <- render_index_table(df2)
 
         nombres.modelos <<- c(nombres.modelos, paste0("indices.boosting.",tipo))
         IndicesM[[paste0("bl-",tipo)]] <<- exe("indices.boosting.",tipo)
@@ -1969,30 +2010,35 @@ shinyServer(function(input, output, session) {
 
   # Upgrade code fields to default version
   default_codigo_nn <- function(){
-    
     #Se acualiza el codigo del modelo
-    codigo <- nn.modelo(input$threshold.nn,
-                        input$stepmax.nn,
-                        input$cant.capas.nn,
-                        input$nn.cap.1,input$nn.cap.2,
-                        input$nn.cap.3,input$nn.cap.4,
-                        input$nn.cap.5,input$nn.cap.6,
-                        input$nn.cap.7,input$nn.cap.8,
-                        input$nn.cap.9,input$nn.cap.10)
+    
+    codigo <- nn_model(data = "datos.aprendizaje",
+                       variable.pred = variable.predecir,
+                       model.var = "modelo.nn",
+                       mean.var = "mean.nn",
+                       sd.var = "sd.nn",
+                       threshold = input$threshold.nn,
+                       stepmax = input$stepmax.nn,
+                       cant.hidden = input$cant.capas.nn,
+                       input$nn.cap.1,input$nn.cap.2,
+                       input$nn.cap.3,input$nn.cap.4,
+                       input$nn.cap.5,input$nn.cap.6,
+                       input$nn.cap.7,input$nn.cap.8,
+                       input$nn.cap.9,input$nn.cap.10)
 
     updateAceEditor(session, "fieldCodeNn", value = codigo)
     cod.nn.modelo <<- codigo
 
     #Cambia el codigo del grafico del árbol
-    updateAceEditor(session, "fieldCodeNnPlot", value = nn.plot())
+    updateAceEditor(session, "fieldCodeNnPlot", value = nn_plot())
 
     #Se genera el codigo de la prediccion
-    codigo <- nn.prediccion()
+    codigo <- nn_prediction(variable.pred = variable.predecir)
     updateAceEditor(session, "fieldCodeNnPred", value = codigo)
     cod.nn.pred <<- codigo
 
     # Se genera el codigo de la dispersion
-    codigo <- nn.disp()
+    codigo <- disp_models("prediccion.nn", translate("nn"), variable.predecir)
     updateAceEditor(session, "fieldCodeNnDisp", value = codigo)
 
     #Se genera el codigo de la indices
@@ -2009,7 +2055,7 @@ shinyServer(function(input, output, session) {
       capas <- capas[1:input$cant.capas.nn]
       if(input$cant.capas.nn * sum(capas) <= 1500 & ncol(modelo.nn$covariate) <= 20){
         output$plot.nn <- renderPlot(isolate(exe(input$fieldCodeNnPlot)))
-        cod <- ifelse(input$fieldCodeNnPlot == "", nn.plot(), input$fieldCodeNnPlot)
+        cod <- ifelse(input$fieldCodeNnPlot == "", nn_plot(), input$fieldCodeNnPlot)
         insert_report("modelo.nn.graf", "Red Neuronal", cod)
       }else{
         showNotification(translate("bigPlot"), duration = 10, type = "message")
@@ -2025,8 +2071,7 @@ shinyServer(function(input, output, session) {
   plot_disp_nn <- function(){
     tryCatch({ # Se corren los codigo
       output$plot.nn.disp <- renderPlot(exe(input$fieldCodeNnDisp))
-      insert_report("disp.nn",
-                    paste0("## Dispersión del Modelo Redes Neuronales\n```{r}\n", input$fieldCodeNnDisp,"\n```\n"))
+      insert_report("disp.nn", "Dispersi\u00F3n del Modelo Redes Neuronales", input$fieldCodeNnDisp)
     },
     error = function(e) { # Regresamos al estado inicial y mostramos un error
       clean_nn(2)
@@ -2121,11 +2166,11 @@ shinyServer(function(input, output, session) {
 
         df <- as.data.frame(indices.nn)
         colnames(df) <- c(translate("RMSE"), translate("MAE"), translate("ER"), translate("correlacion"))
-        output$indexdfnn <- render.index.table(df)
+        output$indexdfnn <- render_index_table(df)
         
         df2 <- as.data.frame(summary_indices(datos.aprendizaje[,variable.predecir]))
         colnames(df2) <- c(translate("minimo"),translate("q1"),translate("q3"),translate("maximo"))
-        output$indexdfnn2 <- render.index.table(df2)
+        output$indexdfnn2 <- render_index_table(df2)
         
         IndicesM[["nn"]] <<- indices.nn
         actualizar.selector.comparativa()
@@ -2312,7 +2357,7 @@ shinyServer(function(input, output, session) {
                                                         Shiny.unbindAll(table.table().node());
                                                         Shiny.bindAll(table.table().node());"))
 
-  # OJO
+  # Use and show the codes to transform the data
   transform_data_pn <- function() {
     var.noactivas <- c()
     code.res <- "datos.aprendizaje.completos <<- datos.originales.completos \n"
@@ -2347,11 +2392,16 @@ shinyServer(function(input, output, session) {
     if(!is.null(datos.prueba.completos)){
       if(exists("modelo.nuevos") && !is.null(modelo.nuevos)){
         codigo <- switch(modelo.seleccionado.pn,
-                         rl  =  rl_prediction('datos.prueba.completos', 'modelo.nuevos', 'predic.nuevos'),
-                         rlr =  rlr.prediccion.np(alpha = input$alpha.rlr.pred,
-                                                  escalar = input$switch.scale.rlr.pred,
-                                                  manual = input$permitir.landa.pred,
-                                                  landa = input$landa.pred),
+                         rl  =  rl_prediction(data = 'datos.prueba.completos', 
+                                              model.var = 'modelo.nuevos', 
+                                              pred.var = 'predic.nuevos'),
+                         rlr =  rlr.prediction(data.a = ,
+                                               data.p = 'datos.prueba.completos',
+                                               variable.pred = variable.predecir.pn,
+                                               model.var = 'modelo.nuevos',
+                                               pred.var = 'predic.nuevos',
+                                               lambda = ifelse(input$permitir.landa.pred,input$landa.pred,NULL),
+                                               cv.var = "cv.glm.nuevos"),
                          knn =  kkn_prediction(data = 'datos.prueba.completos',
                                                variable.pred = variable.predecir.pn,
                                                model.var = 'modelo.nuevos', 
@@ -2363,11 +2413,20 @@ shinyServer(function(input, output, session) {
                                              variable.pred = variable.predecir.pn,
                                              model.var = "modelo.nuevos",
                                              pred.var = "predic.nuevos"),
-                         boosting = boosting.prediccion.np(),
+                         boosting = boosting_prediction(data = "datos.prueba.completos",
+                                                        variable.pred = variable.predecir.pn,
+                                                        model.var = "modelo.nuevos",
+                                                        pred.var = "predic.nuevos",
+                                                        n.trees = input$iter.boosting.pred),
                          svm = svm_prediction.np(data = "datos.prueba.completos", 
                                                  variable.pred = variable.predecir.pn,
                                                  model.var = "modelo.nuevos", pred.var = "predic.nuevos"),
-                         nn = nn.prediccion.np())
+                         nn = nn_prediction(data = "datos.prueba.completos",
+                                            variable.pred = variable.predecir.pn,
+                                            model.var = "modelo.nuevos",
+                                            pred.var = "predic.nuevos",
+                                            mean.var = "mean.nn.np",
+                                            sd.var = "sd.nn.np"))
         tryCatch({
           exe(codigo)
           update_pred_pn(codigo)
@@ -2407,13 +2466,19 @@ shinyServer(function(input, output, session) {
                      rl   = rl_model(data = "datos.aprendizaje.completos", 
                                      variable.pred = variable.predecir.pn, 
                                      model.var = "modelo.nuevos"),
-                     rlr  = rlr.modelo.np(alpha = input$alpha.rlr.pred,
-                                          escalar = input$switch.scale.rlr.pred,
-                                          manual = input$permitir.landa.pred,
-                                          landa = input$landa.pred),
-                     knn =  kkn_model(data = "datos.aprendizaje.completos",variable.pred = variable.predecir.pn,
-                                      scale = input$switch.scale.knn.pred, kmax = input$kmax.knn.pred,
-                                      kernel = input$kernel.knn.pred, model.var = "modelo.nuevos"),
+                     rlr  = rlr_model(data = "datos.aprendizaje.completos",
+                                       variable.pred = variable.predecir.pn,
+                                       model.var = "modelo.nuevos",
+                                       cv.var = "cv.glm.nuevos",
+                                       alpha = input$alpha.rlr.pred,
+                                       standardize = input$switch.scale.rlr.pred),
+                     knn =  kkn_model(data = "datos.aprendizaje.completos",
+                                      variable.pred = variable.predecir.pn,
+                                      scale = input$switch.scale.knn.pred, 
+                                      kmax = input$kmax.knn.pred,
+                                      kernel = input$kernel.knn.pred, 
+                                      model.var = "modelo.nuevos",
+                                      distance = input$distance.knn.pred),
                      dt  = dt_model(data = "datos.aprendizaje.completos",
                                      variable.pred = variable.predecir.pn,
                                      model.var = "modelo.nuevos",
@@ -2424,24 +2489,30 @@ shinyServer(function(input, output, session) {
                                      model.var = "modelo.nuevos",
                                      ntree = input$ntree.rf.pred,
                                      mtry = input$mtry.rf.pred),
-                     boosting = boosting.modelo.np(variable.pr = input$sel.predic.var.nuevos,
-                                              iter = input$iter.boosting.pred,
-                                              type = input$tipo.boosting.pred,
-                                              minsplit = input$shrinkage.boosting.pred),
+                     boosting = boosting_model(data = "datos.aprendizaje.completos",
+                                                variable.pred = variable.predecir.pn,
+                                                model.var = "modelo.nuevos",
+                                                n.trees = input$iter.boosting.pred,
+                                                distribution = input$tipo.boosting.pred,
+                                                shrinkage = input$shrinkage.boosting.pre),
                      svm = svm_model(data = "datos.aprendizaje.completos",
-                                      variable.pred = variable.predecir.pn,
-                                      model.var = "modelo.nuevos",
-                                      scale = input$switch.scale.svm.pred,
-                                      kernel = input$kernel.svm.pred),
-                     nn = nn.modelo.np(variable.pr=input$sel.predic.var.nuevos,
-                                       input$threshold.nn.pred,
-                                       input$stepmax.nn.pred,
-                                       input$cant.capas.nn.pred,
-                                       input$nn.cap.pred.1,input$nn.cap.pred.2,
-                                       input$nn.cap.pred.3,input$nn.cap.pred.4,
-                                       input$nn.cap.pred.5,input$nn.cap.pred.6,
-                                       input$nn.cap.pred.7,input$nn.cap.pred.8,
-                                       input$nn.cap.pred.9,input$nn.cap.pred.10))
+                                     variable.pred = variable.predecir.pn,
+                                     model.var = "modelo.nuevos",
+                                     scale = input$switch.scale.svm.pred,
+                                     kernel = input$kernel.svm.pred),
+                     nn = nn_model(data = "datos.aprendizaje.completos",
+                                   variable.pred = variable.predecir.pn,
+                                   model.var = "modelo.nuevos",
+                                   mean.var = "mean.nn.np",
+                                   sd.var = "sd.nn.np",
+                                   threshold = input$threshold.nn.pred,
+                                   stepmax = input$stepmax.nn.pred,
+                                   cant.hidden = input$cant.capas.nn.pred,
+                                   input$nn.cap.pred.1,input$nn.cap.pred.2,
+                                   input$nn.cap.pred.3,input$nn.cap.pred.4,
+                                   input$nn.cap.pred.5,input$nn.cap.pred.6,
+                                   input$nn.cap.pred.7,input$nn.cap.pred.8,
+                                   input$nn.cap.pred.9,input$nn.cap.pred.10))
 
       modelo.nuevos <<- NULL
       predic.nuevos <<- NULL
@@ -2600,7 +2671,7 @@ shinyServer(function(input, output, session) {
                                 "cargarDatos","transDatos","seleParModel","generarM","variables","tipo",
                                 "activa","nn","xgb","selbooster","selnrounds","selectCapas","threshold",
                                 "stepmax","redPlot","rll","rlr","posibLanda","coeff","gcoeff",
-                                "automatico","landa","shrinkage","resumenVarPre", "R2"))
+                                "automatico","landa","shrinkage","resumenVarPre", "R2", "distknn"))
 
     updatePlot$normal <- normal_default("datos", input$sel.normal, input$col.normal, translate("curvanormal"))
     updatePlot$dya.cat <- def_code_cat(variable = input$sel.distribucion.cat)

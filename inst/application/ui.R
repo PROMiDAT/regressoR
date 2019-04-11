@@ -32,14 +32,12 @@ suppressMessages(suppressWarnings({
 
 #See the FULL PAGE session first
 
-#These functions only work correctly on the server side because they need the css and js file
 labelInput <- regressoR:::labelInput
 code_field <- regressoR:::code_field
 infoBoxPROMiDAT <- regressoR:::infoBoxPROMiDAT
 inputRadio <- regressoR:::inputRadio
 radioButtonsTr <- regressoR:::radioButtonsTr
 tabsOptions <- regressoR:::tabsOptions
-
 
 # MENU --------------------------------------------------------------------------------------------------------------------
 
@@ -169,7 +167,7 @@ page.load.data <- tabItem(tabName = "cargar",
                                                                  tansform.data.panel,
                                                                  data.segment.panel)),
                                         column(width = 7, show.data)),
-                               conditionalPanel(condition = paste0("input.tabs == '", labelInput("configuraciones"),"'"), #OJO AQUI
+                               conditionalPanel(condition = paste0("input.tabs == '", labelInput("configuraciones"),"'"),
                                                 fluidRow(column(width = 6, show.learning.data),
                                                          column(width = 6, show.test.data))) )
 
@@ -333,6 +331,9 @@ rl.code  <- list(fluidRow(column(width = 9,h4(labelInput("codigo"))),
                    conditionalPanel("input.BoxRl == 'tabRlModelo'",
                                     aceEditor("fieldCodeRl", mode = "r", theme = "monokai",
                                               value = "", height = "3vh", readOnly = F, autoComplete = "enabled")),
+                   conditionalPanel("input.BoxRl == 'tabRlCoef'",
+                                  aceEditor("fieldCodeRlCoef", mode = "r", theme = "monokai",
+                                            value = "", height = "10vh", readOnly = F, autoComplete = "enabled")),
                    conditionalPanel("input.BoxRl == 'tabRlPred'",
                                     aceEditor("fieldCodeRlPred", mode = "r", theme = "monokai",
                                               value = "", height = "3vh", readOnly = F, autoComplete = "enabled")),
@@ -348,6 +349,9 @@ tabs.rl  <- tabsOptions(buttons = list(icon("code")), widths = c(100), heights =
 
 generate.rl.panel <- tabPanel(title = labelInput("generatem"),value = "tabRlModelo",
                              verbatimTextOutput("txtRl"))
+
+coefficients.rl.panel <- tabPanel(title = labelInput("coeff"), value = "tabRlCoef",
+                                  DT::dataTableOutput("rlCoefTable"))
 
 prediccion.rl.panel <- tabPanel(title = labelInput("predm"), value = "tabRlPred",
                                 DT::dataTableOutput("rlPrediTable"))
@@ -367,6 +371,7 @@ rl.general.index.panel <- tabPanel(title = labelInput("indices"), value = "tabRl
 page.rl <- tabItem(tabName = "rl",
                      tabBox(id = "BoxRl", width = NULL, height ="80%",
                             generate.rl.panel,
+                            coefficients.rl.panel,
                             prediccion.rl.panel,
                             disp.rl.panel,
                             rl.general.index.panel,
@@ -377,15 +382,16 @@ page.rl <- tabItem(tabName = "rl",
 rlr.options <- list(fluidRow(column(width = 9,h4(labelInput("opciones"))),
                               column(width = 2,br(),actionButton("runRlr", label = labelInput("ejecutar"), icon = icon("play")))),
                      hr(),
-                     fluidRow(column(selectInput(inputId = "alpha.rlr", label = labelInput("selectAlg"),selected = 1,
+                     fluidRow(column(selectInput(inputId = "alpha.rlr", label = labelInput("selectAlg"), selected = 1,
                                                  choices = list("Ridge" = 0, "Lasso" = 1)),width = 6),
                               column(br(), switchInput(inputId = "switch.scale.rlr", onStatus = "success", offStatus = "danger", value = T,
                                                  label = labelInput("escal"), onLabel = labelInput("si"), offLabel = labelInput("no"), labelWidth = "100%"), width=6)),
-                     fluidRow(column(id = "colManualLanda",width = 6, numericInput("landa", labelInput("landa"),value = 2, min = 0, "NULL", width = "100%")), br(),
+                     fluidRow(column(id = "colManualLanda",width = 5, numericInput("landa", labelInput("landa"),value = 2, min = 0, "NULL", width = "100%")), br(),
                               column(width = 6, switchInput(inputId = "permitir.landa", onStatus = "success", offStatus = "danger", value = F, width = "100%",
-                                                            label = "", onLabel = "Manual", offLabel = labelInput("automatico"), labelWidth = "100%"))))
+                                                            label = "", onLabel = "Manual", offLabel = labelInput("automatico"), labelWidth = "100%"),
+                                     style = "padding-top: 5px;")))
 
-rlr.code  <- list(fluidRow(column(width = 9,h4(labelInput("codigo")))),
+rlr.code  <- list(fluidRow(column(width = 9, h4(labelInput("codigo")))),
                    hr(),
                    conditionalPanel("input.BoxRlr == 'tabRlrModelo'",
                                     aceEditor("fieldCodeRlr", mode = "r", theme = "monokai",
@@ -459,8 +465,9 @@ knn.options <- list(fluidRow(column(width = 9,h4(labelInput("opciones"))),
                               column(selectInput(inputId = "kernel.knn", label = labelInput("selkernel"),selected = 1,
                                      choices = c("optimal", "rectangular", "triangular", "epanechnikov", "biweight",
                                                  "triweight", "cos","inv","gaussian")),width = 6)),
-                     fluidRow(column(switchInput(inputId = "switch.scale.knn", onStatus = "success", offStatus = "danger", value = T,
-                                     label = labelInput("escal"), onLabel = labelInput("si"), offLabel = labelInput("no"), labelWidth = "100%"), width=7)))
+                     fluidRow(column(br(),switchInput(inputId = "switch.scale.knn", onStatus = "success", offStatus = "danger", value = T,
+                                     label = labelInput("escal"), onLabel = labelInput("si"), offLabel = labelInput("no"), labelWidth = "100%"), width=6),
+                              column(width=6, numericInput("distance.knn", labelInput("distknn"), min = 1,step = 1, value = 2))) )
 
 knn.code <- list(h4(labelInput("codigo")), hr(),
                    conditionalPanel("input.BoxKnn == 'tabKknModelo'",
@@ -893,12 +900,13 @@ options.rlr.pred <- fluidRow(column(selectInput(inputId = "alpha.rlr.pred", labe
                               column(width = 3, switchInput(inputId = "permitir.landa.pred", onStatus = "success", offStatus = "danger", value = F, width = "100%",
                                                             label = "", onLabel = "Manual", offLabel = labelInput("automatico"), labelWidth = "100%")))
 
-options.knn.pred <- fluidRow(column(width = 4, br() , switchInput(inputId = "switch.scale.knn.pred", onStatus = "success", offStatus = "danger", value = T,
+options.knn.pred <- fluidRow(column(width = 3, br() , switchInput(inputId = "switch.scale.knn.pred", onStatus = "success", offStatus = "danger", value = T,
                                                               label = labelInput("escal"), onLabel = labelInput("si"), offLabel = labelInput("no"), labelWidth = "100%", width = "100%")),
-                              column(width = 4, numericInput("kmax.knn.pred", labelInput("kmax"), min = 1,step = 1, value = 7,width="100%")),
-                              column(width = 4, selectInput(inputId = "kernel.knn.pred", label = labelInput("selkernel") ,selected = 1, width="100%",
+                              column(width = 3, numericInput("kmax.knn.pred", labelInput("kmax"), min = 1,step = 1, value = 7,width="100%")),
+                              column(width = 3, selectInput(inputId = "kernel.knn.pred", label = labelInput("selkernel") ,selected = 1, width="100%",
                                                                       choices =  c("optimal", "rectangular", "triangular", "epanechnikov", "biweight",
-                                                                                   "triweight", "cos","inv","gaussian"))))
+                                                                                   "triweight", "cos","inv","gaussian"))),
+                              column(width = 3,numericInput("distance.knn.pred", labelInput("distknn"), min = 1,step = 1, value = 2) ))
 
 options.svm.pred <- fluidRow(column(width = 6, br(), switchInput(inputId = "switch.scale.svm.pred", onStatus = "success", offStatus = "danger", value = T,
                                                            label = labelInput("escal"), onLabel = labelInput("si"), offLabel = labelInput("no"), labelWidth = "100%", width = "100%")),
