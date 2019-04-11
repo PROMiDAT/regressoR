@@ -19,14 +19,14 @@ rf_model(data = "datos.aprendizaje", variable.pred = NULL,
 \item{mtry}{the mtry parameter of the model.}
 }
 \description{
-rf_model
+generates the code to create the random forest model.
 }
 \examples{
-\dontrun{
+library(randomForest)
 x <- rf_model('iris', 'Petal.Length')
 exe(x)
 print(modelo.rf)
-}
+
 }
 \seealso{
 \code{\link[randomForest]{randomForest}}

@@ -7,13 +7,10 @@
 extract_code(funcion)
 }
 \arguments{
-\item{funcion}{the name of the function to be extracted}
-}
-\value{
-the code in text form
+\item{funcion}{the name of the function to be extracted.}
 }
 \description{
-Gets the code of a function in text form
+gets the code of a function in text form.
 }
 \examples{
 extract_code("cat")

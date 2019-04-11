@@ -13,7 +13,7 @@ gg_color_hue(n)
 color-coded vector
 }
 \description{
-Create colors
+create colors.
 }
 \examples{
 col <- gg_color_hue(3)

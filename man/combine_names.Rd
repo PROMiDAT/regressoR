@@ -17,7 +17,7 @@ combine_names(x, y, sep = ".")
 a vector with the combination of x and y.
 }
 \description{
-combine_names
+combine two string vector by grouping according to the first vector.
 }
 \examples{
 x = c("A", "B", "C")

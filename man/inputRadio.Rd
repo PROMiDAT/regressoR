@@ -17,9 +17,9 @@ inputRadio(inputId, value, isSelected)
 shiny.tag object
 }
 \description{
-Create a radio button input
+create a radio button input
 }
 \details{
-This function only work correctly on the server side because they need the css and js file.
+this function only work correctly on the server side because they need the css and js file.
 }
 \keyword{internal}

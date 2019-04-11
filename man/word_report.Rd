@@ -15,7 +15,7 @@ word_report(title = "Sin Titulo", name = "PROMiDAT",
 \item{order_by_regressor}{It's the order for the default "regressoR" report.}
 }
 \description{
-word_report
+creates a header for the report that allows you to generate a word file.
 }
 \examples{
 new_report(iris, 'iris')

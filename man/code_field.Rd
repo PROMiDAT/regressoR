@@ -7,19 +7,19 @@
 code_field(runid, fieldid, ...)
 }
 \arguments{
-\item{runid}{The id of the execute button.}
+\item{runid}{the id of the execute button.}
 
-\item{fieldid}{The id of the code field.}
+\item{fieldid}{the id of the code field.}
 
-\item{...}{Arguments to be passed to \code{\link{aceEditor}}}
+\item{...}{arguments to be passed to \code{\link[shinyAce]{aceEditor}}}
 }
 \value{
 shiny.tag object
 }
 \description{
-create an \code{\link{aceEditor}} wrapper with a button to execute the code
+create an \code{\link[shinyAce]{aceEditor}} wrapper with a button to execute the code
 }
 \details{
-This function only work correctly on the server side because they need the css and js file.
+this function only work correctly on the server side because they need the css and js file.
 }
 \keyword{internal}

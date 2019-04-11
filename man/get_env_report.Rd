@@ -7,7 +7,7 @@
 get_env_report()
 }
 \description{
-gets the environment where the list is found with the report
+gets the environment where the list is found with the report.
 }
 \examples{
 e <- get_env_report()

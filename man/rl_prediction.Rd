@@ -10,17 +10,18 @@ rl_prediction(data = "datos.prueba", model.var = "modelo.rl",
 \arguments{
 \item{data}{the name of the test data.}
 
-\item{model.var}{the name of the variable that stores the resulting prediction.}
+\item{model.var}{the name of the variable that stores the resulting model.}
 
-\item{pred.var}{the name of the variable that stores the resulting model.}
+\item{pred.var}{the name of the variable that stores the resulting prediction.}
 }
 \description{
-generates the code to create the prediction of the linear regression model
+generates the code to create the prediction of the linear regression model.
 }
 \examples{
 x <- rl_model('iris', 'Petal.Length', 'model_rl')
 exe(x)
 print(model_rl)
+
 x <- rl_prediction('iris', 'model_rl', 'my_prediction')
 exe(x)
 print(my_prediction)

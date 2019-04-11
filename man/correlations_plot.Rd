@@ -17,7 +17,8 @@ generates the code of the correlation chart.
 \examples{
 x <- cor_model('iris')
 exe(x)
-correlacion
+print(correlacion)
+
 x <- correlations_plot()
 exe(x)
 

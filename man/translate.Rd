@@ -12,10 +12,7 @@ translate(text, language = options("language"))
 \item{language}{the language to choose. It can be "es" or "en".}
 }
 \description{
-translates text id into current language
-}
-\details{
-Use data(dictionary) to see the data
+translates text id into current language.
 }
 \examples{
 translate("knnl")

@@ -22,11 +22,11 @@ svm_model(data = "datos.aprendizaje", variable.pred = NULL,
 generates the code to create the support vector machines model.
 }
 \examples{
-\dontrun{
+library(e1071)
 x <- svm_model('iris', 'Petal.Length')
 exe(x)
 print(modelo.svm)
-}
+
 }
 \seealso{
 \code{\link[e1071]{svm}}

@@ -12,7 +12,7 @@ tb_predic(real, predic.var)
 \item{predic.var}{a vector with the prediction value.}
 }
 \description{
-Creates comparison table between prediction and real data (test data).
+creates comparison table between prediction and real data (test data).
 }
 \examples{
 if(interactive()) {

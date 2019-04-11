@@ -9,11 +9,8 @@ summary_indices(data)
 \arguments{
 \item{data}{a numeric vector.}
 }
-\value{
-a list with the summary.
-}
 \description{
-resume una variable retornando el mínimo, el primer cuartil, el tercer cuartil y el valor máximo.
+summarizes a variable by returning the minimum, first quartile, third quartile and maximum value.
 }
 \examples{
 summary_indices(iris$Sepal.Length)

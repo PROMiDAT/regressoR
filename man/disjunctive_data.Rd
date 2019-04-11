@@ -11,11 +11,8 @@ disjunctive_data(data, vars)
 
 \item{vars}{a vector with the name of columns.}
 }
-\value{
-a dataset
-}
 \description{
-Convert the columns selected to disjunctive.
+convert the columns selected to disjunctive.
 }
 \examples{
 disjunctive_data(iris, "Species")

@@ -12,20 +12,23 @@ svm_prediction(data = "datos.prueba", variable.pred = NULL,
 
 \item{variable.pred}{the name of the variable to be predicted.}
 
-\item{model.var}{the name of the variable that stores the resulting prediction.}
+\item{model.var}{the name of the variable that stores the resulting model.}
 
-\item{pred.var}{the name of the variable that stores the resulting model.}
+\item{pred.var}{the name of the variable that stores the resulting prediction.}
 }
 \description{
-svm_prediction
+generates the code to create the prediction of the support vector machines model.
 }
 \examples{
-\dontrun{
+library(e1071)
+library(dplyr)
+
 x <- svm_model('iris', 'Petal.Length', model.var = 'model_svm')
 exe(x)
 print(model_svm)
+
 x <- svm_prediction('iris', 'Petal.Length', 'model_svm', 'my_prediction')
 exe(x)
 print(my_prediction)
-}
+
 }

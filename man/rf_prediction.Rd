@@ -12,20 +12,23 @@ rf_prediction(data = "datos.prueba", variable.pred = NULL,
 
 \item{variable.pred}{the name of the variable to be predicted.}
 
-\item{model.var}{the name of the variable that stores the resulting prediction.}
+\item{model.var}{the name of the variable that stores the resulting model.}
 
-\item{pred.var}{the name of the variable that stores the resulting model.}
+\item{pred.var}{the name of the variable that stores the resulting prediction.}
 }
 \description{
-rf_prediction
+generates the code to create the prediction of the random forest model.
 }
 \examples{
-\dontrun{
+library(randomForest)
+library(dplyr)
+
 x <- rf_model('iris', 'Petal.Length', model.var = 'model_rf')
 exe(x)
-print(model_svm)
+print(model_rf)
+
 x <- rf_prediction('iris', 'Petal.Length', 'model_rf', 'my_prediction')
 exe(x)
 print(my_prediction)
-}
+
 }

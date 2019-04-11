@@ -17,9 +17,12 @@ default_disp(data = "datos", vars = NULL, color = "#FF0000AA")
 default_disp
 }
 \examples{
+library(scatterplot3d)
+
 x <- default_disp('iris', c('Sepal.Length', 'Sepal.Width'))
 exe(x)
-#x <- default_disp('iris', c('Sepal.Length', 'Sepal.Width', 'Petal.Length'))
-#exe(x)
+
+x <- default_disp('iris', c('Sepal.Length', 'Sepal.Width', 'Petal.Length'))
+exe(x)
 
 }

@@ -15,7 +15,10 @@ code_NA(deleteNA = TRUE, d.o = "datos.originales")
 creates the code that imputes the NAs data or removes them.
 }
 \examples{
-code_NA(TRUE, 'iris')
-code_NA(FALSE, 'iris')
+iris2 <<- iris
+x <- code_NA(TRUE, 'iris2')
+exe(x)
+x <- code_NA(FALSE, 'iris2')
+exe(x)
 
 }

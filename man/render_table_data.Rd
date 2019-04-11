@@ -24,7 +24,7 @@ render_table_data(data, editable = TRUE, dom = "frtip",
 a shiny.render.function
 }
 \description{
-render_table_data
+create a table for the shiny application and render it.
 }
 \examples{
 if(interactive()) {
@@ -38,4 +38,7 @@ if(interactive()) {
    )
 }
 
+}
+\seealso{
+\code{\link[DT]{datatable}}, \code{\link[DT]{renderDT}}
 }

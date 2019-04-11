@@ -7,7 +7,7 @@
 new_section_report()
 }
 \description{
-Creates a new section in the report, this way you can overwrite keys and delete an element only affects the current section.
+creates a new section in the report, this way you can overwrite keys and delete an element only affects the current section.
 }
 \examples{
 new_report(iris, 'iris')

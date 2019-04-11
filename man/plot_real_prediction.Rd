@@ -13,11 +13,8 @@ plot_real_prediction(real, prediction, model = "")
 
 \item{model}{the name of the model of the scatter plot.}
 }
-\value{
-a ggplot graphic
-}
 \description{
-Scatter plot between the actual value of the variable to be predicted and the prediction of the model.
+scatter plot between the actual value of the variable to be predicted and the prediction of the model.
 }
 \examples{
 real <- rnorm(45)

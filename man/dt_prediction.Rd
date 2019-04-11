@@ -10,12 +10,12 @@ dt_prediction(data = "datos.prueba", model.var = "modelo.dt",
 \arguments{
 \item{data}{the name of the test data.}
 
-\item{model.var}{the name of the variable that stores the resulting prediction.}
+\item{model.var}{the name of the variable that stores the resulting model.}
 
-\item{pred.var}{the name of the variable that stores the resulting model.}
+\item{pred.var}{the name of the variable that stores the resulting prediction.}
 }
 \description{
-dt_prediction
+generates the code to create the prediction of the decision trees model.
 }
 \examples{
 library(rpart)

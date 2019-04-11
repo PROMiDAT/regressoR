@@ -13,6 +13,13 @@ pairs_power(data = "datos")
 pairs_power
 }
 \examples{
-#x <- pairs_power('iris')
-#exe(x)
+\dontrun{
+library(psych)
+x <- pairs_power('iris')
+exe(x)
+}
+
+}
+\seealso{
+\code{\link[psych]{pairs.panels}}
 }

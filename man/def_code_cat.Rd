@@ -15,6 +15,7 @@ def_code_cat(data = "datos", variable)
 def_code_cat
 }
 \examples{
-def_code_cat('iris', 'Species')
+x <- def_code_cat('iris', 'Species')
+exe(x)
 
 }

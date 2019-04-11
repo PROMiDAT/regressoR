@@ -22,6 +22,6 @@ shiny.tag object
 create multples with names for language change.
 }
 \details{
-This function only work correctly on the server side because they need the css and js file.
+this function only work correctly on the server side because they need the css and js file.
 }
 \keyword{internal}

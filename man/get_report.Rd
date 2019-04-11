@@ -7,7 +7,7 @@
 get_report()
 }
 \description{
-gets the list of report values
+gets the list of report values.
 }
 \examples{
 get_report()

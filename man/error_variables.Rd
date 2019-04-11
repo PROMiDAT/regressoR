@@ -10,7 +10,7 @@ error_variables(num = T)
 \item{num}{if TRUE shows a message of missing numerical variables, if FALSE shows a message of missing categorical variables.}
 }
 \description{
-Draws an error of missing data
+draws an error of missing data.
 }
 \examples{
 error_variables(TRUE)

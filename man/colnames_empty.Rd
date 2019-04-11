@@ -7,13 +7,10 @@
 colnames_empty(data)
 }
 \arguments{
-\item{data}{the dataset.}
-}
-\value{
-a vector with the names of the columns or an empty string if the data is NULL.
+\item{data}{a data.frame with the data.}
 }
 \description{
-colnames_empty
+gets names of the columns or an empty string if the data is NULL.
 }
 \examples{
 colnames_empty(iris)

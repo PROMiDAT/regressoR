@@ -20,6 +20,6 @@ shiny.tag object
 create a box for the information tab
 }
 \details{
-This function only work correctly on the server side because they need the css and js file.
+this function only work correctly on the server side because they need the css and js file.
 }
 \keyword{internal}

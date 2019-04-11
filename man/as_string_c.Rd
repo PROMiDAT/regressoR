@@ -7,15 +7,12 @@
 as_string_c(vect, quote = TRUE)
 }
 \arguments{
-\item{vect}{a vector}
+\item{vect}{a vector with values}
 
 \item{quote}{a logical value. If TRUE, the values on the vector will be surrounded by quotes.}
 }
-\value{
-a text
-}
 \description{
-Creates a string representative of a vector
+creates a string representative of a vector
 }
 \examples{
 as_string_c(c("A", "B", "C"))

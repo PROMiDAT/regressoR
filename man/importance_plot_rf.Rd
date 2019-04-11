@@ -14,7 +14,7 @@ importance_plot_rf(model.rf, title.1, title.2)
 \item{title.2}{the title of the second chart.}
 }
 \description{
-importance_plot_rf
+graphs the importance of variables for the random forest model.
 }
 \examples{
 library(randomForest)

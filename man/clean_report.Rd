@@ -7,7 +7,7 @@
 clean_report()
 }
 \description{
-clean the full report
+clean the full report.
 }
 \examples{
 new_report(iris, 'iris')

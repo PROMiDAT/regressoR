@@ -6,7 +6,7 @@
 \usage{
 kkn_model(data = "datos.aprendizaje", variable.pred = NULL,
   scale = TRUE, kmax = 7, kernel = "optimal",
-  model.var = "modelo.knn")
+  model.var = "modelo.knn", distance = 2)
 }
 \arguments{
 \item{data}{the name of the learning data.}
@@ -20,16 +20,18 @@ kkn_model(data = "datos.aprendizaje", variable.pred = NULL,
 \item{kernel}{the kernel parameter of the model.}
 
 \item{model.var}{the name of the variable that stores the resulting model.}
+
+\item{distance}{the distance parameter of the model.}
 }
 \description{
 generates the code to create the k nearest neighbors model.
 }
 \examples{
-\dontrun{
+library(kknn)
 x <- kkn_model('iris', 'Petal.Length')
 exe(x)
 print(modelo.knn)
-}
+
 }
 \seealso{
 \code{\link[kknn]{train.kknn}}

@@ -7,13 +7,10 @@
 models_mode(list.names = list())
 }
 \arguments{
-\item{list.names}{a list whose names function as keys for \code{\link{translate}}. The names have to have the key-mode form.}
-}
-\value{
-a vector with the names
+\item{list.names}{a list whose names function as keys for \code{\link[regressoR]{translate}}. The names have to have the key-mode form.}
 }
 \description{
-models_mode
+transforms the names of a list from key-mode form to value-mode form.
 }
 \examples{
 x <- list('knnl-mode1' = 1, 'knnl-mode2' = 2, 'knnl-mode2' = 5)

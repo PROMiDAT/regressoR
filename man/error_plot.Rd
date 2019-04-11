@@ -9,12 +9,10 @@ error_plot(msg)
 \arguments{
 \item{msg}{the message to be displayed in the graph}
 }
-\value{
-a ggplot graphic
-}
 \description{
 makes a warning graphic
 }
 \examples{
 error_plot("My Warning")
+
 }

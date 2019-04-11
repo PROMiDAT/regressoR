@@ -7,15 +7,15 @@
 exe(..., envir = parent.frame())
 }
 \arguments{
-\item{...}{one or more texts to be concatenated and executed}
+\item{...}{one or more texts to be concatenated and executed.}
 
-\item{envir}{the environment in which expr is to be evaluated}
+\item{envir}{the environment in which expr is to be evaluated.}
 }
 \value{
-the result of the execute
+the result of the execute.
 }
 \description{
-Concat and execute a text in R
+concat and execute a text in R.
 }
 \examples{
 exe("5+5")

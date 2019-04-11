@@ -14,7 +14,7 @@ validate_pn_data(x, y, var.pred = "")
 \item{var.pred}{a vector with the names of variables to be excluded from the comparison.}
 }
 \description{
-Verify that a data.frame has the same columns with the same types.
+verify that a data.frame has the same columns with the same types.
 }
 \examples{
 \dontrun{

@@ -24,5 +24,7 @@ creates the partition code for testing and learning data.
 \examples{
 x <- partition_code('iris', 75, 'Species', 555, TRUE)
 exe(x)
+head(datos.aprendizaje)
+head(datos.prueba)
 
 }

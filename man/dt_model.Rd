@@ -19,7 +19,7 @@ dt_model(data = "datos.aprendizaje", variable.pred = NULL,
 \item{maxdepth}{the maxdepth parameter of the model.}
 }
 \description{
-dt_model
+generates the code to create the decision trees model.
 }
 \examples{
 library(rpart)

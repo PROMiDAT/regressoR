@@ -18,5 +18,6 @@ creates the code that deactivates the selected variables of the data.
 iris2 <- iris
 x <- code_deactivate('Species', 'iris2')
 exe(x)
+head(iris2)
 
 }

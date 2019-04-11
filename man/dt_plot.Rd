@@ -10,9 +10,10 @@ dt_plot(model.var = "modelo.dt")
 \item{model.var}{the name of the variable that stores the resulting prediction.}
 }
 \description{
-dt_plot
+makes the graph of the tree.
 }
 \examples{
+\dontrun{
 library(rpart)
 
 x <- dt_model('iris', 'Petal.Length', model.var = 'model_dt')
@@ -21,5 +22,5 @@ print(model_dt)
 
 x <- dt_plot('model_dt')
 exe(x)
-
+}
 }
