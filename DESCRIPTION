@@ -29,7 +29,7 @@ Imports:
     ggplot2 (>= 3.1.0),
     dplyr (<= 0.8.0.1),
     htmltools (>= 0.3.6)
-Suggests: forcats, gridExtra, tibble, scales
+Suggests: forcats, gridExtra, tibble, scales, scatterplot3d, psych, dummies
 Description: Perform a supervised data analysis on a database through a 'shiny' graphical interface. It includes methods such as linear regression, penalized regression, k-nearest neighbors, decision trees, ada boosting, extreme gradient boosting, random forest, neural networks, deep learning and support vector machines.
 License: GPL (>=2)
 Encoding: UTF-8
