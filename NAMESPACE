@@ -8,7 +8,7 @@ export(init_regressor, exe, extract_code, as_string_c, gg_color_hue, plot_real_p
        numerical_summary, cor_model, correlations_plot, rl_model, rl_prediction, rl_coeff, rlr_model, coef_lambda, plot_coef_lambda, 
        rlr.prediction, rlr_type, kkn_model, kkn_prediction, svm_model, svm_prediction, dt_model, dt_prediction, dt_plot, 
        rf_model, rf_prediction, importance_plot_rf,boosting_model, boosting_prediction, boosting_importance_plot, 
-       calibrate_boosting, nn_model, nn_prediction, nn_plot, labelInput, rd_model, rd.prediccion)
+       calibrate_boosting, nn_model, nn_prediction, nn_plot, labelInput, rd_model, rd_prediction, plot_RMSE, plot_pred_rd)
 
 import(ggplot2)
 import(shiny)

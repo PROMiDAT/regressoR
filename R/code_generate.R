@@ -699,10 +699,6 @@ rd_type <- function(mode = options("rd.mode")){
 
 options(rd.mode = 0)
 
-# rd_type.np <- function(){
-#   ifelse(input$modo.rd.pn == 0, "ACP", "MCP")
-# }
-
 #' rd_model
 #'
 #' @description generates the code to create the dimension reduction model.
@@ -726,7 +722,7 @@ options(rd.mode = 0)
 #' print(modelo.rd)
 #' 
 rd_model <- function(data = "datos.aprendizaje", variable.pred = NULL, model.var = "modelo.rd",
-                      n.comp = "n.comp.rd", mode = options("rd.mode"), scale = TRUE){
+                      n.comp = "n.comp.rd", mode = as.numeric(options("rd.mode")), scale = TRUE){
   if(mode == 0){
     x <- paste0(model.var," <<- pcr(`",variable.pred,"`~.,data = ",data,", scale = ",scale,", validation = 'CV')")
   }else{
@@ -734,20 +730,6 @@ rd_model <- function(data = "datos.aprendizaje", variable.pred = NULL, model.var
   }
   paste0(x,"\n",n.comp, " <<- which.min(RMSEP(",model.var,")$val[1, 1, ]) - 1")
 }
-
-# rd.modelo.np <- function(escalar = TRUE, mode = FALSE, manual = FALSE, ncomp = NA){
-#   if(mode == 0){
-#     x <- paste0("modelo.nuevos <<- pcr(",variable.predecir.pn,"~.,data = datos.aprendizaje.completos, scale = ",escalar,", validation = 'CV')")
-#   }else{
-#     x <- paste0("modelo.nuevos <<- plsr(",variable.predecir.pn,"~.,data = datos.aprendizaje.completos, scale = ",escalar,", validation = 'CV')")
-#   }
-#   if(manual && !is.na(ncomp) && ncomp > 0){
-#     y <- ncomp
-#   }else{
-#     y <- "which.min(RMSEP(modelo.nuevos)$val[1, 1, ]) - 1"
-#   }
-#   paste0(x,"\n","n.comp.rd.np <<- ", y)
-# }
 
 #' rd_prediction
 #' 
@@ -777,11 +759,6 @@ rd_prediction <- function(data = "datos.prueba", model.var = "modelo.svm", pred.
   ncomp <- ifelse(is.null(ncomp), exe(n.comp), ncomp)
   paste0(pred.var," <<- predict(",model.var,", ",data,", ncomp = ",ncomp,")")
 }
-
-# rd_prediction.np <- function() {
-#   paste0("predic.nuevos <<- predict(modelo.nuevos, datos.prueba.completos, ncomp = ",n.comp.rd.np,")")
-# }
-
 
 # DT PAGE ------------------------------------------------------------------------------------------------------------
 

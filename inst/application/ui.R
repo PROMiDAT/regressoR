@@ -1054,7 +1054,7 @@ create.pred.model.panel <- tabPanel(title = labelInput("seleParModel"),solidHead
                                     conditionalPanel(condition =  "input.selectModelsPred == 'nn'",
                                                      options.nn.pred),
                                     conditionalPanel(condition =  "input.selectModelsPred == 'rd'",
-                                                     opciones.rd.pred),
+                                                     options.rd.pred),
                                     verbatimTextOutput("txtPredNuevos"),
                                     actionButton("PredNuevosBttnModelo", labelInput("generarM"), width  = "100%", style = "background-color:#CBB051;color:#fff;margin-top:9px;"))
 

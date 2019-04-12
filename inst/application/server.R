@@ -1633,19 +1633,22 @@ shinyServer(function(input, output, session) {
     cod.rd.modelo <<- codigo
     
     # Se genera el codigo del plot de RMSE
-    codigo <- extract.code("plot.RMSE")
+    codigo <- extract.code("plot_RMSE")
     updateAceEditor(session, "fieldCodeRdRMSE", value = codigo)
     
     # Se genera el codigo del plot de predictoras
-    codigo <- extract.code("plot.pred")
+    codigo <- extract.code("plot_pred_rd")
     updateAceEditor(session, "fieldCodeRdPlotPred", value = codigo)
     
     # Se genera el codigo del plot de predictoras
-    codigo <- extract.code("plot.var.pred")
+    codigo <- extract.code("plot_var_pred_rd")
     updateAceEditor(session, "fieldCodeRdPlotVarPred", value = codigo)
     
     # Se genera el codigo de la prediccion
-    codigo <- rd_prediction()
+    codigo <- rd_prediction(model.var = variable.predecir,
+                            pred.var = paste0("modelo.rd.",rd_type()),
+                            n.comp  = "n.comp.rd",
+                            ncomp = ncomp)
     updateAceEditor(session, "fieldCodeRdPred", value = codigo)
     cod.rd.pred <<- codigo
     
@@ -1699,10 +1702,10 @@ shinyServer(function(input, output, session) {
   plot_rmse_rd <- function(){
     tryCatch({ # Se corren los codigo
       isolate(tipo <- rd_type())
-      output$plot.rd.rmse <- renderPlot(exe("plot.RMSE(modelo.rd.",tipo,")"))
+      output$plot.rd.rmse <- renderPlot(exe("plot_RMSE(modelo.rd.",tipo,")"))
       insert.report(paste0("rmse.rd.",tipo),
                     "Error RMSE seg\u00fan N\u00famero de Componentes",
-                    paste0("plot.RMSE(modelo.rd.",tipo,")"))
+                    paste0("plot_RMSE(modelo.rd.",tipo,")"))
     },
     error = function(e) { # Regresamos al estado inicial y mostramos un error
       clean_rd(1)
@@ -1713,9 +1716,9 @@ shinyServer(function(input, output, session) {
   plot_pred_rd <- function(){
     tryCatch({ # Se corren los codigo
       isolate(tipo <- rd_type())
-      output$plot.rd.pred <- renderPlot(exe("plot.pred(modelo.rd.",tipo,")"))
+      output$plot.rd.pred <- renderPlot(exe("plot_pred_rd(modelo.rd.",tipo,")"))
       insert.report(paste0("plot.pred.rd.",tipo), "Gr\u00e1fico de varianza explicada en los predictores",
-                    paste0("plot.pred(modelo.rd.",tipo,")"))
+                    paste0("plot_pred_rd(modelo.rd.",tipo,")"))
     },
     error = function(e) { # Regresamos al estado inicial y mostramos un error
       clean_rd(1)
@@ -1726,9 +1729,9 @@ shinyServer(function(input, output, session) {
   plot_var_pred_rd <- function(){
     tryCatch({ # Se corren los codigo
       isolate(tipo <- rd_type())
-      output$plot.rd.var.pred <- renderPlot(exe("plot.var.pred(modelo.rd.",tipo,")"))
+      output$plot.rd.var.pred <- renderPlot(exe("plot_var_pred_rd(modelo.rd.",tipo,")"))
       insert.report(paste0("plot.var.pred.rd.",tipo), "Gr\u00e1fico de varianza explicada en la variable a predecir",
-                    paste0("plot.var.pred(modelo.rd.",tipo,")"))
+                    paste0("plot_var_pred_rd(modelo.rd.",tipo,")"))
     },
     error = function(e) { # Regresamos al estado inicial y mostramos un error
       clean_rd(1)
@@ -2519,6 +2522,15 @@ shinyServer(function(input, output, session) {
     update_nn_layers_pn()
   })
 
+  # When the number of components changes.
+  observeEvent(input$permitir.ncomp.pred, {
+    if (input$permitir.ncomp.pred) {
+      shinyjs::enable("ncomp.rd.pred")
+    } else {
+      shinyjs::disable("ncomp.rd.pred")
+    }
+  })
+  
   # When allowing the lambda changes
   observeEvent(input$permitir.landa.pred, {
     if (input$permitir.landa.pred) {
@@ -2664,6 +2676,11 @@ shinyServer(function(input, output, session) {
                                               variable.pred = variable.predecir.pn,
                                               model.var = "modelo.nuevos", 
                                               pred.var = "predic.nuevos"),
+                         rd  =  rd_prediction(data = "datos.prueba.completos",
+                                              model.var = "modelo.nuevos",
+                                              pred.var = "predic.nuevos",
+                                              n.comp = "n.comp.rd.np",
+                                              ncomp = if(input$permitir.ncomp.pred){input$ncomp.rd.pred}else{NULL}),
                          nn = nn_prediction(data = "datos.prueba.completos",
                                             variable.pred = variable.predecir.pn,
                                             model.var = "modelo.nuevos",
@@ -2743,6 +2760,12 @@ shinyServer(function(input, output, session) {
                                      model.var = "modelo.nuevos",
                                      scale = input$switch.scale.svm.pred,
                                      kernel = input$kernel.svm.pred),
+                     rd = rd_model(data = "datos.aprendizaje.completos",
+                                   variable.pred = variable.predecir.pn,
+                                   model.var = "modelo.nuevos",
+                                   n.comp = "n.comp.rd.np",
+                                   mode = input$mode.rd.pred,
+                                   scale = input$switch.scale.rd.pred),
                      nn = nn_model(data = "datos.aprendizaje.completos",
                                    variable.pred = variable.predecir.pn,
                                    model.var = "modelo.nuevos",
@@ -2922,6 +2945,7 @@ shinyServer(function(input, output, session) {
 
     execute_knn_ind()
     execute_svm_ind()
+    execute_rd_ind()
     execute_dt_ind()
     execute_rf_ind()
     execute_rl_ind()

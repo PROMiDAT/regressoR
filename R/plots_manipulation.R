@@ -163,27 +163,46 @@ categorical_distribution <- function(var) {
 #' 
 importance_plot_rf <- function(model.rf, title.1, title.2){
   importancia <- randomForest::importance(model.rf) %>% as.data.frame() %>% tibble::rownames_to_column("Variable")
+  size.y <- ifelse(nrow(importancia) <= 25, 1, 1 - (nrow(importancia) - 25)/3 * 0.01 )
+  size.y <- ifelse(size.y <= 0, 0.2, size.y)
   g1 <- ggplot(importancia, aes(x = forcats::fct_reorder(importancia$Variable, importancia$`%IncMSE`), y = importancia$`%IncMSE`, 
                                 fill = forcats::fct_reorder(importancia$Variable, importancia$`%IncMSE`))) + 
     geom_bar(stat = 'identity', position = 'identity', width = 0.1) +
     labs(title = title.1,  y = "", x = "") +
     scale_y_continuous(labels = scales::comma) + coord_flip() +
     theme(axis.text.x = element_text(angle = 45, hjust = 1),
-          plot.title = element_text(size = 10),legend.position = "none")
+          axis.text.y = element_text(size=rel(size.y)),
+          plot.title  = element_text(size = 10),legend.position = "none")
   g2 <- ggplot(importancia, aes(x = forcats::fct_reorder(importancia$Variable, importancia$IncNodePurity), 
                                 y = importancia$IncNodePurity, fill = forcats::fct_reorder(importancia$Variable, importancia$IncNodePurity))) + 
     geom_bar(stat = 'identity', position = 'identity', width = 0.1) +
     labs(title = title.2,  y = "", x = "") +
     scale_y_continuous(labels = scales::comma) + coord_flip() +
     theme(axis.text.x = element_text(angle = 45, hjust = 1), 
+          axis.text.y = element_text(size=rel(size.y)),
           plot.title = element_text(size = 10), legend.position = 'none')
   print(gridExtra::grid.arrange(g1, g2, ncol = 2, nrow = 1))
 }
 
 
 
-# Gráfico error RMSE de validación cruzada según componentes usados
-plot.RMSE <- function(model){
+#' plot_RMSE
+#' 
+#' @description graph the root mean square error of cross validation according to components used.
+#'
+#' @param model a dimension reduction model.
+#'
+#' @export
+#'
+#' @examples
+#' #library(pls)
+#' 
+#' #x <- rd_model('iris', 'Petal.Length')
+#' #exe(x)
+#' 
+#' #plot_RMSE(modelo.rd)
+#' 
+plot_RMSE <- function(model){
   RMSE.CV <- RMSEP(model)$val[1, 1, ]
   
   ggplot(data = data.frame(Componentes = 0:(length(RMSE.CV) - 1), Error = RMSE.CV), mapping = aes(x = Componentes, y = Error)) +
@@ -191,13 +210,28 @@ plot.RMSE <- function(model){
     geom_line(size = 0.5, col = "dodgerblue3") +
     labs(title = "RMSE seg\u00fan N\u00famero de Componentes",
          x = "N\u00famero de Componentes",
-         y = "RMSE")+
+         y = "RMSE") +
     geom_vline(xintercept = n.comp.rd, linetype="dashed", 
                color = "blue", size=1)
 }
 
-# Gráfico de varianza explicada en los predictores según componentes usados
-plot.pred <- function(model){
+#' plot_pred_rd
+#' 
+#' @description graph of variance explained in the predictors according to components used.
+#'
+#' @param model a dimension reduction model.
+#'
+#' @export
+#'
+#' @examples
+#' #library(pls)
+#' 
+#' #x <- rd_model('iris', 'Petal.Length')
+#' #exe(x)
+#' 
+#' #plot_pred_rd(modelo.rd)
+#' 
+plot_pred_rd <- function(model){
   var.explicada <- cumsum(explvar(model)) / 100
   ggplot(data = data.frame(Componentes = 1:length(var.explicada), Varianza = var.explicada), 
          mapping = aes(x = Componentes, y = Varianza)) +
@@ -211,8 +245,23 @@ plot.pred <- function(model){
                color = "blue", size=1)
 }
 
-# Gráfico de varianza explicada en la variable a predecir según componentes usados
-plot.var.pred <- function(model){
+#' plot_var_pred_rd
+#' 
+#' @description graph of the variance explained in the variable to predict according to the components used.
+#'
+#' @param model a dimension reduction model.
+#'
+#' @export
+#'
+#' @examples
+#' #library(pls)
+#' 
+#' #x <- rd_model('iris', 'Petal.Length')
+#' #exe(x)
+#' 
+#' #plot_var_pred_rd(modelo.rd)
+#' 
+plot_var_pred_rd <- function(model){
   var.explicada <- drop(R2(model, estimate = "train", intercept = FALSE)$val)
   
   ggplot(data = data.frame(Componentes = 1:length(var.explicada), Varianza = var.explicada), mapping = aes(x = Componentes, y = Varianza)) +
