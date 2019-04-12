@@ -835,7 +835,7 @@ codigo.b  <- list(h4(labelInput("codigo")), hr(),
                                               value = "", height = "5vh", readOnly = F, autoComplete = "enabled")),
                    conditionalPanel("input.BoxB == 'tabBImp'",
                                     aceEditor("fieldCodeBoostingPlotImport", mode = "r", theme = "monokai",
-                                              value = "", height = "3vh", readOnly = F, autoComplete = "enabled")),
+                                              value = "", height = "5vh", readOnly = F, autoComplete = "enabled")),
                    conditionalPanel("input.BoxB == 'tabBPred'",
                                     aceEditor("fieldCodeBoostingPred", mode = "r", theme = "monokai",
                                               value = "", height = "3vh", readOnly = F, autoComplete = "enabled")),
@@ -853,7 +853,7 @@ panel.generar.boosting <- tabPanel(title = labelInput("generatem"), value = "tab
                               verbatimTextOutput("txtBoosting"))
 
 plot.boosting.import <- tabPanel(title = labelInput("varImp"), value = "tabBImp",
-                    plotOutput('plot.boosting.import', height = "55vh"))
+                    plotOutput('plot.boosting.import', height = "70vh"))
 
 panel.prediccion.boosting <- tabPanel(title = labelInput("predm"), value = "tabBPred",
                                  DT::dataTableOutput("boostingPrediTable"))
@@ -1157,7 +1157,7 @@ pagina.info <- tabItem(tabName = "acercaDe",
                        infoBoxPROMiDAT(labelInput("copyright"), "PROMiDAT S.A.", icono = icon("copyright")),
                        infoBoxPROMiDAT(labelInput("info"), tags$a( href="https://www.promidat.com/", style = "color:white;",
                                                                    target = "_blank", "https://www.promidat.com"), icono = icon("info")),
-                       infoBoxPROMiDAT(labelInput("version"), "1.0.3", icono = icon("file-code-o")))
+                       infoBoxPROMiDAT(labelInput("version"), "1.0.4", icono = icon("file-code-o")))
 
 # PAGINA COMPLETA ---------------------------------------------------------------------------------------------------------
 

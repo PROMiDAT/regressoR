@@ -820,11 +820,14 @@ boosting.MC <- function(variable.p, type = "gaussian"){
 
 #Codigo del grafico de boosting
 boosting.plot.import <- function(type = "gaussian"){
-  paste0("ggplot(summary(modelo.boosting.",type,"), aes(x = fct_reorder(var, rel.inf), y = rel.inf, fill = fct_reorder(var, rel.inf))) +\n",
+  size.y <- ifelse(ncol(datos.aprendizaje) <= 25, 1.5, 1 - (ncol(datos.aprendizaje) - 25)/5 * 0.01 )
+  size.y <- ifelse(size.y <= 0, 0.1, size.y)
+  paste0(
+    "ggplot(summary(modelo.boosting.",type,"), aes(x = fct_reorder(var, rel.inf), y = rel.inf, fill = fct_reorder(var, rel.inf))) +\n",
     "geom_bar(stat = 'identity', position = 'identity', width = 0.1) +\n",
     "labs(title = '",tr("impVarRI"),"', y = '",tr("RI"),"', x = '')+\n",
     "scale_y_continuous(labels = scales::comma) + coord_flip() +\n",
-    "theme(axis.text.x = element_text(angle = 45, hjust = 1), legend.position = 'none')\n")
+    "theme(axis.text.x=element_text(angle=45,hjust=1),axis.text.y=element_text(size=rel(",size.y,")),legend.position='none')\n")
 }
 
 #Codigo de la dispersion de knn
