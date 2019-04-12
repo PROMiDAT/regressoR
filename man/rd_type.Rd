@@ -4,10 +4,10 @@
 \alias{rd_type}
 \title{rd_type}
 \usage{
-rd_type(mode = options("rd.mode"))
+rd_type(mode.rd = options("rd.mode"))
 }
 \arguments{
-\item{mode}{the method of dimension reduction is defined as mode=1 is the MCP, and mode=0 the ACP.}
+\item{mode.rd}{the method of dimension reduction is defined as mode=1 is the MCP, and mode=0 the ACP.}
 }
 \description{
 returns the name of the method of dimension reduction.

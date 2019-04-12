@@ -4,20 +4,22 @@
 \alias{plot_pred_rd}
 \title{plot_pred_rd}
 \usage{
-plot_pred_rd(model)
+plot_pred_rd(model, n.comp = "n.comp.rd")
 }
 \arguments{
 \item{model}{a dimension reduction model.}
+
+\item{n.comp}{the name of the variable that stores the optimum number of components.}
 }
 \description{
 graph of variance explained in the predictors according to components used.
 }
 \examples{
-#library(pls)
+library(pls)
 
-#x <- rd_model('iris', 'Petal.Length')
-#exe(x)
+x <- rd_model('iris', 'Petal.Length')
+exe(x)
 
-#plot_pred_rd(modelo.rd)
+plot_pred_rd(modelo.rd)
 
 }

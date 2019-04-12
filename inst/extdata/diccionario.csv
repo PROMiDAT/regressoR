@@ -253,3 +253,8 @@ ErrorBsize;La tabla de aprendizaje es muy pequeña para ejecutar este modelo;The
 errornum;Se necesitan variables numéricas  para esta parte;You need numerical variables for this part
 errorcat;Se necesitan variables categóricas  para esta parte;You need categorical variables for this part
 distknn;Distancia q:;q Distance:
+rd;Reducción de Dimensión;Dimension Reduction
+ncomp;Cantidad de Componentes;Quantity of Components
+RdPred;Varianza Explicada en Predictores;Variance Explained in Predictors
+RdVarPred;Varianza Explicada en Variable a Predecir;Variance Explained in Variable to Predict
+errRDnCom;La cantidad de componentes excede la cantidad existente;The quantity of components exceeds the existing quantity

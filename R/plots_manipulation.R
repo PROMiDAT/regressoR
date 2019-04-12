@@ -191,27 +191,28 @@ importance_plot_rf <- function(model.rf, title.1, title.2){
 #' @description graph the root mean square error of cross validation according to components used.
 #'
 #' @param model a dimension reduction model.
-#'
+#' @param n.comp the name of the variable that stores the optimum number of components.
+#' 
 #' @export
 #'
 #' @examples
-#' #library(pls)
+#' library(pls)
 #' 
-#' #x <- rd_model('iris', 'Petal.Length')
-#' #exe(x)
+#' x <- rd_model('iris', 'Petal.Length')
+#' exe(x)
 #' 
-#' #plot_RMSE(modelo.rd)
+#' plot_RMSE(modelo.rd)
 #' 
-plot_RMSE <- function(model){
-  RMSE.CV <- RMSEP(model)$val[1, 1, ]
-  
-  ggplot(data = data.frame(Componentes = 0:(length(RMSE.CV) - 1), Error = RMSE.CV), mapping = aes(x = Componentes, y = Error)) +
+plot_RMSE <- function(model, n.comp = "n.comp.rd"){
+  RMSE.CV <- pls::RMSEP(model)$val[1, 1, ]
+  df <- data.frame(Componentes = 0:(length(RMSE.CV) - 1), Error = RMSE.CV)
+  ggplot(data = df, mapping = aes(x = df$Componentes, y = df$Error)) +
     geom_point(size = 1, col = "dodgerblue3") +
     geom_line(size = 0.5, col = "dodgerblue3") +
     labs(title = "RMSE seg\u00fan N\u00famero de Componentes",
          x = "N\u00famero de Componentes",
          y = "RMSE") +
-    geom_vline(xintercept = n.comp.rd, linetype="dashed", 
+    geom_vline(xintercept = exe(n.comp), linetype="dashed", 
                color = "blue", size=1)
 }
 
@@ -220,28 +221,30 @@ plot_RMSE <- function(model){
 #' @description graph of variance explained in the predictors according to components used.
 #'
 #' @param model a dimension reduction model.
-#'
+#' @param n.comp the name of the variable that stores the optimum number of components.
+#' 
 #' @export
 #'
 #' @examples
-#' #library(pls)
+#' library(pls)
 #' 
-#' #x <- rd_model('iris', 'Petal.Length')
-#' #exe(x)
+#' x <- rd_model('iris', 'Petal.Length')
+#' exe(x)
 #' 
-#' #plot_pred_rd(modelo.rd)
+#' plot_pred_rd(modelo.rd)
 #' 
-plot_pred_rd <- function(model){
-  var.explicada <- cumsum(explvar(model)) / 100
-  ggplot(data = data.frame(Componentes = 1:length(var.explicada), Varianza = var.explicada), 
-         mapping = aes(x = Componentes, y = Varianza)) +
+plot_pred_rd <- function(model, n.comp = "n.comp.rd"){
+  var.explicada <- cumsum(pls::explvar(model)) / 100
+  df <- data.frame(Componentes = 1:length(var.explicada), Varianza = var.explicada)
+  ggplot(data = df, 
+         mapping = aes(x = df$Componentes, y = df$Varianza)) +
     geom_point(size = 1, col = "dodgerblue3") +
     geom_line(size = 0.5, col = "dodgerblue3") +
     scale_y_continuous(labels = scales::percent) +
     labs(title = "Varianza Explicada en los Predictores",
          x = "N\u00famero de Componentes",
          y = "Varianza Explicada")+
-    geom_vline(xintercept = n.comp.rd, linetype="dashed", 
+    geom_vline(xintercept = exe(n.comp), linetype="dashed", 
                color = "blue", size=1)
 }
 
@@ -250,27 +253,28 @@ plot_pred_rd <- function(model){
 #' @description graph of the variance explained in the variable to predict according to the components used.
 #'
 #' @param model a dimension reduction model.
+#' @param n.comp the name of the variable that stores the optimum number of components.
 #'
 #' @export
 #'
 #' @examples
-#' #library(pls)
+#' library(pls)
 #' 
-#' #x <- rd_model('iris', 'Petal.Length')
-#' #exe(x)
+#' x <- rd_model('iris', 'Petal.Length')
+#' exe(x)
 #' 
-#' #plot_var_pred_rd(modelo.rd)
+#' plot_var_pred_rd(modelo.rd)
 #' 
-plot_var_pred_rd <- function(model){
-  var.explicada <- drop(R2(model, estimate = "train", intercept = FALSE)$val)
-  
-  ggplot(data = data.frame(Componentes = 1:length(var.explicada), Varianza = var.explicada), mapping = aes(x = Componentes, y = Varianza)) +
+plot_var_pred_rd <- function(model, n.comp = "n.comp.rd"){
+  var.explicada <- drop(pls::R2(model, estimate = "train", intercept = FALSE)$val)
+  df <- data.frame(Componentes = 1:length(var.explicada), Varianza = var.explicada)
+  ggplot(data = df, mapping = aes(x = df$Componentes, y = df$Varianza)) +
     geom_point(size = 1, col = "dodgerblue3") +
     geom_line(size = 0.5, col = "dodgerblue3") +
     scale_y_continuous(labels = scales::percent) +
     labs(title = "Varianza Explicada en la Variable a Predecir",
          x = "N\u00famero de Componentes",
          y = "Varianza Explicada")+
-    geom_vline(xintercept = n.comp.rd, linetype="dashed", 
+    geom_vline(xintercept = exe(n.comp), linetype="dashed", 
                color = "blue", size=1)
 }

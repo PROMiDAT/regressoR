@@ -28,6 +28,7 @@ suppressMessages(suppressWarnings({
   library(shinydashboardPlus)
   library(dplyr)
   library(zip)
+  library(pls)
 }))
 
 #See the FULL PAGE session first
@@ -600,7 +601,7 @@ rd.code   <- list(fluidRow(column(width = 9,h4(labelInput("codigo")))),
                                      aceEditor("fieldCodeRdIG", mode = "r", theme = "monokai",
                                                value = "", height = "22vh", readOnly = F, autoComplete = "enabled")))
 
-tabs.rd  <- tabsOptions(botones = list(icon("gear"),icon("code")), widths = c(50,100), heights = c(80, 95),
+tabs.rd  <- tabsOptions(buttons = list(icon("gear"),icon("code")), widths = c(50,100), heights = c(80, 95),
                         tabs.content = list(rd.options, rd.code))
 
 generate.rd.panel <- tabPanel(title = labelInput("generatem"),value = "tabRdModelo",

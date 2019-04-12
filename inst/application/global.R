@@ -16,6 +16,7 @@ comparative_table <- function(sel){
 
 options(language  = "es")
 options(rlr.alpha = 1)
+options(rd.mode   = 0)
 
 # ------------------- Datos
 

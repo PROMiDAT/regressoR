@@ -32,7 +32,9 @@
 }
 
 
-#rfPrediTable, #knnPrediTable, #svmPrediTable, #dtPrediTable, #rfPrediTable, #boostingPrediTable, #nnPrediTable, #rlPrediTable, #rlrPrediTable, #rlCoefTable {
+#rfPrediTable, #knnPrediTable, #svmPrediTable, #dtPrediTable, #rfPrediTable, 
+#boostingPrediTable, #nnPrediTable, #rlPrediTable, #rlrPrediTable, #rlCoefTable,
+#rdPrediTable{
   min-height: 370px !important;
 }
 

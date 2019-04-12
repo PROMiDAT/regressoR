@@ -508,12 +508,12 @@ coef_lambda <- function(data = "datos.aprendizaje", variable.pred = NULL, model.
 #' exe(x)
 #' 
 plot_coef_lambda <- function(model.var = "modelo.rlr", lambda = NULL,  cv.var = "cv.glm"){
-  lambda <- ifelse(is.null(lambda), paste0(cv.var,"$lambda.min"), lambda)
+  lambda <- ifelse(is.null(lambda), paste0("log(",cv.var,"$lambda.min)"), lambda)
   paste0("plot(",model.var,", 'lambda', label = TRUE)\n",
          "abline(v = ",lambda,", col = 'blue', lwd = 2, lty = 3)")
 }
 
-#' rlr.prediction
+#' rlr_prediction
 #' 
 #' @description generates the code to create the prediction of the penalized regression model.
 #'
@@ -533,11 +533,11 @@ plot_coef_lambda <- function(model.var = "modelo.rlr", lambda = NULL,  cv.var = 
 #' exe(x)
 #' print(modelo.rlr)
 #' 
-#' x <- rlr.prediction('iris', 'iris', 'Petal.Length', pred.var = 'my_prediction')
+#' x <- rlr_prediction('iris', 'iris', 'Petal.Length', pred.var = 'my_prediction')
 #' exe(x)
 #' print(my_prediction)
 #' 
-rlr.prediction <- function(data.a = "datos.aprendizaje", data.p = "datos.prueba",variable.pred = NULL, model.var = "modelo.rlr", 
+rlr_prediction <- function(data.a = "datos.aprendizaje", data.p = "datos.prueba",variable.pred = NULL, model.var = "modelo.rlr", 
                            pred.var = "prediccion.rlr", lambda = NULL,  cv.var = "cv.glm") {
   lambda <- ifelse(is.null(lambda),paste0(cv.var,"$lambda.min"), lambda)
   paste0("x <- model.matrix(`",variable.pred,"`~., ",data.a,")[, -1]\n",
@@ -562,6 +562,7 @@ rlr.prediction <- function(data.a = "datos.aprendizaje", data.p = "datos.prueba"
 #' rlr_type(0)
 #' 
 rlr_type <- function(alpha_rlr = options("rlr.alpha")){
+  alpha_rlr <- ifelse(is.null(unlist(alpha_rlr)), 0, alpha_rlr)
   ifelse(alpha_rlr == 0, "ridge", "lasso")
 }
 
@@ -679,26 +680,6 @@ svm_prediction <- function(data = "datos.prueba", variable.pred = NULL, model.va
 
 # RD PAGE -----------------------------------------------------------------------------------------------------------------
 
-#' rd_type
-#' 
-#' @description returns the name of the method of dimension reduction.
-#'
-#' @param mode the method of dimension reduction is defined as mode=1 is the MCP, and mode=0 the ACP.
-#' 
-#' @seealso \code{\link[pls]{pcr}}, \code{\link[pls]{plsr}}
-#'
-#' @export
-#'
-#' @examples
-#' rd_type(1)
-#' rd_type(0)
-#' 
-rd_type <- function(mode = options("rd.mode")){
-  ifelse(mode == 0, "ACP", "MCP")
-}
-
-options(rd.mode = 0)
-
 #' rd_model
 #'
 #' @description generates the code to create the dimension reduction model.
@@ -723,8 +704,7 @@ options(rd.mode = 0)
 #' 
 rd_model <- function(data = "datos.aprendizaje", variable.pred = NULL, model.var = "modelo.rd",
                       n.comp = "n.comp.rd", mode = options("rd.mode"), scale = TRUE){
-  cat("hooooooooooooooooooooooooooo")
-  cat(mode)
+  mode <- ifelse(is.null(unlist(mode)), 0, mode)
   if(mode == 0){
     x <- paste0(model.var," <<- pcr(`",variable.pred,"`~.,data = ",data,", scale = ",scale,", validation = 'CV')")
   }else{
@@ -757,10 +737,31 @@ rd_model <- function(data = "datos.aprendizaje", variable.pred = NULL, model.var
 #' print(my_prediction)
 #' 
 rd_prediction <- function(data = "datos.prueba", model.var = "modelo.svm", pred.var = "prediccion.rd", 
-                          n.comp = "n.comp.rd", ncomp = NULL) {   #"prediccion.rd.",rd_type()
-  ncomp <- ifelse(is.null(ncomp), exe(n.comp), ncomp)
+                          n.comp = "n.comp.rd", ncomp = NULL) {
+  ncomp <- ifelse(is.null(ncomp), n.comp, ncomp)
   paste0(pred.var," <<- predict(",model.var,", ",data,", ncomp = ",ncomp,")")
 }
+
+#' rd_type
+#' 
+#' @description returns the name of the method of dimension reduction.
+#'
+#' @param mode.rd the method of dimension reduction is defined as mode=1 is the MCP, and mode=0 the ACP.
+#' 
+#' @seealso \code{\link[pls]{pcr}}, \code{\link[pls]{plsr}}
+#'
+#' @export
+#'
+#' @examples
+#' rd_type(1)
+#' rd_type(0)
+#' 
+rd_type <- function(mode.rd = options("rd.mode")){
+  mode.rd <- ifelse(is.null(unlist(mode.rd)), 0, mode.rd)
+  ifelse(mode.rd == 0, "ACP", "MCP")
+}
+
+options(rd.mode = 0)
 
 # DT PAGE ------------------------------------------------------------------------------------------------------------
 

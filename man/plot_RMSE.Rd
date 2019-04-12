@@ -4,20 +4,22 @@
 \alias{plot_RMSE}
 \title{plot_RMSE}
 \usage{
-plot_RMSE(model)
+plot_RMSE(model, n.comp = "n.comp.rd")
 }
 \arguments{
 \item{model}{a dimension reduction model.}
+
+\item{n.comp}{the name of the variable that stores the optimum number of components.}
 }
 \description{
 graph the root mean square error of cross validation according to components used.
 }
 \examples{
-#library(pls)
+library(pls)
 
-#x <- rd_model('iris', 'Petal.Length')
-#exe(x)
+x <- rd_model('iris', 'Petal.Length')
+exe(x)
 
-#plot_RMSE(modelo.rd)
+plot_RMSE(modelo.rd)
 
 }

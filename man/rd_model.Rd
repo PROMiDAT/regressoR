@@ -6,7 +6,7 @@
 \usage{
 rd_model(data = "datos.aprendizaje", variable.pred = NULL,
   model.var = "modelo.rd", n.comp = "n.comp.rd",
-  mode = as.numeric(options("rd.mode")), scale = TRUE)
+  mode = options("rd.mode"), scale = TRUE)
 }
 \arguments{
 \item{data}{the name of the learning data.}
