@@ -163,8 +163,8 @@ categorical_distribution <- function(var) {
 #' 
 importance_plot_rf <- function(model.rf, title.1, title.2){
   importancia <- randomForest::importance(model.rf) %>% as.data.frame() %>% tibble::rownames_to_column("Variable")
-  size.y <- ifelse(nrow(importancia) <= 25, 1, 1 - (nrow(importancia) - 25)/3 * 0.01 )
-  size.y <- ifelse(size.y <= 0, 0.2, size.y)
+  size.y <- ifelse(nrow(importancia) <= 25, 1.5, 1 - (nrow(importancia) - 25)/3 * 0.01 )
+  size.y <- ifelse(size.y <= 0, 0.1, size.y)
   g1 <- ggplot(importancia, aes(x = forcats::fct_reorder(importancia$Variable, importancia$`%IncMSE`), y = importancia$`%IncMSE`, 
                                 fill = forcats::fct_reorder(importancia$Variable, importancia$`%IncMSE`))) + 
     geom_bar(stat = 'identity', position = 'identity', width = 0.1) +

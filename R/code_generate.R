@@ -722,7 +722,9 @@ options(rd.mode = 0)
 #' print(modelo.rd)
 #' 
 rd_model <- function(data = "datos.aprendizaje", variable.pred = NULL, model.var = "modelo.rd",
-                      n.comp = "n.comp.rd", mode = as.numeric(options("rd.mode")), scale = TRUE){
+                      n.comp = "n.comp.rd", mode = options("rd.mode"), scale = TRUE){
+  cat("hooooooooooooooooooooooooooo")
+  cat(mode)
   if(mode == 0){
     x <- paste0(model.var," <<- pcr(`",variable.pred,"`~.,data = ",data,", scale = ",scale,", validation = 'CV')")
   }else{
