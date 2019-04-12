@@ -715,17 +715,21 @@ rf.prediccion.np <- function() {
 
 importance.plor.rf <- function(modelo.rf, titulo.1, titulo.2){
   importancia <- randomForest::importance(modelo.rf) %>% as.data.frame() %>% tibble::rownames_to_column("Variable")
+  size.y <- ifelse(nrow(importancia) <= 25, 1.5, 1 - (nrow(importancia) - 25)/2.5 * 0.01 )
+  size.y <- ifelse(size.y <= 0, 0.2, size.y)
   g1 <- ggplot(importancia, aes(x = fct_reorder(Variable, `%IncMSE`), y = `%IncMSE`, fill = fct_reorder(Variable, `%IncMSE`))) + 
     geom_bar(stat = 'identity', position = 'identity', width = 0.1) +
     labs(title = titulo.1,  y = "", x = "") +
     scale_y_continuous(labels = scales::comma) + coord_flip() +
     theme(axis.text.x = element_text(angle = 45, hjust = 1),
+          axis.text.y = element_text(size=rel(size.y)),
           plot.title = element_text(size = 10),legend.position = "none")
   g2 <- ggplot(importancia, aes(x = fct_reorder(Variable, IncNodePurity), y = IncNodePurity, fill = fct_reorder(Variable, IncNodePurity))) + 
     geom_bar(stat = 'identity', position = 'identity', width = 0.1) +
     labs(title = titulo.2,  y = "", x = "") +
     scale_y_continuous(labels = scales::comma) + coord_flip() +
     theme(axis.text.x = element_text(angle = 45, hjust = 1), 
+          axis.text.y = element_text(size=rel(size.y)),
           plot.title = element_text(size = 10), legend.position = 'none')
   print(gridExtra::grid.arrange(g1, g2, ncol = 2, nrow = 1))
 }

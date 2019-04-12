@@ -790,7 +790,7 @@ panel.generar.rf <- tabPanel(title = labelInput("generatem"),value = "tabRfModel
                              verbatimTextOutput("txtRf"))
 
 plot.rf <- tabPanel(title = labelInput("varImp"), value = "tabRfImp",
-                    plotOutput('plot.rf', height = "55vh"))
+                    plotOutput('plot.rf', height = "70vh"))
 
 panel.prediccion.rf <- tabPanel(title = labelInput("predm"), value = "tabRfPred",
                                 DT::dataTableOutput("rfPrediTable"))
