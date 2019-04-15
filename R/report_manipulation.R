@@ -204,6 +204,8 @@ order_report <- function(list_report){
                              "biweight","triweight", "cos","inv","gaussian")),
              combine_names(c("modelo.svm","pred.svm","disp.svm","ind.svm"),
                            c("linear", "polynomial", "radial","sigmoid")),
+             combine_names(c("modelo.rd","rmse.rd","plot.pred.rd","plot.var.pred.rd","pred.rd","disp.rd","ind.rd"),
+                              c("ACP", "MCP")),
              "modelo.dt","modelo.dt.graf","pred.dt",
              "disp.dt","ind.dt","modelo.dt.rules",
              "modelo.rf","modelo.rf.graf",
@@ -228,7 +230,7 @@ order_report <- function(list_report){
 #'
 #' @param title report title.
 #' @param name name of the author of the report.
-#' @param order_by_regressor It's the order for the default "regressoR" report.
+#' @param order_by_regressor it's the order for the default "regressoR" report.
 #'
 #' @export
 #' 

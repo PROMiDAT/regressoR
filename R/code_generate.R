@@ -978,7 +978,8 @@ boosting_prediction <- function(data = "datos.prueba", variable.pred = NULL, mod
 #' @description generates the code to make the graph of variable importance.
 #'
 #' @param model.var the name of the variable that stores the resulting model.
-#'
+#' @param data the name of the learning data.
+#' 
 #' @export
 #'
 #' @examples
@@ -991,15 +992,19 @@ boosting_prediction <- function(data = "datos.prueba", variable.pred = NULL, mod
 #' x <- boosting_model('iris', 'Petal.Length', "model_boosting")
 #' exe(x)
 #' 
-#' x <- boosting_importance_plot('model_boosting')
+#' x <- boosting_importance_plot('model_boosting', 'iris')
 #' exe(x)
 #' }
-boosting_importance_plot <- function(model.var = "modelo.boosting"){
+boosting_importance_plot <- function(model.var = "modelo.boosting", data = "datos.aprendizaje"){
+  data <- exe(data)
+  size.y <- ifelse(ncol(data) <= 25, 1.5, 1 - (ncol(data) - 25)/4 * 0.01 )
+  size.y <- ifelse(size.y <= 0, 0.1, size.y)
   paste0("ggplot(summary(",model.var,"), aes(x = fct_reorder(var, rel.inf), y = rel.inf, fill = fct_reorder(var, rel.inf))) +\n",
          "geom_bar(stat = 'identity', position = 'identity', width = 0.1) +\n",
          "labs(title = '",translate("impVarRI"),"', y = '",translate("RI"),"', x = '') +\n",
          "scale_y_continuous(labels = scales::comma) + coord_flip() +\n",
-         "theme(axis.text.x = element_text(angle = 45, hjust = 1), legend.position = 'none')\n")
+         "theme(axis.text.x = element_text(angle = 45, hjust = 1),",
+         "axis.text.y=element_text(size=rel(",size.y,")),legend.position='none')\n")
 }
 
 # NN PAGE ------------------------------------------------------------------------------------------------------------

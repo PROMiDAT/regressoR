@@ -177,6 +177,7 @@ comparative_table <- function(sel, indices) {
     resp[] <- lapply(resp, as.numeric)
     resp <- round(resp, 4)
     resp <- resp[nombres %in% sel,]
+    resp <- resp[ order(row.names(resp)), ]
     return(resp)
     
   }, error = function(e){
