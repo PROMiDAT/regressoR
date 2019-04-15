@@ -1,4 +1,8 @@
 
+# Edit > Folding > Collapse All (is of much help to visualize in an orderly way the code).
+
+# WRAPPERS ----------------------------------------------------------------------------------------------------------------
+
 # In order to avoid changing the server code and since these functions always use the same parameters, 
 # the following wrappers were made.
 
@@ -17,9 +21,7 @@ comparative_table <- function(sel){
 options(language  = "es")
 options(rlr.alpha = 1)
 options(rd.mode   = 0)
-
-# ------------------- Datos
-
+# -- Data
 datos             <<- NULL
 datos.originales  <<- NULL
 datos.prueba      <<- NULL
@@ -29,64 +31,44 @@ real.val          <<- NULL
 contador          <<- 0
 semilla           <<- FALSE
 nombres.modelos   <<- c()
-
-# ------------------- Estadisticas Basicas
-
+# -- Basic Statistics
 correlacion   <<- NULL
 cod.poder.cat <<- NULL
 cod.poder.num <<- NULL
-
-# ------------------- Modelos
-
+# -- Models
 IndicesM  <<- list()
-
-# ------------------- RL
-
+# -- RL
 cod.rl.modelo <<- NULL
 cod.rl.pred   <<- NULL
 cod.rl.ind    <<- NULL
-
-# ------------------- RLR
-
+# -- RLR
 cod.rlr.modelo   <<- NULL
 cod.rlr.pred     <<- NULL
 cod.rlr.ind      <<- NULL
 cod.select.landa <<- NULL
-
-# ------------------- KNN
-
+# -- KNN
 cod.knn.modelo <<- NULL
 cod.knn.pred   <<- NULL
 cod.knn.ind    <<- NULL
 knn.stop.excu  <<- FALSE
-
-# ------------------- SVM
-
+# -- SVM
 cod.svm.modelo <<- NULL
 cod.svm.pred   <<- NULL
 cod.svm.ind    <<- NULL
-
-# ------------------- DT
-
+# -- DT
 cod.dt.modelo <<- NULL
 cod.dt.pred   <<- NULL
 cod.dt.ind    <<- NULL
-
-# ------------------- RF
-
+# -- RF
 cod.rf.modelo <<- NULL
 cod.rf.pred   <<- NULL
 cod.rf.ind    <<- NULL
 rf.stop.excu  <<- FALSE
-
-# ------------------- BOOSTING
-
+# -- BOOSTING
 cod.b.modelo <<- NULL
 cod.b.pred   <<- NULL
 cod.b.ind    <<- NULL
-
-# ------------------- NN
-
+# -- NN
 cod.nn.modelo <<- NULL
 cod.nn.pred   <<- NULL
 cod.nn.ind    <<- NULL
@@ -95,9 +77,7 @@ mean.nn       <<- NULL
 sd.nn         <<- NULL
 mean.nn.np    <<- NULL
 sd.nn.np      <<- NULL
-
-# ------------------- Prediccion Nuevos
-
+# -- Prediction of New Individuals
 datos.originales.completos  <<- NULL
 datos.aprendizaje.completos <<- NULL
 datos.prueba.completos      <<- NULL
@@ -108,6 +88,7 @@ code.trans.pn               <<- ""
 modelo.nuevos               <<- NULL
 predic.nuevos               <<- NULL
 
+# FUNCTIONS ---------------------------------------------------------------------------------------------------------------
 
 # To help reduce the huge list of imports:
 
@@ -899,7 +880,7 @@ scatterplot3d <- function (x, y = NULL, z = NULL, color = par("col"), pch = par(
   }, par.mar = mem.par))
 }
 
-# -
+# To do
 recover_cat <- function(){
   unlockBinding("cat", .BaseNamespaceEnv)
   

@@ -1,16 +1,21 @@
 
 
+# Edit > Folding > Collapse All (is of much help to visualize in an orderly way the code).
+
 # The server for RegressoR
 shinyServer(function(input, output, session) {
   
   #If you want to see the package running, run regressoR::init_regressor()
   
-  # The following variables belong to the server environment
+  # The following variables belong to the server environment,
+  # mean the following:
   # variable.predecir = The name of the variable to predict
   # datos = The full dataset
   # datos.prueba = The test dataset partition
   # datos.aprendizaje = The learning dataset partition
   # real.val = The values of the variable to predict (test data)
+  
+  # there are more variables in the "global" file but these are the most important ones.
   
   # SERVER UTILITY FUNCTIONS ----------------------------------------------------------------------------------------------
   
@@ -1942,8 +1947,8 @@ shinyServer(function(input, output, session) {
   show_rf_rules <- function(n){
     output$rulesRf <- renderPrint({
       tryCatch({
-          updateAceEditor(session,"fieldCodeRfRules",paste0("printRandomForests(modelo.rf, ",n,")"))
-          printRandomForests(modelo.rf, n)
+          updateAceEditor(session,"fieldCodeRfRules",paste0("printRandomForests(modelo.rf, ",n,", format='VB')"))
+          printRandomForests(modelo.rf, n, format='VB')
         },error = function(e){
           stop(translate("NoDRule"))
       })

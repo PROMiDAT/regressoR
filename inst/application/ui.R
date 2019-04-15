@@ -31,8 +31,12 @@ suppressMessages(suppressWarnings({
   library(pls)
 }))
 
-#See the FULL PAGE session first
+# Edit > Folding > Collapse All (is of much help to visualize in an orderly way the code).
 
+#See the FULL PAGE section first
+
+# These functions are not really useful for the user, so we keep them hidden so as not to confuse the user.
+# These functions help us to build the ui.
 labelInput <- regressoR:::labelInput
 code_field <- regressoR:::code_field
 infoBoxPROMiDAT <- regressoR:::infoBoxPROMiDAT
@@ -1111,6 +1115,10 @@ page.info <- tabItem(tabName = "acercaDe",
                        infoBoxPROMiDAT(labelInput("version"), "1.1.0", icon = icon("file-code-o")))
 
 # FULL PAGE ---------------------------------------------------------------------------------------------------------------
+
+# This is the complete page that was built by pieces.
+# If you want to see the construction of a specific page, go to the section
+# corresponding.
 
 shinyUI(
   dashboardPagePlus(

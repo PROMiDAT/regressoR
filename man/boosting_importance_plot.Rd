@@ -4,10 +4,13 @@
 \alias{boosting_importance_plot}
 \title{boosting_importance_plot}
 \usage{
-boosting_importance_plot(model.var = "modelo.boosting")
+boosting_importance_plot(model.var = "modelo.boosting",
+  data = "datos.aprendizaje")
 }
 \arguments{
 \item{model.var}{the name of the variable that stores the resulting model.}
+
+\item{data}{the name of the learning data.}
 }
 \description{
 generates the code to make the graph of variable importance.
@@ -22,7 +25,7 @@ library(dplyr)
 x <- boosting_model('iris', 'Petal.Length', "model_boosting")
 exe(x)
 
-x <- boosting_importance_plot('model_boosting')
+x <- boosting_importance_plot('model_boosting', 'iris')
 exe(x)
 }
 }
