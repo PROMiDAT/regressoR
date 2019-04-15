@@ -1755,7 +1755,7 @@ shinyServer(function(input, output, session) {
       output$txtRd <- renderPrint(print(exe("summary(modelo.rd.",tipo,")")))
       
       insert_report(paste0("modelo.rd.",tipo), paste0("Generaci\u00f3n del Modelo Reducci\u00f3n de Dimensiones(",tipo,")"),
-                    cod.rd.modelo, "\nmodelo.rd.",tipo)
+                    cod.rd.modelo, "\nsummary(modelo.rd.",tipo,")")
       
       plot_rmse_rd()
       rd_plot_pred()
@@ -1789,7 +1789,7 @@ shinyServer(function(input, output, session) {
       
       insert_report(paste0("pred.rd.",tipo),
                     paste0("Predicci\u00f3n del Modelo Reducci\u00f3n de Dimensiones(",tipo,")"), 
-                    cod.rd.pred, "\nhead(dt.to.data.frame.predict(tb_predic(real.val, prediccion.rd.",tipo,")))")
+                    cod.rd.pred, "\nkt(head(tb_predic(real.val, prediccion.rd.",tipo,")$x$data[,-1]))")
       
       plot_disp_rd()
       nombres.modelos <<- c(nombres.modelos, "prediccion.rd")
@@ -1810,7 +1810,7 @@ shinyServer(function(input, output, session) {
         
         insert_report(paste0("ind.rd.",rd_type()),"\u00cdndices Generales del Modelo Reducci\u00f3n de Dimensiones",
                       cod.rd.ind, 
-                      "\ngeneral_indices(datos.prueba[,'",variable.predecir,"'], prediccion.rd.",rd_type(),")\n",
+                      "\nkt(general_indices(datos.prueba[,'",variable.predecir,"'], prediccion.rd.",rd_type(),"))\n",
                       "indices.rd <- general_indices(datos.prueba[,'",variable.predecir,"'], prediccion.rd.",rd_type(),")\n",
                       "IndicesM[['rd-",rd_type(),"']] <<- indices.rd")
         
