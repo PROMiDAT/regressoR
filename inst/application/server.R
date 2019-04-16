@@ -3,7 +3,7 @@
 # Edit > Folding > Collapse All (is of much help to visualize in an orderly way the code).
 
 # The server for RegressoR
-shinyServer(function(input, output, session) {
+shinyServer(function(input, output, session){
   
   #If you want to see the package running, run regressoR::init_regressor()
   
@@ -2304,7 +2304,7 @@ shinyServer(function(input, output, session) {
       capas <- c(input$nn.cap.1,input$nn.cap.2,input$nn.cap.3,input$nn.cap.4,
                  input$nn.cap.5,input$nn.cap.6,input$nn.cap.7,input$nn.cap.8,input$nn.cap.9,input$nn.cap.10)
       capas <- capas[1:input$cant.capas.nn]
-      if(input$cant.capas.nn * sum(capas) <= 1500 & ncol(modelo.nn$covariate) <= 20){
+      if(input$cant.capas.nn * sum(capas) <= 1000 & ncol(modelo.nn$covariate) <= 25){
         output$plot.nn <- renderPlot(isolate(exe(input$fieldCodeNnPlot)))
         cod <- ifelse(input$fieldCodeNnPlot == "", nn_plot(), input$fieldCodeNnPlot)
         insert_report("modelo.nn.graf", "Red Neuronal", cod)
