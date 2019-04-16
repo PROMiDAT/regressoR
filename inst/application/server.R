@@ -2593,8 +2593,6 @@ shinyServer(function(input, output, session) {
     }
   }
 
-  actualizar.nn.capas.np()
-
   output$downloaDatosPred <- downloadHandler(
     filename = function() {
       input$file3$name
