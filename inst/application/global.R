@@ -589,7 +589,7 @@ rd.modelo.np <- function(escalar = TRUE, mode = FALSE, manual = FALSE, ncomp = N
 }
 
 # Gráfico error RMSE de validación cruzada según componentes usados
-plot.RMSE <- function(modelo){
+plot.RMSE <- function(modelo, ncomp){
   RMSE.CV <- RMSEP(modelo)$val[1, 1, ]
   
   ggplot(data = data.frame(Componentes = 0:(length(RMSE.CV) - 1), Error = RMSE.CV), mapping = aes(x = Componentes, y = Error)) +
@@ -598,12 +598,12 @@ plot.RMSE <- function(modelo){
     labs(title = "RMSE según Número de Componentes",
          x = "Número de Componentes",
          y = "RMSE")+
-    geom_vline(xintercept = n.comp.rd, linetype="dashed", 
+    geom_vline(xintercept = ncomp, linetype="dashed", 
                color = "blue", size=1)
 }
 
 # Gráfico de varianza explicada en los predictores según componentes usados
-plot.pred <- function(modelo){
+plot.pred <- function(modelo, ncomp){
   var.explicada <- cumsum(explvar(modelo)) / 100
   ggplot(data = data.frame(Componentes = 1:length(var.explicada), Varianza = var.explicada), 
          mapping = aes(x = Componentes, y = Varianza)) +
@@ -613,12 +613,12 @@ plot.pred <- function(modelo){
     labs(title = "Varianza Explicada en los Predictores",
          x = "Número de Componentes",
          y = "Varianza Explicada")+
-    geom_vline(xintercept = n.comp.rd, linetype="dashed", 
+    geom_vline(xintercept = ncomp, linetype="dashed", 
                color = "blue", size=1)
 }
 
 # Gráfico de varianza explicada en la variable a predecir según componentes usados
-plot.var.pred <- function(modelo){
+plot.var.pred <- function(modelo, ncomp){
   var.explicada <- drop(R2(modelo, estimate = "train", intercept = FALSE)$val)
   
   ggplot(data = data.frame(Componentes = 1:length(var.explicada), Varianza = var.explicada), mapping = aes(x = Componentes, y = Varianza)) +
@@ -628,7 +628,7 @@ plot.var.pred <- function(modelo){
     labs(title = "Varianza Explicada en la Variable a Predecir",
          x = "Número de Componentes",
          y = "Varianza Explicada")+
-    geom_vline(xintercept = n.comp.rd, linetype="dashed", 
+    geom_vline(xintercept =ncomp, linetype="dashed", 
                color = "blue", size=1)
 }
 

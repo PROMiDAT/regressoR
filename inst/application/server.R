@@ -1503,7 +1503,6 @@ shinyServer(function(input, output, session) {
       }
     }
     
-    
     # Se acualiza el codigo del modelo
     codigo <- rd.modelo(variable.pr = variable.predecir,
                         input$modo.rd,
@@ -1576,10 +1575,16 @@ shinyServer(function(input, output, session) {
 
   plot.rmse.rd <- function(){
     tryCatch({ # Se corren los codigo
+      ncomp <- n.comp.rd
+      if (input$permitir.ncomp) {
+        if(!is.na(input$ncomp.rd) && input$ncomp.rd >= 0) {
+          ncomp <- input$ncomp.rd
+        }
+      }
       isolate(tipo <- rd.type())
-      output$plot.rd.rmse <- renderPlot(exe("plot.RMSE(modelo.rd.",tipo,")"))
+      output$plot.rd.rmse <- renderPlot(exe("plot.RMSE(modelo.rd.",tipo,",",ncomp,")"))
       insert.report(paste0("rmse.rd.",tipo),
-                    paste0("\n###Error RMSE según Número de Componentes\n```{r}\nplot.RMSE(modelo.rd.",tipo,")\n```\n"))
+                    paste0("\n###Error RMSE según Número de Componentes\n```{r}\nplot.RMSE(modelo.rd.",tipo,",",ncomp,")\n```\n"))
     },
     error = function(e) { # Regresamos al estado inicial y mostramos un error
       limpia.rd(1)
@@ -1590,9 +1595,15 @@ shinyServer(function(input, output, session) {
   plot.pred.rd <- function(){
     tryCatch({ # Se corren los codigo
       isolate(tipo <- rd.type())
-      output$plot.rd.pred <- renderPlot(exe("plot.pred(modelo.rd.",tipo,")"))
+      ncomp <- n.comp.rd
+      if (input$permitir.ncomp) {
+        if(!is.na(input$ncomp.rd) && input$ncomp.rd >= 0) {
+          ncomp <- input$ncomp.rd
+        }
+      }
+      output$plot.rd.pred <- renderPlot(exe("plot.pred(modelo.rd.",tipo,",",ncomp,")"))
       insert.report(paste0("plot.pred.rd.",tipo),
-                    paste0("\n###Gráfico de varianza explicada en los predictores\n```{r}\nplot.pred(modelo.rd.",tipo,")\n```\n"))
+                    paste0("\n###Gráfico de varianza explicada en los predictores\n```{r}\nplot.pred(modelo.rd.",tipo,",",ncomp,")\n```\n"))
     },
     error = function(e) { # Regresamos al estado inicial y mostramos un error
       limpia.rd(1)
@@ -1603,9 +1614,15 @@ shinyServer(function(input, output, session) {
   plot.var.pred.rd <- function(){
     tryCatch({ # Se corren los codigo
       isolate(tipo <- rd.type())
-      output$plot.rd.var.pred <- renderPlot(exe("plot.var.pred(modelo.rd.",tipo,")"))
+      ncomp <- n.comp.rd
+      if (input$permitir.ncomp) {
+        if(!is.na(input$ncomp.rd) && input$ncomp.rd >= 0) {
+          ncomp <- input$ncomp.rd
+        }
+      }
+      output$plot.rd.var.pred <- renderPlot(exe("plot.var.pred(modelo.rd.",tipo,",",ncomp,")"))
       insert.report(paste0("plot.var.pred.rd.",tipo),
-                    paste0("\n###Gráfico de varianza explicada en la variable a predecir\n```{r}\nplot.var.pred(modelo.rd.",tipo,")\n```\n"))
+                    paste0("\n###Gráfico de varianza explicada en la variable a predecir\n```{r}\nplot.var.pred(modelo.rd.",tipo,",",ncomp,")\n```\n"))
     },
     error = function(e) { # Regresamos al estado inicial y mostramos un error
       limpia.rd(1)
