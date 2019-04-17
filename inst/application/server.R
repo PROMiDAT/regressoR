@@ -1708,10 +1708,16 @@ shinyServer(function(input, output, session){
   plot_rmse_rd <- function(){
     tryCatch({ # Se corren los codigo
       isolate(tipo <- rd_type())
-      output$plot.rd.rmse <- renderPlot(exe("plot_RMSE(modelo.rd.",tipo,")"))
+      ncomp <- n.comp.rd
+      if (input$permitir.ncomp) {
+        if(!is.na(input$ncomp.rd) && input$ncomp.rd >= 0) {
+          ncomp <- input$ncomp.rd
+        }
+      }
+      output$plot.rd.rmse <- renderPlot(exe("plot_RMSE(modelo.rd.",tipo,",",ncomp,")"))
       insert_report(paste0("rmse.rd.",tipo),
                     "Error RMSE seg\u00fan N\u00famero de Componentes",
-                    paste0("plot_RMSE(modelo.rd.",tipo,")"))
+                    paste0("plot_RMSE(modelo.rd.",tipo,",",ncomp,")"))
     },
     error = function(e) { # Regresamos al estado inicial y mostramos un error
       clean_rd(1)
@@ -1722,9 +1728,15 @@ shinyServer(function(input, output, session){
   rd_plot_pred <- function(){
     tryCatch({ # Se corren los codigo
       isolate(tipo <- rd_type())
-      output$plot.rd.pred <- renderPlot(exe("plot_pred_rd(modelo.rd.",tipo,")"))
+      ncomp <- n.comp.rd
+      if (input$permitir.ncomp) {
+        if(!is.na(input$ncomp.rd) && input$ncomp.rd >= 0) {
+          ncomp <- input$ncomp.rd
+        }
+      }
+      output$plot.rd.pred <- renderPlot(exe("plot_pred_rd(modelo.rd.",tipo,",",ncomp,")"))
       insert_report(paste0("plot.pred.rd.",tipo), "Gr\u00e1fico de varianza explicada en los predictores",
-                    paste0("plot_pred_rd(modelo.rd.",tipo,")"))
+                    paste0("plot_pred_rd(modelo.rd.",tipo,",",ncomp,")"))
     },
     error = function(e) { # Regresamos al estado inicial y mostramos un error
       clean_rd(1)
@@ -1735,9 +1747,15 @@ shinyServer(function(input, output, session){
   rd_plot_var_pred <- function(){
     tryCatch({ # Se corren los codigo
       isolate(tipo <- rd_type())
-      output$plot.rd.var.pred <- renderPlot(exe("plot_var_pred_rd(modelo.rd.",tipo,")"))
+      ncomp <- n.comp.rd
+      if (input$permitir.ncomp) {
+        if(!is.na(input$ncomp.rd) && input$ncomp.rd >= 0) {
+          ncomp <- input$ncomp.rd
+        }
+      }
+      output$plot.rd.var.pred <- renderPlot(exe("plot_var_pred_rd(modelo.rd.",tipo,",",ncomp,")"))
       insert_report(paste0("plot.var.pred.rd.",tipo), "Gr\u00e1fico de varianza explicada en la variable a predecir",
-                    paste0("plot_var_pred_rd(modelo.rd.",tipo,")"))
+                    paste0("plot_var_pred_rd(modelo.rd.",tipo,",",ncomp,")"))
     },
     error = function(e) { # Regresamos al estado inicial y mostramos un error
       clean_rd(1)
