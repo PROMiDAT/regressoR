@@ -4,10 +4,12 @@
 \alias{extract_code}
 \title{extract_code}
 \usage{
-extract_code(funcion)
+extract_code(funcion, envir = parent.frame())
 }
 \arguments{
 \item{funcion}{the name of the function to be extracted.}
+
+\item{envir}{the environment in which expr is to be evaluated.}
 }
 \description{
 gets the code of a function in text form.

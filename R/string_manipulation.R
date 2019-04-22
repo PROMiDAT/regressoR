@@ -27,6 +27,7 @@ exe <- function(..., envir = parent.frame()){
 #' @description gets the code of a function in text form.
 #'
 #' @param funcion the name of the function to be extracted.
+#' @param envir the environment in which expr is to be evaluated.
 #'
 #' @export
 #'
@@ -36,8 +37,8 @@ exe <- function(..., envir = parent.frame()){
 #' 
 #' parse(text = extract_code("plot"))
 #' 
-extract_code <- function(funcion) {
-  code <- paste(head(exe(funcion), 100), collapse = "\n")
+extract_code <- function(funcion, envir = parent.frame()) {
+  code <- paste(head(exe(funcion, envir = envir), 100), collapse = "\n")
   code <- paste(funcion, "<-", code)
   return(code)
 }

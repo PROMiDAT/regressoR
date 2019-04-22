@@ -2,7 +2,10 @@ Title: Regression Data Analysis System
 Package: regressoR
 Type: Package
 Version: 1.1.0
-Author: Oldemar Rodriguez R. with contributions from Diego Jimenez A. and Andres Navarro D.
+Authors@R: c(
+    person("Oldemar", "Rodriguez R.", email = "oldemar.rodriguez@ucr.ac.cr", role = c("aut","cre")),
+    person("Andres", "Navarro D.", role = c("ctb","prg")),
+    person("Diego", "Jimenez A.", role = c("ctb","prg")))
 Maintainer: Oldemar Rodriguez <oldemar.rodriguez@ucr.ac.cr>
 Depends: R (>= 3.5)
 Imports:
