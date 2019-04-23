@@ -113,7 +113,7 @@ mi.head <- tags$head(
   tags$link(rel = "stylesheet", type = "text/css", href = "style_promidat.css"),
   tags$link(rel="icon", href="http://www.promidat.org/theme/image.php/formal_white/theme/1438713216/favicon"),
   useShinyjs(),
-  tags$script(src = "myscript.js"))
+  tags$script(src = "myscriptR.js"))
 
 #The loading page
 load.page <- conditionalPanel(condition="($('html').hasClass('shiny-busy'))",
