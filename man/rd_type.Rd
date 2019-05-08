@@ -4,7 +4,7 @@
 \alias{rd_type}
 \title{rd_type}
 \usage{
-rd_type(mode.rd = options("rd.mode"))
+rd_type(mode.rd = options_regressor("rd.mode"))
 }
 \arguments{
 \item{mode.rd}{the method of dimension reduction is defined as mode=1 is the MCP, and mode=0 the ACP.}

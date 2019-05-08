@@ -4,7 +4,7 @@
 \alias{translate}
 \title{translate}
 \usage{
-translate(text, language = options("language"))
+translate(text, language = options_regressor("language"))
 }
 \arguments{
 \item{text}{the id for the text.}

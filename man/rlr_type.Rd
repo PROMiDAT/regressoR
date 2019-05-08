@@ -4,7 +4,7 @@
 \alias{rlr_type}
 \title{rlr_type}
 \usage{
-rlr_type(alpha_rlr = options("rlr.alpha"))
+rlr_type(alpha_rlr = options_regressor("rlr.alpha"))
 }
 \arguments{
 \item{alpha_rlr}{the penalty is defined as alpha=1 is the lasso penalty, and alpha=0 the ridge penalty.}
