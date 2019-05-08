@@ -1,7 +1,7 @@
 
 load("inst/extdata/translation.bin") # Load translation.bin (dictionary to change language)
 enc <- ifelse(toupper(.Platform$OS.type) != "WINDOWS", "utf8", "UTF-8")
-options(language = "es")
+options_regressor(language = "es")
 
 #' exe
 #' 
@@ -79,7 +79,7 @@ as_string_c <- function(vect, quote = TRUE){
 #' translate("knnl")
 #' translate("knnl", "en")
 #' 
-translate <- function(text, language = options("language")) {
+translate <- function(text, language = options_regressor("language")) {
   if(is.null(language) || !any(language %in% c("es", "en"))){
     language <- "es"
   }

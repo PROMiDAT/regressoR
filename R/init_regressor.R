@@ -9,7 +9,6 @@
 #'    init_regressor()
 #'  }
 init_regressor <- function(){
-  rm(envir = .GlobalEnv, list = ls(envir = .GlobalEnv))
   Sys.setenv("LANGUAGE" = "ES")
   shiny::runApp(appDir = system.file("application", package = "regressoR"), launch.browser = TRUE)
 }

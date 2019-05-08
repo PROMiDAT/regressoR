@@ -870,7 +870,7 @@ shinyServer(function(input, output, session){
   # When the user changes the parameters
   observeEvent(c(input$alpha.rlr, input$switch.scale.rlr, input$landa, input$permitir.landa), {
     if (validate_data(print = FALSE)) {
-      options(rlr.alpha = input$alpha.rlr)
+      options_regressor(rlr.alpha = input$alpha.rlr)
       deafult_codigo_rlr()
     }
   })
@@ -1627,7 +1627,7 @@ shinyServer(function(input, output, session){
       }
     }
     
-    options(rd.mode = input$modo.rd)
+    options_regressor(rd.mode = input$modo.rd)
     
     # Se acualiza el codigo del modelo
     codigo <- rd_model(variable.pred = variable.predecir,
@@ -2080,10 +2080,10 @@ shinyServer(function(input, output, session){
   deault_codigo_boosting <- function() {
     # Se acualiza el codigo del modelo
     codigo <- boosting_model(variable.pred = variable.predecir,
-                              model.var = paste0("modelo.boosting.",input$tipo.boosting),
-                              n.trees = input$iter.boosting,
-                              distribution = input$tipo.boosting,
-                              shrinkage = input$shrinkage.boosting)
+                             model.var = paste0("modelo.boosting.",input$tipo.boosting),
+                            n.trees = input$iter.boosting,
+                            distribution = input$tipo.boosting,
+                            shrinkage = input$shrinkage.boosting)
 
     updateAceEditor(session, "fieldCodeBoosting", value = codigo)
     cod.b.modelo <<- codigo
@@ -2940,7 +2940,7 @@ shinyServer(function(input, output, session){
 
   # When the user changes the language
   observeEvent(c(input$idioma), {
-    options(language = input$idioma)
+    options_regressor(language = input$idioma)
     
     updateLabelInput(session, c("idioma","selidioma","data","basico","resumen","normalidad",
                                 "dispersion","distribucion","correlacion","poderpred","reporte",
@@ -2980,10 +2980,10 @@ shinyServer(function(input, output, session){
 
   # When the session closes
   session$onSessionEnded(function() {
-    rm(envir = .GlobalEnv, list = ls(envir = .GlobalEnv))
-    unlink("figure", recursive = T)
+    rm(envir = .GlobalEnv, list = names.prmd)
+    #unlink("figure", recursive = T)
     recover_cat()
     stopApp()
   })
-
+  
 })

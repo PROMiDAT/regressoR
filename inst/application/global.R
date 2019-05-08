@@ -18,9 +18,6 @@ comparative_table <- function(sel){
 
 # GLOBAL VARIABLES --------------------------------------------------------------------------------------------------------
 
-options(language  = "es")
-options(rlr.alpha = 1)
-options(rd.mode   = 0)
 # -- Data
 datos             <<- NULL
 datos.originales  <<- NULL
@@ -87,6 +84,19 @@ contadorPN                  <<- 0
 code.trans.pn               <<- ""
 modelo.nuevos               <<- NULL
 predic.nuevos               <<- NULL
+
+names.prmd <- c("cod.b.ind", "cod.b.modelo", "cod.b.pred", "cod.dt.ind", "cod.dt.modelo",  "cod.dt.pred", "cod.knn.ind", "cod.knn.modelo", "cod.knn.pred",  
+                "cod.nn.ind", "cod.nn.modelo", "cod.nn.pred", "cod.poder.cat",  "cod.poder.num", "cod.rf.ind", "cod.rf.modelo", "cod.rf.pred",  "cod.rl.ind",
+                "cod.rl.modelo", "cod.rl.pred", "cod.rlr.ind",  "cod.rlr.modelo", "cod.rlr.pred", "cod.select.landa", "cod.svm.ind",  "cod.svm.modelo", "cod.svm.pred", 
+                "code.trans.pn", "comparative_table",  "contador", "contadorPN", "correlacion", "datos", "datos.aprendizaje",  "datos.aprendizaje.completos", 
+                "datos.originales", "datos.originales.completos",  "datos.prueba", "datos.prueba.completos", "dummy", "dummy.data.frame",  "exe", "IndicesM",
+                "knn.stop.excu", "mean.nn", "mean.nn.np",  "modelo.nuevos", "modelo.seleccionado.pn", "NN_EXECUTION", "nombres.modelos",  "overwrite_cat", "pairs.panels",
+                "predic.nuevos", "real.val",  "recover_cat", "rf.stop.excu", "scatterplot3d", "sd.nn", "sd.nn.np",  "semilla", "variable.predecir", "variable.predecir.pn", 
+                "cod.cor",  "cod.disp", "cod.dya.num", "cod.normal", "cod.rd.ind", "cod.rd.modelo",  "cod.rd.pred", "cv.glm.lasso", "indices.boosting.gaussian", "indices.dt",
+                "indices.knn.optimal", "indices.nn", "indices.rf", "indices.rl",  "indices.svm.radial", "modelo.boosting.gaussian", "modelo.dt",  "modelo.knn.optimal",
+                "modelo.nn", "modelo.rd.ACP", "modelo.rf",  "modelo.rl", "modelo.rlr.lasso", "modelo.svm.radial", "n.comp.rd",  "names.prmd", "prediccion.boosting.gaussian",
+                "prediccion.dt",  "prediccion.knn.optimal", "prediccion.nn", "prediccion.rd.ACP",  "prediccion.rf", "prediccion.rl", "prediccion.rlr.lasso", 
+                "prediccion.svm.radial",  "salida.code", "indices.rd", "modelo.rd", "prediccion.rd")
 
 # FUNCTIONS ---------------------------------------------------------------------------------------------------------------
 

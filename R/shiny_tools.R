@@ -192,7 +192,7 @@ render_index_table <- function(table){
 #' }
 #'
 render_table_data <- function(data, editable = TRUE, dom = "frtip", pageLength = 10, scrollY = "27vh", server = T) {
-  language <- ifelse(!is.null(options("language")), options("language"), "es")
+  language <- ifelse(!is.null(options_regressor("language")), options_regressor("language"), "es")
   labelsNC <- ifelse(language == c("es", "es"), c("Num\u00E9rico","Categ\u00F3rico"), c("Numerical","Categorical"))
   data <- head(data, n = 100)
   nombre.columnas <- c("ID", colnames(data))

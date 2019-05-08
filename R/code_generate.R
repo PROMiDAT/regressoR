@@ -561,12 +561,10 @@ rlr_prediction <- function(data.a = "datos.aprendizaje", data.p = "datos.prueba"
 #' rlr_type(1)
 #' rlr_type(0)
 #' 
-rlr_type <- function(alpha_rlr = options("rlr.alpha")){
+rlr_type <- function(alpha_rlr = options_regressor("rlr.alpha")){
   alpha_rlr <- ifelse(is.null(unlist(alpha_rlr)), 0, alpha_rlr)
   ifelse(alpha_rlr == 0, "ridge", "lasso")
 }
-
-options(rlr.alpha = 0)
 
 # KNN PAGE ----------------------------------------------------------------------------------------------------------------
 
@@ -703,7 +701,7 @@ svm_prediction <- function(data = "datos.prueba", variable.pred = NULL, model.va
 #' print(modelo.rd)
 #' 
 rd_model <- function(data = "datos.aprendizaje", variable.pred = NULL, model.var = "modelo.rd",
-                      n.comp = "n.comp.rd", mode = options("rd.mode"), scale = TRUE){
+                      n.comp = "n.comp.rd", mode = options_regressor("rd.mode"), scale = TRUE){
   mode <- ifelse(is.null(unlist(mode)), 0, mode)
   if(mode == 0){
     x <- paste0(model.var," <<- pcr(`",variable.pred,"`~.,data = ",data,", scale = ",scale,", validation = 'CV')")
@@ -756,12 +754,10 @@ rd_prediction <- function(data = "datos.prueba", model.var = "modelo.svm", pred.
 #' rd_type(1)
 #' rd_type(0)
 #' 
-rd_type <- function(mode.rd = options("rd.mode")){
+rd_type <- function(mode.rd = options_regressor("rd.mode")){
   mode.rd <- ifelse(is.null(unlist(mode.rd)), 0, mode.rd)
   ifelse(mode.rd == 0, "ACP", "MCP")
 }
-
-options(rd.mode = 0)
 
 # DT PAGE ------------------------------------------------------------------------------------------------------------
 
