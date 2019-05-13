@@ -96,7 +96,7 @@ names.prmd <- c("cod.b.ind", "cod.b.modelo", "cod.b.pred", "cod.dt.ind", "cod.dt
                 "indices.knn.optimal", "indices.nn", "indices.rf", "indices.rl",  "indices.svm.radial", "modelo.boosting.gaussian", "modelo.dt",  "modelo.knn.optimal",
                 "modelo.nn", "modelo.rd.ACP", "modelo.rf",  "modelo.rl", "modelo.rlr.lasso", "modelo.svm.radial", "n.comp.rd",  "names.prmd", "prediccion.boosting.gaussian",
                 "prediccion.dt",  "prediccion.knn.optimal", "prediccion.nn", "prediccion.rd.ACP",  "prediccion.rf", "prediccion.rl", "prediccion.rlr.lasso", 
-                "prediccion.svm.radial",  "salida.code", "indices.rd", "modelo.rd", "prediccion.rd")
+                "prediccion.svm.radial",  "salida.code", "indices.rd", "modelo.rd", "prediccion.rd", "cod.dya.cat")
 
 # FUNCTIONS ---------------------------------------------------------------------------------------------------------------
 
