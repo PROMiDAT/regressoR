@@ -74,6 +74,7 @@ mean.nn       <<- NULL
 sd.nn         <<- NULL
 mean.nn.np    <<- NULL
 sd.nn.np      <<- NULL
+
 # -- Prediction of New Individuals
 datos.originales.completos  <<- NULL
 datos.aprendizaje.completos <<- NULL
