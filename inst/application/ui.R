@@ -110,10 +110,10 @@ mi.menu <- sidebarMenu(id = "principal",
 
 #Imports .css and .js, also decide the icon
 mi.head <- tags$head(
-  tags$link(rel = "stylesheet", type = "text/css", href = "style_promidat.css"),
+  tags$link(rel = "stylesheet", type = "text/css", href = "style_regressor.css"),
   tags$link(rel="icon", href="http://www.promidat.org/theme/image.php/formal_white/theme/1438713216/favicon"),
   useShinyjs(),
-  tags$script(src = "myscriptR.js"))
+  tags$script(src = "script_regressor.js"))
 
 #The loading page
 load.page <- conditionalPanel(condition="($('html').hasClass('shiny-busy'))",
@@ -1112,7 +1112,7 @@ page.info <- tabItem(tabName = "acercaDe",
                        infoBoxPROMiDAT(labelInput("copyright"), "PROMiDAT S.A.", icon = icon("copyright")),
                        infoBoxPROMiDAT(labelInput("info"), tags$a( href="https://www.promidat.com/", style = "color:white;",
                                                                    target = "_blank", "https://www.promidat.com"), icon = icon("info")),
-                       infoBoxPROMiDAT(labelInput("version"), "1.1.2", icon = icon("file-code-o")))
+                       infoBoxPROMiDAT(labelInput("version"), "1.1.3", icon = icon("file-code-o")))
 
 # FULL PAGE ---------------------------------------------------------------------------------------------------------------
 
