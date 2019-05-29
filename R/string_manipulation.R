@@ -18,7 +18,8 @@ options_regressor(language = "es")
 #' exe("5","+","5")
 #' exe("plot(iris$Species)")
 #' 
-exe <- function(..., envir = parent.frame()){
+exe <- function(..., envir = options_regressor()$exe.envir){
+  envir <- if(is.null(envir) || !is.environment(envir)) parent.frame() else envir
   eval(parse(text = paste0(...)), envir = envir)
 }
 

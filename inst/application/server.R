@@ -59,7 +59,8 @@ shinyServer(function(input, output, session){
   
   # INITIAL SETTINGS ------------------------------------------------------------------------------------------------------
 
-  source("global.R", local = T)
+  source("Utilities.R", local = TRUE, echo = FALSE )
+  options_regressor(exe.envir = environment())
   
   clean_report()
   
@@ -145,7 +146,7 @@ shinyServer(function(input, output, session){
   # Use and show the codes to transform the data
   transformar.datos <- function() {
     var.noactivas <- c()
-    code.res <- "datos <<- datos.originales \n"
+    code.res <- "datos <- datos.originales \n"
     for (var in colnames(datos.originales)) {
       if (input[[paste0("box", var, contador)]]) {
         if (input[[paste0("sel", var, contador)]] == "categorico" & class(datos.originales[, var]) %in% c("numeric", "integer")) {
@@ -161,7 +162,7 @@ shinyServer(function(input, output, session){
         var.noactivas <- c(var.noactivas, var)
       }
     }
-
+    
     isolate(exe(code.res))
     code.res <- paste0(code.res, "\n")
     if (length(var.noactivas) > 0) {
@@ -205,7 +206,8 @@ shinyServer(function(input, output, session){
 
     IndicesM <<- list()
 
-    rm(list = nombres.modelos, envir = .GlobalEnv)
+    #rm(list = nombres.modelos, envir = .GlobalEnv)
+    rm(list = nombres.modelos, envir = options_regressor()$exe.envir)
     nombres.modelos <<- c()
 
     updateCheckboxGroupButtons(session, inputId = "select.models",
@@ -826,12 +828,12 @@ shinyServer(function(input, output, session){
   
   # Generates the indices
   execute_rl_ind <- function() {
-    if(exists("prediccion.rl")){
+    if(exists("prediccion.rl") && !is.null(prediccion.rl)){
       tryCatch({ # Se corren los codigo
         isolate(exe(input$fieldCodeRlCoef))
         isolate(exe(cod.rl.ind))
         
-        indices.rl <<- general_indices(datos.prueba[,variable.predecir], prediccion.rl)
+        indices.rl <- general_indices(datos.prueba[,variable.predecir], prediccion.rl)
         
         insert_report("ind.rl","\u00CDndices Generales del Modelo Regresi\u00F3n Lineal", cod.rl.ind,
                       "\nkt(general_indices(datos.prueba[,'", variable.predecir, "'], prediccion.rl))\n",
@@ -1238,7 +1240,7 @@ shinyServer(function(input, output, session){
         isolate(kernel <- input$kernel.knn)
         
         indices.knn <- general_indices(datos.prueba[,variable.predecir], exe("prediccion.knn.",kernel))
-        eval(parse(text = paste0("indices.knn.",kernel, "<<- indices.knn")))
+        #eval(parse(text = paste0("indices.knn.",kernel, "<<- indices.knn")))
 
         insert_report(paste0("ind.knn.",kernel), paste0("\u00CDndices del Modelo KNN (",kernel,")"),
                       cod.knn.ind, "\nkt(general_indices(datos.prueba[,'",variable.predecir,"'] ,prediccion.knn.",kernel,"))\n",
@@ -1253,7 +1255,7 @@ shinyServer(function(input, output, session){
         colnames(df2) <- c(translate("minimo"),translate("q1"),translate("q3"),translate("maximo"))
         output$indexdfknn2 <- render_index_table(df2)
 
-        nombres.modelos <<- c(nombres.modelos, paste0("indices.knn.",kernel))
+        #nombres.modelos <<- c(nombres.modelos, paste0("indices.knn.",kernel))
         IndicesM[[paste0("knnl-",kernel)]] <<- indices.knn
         update_comparative_selector()
       },
@@ -1394,7 +1396,7 @@ shinyServer(function(input, output, session){
         isolate(kernel <- input$kernel.svm)
         
         indices.svm <- general_indices(datos.prueba[,variable.predecir], exe("prediccion.svm.",kernel))
-        eval(parse(text =paste0("indices.svm.",kernel, "<<- indices.svm")))
+        #eval(parse(text =paste0("indices.svm.",kernel, "<<- indices.svm")))
 
         insert_report(paste0("ind.svm.",kernel), paste0("\u00CDndices Generales del modelo SVM (",kernel,")"),
                       cod.svm.ind, "\nkt(general_indices(datos.prueba[,'",variable.predecir,"'], prediccion.svm.",kernel,"))\n",
@@ -1410,8 +1412,8 @@ shinyServer(function(input, output, session){
         output$indexdfsvm2 <- render_index_table(df2)
         
         plot_disp_svm()
-        nombres.modelos <<- c(nombres.modelos, paste0("indices.svm.",kernel))
-        IndicesM[[paste0("svml-",kernel)]] <<- exe("indices.svm.",kernel)
+        #nombres.modelos <<- c(nombres.modelos, paste0("indices.svm.",kernel))
+        IndicesM[[paste0("svml-",kernel)]] <<- indices.svm
         update_comparative_selector()
       },
       error = function(e) { # Regresamos al estado inicial y mostramos un error
@@ -1564,11 +1566,11 @@ shinyServer(function(input, output, session){
 
   # Generates the indices
   execute_dt_ind <- function() {
-    if(exists("prediccion.dt")){
+    if(exists("prediccion.dt") && !is.null(prediccion.dt)){
       tryCatch({ # Se corren los codigo
         isolate(exe(cod.dt.ind))
         
-        indices.dt <<- general_indices(datos.prueba[,variable.predecir], prediccion.dt)
+        indices.dt <- general_indices(datos.prueba[,variable.predecir], prediccion.dt)
         
         insert_report("ind.dt", "\u00CDndices Generales del Modelo \u00C1rboles de Decisi\u00F3n",
                       cod.dt.ind,"\nkt(general_indices(datos.prueba[,'",variable.predecir,"'], prediccion.dt))\n",
@@ -2023,11 +2025,11 @@ shinyServer(function(input, output, session){
 
   # Generates the indices
   execute_rf_ind <- function() {
-    if(exists("prediccion.rf")){
+    if(exists("prediccion.rf") && !is.null(prediccion.rf)){
       tryCatch({ # Se corren los codigo
         isolate(exe(cod.rf.ind))
 
-        indices.rf <<- general_indices(datos.prueba[,variable.predecir], prediccion.rf)
+        indices.rf <- general_indices(datos.prueba[,variable.predecir], prediccion.rf)
 
         insert_report("ind.rf","\u00CDndices Generales del Modelo Bosques Aleatorios",
                       cod.rf.ind, "\nkt(general_indices(datos.prueba[,'",variable.predecir,"'], prediccion.rf))\n",
@@ -2081,9 +2083,9 @@ shinyServer(function(input, output, session){
     # Se acualiza el codigo del modelo
     codigo <- boosting_model(variable.pred = variable.predecir,
                              model.var = paste0("modelo.boosting.",input$tipo.boosting),
-                            n.trees = input$iter.boosting,
-                            distribution = input$tipo.boosting,
-                            shrinkage = input$shrinkage.boosting)
+                             n.trees = input$iter.boosting,
+                             distribution = input$tipo.boosting,
+                             shrinkage = input$shrinkage.boosting)
 
     updateAceEditor(session, "fieldCodeBoosting", value = codigo)
     cod.b.modelo <<- codigo
@@ -2220,7 +2222,7 @@ shinyServer(function(input, output, session){
         isolate(tipo <- input$tipo.boosting)
         
         indices.boosting <- general_indices(datos.prueba[,variable.predecir], exe("prediccion.boosting.",tipo))
-        eval(parse(text = paste0("indices.boosting.",tipo, "<<- indices.boosting")))
+        #eval(parse(text = paste0("indices.boosting.",tipo, "<<- indices.boosting")))
 
         insert_report(paste0("ind.b.",tipo), paste0("\u00CDndices Generales del Modelo (",tipo,")"),
                              cod.knn.ind, "\nkt(general_indices(datos.prueba[,'",variable.predecir,"'] ,prediccion.boosting.",tipo,"))\n",
@@ -2235,8 +2237,8 @@ shinyServer(function(input, output, session){
         colnames(df2) <- c(translate("minimo"),translate("q1"),translate("q3"),translate("maximo"))
         output$indexdfb2 <- render_index_table(df2)
 
-        nombres.modelos <<- c(nombres.modelos, paste0("indices.boosting.",tipo))
-        IndicesM[[paste0("bl-",tipo)]] <<- exe("indices.boosting.",tipo)
+        #nombres.modelos <<- c(nombres.modelos, paste0("indices.boosting.",tipo))
+        IndicesM[[paste0("bl-",tipo)]] <<- indices.boosting
         update_comparative_selector()
       },
       error = function(e) { # Regresamos al estado inicial y mostramos un error
@@ -2352,17 +2354,17 @@ shinyServer(function(input, output, session){
   clean_nn <- function(capa = NULL) {
     for (i in capa:3) {
       switch(i, {
-        modelo.nn <<- NULL
+        exe("modelo.nn <- NULL")
         output$txtnn <- renderPrint(invisible(""))
         output$plot.nn <- renderPlot(NULL)
         remove_report_elem("modelo.nn")
         remove_report_elem("modelo.nn.graf")
       }, {
-        prediccion.nn <<- NULL
+        exe("prediccion.nn <- NULL")
         remove_report_elem("pred.nn")
         output$nnPrediTable <- DT::renderDataTable(NULL)
       },{
-        indices.nn <<- rep(0, 10)
+        exe("indices.nn <- NULL")
         remove_report_elem("ind.nn")
       })
     }
@@ -2425,7 +2427,7 @@ shinyServer(function(input, output, session){
     if(exists("prediccion.nn")){
       tryCatch({ # Se corren los codigo
         isolate(exe(cod.nn.ind))
-        indices.nn <<- general_indices(datos.prueba[,variable.predecir], prediccion.nn)
+        indices.nn <- general_indices(datos.prueba[,variable.predecir], prediccion.nn)
 
         insert_report("ind.nn","\u00CDndices Generales del Modelo Redes Neuronales",
                       cod.nn.ind, 
@@ -2980,8 +2982,6 @@ shinyServer(function(input, output, session){
 
   # When the session closes
   session$onSessionEnded(function() {
-    rm(envir = .GlobalEnv, list = names.prmd)
-    #unlink("figure", recursive = T)
     recover_cat()
     stopApp()
   })

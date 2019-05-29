@@ -7,9 +7,9 @@
 # the following wrappers were made.
 
 # Wrapper of regressoR::exe to set the environment
-exe <- function(...){
-  regressoR::exe(..., envir = parent.frame())
-}
+# exe <- function(...){
+#   regressoR::exe(..., envir = parent.frame())
+# }
 
 # Wrapper of regressoR::comparative_table to set the list of values and the language
 comparative_table <- function(sel){
@@ -19,92 +19,104 @@ comparative_table <- function(sel){
 # GLOBAL VARIABLES --------------------------------------------------------------------------------------------------------
 
 # -- Data
-datos             <<- NULL
-datos.originales  <<- NULL
-datos.prueba      <<- NULL
-datos.aprendizaje <<- NULL
-variable.predecir <<- NULL
-real.val          <<- NULL
-contador          <<- 0
-semilla           <<- FALSE
-nombres.modelos   <<- c()
+datos             <- NULL
+datos.originales  <- NULL
+datos.prueba      <- NULL
+datos.aprendizaje <- NULL
+variable.predecir <- NULL
+real.val          <- NULL
+contador          <- 0
+semilla           <- FALSE
+nombres.modelos   <- c()
 # -- Basic Statistics
-correlacion   <<- NULL
-cod.poder.cat <<- NULL
-cod.poder.num <<- NULL
+correlacion   <- NULL
+cod.poder.cat <- NULL
+cod.poder.num <- NULL
+
+cod.cor       <- NULL
+cod.disp      <- NULL
+cod.dya.cat   <- NULL
+cod.dya.num   <- NULL
+cod.normal    <- NULL
 # -- Models
-IndicesM  <<- list()
+IndicesM  <- list()
 # -- RL
-cod.rl.modelo <<- NULL
-cod.rl.pred   <<- NULL
-cod.rl.ind    <<- NULL
+cod.rl.modelo <- NULL
+cod.rl.pred   <- NULL
+cod.rl.ind    <- NULL
 # -- RLR
-cod.rlr.modelo   <<- NULL
-cod.rlr.pred     <<- NULL
-cod.rlr.ind      <<- NULL
-cod.select.landa <<- NULL
+cod.rlr.modelo   <- NULL
+cod.rlr.pred     <- NULL
+cod.rlr.ind      <- NULL
+cod.select.landa <- NULL
 # -- KNN
-cod.knn.modelo <<- NULL
-cod.knn.pred   <<- NULL
-cod.knn.ind    <<- NULL
-knn.stop.excu  <<- FALSE
+cod.knn.modelo <- NULL
+cod.knn.pred   <- NULL
+cod.knn.ind    <- NULL
+knn.stop.excu  <- FALSE
 # -- SVM
-cod.svm.modelo <<- NULL
-cod.svm.pred   <<- NULL
-cod.svm.ind    <<- NULL
+cod.svm.modelo <- NULL
+cod.svm.pred   <- NULL
+cod.svm.ind    <- NULL
+# --- RD
+cod.rd.ind    <- NULL
+cod.rd.modelo <- NULL
+cod.rd.pred   <- NULL
+cv.glm.lasso  <- NULL
+cv.glm.ridge  <- NULL
+n.comp.rd     <- NULL
 # -- DT
-cod.dt.modelo <<- NULL
-cod.dt.pred   <<- NULL
-cod.dt.ind    <<- NULL
+cod.dt.modelo <- NULL
+cod.dt.pred   <- NULL
+cod.dt.ind    <- NULL
 # -- RF
-cod.rf.modelo <<- NULL
-cod.rf.pred   <<- NULL
-cod.rf.ind    <<- NULL
-rf.stop.excu  <<- FALSE
+cod.rf.modelo <- NULL
+cod.rf.pred   <- NULL
+cod.rf.ind    <- NULL
+rf.stop.excu  <- FALSE
 # -- BOOSTING
-cod.b.modelo <<- NULL
-cod.b.pred   <<- NULL
-cod.b.ind    <<- NULL
+cod.b.modelo <- NULL
+cod.b.pred   <- NULL
+cod.b.ind    <- NULL
 # -- NN
-cod.nn.modelo <<- NULL
-cod.nn.pred   <<- NULL
-cod.nn.ind    <<- NULL
-NN_EXECUTION  <<- TRUE
-mean.nn       <<- NULL
-sd.nn         <<- NULL
-mean.nn.np    <<- NULL
-sd.nn.np      <<- NULL
-
+cod.nn.modelo <- NULL
+cod.nn.pred   <- NULL
+cod.nn.ind    <- NULL
+NN_EXECUTION  <- TRUE
+mean.nn       <- NULL
+sd.nn         <- NULL
+mean.nn.np    <- NULL
+sd.nn.np      <- NULL
 # -- Prediction of New Individuals
-datos.originales.completos  <<- NULL
-datos.aprendizaje.completos <<- NULL
-datos.prueba.completos      <<- NULL
-variable.predecir.pn        <<- NULL
-modelo.seleccionado.pn      <<- NULL
-contadorPN                  <<- 0
-code.trans.pn               <<- ""
-modelo.nuevos               <<- NULL
-predic.nuevos               <<- NULL
+datos.originales.completos  <- NULL
+datos.aprendizaje.completos <- NULL
+datos.prueba.completos      <- NULL
+variable.predecir.pn        <- NULL
+modelo.seleccionado.pn      <- NULL
+contadorPN                  <- 0
+code.trans.pn               <- ""
+modelo.nuevos               <- NULL
+predic.nuevos               <- NULL
 
-names.prmd <- c("cod.b.ind", "cod.b.modelo", "cod.b.pred", "cod.dt.ind", "cod.dt.modelo",  "cod.dt.pred", "cod.knn.ind", "cod.knn.modelo", "cod.knn.pred",  
-                "cod.nn.ind", "cod.nn.modelo", "cod.nn.pred", "cod.poder.cat",  "cod.poder.num", "cod.rf.ind", "cod.rf.modelo", "cod.rf.pred",  "cod.rl.ind",
-                "cod.rl.modelo", "cod.rl.pred", "cod.rlr.ind",  "cod.rlr.modelo", "cod.rlr.pred", "cod.select.landa", "cod.svm.ind",  "cod.svm.modelo", "cod.svm.pred", 
-                "code.trans.pn", "comparative_table",  "contador", "contadorPN", "correlacion", "datos", "datos.aprendizaje",  "datos.aprendizaje.completos", 
-                "datos.originales", "datos.originales.completos",  "datos.prueba", "datos.prueba.completos", "dummy", "dummy.data.frame",  "exe", "IndicesM",
-                "knn.stop.excu", "mean.nn", "mean.nn.np",  "modelo.nuevos", "modelo.seleccionado.pn", "NN_EXECUTION", "nombres.modelos",  "overwrite_cat", "pairs.panels",
-                "predic.nuevos", "real.val",  "recover_cat", "rf.stop.excu", "scatterplot3d", "sd.nn", "sd.nn.np",  "semilla", "variable.predecir", "variable.predecir.pn", 
-                "cod.cor",  "cod.disp", "cod.dya.num", "cod.normal", "cod.rd.ind", "cod.rd.modelo",  "cod.rd.pred", "cv.glm.lasso", "indices.boosting.gaussian", "indices.dt",
-                "indices.knn.optimal", "indices.nn", "indices.rf", "indices.rl",  "indices.svm.radial", "modelo.boosting.gaussian", "modelo.dt",  "modelo.knn.optimal",
-                "modelo.nn", "modelo.rd.ACP", "modelo.rf",  "modelo.rl", "modelo.rlr.lasso", "modelo.svm.radial", "n.comp.rd",  "names.prmd", "prediccion.boosting.gaussian",
-                "prediccion.dt",  "prediccion.knn.optimal", "prediccion.nn", "prediccion.rd.ACP",  "prediccion.rf", "prediccion.rl", "prediccion.rlr.lasso", 
-                "prediccion.svm.radial",  "salida.code", "indices.rd", "modelo.rd", "prediccion.rd", "cod.dya.cat")
+# names.prmd <- c("cod.b.ind", "cod.b.modelo", "cod.b.pred", "cod.dt.ind", "cod.dt.modelo",  "cod.dt.pred", "cod.knn.ind", "cod.knn.modelo", "cod.knn.pred",  
+#                 "cod.nn.ind", "cod.nn.modelo", "cod.nn.pred", "cod.poder.cat",  "cod.poder.num", "cod.rf.ind", "cod.rf.modelo", "cod.rf.pred",  "cod.rl.ind",
+#                 "cod.rl.modelo", "cod.rl.pred", "cod.rlr.ind",  "cod.rlr.modelo", "cod.rlr.pred", "cod.select.landa", "cod.svm.ind",  "cod.svm.modelo", "cod.svm.pred", 
+#                 "code.trans.pn", "comparative_table",  "contador", "contadorPN", "correlacion", "datos", "datos.aprendizaje",  "datos.aprendizaje.completos", 
+#                 "datos.originales", "datos.originales.completos",  "datos.prueba", "datos.prueba.completos", "dummy", "dummy.data.frame",  "exe", "IndicesM",
+#                 "knn.stop.excu", "mean.nn", "mean.nn.np",  "modelo.nuevos", "modelo.seleccionado.pn", "NN_EXECUTION", "nombres.modelos",  "overwrite_cat", "pairs.panels",
+#                 "predic.nuevos", "real.val",  "recover_cat", "rf.stop.excu", "scatterplot3d", "sd.nn", "sd.nn.np",  "semilla", "variable.predecir", "variable.predecir.pn", 
+#                 "cod.cor",  "cod.disp", "cod.dya.num", "cod.normal", "cod.rd.ind", "cod.rd.modelo",  "cod.rd.pred", "cv.glm.lasso", "indices.boosting.gaussian", "indices.dt",
+#                 "indices.knn.optimal", "indices.nn", "indices.rf", "indices.rl",  "indices.svm.radial", "modelo.boosting.gaussian", "modelo.dt",  "modelo.knn.optimal",
+#                 "modelo.nn", "modelo.rd.ACP", "modelo.rf",  "modelo.rl", "modelo.rlr.lasso", "modelo.svm.radial", "n.comp.rd",  "names.prmd", "prediccion.boosting.gaussian",
+#                 "prediccion.dt",  "prediccion.knn.optimal", "prediccion.nn", "prediccion.rd.ACP",  "prediccion.rf", "prediccion.rl", "prediccion.rlr.lasso", 
+#                 "prediccion.svm.radial",  "salida.code", "indices.rd", "modelo.rd", "prediccion.rd", "cod.dya.cat")
 
 # FUNCTIONS ---------------------------------------------------------------------------------------------------------------
 
 # To help reduce the huge list of imports:
 
 # Functions taken from the PSYCH package
-pairs.panels <<- function (x, smooth = TRUE, scale = FALSE, density = TRUE, ellipses = TRUE,
+pairs.panels <- function (x, smooth = TRUE, scale = FALSE, density = TRUE, ellipses = TRUE,
                            digits = 2, method = "pearson", pch = 20, lm = FALSE, cor = TRUE,
                            jiggle = FALSE, factor = 2, hist.col = "cyan", show.points = TRUE,
                            rug = TRUE, breaks = "Sturges", cex.cor = 1, wt = NULL, smoother = FALSE,
@@ -355,7 +367,7 @@ pairs.panels <<- function (x, smooth = TRUE, scale = FALSE, density = TRUE, elli
 }
 
 # Functions taken from the DUMMIES package
-dummy <<- function (x, data = NULL, sep = "", drop = TRUE, fun = as.integer, verbose = FALSE) {
+dummy <- function (x, data = NULL, sep = "", drop = TRUE, fun = as.integer, verbose = FALSE) {
   if (is.null(data)) {
     name <- as.character(sys.call(1))[2]
     name <- sub("^(.*\\$)", "", name)
@@ -391,7 +403,7 @@ dummy <<- function (x, data = NULL, sep = "", drop = TRUE, fun = as.integer, ver
   return(mm)
 }
 
-dummy.data.frame <<- function (data, names = NULL, omit.constants = TRUE, dummy.classes = c("factor" ,"character"), all = TRUE, ...) {
+dummy.data.frame <- function (data, names = NULL, omit.constants = TRUE, dummy.classes = c("factor" ,"character"), all = TRUE, ...) {
   df <- data.frame(row.names = row.names(data))
   new.attr <- list()
   for (nm in names(data)) {
@@ -889,6 +901,82 @@ scatterplot3d <- function (x, y = NULL, z = NULL, color = par("col"), pch = par(
       } else points(x, y, type = type, lty = lty, ...)
     }
   }, par.mar = mem.par))
+}
+
+# Functions taken from the rattle package
+
+printRandomForests <- function (model, models = NULL, include.class = NULL, format = "") {
+  if (is.null(models) || models == 0) 
+    models <- 1:model$ntree
+  for (i in models) printRandomForest(model, i, include.class, 
+                                      format)
+}
+
+printRandomForest <- function (model, n = 1, include.class = NULL, format = "", comment = "") {
+  if (!inherits(model, "randomForest")) 
+    stop(Rtxt("the model is not of the 'randomForest' class"))
+  if (format == "VB") 
+    comment = "'"
+  tr <- randomForest::getTree(model, n)
+  tr.paths <- rattle:::getRFPathNodesTraverse(tr)
+  tr.vars <- attr(model$terms, "dataClasses")[-1]
+  cat(sprintf("%sRandom Forest Model %d", comment, n), "\n\n")
+  cat(paste(comment, "-------------------------------------------------------------\n", 
+            sep = ""))
+  if (format == "VB") 
+    cat("IF FALSE THEN\n' This is a No Op to simplify the code\n\n")
+  nrules <- 0
+  for (i in seq_along(tr.paths)) {
+    tr.path <- tr.paths[[i]]
+    nodenum <- as.integer(names(tr.paths[i]))
+    target <- levels(model$y)[tr[nodenum, "prediction"]]
+    if (!is.null(include.class) && target %notin% include.class) 
+      (next)()
+    cat(sprintf("%sTree %d Rule %d Node %d %s\n \n", comment, 
+                n, i, nodenum, ifelse(is.null(target), "Regression (to do - extract predicted value)", 
+                                      paste("Decision", target))))
+    if (format == "VB") 
+      cat("ELSE IF TRUE\n")
+    nrules <- nrules + 1
+    var.index <- tr[, 3][abs(tr.path)]
+    var.names <- names(tr.vars)[var.index]
+    var.values <- tr[, 4][abs(tr.path)]
+    for (j in 1:(length(tr.path) - 1)) {
+      var.class <- tr.vars[var.index[j]]
+      if (var.class == "character" | var.class == "factor" | 
+          var.class == "ordered") {
+        node.op <- "IN"
+        var.levels <- levels(exe(model$call$data)[[var.names[j]]])
+        bins <- rattle:::sdecimal2binary(var.values[j])
+        bins <- c(bins, rep(0, length(var.levels) - length(bins)))
+        if (tr.path[j] > 0) 
+          node.value <- var.levels[bins == 1]
+        else node.value <- var.levels[bins == 0]
+        node.value <- sprintf("(\"%s\")", paste(node.value, 
+                                                collapse = "\", \""))
+      }
+      else if (var.class == "integer" | var.class == "numeric") {
+        if (tr.path[j] > 0) 
+          node.op <- "<="
+        else node.op <- ">"
+        node.value <- var.values[j]
+      }
+      else stop(sprintf("Rattle E234: getRFRuleSet: class %s not supported.", 
+                        var.class))
+      if (format == "VB") 
+        cat(sprintf("AND\n%s %s %s\n", var.names[j], 
+                    node.op, node.value))
+      else cat(sprintf("%d: %s %s %s\n", j, var.names[j], 
+                       node.op, node.value))
+    }
+    if (format == "VB") 
+      cat("THEN Count = Count + 1\n")
+    cat("-----------------------------------------------------------------\n")
+  }
+  if (format == "VB") 
+    cat("END IF\n\n")
+  cat(sprintf("%sNumber of rules in Tree %d: %d\n\n", comment, 
+              n, nrules))
 }
 
 # To do

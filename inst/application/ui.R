@@ -299,8 +299,8 @@ cor.code <- list(h4(labelInput("codigo")), hr(),
                    aceEditor("fieldModelCor", height = "6vh", mode = "r", theme = "monokai", value = "", readOnly = T),
                    code_field("run.code.cor","fieldCodeCor", height = "7vh"))
 
-cor.tabs <- tabsOptions(heights = c(48, 53),
-                                      tabs.content = list(cor.options, cor.code))
+cor.tabs <- tabsOptions(heights = c(48, 63),
+                        tabs.content = list(cor.options, cor.code))
 
 correlation.plot <- tabPanel(title = labelInput("correlacion"), value = "correlacion", plotOutput('plot.cor', height = "70vh"))
 

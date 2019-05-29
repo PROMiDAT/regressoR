@@ -27,11 +27,11 @@ code_load <- function(row.names = TRUE, path = NULL, sep = ";", sep.dec = ",", h
     path <-  gsub("\\", "/", path, fixed=TRUE)
   }
   if(row.names){
-    return(paste0( d.o ," <<- read.table('", path, "', header=", header, ", sep='", sep,
-                   "', dec = '", sep.dec, "', row.names = 1) \n",d," <<- ",d.o))
+    return(paste0( d.o ," <- read.table('", path, "', header=", header, ", sep='", sep,
+                   "', dec = '", sep.dec, "', row.names = 1) \n",d," <- ",d.o))
   } else {
-    return(paste0(d.o, "<<- read.table('", path, "', header=", header, ", sep='", sep,
-                  "', dec = '", sep.dec,"') \n",d," <<- ",d.o))
+    return(paste0(d.o, "<- read.table('", path, "', header=", header, ", sep='", sep,
+                  "', dec = '", sep.dec,"') \n",d," <- ",d.o))
   }
 }
 
@@ -114,7 +114,7 @@ code_transf <- function(variable, new.type, d.o = "datos.originales", d="datos")
 #' head(iris2)
 #' 
 code_deactivate <- function(variables, d = "datos"){
-  return(paste0(d, " <<- subset(",d,", select = -c(", paste(variables, collapse = ","), "))"))
+  return(paste0(d, " <- subset(",d,", select = -c(", paste(variables, collapse = ","), "))"))
 }
 
 #' partition_code
@@ -138,8 +138,8 @@ code_deactivate <- function(variables, d = "datos"){
 partition_code <- function(data = "datos", p = 50, variable = NULL, semilla = 5, perm.semilla = FALSE){
   semilla <- ifelse(is.numeric(semilla), semilla, 5)
   codigo <- ifelse(perm.semilla, paste0("set.seed(",semilla,")"), "rm(.Random.seed, envir = globalenv())")
-  codigo <- paste0(codigo,"\nvariable.predecir <<- '",variable,"'\nparticion <- sample(1:nrow(",data,"),size = nrow(",data,")*",p/100,", replace = FALSE)\n",
-                  "datos.prueba <<- ",data,"[-particion,]\ndatos.aprendizaje <<- ",data,"[particion,]\nreal.val <<- datos.prueba[, '",variable,"', drop = FALSE]")
+  codigo <- paste0(codigo,"\nvariable.predecir <- '",variable,"'\nparticion <- sample(1:nrow(",data,"),size = nrow(",data,")*",p/100,", replace = FALSE)\n",
+                  "datos.prueba <- ",data,"[-particion,]\ndatos.aprendizaje <- ",data,"[particion,]\nreal.val <- datos.prueba[, '",variable,"', drop = FALSE]")
   codigo <- ifelse(perm.semilla, paste0(codigo, "\nset.seed(",semilla,")"),codigo)
   return(codigo)
 }
@@ -305,7 +305,7 @@ def_code_cat <- function(data = "datos", variable) {
 #' correlacion
 #' 
 cor_model <- function(data = "datos"){
-  return(paste0("correlacion <<- cor(var_numerical(", data, "))"))
+  return(paste0("correlacion <- cor(var_numerical(", data, "))"))
 }
 
 #' correlations_plot
@@ -375,7 +375,7 @@ pairs_power <- function(data = "datos"){
 #' print(modelo.rl)
 #' 
 rl_model <- function(data = "datos.aprendizaje", variable.pred = NULL, model.var = "modelo.rl"){
-  return(paste0(model.var," <<- lm(`",variable.pred,"`~., data = ",data,")"))
+  return(paste0(model.var," <- lm(`",variable.pred,"`~., data = ",data,")"))
 }
 
 #' rl_prediction
@@ -400,7 +400,7 @@ rl_model <- function(data = "datos.aprendizaje", variable.pred = NULL, model.var
 #' print(my_prediction)
 #' 
 rl_prediction <- function(data = "datos.prueba", model.var = "modelo.rl" , pred.var = "prediccion.rl") {
-  return(paste0(pred.var, " <<- predict(",model.var,", ",data,")"))
+  return(paste0(pred.var, " <- predict(",model.var,", ",data,")"))
 }
 
 #' rl_coeff
@@ -458,8 +458,8 @@ rl_coeff <- function(model.var = "modelo.rl"){
 rlr_model <- function(data = "datos.aprendizaje", variable.pred = NULL, model.var = "modelo.rlr", cv.var = "cv.glm", alpha = 0, standardize = TRUE){
   return(paste0("x <- model.matrix(`",variable.pred,"`~., ",data,")[, -1]\n",
                 "y <- ",data,"[, '",variable.pred,"']\n",
-                cv.var," <<- cv.glmnet(x, y, standardize = ",standardize,", alpha = ",alpha,")\n",
-                model.var," <<- glmnet(x, y, standardize = ",standardize,", alpha = ",alpha,")"))
+                cv.var," <- cv.glmnet(x, y, standardize = ",standardize,", alpha = ",alpha,")\n",
+                model.var," <- glmnet(x, y, standardize = ",standardize,", alpha = ",alpha,")"))
 }
 
 #' coef_lambda
@@ -543,7 +543,7 @@ rlr_prediction <- function(data.a = "datos.aprendizaje", data.p = "datos.prueba"
   paste0("x <- model.matrix(`",variable.pred,"`~., ",data.a,")[, -1]\n",
          "y <- ",data.a,"[, '",variable.pred,"']\n",
          "prueba <- model.matrix(`",variable.pred,"`~.,",data.p,")[, -1]\n",
-         pred.var," <<- predict(",model.var,",newx = prueba,",
+         pred.var," <- predict(",model.var,",newx = prueba,",
          "s = exp(",lambda,"), exact = TRUE, x = x, y = y)")
 }
 
@@ -592,7 +592,7 @@ rlr_type <- function(alpha_rlr = options_regressor("rlr.alpha")){
 #' 
 kkn_model <- function(data = "datos.aprendizaje", variable.pred = NULL, scale = TRUE, kmax = 7, kernel = "optimal", model.var = "modelo.knn", distance = 2){
   kmax <- ifelse(!is.numeric(kmax), exe("round(sqrt(nrow(",data,"))"), kmax)
-  return(paste0(model.var," <<- train.kknn(`",variable.pred,"`~., data = ",data,", scale =",scale,", kmax=",kmax,", kernel = '",kernel,"', distance = ",distance,")"))
+  return(paste0(model.var," <- train.kknn(`",variable.pred,"`~., data = ",data,", scale =",scale,", kmax=",kmax,", kernel = '",kernel,"', distance = ",distance,")"))
 }
 
 #' kkn_prediction
@@ -620,7 +620,7 @@ kkn_model <- function(data = "datos.aprendizaje", variable.pred = NULL, scale = 
 #' print(my_prediction)
 #' 
 kkn_prediction <- function(data = "datos.prueba", variable.pred = NULL, model.var = "modelo.knn", pred.var = "prediccion.knn") {
-  return(paste0(pred.var," <<- predict(",model.var,", ",data," %>% select(-`",variable.pred,"`))"))
+  return(paste0(pred.var," <- predict(",model.var,", ",data," %>% select(-`",variable.pred,"`))"))
 }
 
 # SVM PAGE ----------------------------------------------------------------------------------------------------------------
@@ -646,7 +646,7 @@ kkn_prediction <- function(data = "datos.prueba", variable.pred = NULL, model.va
 #' print(modelo.svm)
 #' 
 svm_model <- function(data = "datos.aprendizaje", variable.pred = NULL, model.var = "modelo.svm", scale = TRUE, kernel = "linear"){
-  return(paste0(model.var," <<- svm(`",variable.pred,"`~., data = ",data,", scale =",scale,", kernel = '",kernel,"')"))
+  return(paste0(model.var," <- svm(`",variable.pred,"`~., data = ",data,", scale =",scale,", kernel = '",kernel,"')"))
 }
 
 #' svm_prediction
@@ -673,7 +673,7 @@ svm_model <- function(data = "datos.aprendizaje", variable.pred = NULL, model.va
 #' print(my_prediction)
 #' 
 svm_prediction <- function(data = "datos.prueba", variable.pred = NULL, model.var = "modelo.svm", pred.var = "prediccion.svm"){
-  return(paste0(pred.var," <<- predict(",model.var," , ",data," %>% select(-`",variable.pred,"`))"))
+  return(paste0(pred.var," <- predict(",model.var," , ",data," %>% select(-`",variable.pred,"`))"))
 }
 
 # RD PAGE -----------------------------------------------------------------------------------------------------------------
@@ -704,11 +704,11 @@ rd_model <- function(data = "datos.aprendizaje", variable.pred = NULL, model.var
                       n.comp = "n.comp.rd", mode = options_regressor("rd.mode"), scale = TRUE){
   mode <- ifelse(is.null(unlist(mode)), 0, mode)
   if(mode == 0){
-    x <- paste0(model.var," <<- pcr(`",variable.pred,"`~.,data = ",data,", scale = ",scale,", validation = 'CV')")
+    x <- paste0(model.var," <- pcr(`",variable.pred,"`~.,data = ",data,", scale = ",scale,", validation = 'CV')")
   }else{
-    x <- paste0(model.var," <<- plsr(`",variable.pred,"`~.,data = ",data,", scale = ",scale,", validation = 'CV')")
+    x <- paste0(model.var," <- plsr(`",variable.pred,"`~.,data = ",data,", scale = ",scale,", validation = 'CV')")
   }
-  paste0(x,"\n",n.comp, " <<- which.min(RMSEP(",model.var,")$val[1, 1, ]) - 1")
+  paste0(x,"\n",n.comp, " <- which.min(RMSEP(",model.var,")$val[1, 1, ]) - 1")
 }
 
 #' rd_prediction
@@ -737,7 +737,7 @@ rd_model <- function(data = "datos.aprendizaje", variable.pred = NULL, model.var
 rd_prediction <- function(data = "datos.prueba", model.var = "modelo.svm", pred.var = "prediccion.rd", 
                           n.comp = "n.comp.rd", ncomp = NULL) {
   ncomp <- ifelse(is.null(ncomp), n.comp, ncomp)
-  paste0(pred.var," <<- predict(",model.var,", ",data,", ncomp = ",ncomp,")")
+  paste0(pred.var," <- predict(",model.var,", ",data,", ncomp = ",ncomp,")")
 }
 
 #' rd_type
@@ -785,7 +785,7 @@ rd_type <- function(mode.rd = options_regressor("rd.mode")){
 dt_model <- function(data = "datos.aprendizaje", variable.pred = NULL, model.var = "modelo.dt", minsplit =  20, maxdepth = 15){
   minsplit <- ifelse(!is.numeric(minsplit), 1, minsplit)
   maxdepth <- ifelse(!is.numeric(maxdepth) || maxdepth > 30, 15, maxdepth)
-  codigo <- paste0(model.var," <<- rpart(`",variable.pred,"`~., data = ",data,",
+  codigo <- paste0(model.var," <- rpart(`",variable.pred,"`~., data = ",data,",
                    control = rpart.control(minsplit = ",minsplit,", maxdepth = ", maxdepth,"))")
   return(codigo)
 }
@@ -812,7 +812,7 @@ dt_model <- function(data = "datos.aprendizaje", variable.pred = NULL, model.var
 #' print(my_prediction)
 #' 
 dt_prediction <- function(data = "datos.prueba", model.var = "modelo.dt", pred.var = "prediccion.dt") {
-  return(paste0(pred.var," <<- predict(",model.var,", ",data,")"))
+  return(paste0(pred.var," <- predict(",model.var,", ",data,")"))
 }
 
 #' dt_plot
@@ -863,7 +863,7 @@ dt_plot <- function(model.var = "modelo.dt"){
 #' 
 rf_model <- function(data = "datos.aprendizaje", variable.pred = NULL, model.var = "modelo.rf", ntree = 500, mtry = 1){
   ntree <- ifelse(!is.numeric(ntree), 500, ntree)
-  codigo <- paste0(model.var," <<- randomForest(`",variable.pred,"`~., data = ",data,",importance = TRUE,",
+  codigo <- paste0(model.var," <- randomForest(`",variable.pred,"`~., data = ",data,",importance = TRUE,",
                    " ntree =",ntree,",mtry =",mtry,")")
   return(codigo)
 }
@@ -892,7 +892,7 @@ rf_model <- function(data = "datos.aprendizaje", variable.pred = NULL, model.var
 #' print(my_prediction)
 #'
 rf_prediction <- function(data = "datos.prueba", variable.pred = NULL, model.var = "modelo.rf", pred.var = "prediccion.rf"){
-  return(paste0(pred.var," <<- predict(",model.var,", ",data," %>% select(-`",variable.pred,"`))"))
+  return(paste0(pred.var," <- predict(",model.var,", ",data," %>% select(-`",variable.pred,"`))"))
 }
 
 # BOOSTING PAGE ---------------------------------------------------------------------------------------------------------
@@ -926,11 +926,11 @@ boosting_model <- function(data = "datos.aprendizaje", variable.pred = NULL, mod
   extra.values <- calibrate_boosting(exe(data))
   
   if(is.null(extra.values)){
-    codigo <- paste0(model.var,"<<- gbm(`",variable.pred,
+    codigo <- paste0(model.var,"<- gbm(`",variable.pred,
                      "`~ ., data = ",data,", distribution = '",
                      distribution,"', n.trees = ",n.trees,", shrinkage = ",shrinkage,")")
   }else{
-    codigo <- paste0(model.var," <<- gbm(`",variable.pred,
+    codigo <- paste0(model.var," <- gbm(`",variable.pred,
                      "`~ ., data = ",data,", distribution = '",
                      distribution,"', n.trees = ",n.trees,", shrinkage = ",shrinkage,",n.minobsinnode = ",extra.values[["n.minobsinnode"]],
                      ",bag.fraction = ",extra.values[["bag.fraction"]],")")
@@ -965,7 +965,7 @@ boosting_model <- function(data = "datos.aprendizaje", variable.pred = NULL, mod
 #' 
 boosting_prediction <- function(data = "datos.prueba", variable.pred = NULL, model.var = "modelo.boosting", pred.var = "prediccion.boosting", n.trees = 50) {
   n.trees <- ifelse(!is.numeric(n.trees), 50, n.trees)
-  return(paste0(pred.var," <<- predict(",model.var,
+  return(paste0(pred.var," <- predict(",model.var,
                 ", ",data," %>% select(-`",variable.pred,"`), n.trees = ",n.trees,")"))
 }
 
@@ -1042,12 +1042,12 @@ nn_model <- function(data = "datos.aprendizaje", variable.pred = NULL, model.var
   capas <- as_string_c(as.numeric(list(...)[1:cant.hidden]), quote = FALSE)
   
   paste0("datos.dummies.apren <- dummy.data.frame(",data,")\n",
-         mean.var," <<- sapply(datos.dummies.apren, mean)\n",
-         sd.var," <<- sapply(datos.dummies.apren, sd)\n",
+         mean.var," <- sapply(datos.dummies.apren, mean)\n",
+         sd.var," <- sapply(datos.dummies.apren, sd)\n",
          "datos.dummies.apren <- as.data.frame(scale(datos.dummies.apren, center = ",mean.var,", scale = ",sd.var,"))\n",
          "nombres <- colnames(datos.dummies.apren)\n",
          "formula.nn <- as.formula(paste('",variable.pred,"~', paste0(nombres[!nombres %in% '",variable.pred,"'], collapse = '+')))\n",
-         model.var," <<- neuralnet(formula.nn, data = datos.dummies.apren, hidden = ",capas,",\n\t\t\tlinear.output = TRUE,",
+         model.var," <- neuralnet(formula.nn, data = datos.dummies.apren, hidden = ",capas,",\n\t\t\tlinear.output = TRUE,",
          "threshold = ",threshold,", stepmax = ",stepmax,")\n")
 }
 
@@ -1082,8 +1082,8 @@ nn_model <- function(data = "datos.aprendizaje", variable.pred = NULL, model.var
 nn_prediction <- function(data = "datos.prueba", variable.pred = NULL, model.var = "modelo.nn", pred.var = "prediccion.nn", mean.var = "mean.nn", sd.var = "sd.nn") {
   paste0("datos.dummies.prueb <- as.data.frame(scale(dummy.data.frame(",data," %>% select(-`",variable.pred,"`))))\n",
          "datos.dummies.prueb['",variable.pred,"'] <- NULL\n",
-         pred.var," <<- neuralnet::compute(",model.var,", datos.dummies.prueb)$net.result\n",
-         pred.var, " <<- ",pred.var," * ",sd.var,"['",variable.pred,"'] + ",mean.var,"['",variable.pred,"']")
+         pred.var," <- neuralnet::compute(",model.var,", datos.dummies.prueb)$net.result\n",
+         pred.var, " <- ",pred.var," * ",sd.var,"['",variable.pred,"'] + ",mean.var,"['",variable.pred,"']")
 }
 
 #' nn_plot

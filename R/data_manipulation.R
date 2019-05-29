@@ -2,7 +2,8 @@
 my_options <- new.env()
 my_options$ops <- list(language  = "es",
                        rd.mode   = 0,
-                       rlr.alpha = 1)
+                       rlr.alpha = 1,
+                       exe.envir = NULL)
 
 #' options_regressor
 #'
