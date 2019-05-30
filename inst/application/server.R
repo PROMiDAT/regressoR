@@ -838,7 +838,7 @@ shinyServer(function(input, output, session){
         insert_report("ind.rl","\u00CDndices Generales del Modelo Regresi\u00F3n Lineal", cod.rl.ind,
                       "\nkt(general_indices(datos.prueba[,'", variable.predecir, "'], prediccion.rl))\n",
                       "indices.rl<- general_indices(datos.prueba[,'",variable.predecir,"'], prediccion.rl)\n",
-                      "IndicesM[['rll']] <<- indices.rl")
+                      "IndicesM[['rll']] <- indices.rl")
         
         df <- cbind(as.data.frame(indices.rl), r2)
         df <- df[,c(1,2,3,5,4)]
@@ -1077,7 +1077,7 @@ shinyServer(function(input, output, session){
         insert_report(paste0("ind.rlr.",rlr_type()),paste0("\u00CDndices Generales del Modelo Regresi\u00F3n Penalizada (",rlr_type(),")"),
                       cod.rlr.ind, "\nkt(general_indices(datos.prueba[,'",variable.predecir,"'], prediccion.rlr.",rlr_type(),"))\n",
                       "indices.rlr <- general_indices(datos.prueba[,'",variable.predecir,"'], prediccion.rlr.",rlr_type(),")\n",
-                      "IndicesM[['rlr-",rlr_type(),"']] <<- indices.rlr")
+                      "IndicesM[['rlr-",rlr_type(),"']] <- indices.rlr")
 
         
         df <- as.data.frame(indices.rlr)
@@ -1245,7 +1245,7 @@ shinyServer(function(input, output, session){
         insert_report(paste0("ind.knn.",kernel), paste0("\u00CDndices del Modelo KNN (",kernel,")"),
                       cod.knn.ind, "\nkt(general_indices(datos.prueba[,'",variable.predecir,"'] ,prediccion.knn.",kernel,"))\n",
                       "indices.knn <- general_indices(datos.prueba[,'",variable.predecir,"'], prediccion.knn.",kernel,")\n",
-                      "IndicesM[['knnl-",kernel,"']] <<- indices.knn")
+                      "IndicesM[['knnl-",kernel,"']] <- indices.knn")
         
         df <- as.data.frame(indices.knn)
         colnames(df) <- c(translate("RMSE"), translate("MAE"), translate("ER"), translate("correlacion"))
@@ -1401,7 +1401,7 @@ shinyServer(function(input, output, session){
         insert_report(paste0("ind.svm.",kernel), paste0("\u00CDndices Generales del modelo SVM (",kernel,")"),
                       cod.svm.ind, "\nkt(general_indices(datos.prueba[,'",variable.predecir,"'], prediccion.svm.",kernel,"))\n",
                       "indices.svm <- general_indices(datos.prueba[,'",variable.predecir,"'], prediccion.svm.",kernel,")\n",
-                      "IndicesM[['svml-",kernel,"']] <<- indices.svm")
+                      "IndicesM[['svml-",kernel,"']] <- indices.svm")
         
         df <- as.data.frame(indices.svm)
         colnames(df) <- c(translate("RMSE"), translate("MAE"), translate("ER"), translate("correlacion"))
@@ -1575,7 +1575,7 @@ shinyServer(function(input, output, session){
         insert_report("ind.dt", "\u00CDndices Generales del Modelo \u00C1rboles de Decisi\u00F3n",
                       cod.dt.ind,"\nkt(general_indices(datos.prueba[,'",variable.predecir,"'], prediccion.dt))\n",
                       "indices.dt <- general_indices(datos.prueba[,'",variable.predecir,"'], prediccion.dt)\n",
-                      "IndicesM[['dtl']] <<- indices.dt")
+                      "IndicesM[['dtl']] <- indices.dt")
 
         df <- as.data.frame(indices.dt)
         colnames(df) <- c(translate("RMSE"), translate("MAE"), translate("ER"), translate("correlacion"))
@@ -1837,7 +1837,7 @@ shinyServer(function(input, output, session){
                       cod.rd.ind, 
                       "\nkt(general_indices(datos.prueba[,'",variable.predecir,"'], prediccion.rd.",rd_type(),"))\n",
                       "indices.rd <- general_indices(datos.prueba[,'",variable.predecir,"'], prediccion.rd.",rd_type(),")\n",
-                      "IndicesM[['rd-",rd_type(),"']] <<- indices.rd")
+                      "IndicesM[['rd-",rd_type(),"']] <- indices.rd")
         
         df <- as.data.frame(indices.rd)
         colnames(df) <- c(translate("RMSE"), translate("MAE"), translate("ER"), translate("correlacion"))
@@ -2034,7 +2034,7 @@ shinyServer(function(input, output, session){
         insert_report("ind.rf","\u00CDndices Generales del Modelo Bosques Aleatorios",
                       cod.rf.ind, "\nkt(general_indices(datos.prueba[,'",variable.predecir,"'], prediccion.rf))\n",
                       "indices.rf <- general_indices(datos.prueba[,'",variable.predecir,"'], prediccion.rf)\n",
-                      "IndicesM[['rfl']] <<- indices.rf")
+                      "IndicesM[['rfl']] <- indices.rf")
 
         df <- as.data.frame(indices.rf)
         colnames(df) <- c(translate("RMSE"), translate("MAE"), translate("ER"), translate("correlacion"))
@@ -2227,7 +2227,7 @@ shinyServer(function(input, output, session){
         insert_report(paste0("ind.b.",tipo), paste0("\u00CDndices Generales del Modelo (",tipo,")"),
                              cod.knn.ind, "\nkt(general_indices(datos.prueba[,'",variable.predecir,"'] ,prediccion.boosting.",tipo,"))\n",
                              "indices.boosting <- general_indices(datos.prueba[,'",variable.predecir,"'], prediccion.boosting.",tipo,")\n",
-                             "IndicesM[['bl-",tipo,"']] <<- indices.boosting")
+                             "IndicesM[['bl-",tipo,"']] <- indices.boosting")
         
         df <- as.data.frame(indices.boosting)
         colnames(df) <- c(translate("RMSE"), translate("MAE"), translate("ER"), translate("correlacion"))
@@ -2409,7 +2409,7 @@ shinyServer(function(input, output, session){
       # Cambia la tabla con la prediccion de nn
       output$nnPrediTable <- DT::renderDataTable(tb_predic(real.val, prediccion.nn),server = FALSE)
 
-      insert_report("pred.nn", "Predicci\u00F3n del Modelo Redes Neuronales",
+      insert_report("pred.nn", "Predicci\u00F3n del Modelo Redes Neuronales", cod.nn.pred,
                     "\nkt(head(tb_predic(real.val, prediccion.nn)$x$data[,-1]))",interpretation = FALSE)
 
       plot_disp_nn()
@@ -2433,7 +2433,7 @@ shinyServer(function(input, output, session){
                       cod.nn.ind, 
                       "\nkt(general_indices(datos.prueba[,'",variable.predecir,"'], prediccion.nn))\n",
                       "indices.nn <- general_indices(datos.prueba[,'",variable.predecir,"'], prediccion.nn)\n",
-                      "IndicesM[['nn']] <<- indices.nn")
+                      "IndicesM[['nn']] <- indices.nn")
 
         df <- as.data.frame(indices.nn)
         colnames(df) <- c(translate("RMSE"), translate("MAE"), translate("ER"), translate("correlacion"))
@@ -2468,7 +2468,7 @@ shinyServer(function(input, output, session){
     graficar <- updatePlot$tablaCom
     if (!is.null(datos.aprendizaje)) {
       
-      insert_report("tabla.comparativa","Tabla Comparativa","kt(comparative_table(",as_string_c(input$select.models),"))")
+      insert_report("tabla.comparativa","Tabla Comparativa","kt(comparative_table(",as_string_c(input$select.models),",IndicesM) )")
       
       DT::datatable(comparative_table(input$select.models),
                     selection = "none", editable = FALSE,
@@ -2870,7 +2870,14 @@ shinyServer(function(input, output, session){
   # When the user enters the report page
   observeEvent(input$principal, {
     if(input$principal == "reporte"){
-      updateAceEditor(session, "fieldCodeReport", value = word_report(input$textTitulo, input$textNombre))
+      extra_funs <- paste0(extract_code("pairs.panels"), "\n",
+                           extract_code("dummy"),"\n",
+                           extract_code("dummy.data.frame"),"\n",
+                           extract_code("scatterplot3d"),"\n",
+                           extract_code("printRandomForests"),"\n",
+                           extract_code("printRandomForest"),"\n",
+                           extract_code("printRandomForests"))
+      updateAceEditor(session, "fieldCodeReport", value = word_report(input$textTitulo, input$textNombre, extra =  extra_funs))
     }
   })
 
@@ -2909,9 +2916,9 @@ shinyServer(function(input, output, session){
         overwrite_cat()
         salida.code <<- ""
         shinyjs::html("txtreport", salida.code)
-        merge_envir <- rlang::env_clone(get_env_report())
-        parent.env(merge_envir) <- options_regressor()$exe.envir
-        out <- rmarkdown::render(src,  params = NULL, rmarkdown::word_document(highlight = "tango"), envir = merge_envir)
+        #merge_envir <- rlang::env_clone(get_env_report())
+        #parent.env(merge_envir) <- options_regressor()$exe.envir
+        out <- rmarkdown::render(src,  params = NULL, rmarkdown::word_document(highlight = "tango"), envir = get_env_report())
       },
       message = function(m) {
         salida.code <<- paste0(m$message, salida.code)

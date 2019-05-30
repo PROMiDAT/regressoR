@@ -85,9 +85,9 @@ new_report <- function(data, name = ""){
   n <- len_report() + 1
   env_report$codigo.reporte[[n]] <- list(datos.originales = data)
   env_report$codigo.reporte[[n]][["carga.datos"]] <- paste0("\n## Carga de Datos (",name,")",
-                                                             "\n```{r}\ndatos.originales <<- codigo.reporte[[",n,"]]$datos.originales\n",
-                                                             "datos <<- datos.originales\n```\n```{r}\nhead(datos)\n```\n```{r}\nstr(datos)\n```\n",
-                                                             "```{r}\nIndicesM <<- list()\n```\n")
+                                                             "\n```{r}\ndatos.originales <- codigo.reporte[[",n,"]]$datos.originales\n",
+                                                             "datos <- datos.originales\n```\n```{r}\nhead(datos)\n```\n```{r}\nstr(datos)\n```\n",
+                                                             "```{r}\nIndicesM <- list()\n```\n")
 }
 
 #' insert_report
@@ -231,6 +231,7 @@ order_report <- function(list_report){
 #' @param title report title.
 #' @param name name of the author of the report.
 #' @param order_by_regressor it's the order for the default "regressoR" report.
+#' @param extra a string with any extra code you want to add to the configuration chunk.
 #'
 #' @export
 #' 
@@ -245,7 +246,7 @@ order_report <- function(list_report){
 #' 
 #' word_report(order_by_regressor = FALSE)
 #' 
-word_report <- function(title = "Sin Titulo", name = "PROMiDAT", order_by_regressor = TRUE) {
+word_report <- function(title = "Sin Titulo", name = "PROMiDAT", order_by_regressor = TRUE, extra = "") {
   codigo.usuario <- ""
   codigos <- env_report$codigo.reporte
   
@@ -276,6 +277,7 @@ word_report <- function(title = "Sin Titulo", name = "PROMiDAT", order_by_regres
     "library(dplyr)\nlibrary(forcats)\nlibrary(knitr)\n",
     "library(xtable)\n",
     "kt<-function(x)\n{\nif(class(x)!=\"table\")\nreturn(kable(as.data.frame(x),align = \"l\"))\nelse\nreturn(kable(x,align =\"l\"))\n}\n",
+    extra,"\n",
     "```\n\n",
     codigo.usuario)
 }

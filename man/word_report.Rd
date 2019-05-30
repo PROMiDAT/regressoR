@@ -5,7 +5,7 @@
 \title{word_report}
 \usage{
 word_report(title = "Sin Titulo", name = "PROMiDAT",
-  order_by_regressor = TRUE)
+  order_by_regressor = TRUE, extra = "")
 }
 \arguments{
 \item{title}{report title.}
@@ -13,6 +13,8 @@ word_report(title = "Sin Titulo", name = "PROMiDAT",
 \item{name}{name of the author of the report.}
 
 \item{order_by_regressor}{it's the order for the default "regressoR" report.}
+
+\item{extra}{a string with any extra code you want to add to the configuration chunk.}
 }
 \description{
 creates a header for the report that allows you to generate a word file.

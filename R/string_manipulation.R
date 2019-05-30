@@ -39,7 +39,7 @@ exe <- function(..., envir = options_regressor()$exe.envir){
 #' parse(text = extract_code("plot"))
 #' 
 extract_code <- function(funcion, envir = parent.frame()) {
-  code <- paste(head(exe(funcion, envir = envir), 100), collapse = "\n")
+  code <- paste(deparse(exe(funcion, envir = envir)), collapse = "\n")
   code <- paste(funcion, "<-", code)
   return(code)
 }
