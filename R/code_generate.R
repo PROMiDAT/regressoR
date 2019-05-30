@@ -52,14 +52,14 @@ code_load <- function(row.names = TRUE, path = NULL, sep = ";", sep.dec = ",", h
 #' exe(x)
 #' 
 code_NA <- function(deleteNA = TRUE, d.o = "datos.originales") {
-  ifelse(deleteNA, paste0(d.o, " <<- na.omit(",d.o,")\n"),
+  ifelse(deleteNA, paste0(d.o, " <- na.omit(",d.o,")\n"),
          paste0("Mode <- function(x) {\n  x[which.max(summary(x))]\n}\n",
                 "for (variable in colnames(",d.o,")) {\n",
                 "  if(any(is.na(",d.o,"[, variable]))){\n",
                 "   ifelse(class(",d.o,"[, variable]) %in% c('numeric', 'integer'),\n",
-                "           ",d.o,"[, variable][is.na(",d.o,"[, variable])] <<- \n",
+                "           ",d.o,"[, variable][is.na(",d.o,"[, variable])] <- \n",
                 "                                              mean(",d.o,"[, variable], na.rm = TRUE),\n",
-                "           ",d.o,"[, variable][is.na(",d.o,"[, variable])] <<- \n",
+                "           ",d.o,"[, variable][is.na(",d.o,"[, variable])] <- \n",
                 "                                     Mode(",d.o,"[, variable]))",
                 "\n   }\n}"))
 }
@@ -83,18 +83,18 @@ code_NA <- function(deleteNA = TRUE, d.o = "datos.originales") {
 #' 
 code_transf <- function(variable, new.type, d.o = "datos.originales", d="datos"){
   if(new.type == "categorico"){
-    return(paste0(d,"[, '", variable, "'] <<- as.factor(",d,"[, '", variable, "'])"))
+    return(paste0(d,"[, '", variable, "'] <- as.factor(",d,"[, '", variable, "'])"))
   } else if(new.type == "numerico") {
     v <- as.character(exe(d,"[, '", variable, "']"))
     if(all(grepl("^[[:digit:]]+((\\.|,)[[:digit:]]+)*$", v))){
-      return(paste0(d,"[, '", variable, "'] <<- as.numeric(sub(',', '.', ",d,"[, '", variable, "'], fixed = TRUE))"))
+      return(paste0(d,"[, '", variable, "'] <- as.numeric(sub(',', '.', ",d,"[, '", variable, "'], fixed = TRUE))"))
     }else{
-      return(paste0(d,"[, '", variable, "'] <<- as.numeric(",d,"[, '", variable, "'])"))
+      return(paste0(d,"[, '", variable, "'] <- as.numeric(",d,"[, '", variable, "'])"))
     }
   } else {
     es.factor <- ifelse( eval(parse(text = paste0("class(",d.o,"[, variable]) %in% c('numeric', 'integer')"))),
-                         paste0(d,"[, '", variable, "'] <<- as.factor(",d,"[, '", variable, "']) \n"), "")
-    return(paste0(es.factor, d, " <<- disjunctive_data(",d,", '", variable,"')"))
+                         paste0(d,"[, '", variable, "'] <- as.factor(",d,"[, '", variable, "']) \n"), "")
+    return(paste0(es.factor, d, " <- disjunctive_data(",d,", '", variable,"')"))
   }
 }
 
@@ -542,7 +542,9 @@ rlr_prediction <- function(data.a = "datos.aprendizaje", data.p = "datos.prueba"
   lambda <- ifelse(is.null(lambda),paste0(cv.var,"$lambda.min"), lambda)
   paste0("x <- model.matrix(`",variable.pred,"`~., ",data.a,")[, -1]\n",
          "y <- ",data.a,"[, '",variable.pred,"']\n",
-         "prueba <- model.matrix(`",variable.pred,"`~.,",data.p,")[, -1]\n",
+         "prueba <- ",data.p,"\n",
+         "prueba[, '",variable.pred,"'] <- 0\n",
+         "prueba <- model.matrix(`",variable.pred,"`~., prueba)[, -1]\n",
          pred.var," <- predict(",model.var,",newx = prueba,",
          "s = exp(",lambda,"), exact = TRUE, x = x, y = y)")
 }

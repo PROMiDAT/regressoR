@@ -630,7 +630,7 @@ shinyServer(function(input, output, session){
         cod.cor <<- updatePlot$cor
         res <- isolate(exe(cod.cor))
         updateAceEditor(session, "fieldCodeCor", value = cod.cor)
-        insert_report("correlacion", "Correlaci\u00F3n", cod.cor)
+        insert_report("correlacion", "Correlaci\u00F3n", cor_model(),"\n", cod.cor)
         return(res)
       }, error = function(e) {
         if (ncol(var_numerical(datos)) == 0){
@@ -772,7 +772,7 @@ shinyServer(function(input, output, session){
       isolate(exe(input$fieldCodeRlCoef))
       
       output$rlCoefTable <- regressoR::render_table_data(df.rl[,c(1,4)], server = FALSE)
-      insert_report("coeff.rl", "Coeficientes del Modelo Regresi\u00F3n Lineal", input$fieldCodeRlCoef)
+      insert_report("coeff.rl", "Coeficientes del Modelo Regresi\u00F3n Lineal", input$fieldCodeRlCoef, "\ndf.rl")
     },
     error = function(e) { # Regresamos al estado inicial y mostramos un error
       clean_rl(1)
@@ -891,7 +891,7 @@ shinyServer(function(input, output, session){
     landa <- NULL
     
     if (input$permitir.landa) {
-      if (input$landa >= 0) {
+      if (!is.na(input$landa) && input$landa >= 0) {
         landa <- input$landa
       }
     }
@@ -2468,7 +2468,7 @@ shinyServer(function(input, output, session){
     graficar <- updatePlot$tablaCom
     if (!is.null(datos.aprendizaje)) {
       
-      insert_report("tabla.comparativa","Tabla Comparativa","kt(comparative_table(",as_string_c(input$select.models),",IndicesM))")
+      insert_report("tabla.comparativa","Tabla Comparativa","kt(comparative_table(",as_string_c(input$select.models),"))")
       
       DT::datatable(comparative_table(input$select.models),
                     selection = "none", editable = FALSE,
@@ -2584,7 +2584,7 @@ shinyServer(function(input, output, session){
       }
       codigo.na <- ""
       codigo.na <- paste0(code_NA(deleteNA = input$deleteNAnPred, d.o = "datos.originales.completos"), 
-                          "\n", "datos.aprendizaje.completos <<- datos.originales.completos")
+                          "\n", "datos.aprendizaje.completos <- datos.originales.completos")
       isolate(exe(codigo.na))
 
       updateSelectInput(session, "sel.predic.var.nuevos", choices = rev(colnames_empty(var_numerical(datos.aprendizaje.completos))))
@@ -2640,7 +2640,7 @@ shinyServer(function(input, output, session){
   # Use and show the codes to transform the data
   transform_data_pn <- function() {
     var.noactivas <- c()
-    code.res <- "datos.aprendizaje.completos <<- datos.originales.completos \n"
+    code.res <- "datos.aprendizaje.completos <- datos.originales.completos \n"
     for (var in colnames(datos.originales.completos)) {
       if (input[[paste0("Predbox", var, contadorPN)]]) {
         if (input[[paste0("Predsel", var, contadorPN)]] == "categorico" & class(datos.originales.completos[, var]) %in% c("numeric", "integer")) {
@@ -2680,7 +2680,7 @@ shinyServer(function(input, output, session){
                                                variable.pred = variable.predecir.pn,
                                                model.var = 'modelo.nuevos',
                                                pred.var = 'predic.nuevos',
-                                               lambda = if(input$permitir.landa.pred){input$landa.pred}else{NULL},
+                                               lambda = if(input$permitir.landa.pred){ifelse(is.na(input$landa.pred),NULL,input$landa.pred)}else{NULL},
                                                cv.var = "cv.glm.nuevos"),
                          knn =  kkn_prediction(data = 'datos.prueba.completos',
                                                variable.pred = variable.predecir.pn,
@@ -2729,7 +2729,6 @@ shinyServer(function(input, output, session){
   
   # When the data transform button is pressed
   observeEvent(input$transButtonPredN, {
-    
     code.trans.pn <<- transform_data_pn()
 
     updateSelectInput(session, "sel.predic.var.nuevos", choices = rev(colnames_empty(var_numerical(datos.aprendizaje.completos))))
@@ -2848,7 +2847,7 @@ shinyServer(function(input, output, session){
       datos.prueba.completos[,variable.predecir.pn] <<- NULL
       validate_pn_data(datos.originales.completos, datos.prueba.completos, variable.predecir.pn)
       isolate(exe( codigo.na))
-      datos.prueba.completos[,variable.predecir.pn] <<- NA
+      datos.prueba.completos[,variable.predecir.pn] <<- NA_real_
       code.trans.pn <<- gsub("datos.originales.completos", "datos.prueba.completos", code.trans.pn)
       code.trans.pn <<- gsub("datos.aprendizaje.completos", "datos.prueba.completos", code.trans.pn)
       exe(code.trans.pn)
@@ -2910,7 +2909,9 @@ shinyServer(function(input, output, session){
         overwrite_cat()
         salida.code <<- ""
         shinyjs::html("txtreport", salida.code)
-        out <- rmarkdown::render(src,  params = NULL, rmarkdown::word_document(highlight = "tango"), envir = get_env_report())
+        merge_envir <- rlang::env_clone(get_env_report())
+        parent.env(merge_envir) <- options_regressor()$exe.envir
+        out <- rmarkdown::render(src,  params = NULL, rmarkdown::word_document(highlight = "tango"), envir = merge_envir)
       },
       message = function(m) {
         salida.code <<- paste0(m$message, salida.code)
@@ -2983,6 +2984,8 @@ shinyServer(function(input, output, session){
   # When the session closes
   session$onSessionEnded(function() {
     recover_cat()
+    options_regressor(exe.envir = NULL)
+    clean_report()
     stopApp()
   })
   
