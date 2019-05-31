@@ -539,14 +539,14 @@ plot_coef_lambda <- function(model.var = "modelo.rlr", lambda = NULL,  cv.var = 
 #' 
 rlr_prediction <- function(data.a = "datos.aprendizaje", data.p = "datos.prueba",variable.pred = NULL, model.var = "modelo.rlr", 
                            pred.var = "prediccion.rlr", lambda = NULL,  cv.var = "cv.glm") {
-  lambda <- ifelse(is.null(lambda),paste0(cv.var,"$lambda.min"), lambda)
+  lambda <- ifelse(is.null(lambda),paste0(cv.var,"$lambda.min"), paste0("exp(",lambda,")") )
   paste0("x <- model.matrix(`",variable.pred,"`~., ",data.a,")[, -1]\n",
          "y <- ",data.a,"[, '",variable.pred,"']\n",
          "prueba <- ",data.p,"\n",
          "prueba[, '",variable.pred,"'] <- 0\n",
          "prueba <- model.matrix(`",variable.pred,"`~., prueba)[, -1]\n",
          pred.var," <- predict(",model.var,",newx = prueba,",
-         "s = exp(",lambda,"), exact = TRUE, x = x, y = y)")
+         "s = ",lambda,", exact = TRUE, x = x, y = y)")
 }
 
 #' rlr_type
