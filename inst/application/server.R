@@ -1007,7 +1007,19 @@ shinyServer(function(input, output, session){
   # Show the graph of the coefficients
   plot_coeff <- function(){
     tryCatch({ # Se corren los codigo
-      codigo <- input$fieldCodeRlrLanda
+      landa <- NULL
+      
+      if (input$permitir.landa) {
+        if (!is.na(input$landa) && input$landa >= 0) {
+          landa <- input$landa
+        }
+      }
+      
+      codigo <- plot_coef_lambda(model.var = paste0("modelo.rlr.", rlr_type()),
+                                 lambda = landa,
+                                 cv.var = paste0("cv.glm.", rlr_type()))
+      
+      #codigo <- input$fieldCodeRlrLanda
       output$plot.rlr.landa <- renderPlot(isolate(exe(codigo)))
       insert_report(paste0("gcoeff.landa.rlr.",rlr_type()),paste0("Coeficientes y lamdas (",rlr_type(),")"),codigo)
     },
