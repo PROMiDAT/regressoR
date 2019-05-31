@@ -270,7 +270,7 @@ word_report <- function(title = "Sin Titulo", name = "PROMiDAT", order_by_regres
     "```\n\n",
     "```{r message=FALSE, warning=FALSE}\n",
     "library(promises)\nlibrary(ggplot2)\nlibrary(neuralnet)\n",
-    "library(corrplot)\n\nlibrary(scatterplot3d)\nlibrary(rattle)\n",
+    "library(corrplot)\nlibrary(rattle)\n",
     "library(stringr)\nlibrary(gbm)\nlibrary(DT)\nlibrary(glmnet)\n",
     "library(kknn)\nlibrary(e1071)\nlibrary(rpart)\n",
     "library(rpart.plot)\nlibrary(randomForest)\nlibrary(ada)\nlibrary(xgboost)\n",
