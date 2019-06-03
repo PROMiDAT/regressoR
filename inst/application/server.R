@@ -126,7 +126,7 @@ shinyServer(function(input, output, session){
   clean_data <- function(){
     if (any(is.na(datos))) {
       tryCatch({
-        codigo.na <- paste0(code_NA(deleteNA = input$deleteNA), "\n", "datos <<- datos.originales")
+        codigo.na <- paste0(code_NA(deleteNA = input$deleteNA), "\n", "datos <- datos.originales")
         isolate(exe(codigo.na))
         
         insert_report("na.delete", "Imputaci\u00F3n de Datos", codigo.na,"\nhead(datos)\nstr(datos)")
@@ -891,7 +891,7 @@ shinyServer(function(input, output, session){
     landa <- NULL
     
     if (input$permitir.landa) {
-      if (!is.na(input$landa) && input$landa >= 0) {
+      if (!is.na(input$landa)) {
         landa <- input$landa
       }
     }
@@ -1010,7 +1010,7 @@ shinyServer(function(input, output, session){
       landa <- NULL
       
       if (input$permitir.landa) {
-        if (!is.na(input$landa) && input$landa >= 0) {
+        if (!is.na(input$landa)) {
           landa <- input$landa
         }
       }

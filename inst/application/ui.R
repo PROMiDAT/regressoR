@@ -392,7 +392,7 @@ rlr.options <- list(fluidRow(column(width = 9,h4(labelInput("opciones"))),
                                                  choices = list("Ridge" = 0, "Lasso" = 1)),width = 6),
                               column(br(), switchInput(inputId = "switch.scale.rlr", onStatus = "success", offStatus = "danger", value = T,
                                                  label = labelInput("escal"), onLabel = labelInput("si"), offLabel = labelInput("no"), labelWidth = "100%"), width=6)),
-                     fluidRow(column(id = "colManualLanda",width = 5, numericInput("landa", labelInput("landa"),value = 2, min = 0, "NULL", width = "100%")), br(),
+                     fluidRow(column(id = "colManualLanda",width = 5, numericInput("landa", labelInput("landa"),value = 2, "NULL", width = "100%")), br(),
                               column(width = 6, switchInput(inputId = "permitir.landa", onStatus = "success", offStatus = "danger", value = F, width = "100%",
                                                             label = "", onLabel = "Manual", offLabel = labelInput("automatico"), labelWidth = "100%"),
                                      style = "padding-top: 5px;")))

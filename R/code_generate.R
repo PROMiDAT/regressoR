@@ -483,10 +483,10 @@ rlr_model <- function(data = "datos.aprendizaje", variable.pred = NULL, model.va
 #' exe(x)
 #' 
 coef_lambda <- function(data = "datos.aprendizaje", variable.pred = NULL, model.var = "modelo.rlr", lambda = NULL,  cv.var = "cv.glm"){
-  lambda <- ifelse(is.null(lambda), paste0(cv.var,"$lambda.min"), lambda)
+  lambda <- ifelse(is.null(lambda), paste0(cv.var,"$lambda.min"), paste0("exp(",lambda,")"))
   paste0("x <- model.matrix(`",variable.pred,"`~., ",data,")[, -1]\n",
          "y <- ",data,"[, '",variable.pred,"']\n",
-         "predict(",model.var,", s = exp(",lambda,"), type = 'coefficients', exact = TRUE, x = x, y = y)")
+         "predict(",model.var,", s = ",lambda,", type = 'coefficients', exact = TRUE, x = x, y = y)")
 }
 
 #' plot_coef_lambda
