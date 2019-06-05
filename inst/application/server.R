@@ -206,7 +206,6 @@ shinyServer(function(input, output, session){
 
     IndicesM <<- list()
 
-    #rm(list = nombres.modelos, envir = .GlobalEnv)
     rm(list = nombres.modelos, envir = options_regressor()$exe.envir)
     nombres.modelos <<- c()
 

@@ -137,7 +137,7 @@ code_deactivate <- function(variables, d = "datos"){
 #' 
 partition_code <- function(data = "datos", p = 50, variable = NULL, semilla = 5, perm.semilla = FALSE){
   semilla <- ifelse(is.numeric(semilla), semilla, 5)
-  codigo <- ifelse(perm.semilla, paste0("set.seed(",semilla,")"), "rm(.Random.seed, envir = globalenv())")
+  codigo <- ifelse(perm.semilla, paste0("set.seed(",semilla,")"), paste0("set.seed(NULL)"))
   codigo <- paste0(codigo,"\nvariable.predecir <- '",variable,"'\nparticion <- sample(1:nrow(",data,"),size = nrow(",data,")*",p/100,", replace = FALSE)\n",
                   "datos.prueba <- ",data,"[-particion,]\ndatos.aprendizaje <- ",data,"[particion,]\nreal.val <- datos.prueba[, '",variable,"', drop = FALSE]")
   codigo <- ifelse(perm.semilla, paste0(codigo, "\nset.seed(",semilla,")"),codigo)
