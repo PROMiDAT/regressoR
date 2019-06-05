@@ -19,7 +19,7 @@ code_transf(variable, new.type, d.o = "datos.originales", d = "datos")
 generate code to transform data.
 }
 \examples{
-iris2 <<- iris
+iris2 <- iris
 x <-code_transf('Species', 'disyuntivo', 'iris', 'iris2')
 exe(x)
 head(iris2)

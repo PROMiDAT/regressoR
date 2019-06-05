@@ -45,7 +45,7 @@ code_load <- function(row.names = TRUE, path = NULL, sep = ";", sep.dec = ",", h
 #' @export
 #'
 #' @examples 
-#' iris2 <<- iris
+#' iris2 <- iris
 #' x <- code_NA(TRUE, 'iris2')
 #' exe(x)
 #' x <- code_NA(FALSE, 'iris2')
@@ -76,7 +76,7 @@ code_NA <- function(deleteNA = TRUE, d.o = "datos.originales") {
 #' @export
 #' 
 #' @examples 
-#' iris2 <<- iris
+#' iris2 <- iris
 #' x <-code_transf('Species', 'disyuntivo', 'iris', 'iris2')
 #' exe(x)
 #' head(iris2)
