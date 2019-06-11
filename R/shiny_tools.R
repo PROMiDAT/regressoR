@@ -138,6 +138,56 @@ tabsOptions <- function(buttons = list(icon("gear"), icon("terminal")), widths =
   return(tags$div(HTML(res)))
 }
 
+#' radioSwitch
+#' 
+#' @description create a switch button input 
+#'
+#' @details this function only work correctly on the server side because they need the css and js file.
+#'
+#' @param inputId the id of the radio button
+#' @param label label of the switch input.
+#' @param names a vector with the names of the options.
+#' @param values un vector logico con el valor inicial del switch. Por defecto el primer elemento seleccionado (c(TRUE, FALSE)).
+#'
+#' @return shiny.tag object
+#' @keywords internal
+#' 
+radioSwitch <- function(inputId, label = NULL, names, values = NULL) {
+  if(is.null(values)) values <- c(TRUE, FALSE) 
+  tags$div(
+    class = "form-group", `data-shinyjs-resettable-type`="RadioButtons", 
+    `data-shinyjs-resettable-value` = names[1],
+    if(!is.null(label)) {
+      tags$label(class = "control-label", `for` = inputId, `data-id` = label)
+    },
+    tags$div(
+      class = "radioGroupButtons btn-group-container-sw", id = inputId, `data-toggle`="buttons",
+      tags$div(
+        class = "btn-radiogroup",
+        tags$button(
+          class = "btn radiobtn btn-radioswitch active",
+          tags$span(class = "radio-btn-icon-yes", tags$i(class="glyphicon glyphicon-ok")),
+          tags$span(class = "radio-btn-icon-no", tags$i(class="glyphicon glyphicon-remove")),
+          tags$input(type="radio", autocomplete="off", name=inputId, value=values[1], checked="checked",
+                     style = "position: absolute;clip: rect(0,0,0,0);pointer-events: none;"),
+          labelInput(names[1])
+        )
+      ),
+      tags$div(
+        class = "btn-radiogroup", role = "group", 
+        tags$button(
+          class = "btn radiobtn btn-radioswitch",
+          tags$span(class = "radio-btn-icon-yes", tags$i(class="glyphicon glyphicon-ok")),
+          tags$span(class = "radio-btn-icon-no", tags$i(class="glyphicon glyphicon-remove")),
+          tags$input(type="radio", autocomplete="off", name=inputId, value=values[2],
+                     style = "position: absolute;clip: rect(0,0,0,0);pointer-events: none;"),
+          labelInput(names[2])
+        )
+      )
+    )
+  )
+}
+
 #' render_index_table
 #' 
 #' @description creates a reactive table for indices panels.
@@ -338,3 +388,4 @@ categorical_summary <- function(data, variable){
   })
   return(res)
 }
+

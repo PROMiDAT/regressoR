@@ -22,13 +22,13 @@ shinyServer(function(input, output, session){
   # Update the different tables in the "shiny" application
   update_table <- function(x = c("datos", "datos.aprendizaje", "datos.prueba")){
     if(any("datos" %in% x)){ # Change data table
-      output$contents <- render_table_data(datos, editable = T, server=F)
+      output$contents <- render_table_data(datos, editable = T, server=F, dom = "rtip")
     }
     if(any("datos.aprendizaje" %in% x)){ # Change learning data table
-      output$contentsAprend <- render_table_data(datos.aprendizaje, editable=T, scrollY="15vh", server=F)
+      output$contentsAprend <- render_table_data(datos.aprendizaje, editable=T, scrollY="15vh", server=F, dom = "rtip")
     }
     if(any("datos.prueba" %in% x)){ # Change test data table
-      output$contentsPrueba <- render_table_data(datos.prueba, editable = T, scrollY="15vh", server=F)
+      output$contentsPrueba <- render_table_data(datos.prueba, editable = T, scrollY="15vh", server=F, dom = "rtip")
     }
   }
 
@@ -2984,7 +2984,8 @@ shinyServer(function(input, output, session){
                                 "activa","nn","xgb","selbooster","selnrounds","selectCapas","threshold",
                                 "stepmax","redPlot","rll","rlr","posibLanda","coeff","gcoeff",
                                 "automatico","landa","shrinkage","resumenVarPre", "R2", "distknn",
-                                "ncomp", "rd", "RdPred", "RdVarPred", "errRDnCom", "RMSE"))
+                                "ncomp", "rd", "RdPred", "RdVarPred", "errRDnCom", "RMSE","eliminar",
+                                "imputar"))
 
     updatePlot$normal <- normal_default("datos", input$sel.normal, input$col.normal, translate("curvanormal"))
     updatePlot$dya.cat <- def_code_cat(variable = input$sel.distribucion.cat)

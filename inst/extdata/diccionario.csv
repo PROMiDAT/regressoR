@@ -34,7 +34,9 @@ puntocoma;Punto y coma;Semicolon
 tab;Espacio;Tab
 separadordec;Separador Decimal;Decimal Separator
 punto;Punto;Point
-eliminana;Eliminar NA;Remove NA
+eliminana;Acción para Datos Ausentes(NAs);Action for Missing Data(NAs)
+eliminar;Eliminar;Delete
+imputar;Imputar;Impute
 si;SI;YES
 no;NO;NO
 prec;Precisión;Precision

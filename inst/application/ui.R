@@ -40,9 +40,10 @@ suppressMessages(suppressWarnings({
 labelInput <- regressoR:::labelInput
 code_field <- regressoR:::code_field
 infoBoxPROMiDAT <- regressoR:::infoBoxPROMiDAT
-inputRadio <- regressoR:::inputRadio
+inputRadio  <- regressoR:::inputRadio
 radioButtonsTr <- regressoR:::radioButtonsTr
 tabsOptions <- regressoR:::tabsOptions
+radioSwitch <- regressoR:::radioSwitch
 
 # MENU --------------------------------------------------------------------------------------------------------------------
 
@@ -111,7 +112,7 @@ mi.menu <- sidebarMenu(id = "principal",
 #Imports .css and .js, also decide the icon
 mi.head <- tags$head(
   tags$link(rel = "stylesheet", type = "text/css", href = "style_regressor.css"),
-  tags$link(rel="icon", href="http://www.promidat.org/theme/image.php/formal_white/theme/1438713216/favicon"),
+  tags$link(rel = "shiny::icon", type = "image", href = "favicon.ico"),
   useShinyjs(),
   tags$script(src = "script_regressor.js"))
 
@@ -126,8 +127,7 @@ data.upload.panel <- tabPanel(title = labelInput("cargar"), width = 12, solidHea
                                checkboxInput('rowname', labelInput("Rownames"), TRUE),
                                radioButtonsTr('sep', "separador", c(';', ',', '\t'), c("puntocoma", "coma", "tab")),
                                radioButtonsTr('dec', "separadordec", c(',', '.'), c("coma", "punto")),
-                               switchInput(inputId = "deleteNA", onStatus = "success", offStatus = "danger", value = T, width = "100%",
-                                           label = labelInput("eliminana"), onLabel = labelInput("si"), offLabel = labelInput("no"), labelWidth = "100%"),
+                               radioSwitch("deleteNA", "eliminana", c("eliminar", "imputar")),
                                fileInput('file1', label =  labelInput("cargarchivo"), placeholder = "", buttonLabel =  labelInput("subir"), width = "100%",
                                          accept = c('text/csv', '.csv')),
                                actionButton("loadButton", labelInput("cargar"), width = "100%"),
@@ -179,17 +179,18 @@ page.load.data <- tabItem(tabName = "cargar",
 
 # NUMERICAL SUMMARY PAGE --------------------------------------------------------------------------------------------------
 
-full.summary.table <- box(title = labelInput("resumen"), status = "primary", width = 7, solidHeader = TRUE, collapsible = TRUE,
+full.summary.table <- box(title = labelInput("resumen"), status = "primary", width = 7, solidHeader = TRUE, collapsible = FALSE,
                                DT::dataTableOutput("resumen.completo"), hr(),
                                aceEditor("fieldCodeResum", mode = "r", theme = "monokai", value = "", height = "5vh",  readOnly = T))
 
-variable.summary.table <- box(title = labelInput("resumenvar"), status = "primary", width = 5, solidHeader = TRUE, collapsible = TRUE,
+variable.summary.table <- box(title = labelInput("resumenvar"), status = "primary", width = 5, solidHeader = TRUE, collapsible = FALSE,
                                selectInput(inputId = "sel.resumen", label = labelInput("selvar"), choices =  ""),
                                fluidRow(uiOutput("resumen")))
 
 page.numerical.summary <- tabItem(tabName = "resumen",
-                                   fluidRow(full.summary.table,
-                                   variable.summary.table ))
+                                   fluidRow(id = "row_resumen",
+                                     full.summary.table,
+                                     variable.summary.table ))
 
 # NORMALITY TEST PAGE -----------------------------------------------------------------------------------------------------
 
@@ -390,11 +391,9 @@ rlr.options <- list(fluidRow(column(width = 9,h4(labelInput("opciones"))),
                      hr(),
                      fluidRow(column(selectInput(inputId = "alpha.rlr", label = labelInput("selectAlg"), selected = 1,
                                                  choices = list("Ridge" = 0, "Lasso" = 1)),width = 6),
-                              column(br(), switchInput(inputId = "switch.scale.rlr", onStatus = "success", offStatus = "danger", value = T,
-                                                 label = labelInput("escal"), onLabel = labelInput("si"), offLabel = labelInput("no"), labelWidth = "100%"), width=6)),
-                     fluidRow(column(id = "colManualLanda",width = 5, numericInput("landa", labelInput("landa"),value = 2, "NULL", width = "100%")), br(),
-                              column(width = 6, switchInput(inputId = "permitir.landa", onStatus = "success", offStatus = "danger", value = F, width = "100%",
-                                                            label = "", onLabel = "Manual", offLabel = labelInput("automatico"), labelWidth = "100%"),
+                              column(radioSwitch("switch.scale.rlr", "escal", c("si", "no")), width=6)),
+                     fluidRow(column(id = "colManualLanda",width = 6, numericInput("landa", labelInput("landa"),value = 2, "NULL", width = "100%")),
+                              column(width = 6, radioSwitch("permitir.landa", "a", c("Manual", "automatico")),
                                      style = "padding-top: 5px;")))
 
 rlr.code  <- list(fluidRow(column(width = 9, h4(labelInput("codigo")))),
