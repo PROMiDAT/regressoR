@@ -31,7 +31,9 @@
   display:none;
 }
 
-#rfPrediTable, #knnPrediTable, #svmPrediTable, #dtPrediTable, #rfPrediTable, #boostingPrediTable, #nnPrediTable, #rlPrediTable, #rlrPrediTable, #rdPrediTable {
+#rfPrediTable, #knnPrediTable, #svmPrediTable, #dtPrediTable, #rfPrediTable, 
+#boostingPrediTable, #nnPrediTable, #rlPrediTable, #rlrPrediTable, #rlCoefTable,
+#rdPrediTable{
   min-height: 370px !important;
 }
 

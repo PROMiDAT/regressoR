@@ -1,67 +1,115 @@
 
-#Funciones tomadas del paquete CARET
+# Edit > Folding > Collapse All (is of much help to visualize in an orderly way the code).
 
-prettySeq <- function (x) {
-  paste("Resample", gsub(" ", "0", format(seq(along = x))), sep = "")
+# WRAPPERS ----------------------------------------------------------------------------------------------------------------
+
+# In order to avoid changing the server code and since these functions always use the same parameters, 
+# the following wrappers were made.
+
+# Wrapper of regressoR::exe to set the environment
+# exe <- function(...){
+#   regressoR::exe(..., envir = parent.frame())
+# }
+
+# Wrapper of regressoR::comparative_table to set the list of values and the language
+comparative_table <- function(sel){
+  regressoR::comparative_table(sel, IndicesM)
 }
 
-createDataPartition <- function (y, times = 1, p = 0.5, list = TRUE, groups = min(5,
-                                                           length(y))) {
-  if (class(y)[1] == "Surv")
-    y <- y[, "time"]
-  out <- vector(mode = "list", times)
-  if (length(y) < 2)
-    stop("y must have at least 2 data points")
-  if (groups < 2)
-    groups <- 2
-  if (is.numeric(y)) {
-    y <- cut(y, unique(quantile(y, probs = seq(0, 1, length = groups))),
-             include.lowest = TRUE)
-  }
-  else {
-    xtab <- table(y)
-    if (any(xtab == 0)) {
-      warning(paste("Some classes have no records (", paste(names(xtab)[xtab == 0], sep = "", collapse = ", "), ") and these will be ignored"))
-      y <- factor(as.character(y))
-    }
-    if (any(xtab == 1)) {
-      warning(paste("Some classes have a single record (",
-                    paste(names(xtab)[xtab == 1], sep = "", collapse = ", "),
-                    ") and these will be selected for the sample"))
-    }
-  }
-  subsample <- function(dat, p) {
-    if (nrow(dat) == 1) {
-      out <- dat$index
-    }
-    else {
-      num <- ceiling(nrow(dat) * p)
-      out <- sample(dat$index, size = num)
-    }
-    out
-  }
-  for (j in 1:times) {
-    tmp <- plyr:::dlply(data.frame(y = y, index = seq(along = y)),plyr:::.(y), subsample, p = p)
-    tmp <- sort(as.vector(unlist(tmp)))
-    out[[j]] <- tmp
-  }
-  if (!list) {
-    out <- matrix(unlist(out), ncol = times)
-    colnames(out) <- prettySeq(1:ncol(out))
-  }
-  else {
-    names(out) <- prettySeq(out)
-  }
-  out
-}
+# GLOBAL VARIABLES --------------------------------------------------------------------------------------------------------
 
-#Funciones tomadas del paquete PSYCH
+# -- Data
+datos             <- NULL
+datos.originales  <- NULL
+datos.prueba      <- NULL
+datos.aprendizaje <- NULL
+variable.predecir <- NULL
+real.val          <- NULL
+contador          <- 0
+semilla           <- FALSE
+nombres.modelos   <- c()
+# -- Basic Statistics
+correlacion   <- NULL
+cod.poder.cat <- NULL
+cod.poder.num <- NULL
 
+cod.cor       <- NULL
+cod.disp      <- NULL
+cod.dya.cat   <- NULL
+cod.dya.num   <- NULL
+cod.normal    <- NULL
+# -- Models
+IndicesM  <- list()
+# -- RL
+cod.rl.modelo <- NULL
+cod.rl.pred   <- NULL
+cod.rl.ind    <- NULL
+# -- RLR
+cod.rlr.modelo   <- NULL
+cod.rlr.pred     <- NULL
+cod.rlr.ind      <- NULL
+cod.select.landa <- NULL
+# -- KNN
+cod.knn.modelo <- NULL
+cod.knn.pred   <- NULL
+cod.knn.ind    <- NULL
+knn.stop.excu  <- FALSE
+# -- SVM
+cod.svm.modelo <- NULL
+cod.svm.pred   <- NULL
+cod.svm.ind    <- NULL
+# --- RD
+cod.rd.ind    <- NULL
+cod.rd.modelo <- NULL
+cod.rd.pred   <- NULL
+cv.glm.lasso  <- NULL
+cv.glm.ridge  <- NULL
+n.comp.rd     <- NULL
+# -- DT
+cod.dt.modelo <- NULL
+cod.dt.pred   <- NULL
+cod.dt.ind    <- NULL
+# -- RF
+cod.rf.modelo <- NULL
+cod.rf.pred   <- NULL
+cod.rf.ind    <- NULL
+rf.stop.excu  <- FALSE
+# -- BOOSTING
+cod.b.modelo <- NULL
+cod.b.pred   <- NULL
+cod.b.ind    <- NULL
+# -- NN
+cod.nn.modelo <- NULL
+cod.nn.pred   <- NULL
+cod.nn.ind    <- NULL
+NN_EXECUTION  <- TRUE
+mean.nn       <- NULL
+sd.nn         <- NULL
+mean.nn.np    <- NULL
+sd.nn.np      <- NULL
+# -- Prediction of New Individuals
+datos.originales.completos  <- NULL
+datos.aprendizaje.completos <- NULL
+datos.prueba.completos      <- NULL
+variable.predecir.pn        <- NULL
+modelo.seleccionado.pn      <- NULL
+contadorPN                  <- 0
+code.trans.pn               <- ""
+modelo.nuevos               <- NULL
+predic.nuevos               <- NULL
+# --  Reports
+salida.code  <- NULL
+
+# FUNCTIONS ---------------------------------------------------------------------------------------------------------------
+
+# To help reduce the huge list of imports:
+
+# Functions taken from the PSYCH package
 pairs.panels <- function (x, smooth = TRUE, scale = FALSE, density = TRUE, ellipses = TRUE,
-          digits = 2, method = "pearson", pch = 20, lm = FALSE, cor = TRUE,
-          jiggle = FALSE, factor = 2, hist.col = "cyan", show.points = TRUE,
-          rug = TRUE, breaks = "Sturges", cex.cor = 1, wt = NULL, smoother = FALSE,
-          stars = FALSE, ci = FALSE, alpha = 0.05, ...){
+                           digits = 2, method = "pearson", pch = 20, lm = FALSE, cor = TRUE,
+                           jiggle = FALSE, factor = 2, hist.col = "cyan", show.points = TRUE,
+                           rug = TRUE, breaks = "Sturges", cex.cor = 1, wt = NULL, smoother = FALSE,
+                           stars = FALSE, ci = FALSE, alpha = 0.05, ...){
   "panel.hist.density" <- function(x, ...) {
     usr <- par("usr")
     on.exit(par(usr))
@@ -307,8 +355,7 @@ pairs.panels <- function (x, smooth = TRUE, scale = FALSE, density = TRUE, ellip
   }
 }
 
-#Funciones tomadas del paquete DUMMIES
-
+# Functions taken from the DUMMIES package
 dummy <- function (x, data = NULL, sep = "", drop = TRUE, fun = as.integer, verbose = FALSE) {
   if (is.null(data)) {
     name <- as.character(sys.call(1))[2]
@@ -369,30 +416,26 @@ dummy.data.frame <- function (data, names = NULL, omit.constants = TRUE, dummy.c
   return(df)
 }
 
-#Funciones tomadas del paquete scatterplot3d
-
+# Functions taken from the scatterplot3d package
 scatterplot3d <- function (x, y = NULL, z = NULL, color = par("col"), pch = par("pch"),
-          main = NULL, sub = NULL, xlim = NULL, ylim = NULL, zlim = NULL,
-          xlab = NULL, ylab = NULL, zlab = NULL, scale.y = 1, angle = 40,
-          axis = TRUE, tick.marks = TRUE, label.tick.marks = TRUE,
-          x.ticklabs = NULL, y.ticklabs = NULL, z.ticklabs = NULL,
-          y.margin.add = 0, grid = TRUE, box = TRUE, lab = par("lab"),
-          lab.z = mean(lab[1:2]), type = "p", highlight.3d = FALSE,
-          mar = c(5, 3, 4, 3) + 0.1, bg = par("bg"), col.axis = par("col.axis"),
-          col.grid = "grey", col.lab = par("col.lab"), cex.symbols = par("cex"),
-          cex.axis = 0.8 * par("cex.axis"), cex.lab = par("cex.lab"),
-          font.axis = par("font.axis"), font.lab = par("font.lab"),
-          lty.axis = par("lty"), lty.grid = par("lty"), lty.hide = NULL,
-          lty.hplot = par("lty"), log = "", asp = NA, ...)
+                           main = NULL, sub = NULL, xlim = NULL, ylim = NULL, zlim = NULL,
+                           xlab = NULL, ylab = NULL, zlab = NULL, scale.y = 1, angle = 40,
+                           axis = TRUE, tick.marks = TRUE, label.tick.marks = TRUE,
+                           x.ticklabs = NULL, y.ticklabs = NULL, z.ticklabs = NULL,
+                           y.margin.add = 0, grid = TRUE, box = TRUE, lab = par("lab"),
+                           lab.z = mean(lab[1:2]), type = "p", highlight.3d = FALSE,
+                           mar = c(5, 3, 4, 3) + 0.1, bg = par("bg"), col.axis = par("col.axis"),
+                           col.grid = "grey", col.lab = par("col.lab"), cex.symbols = par("cex"),
+                           cex.axis = 0.8 * par("cex.axis"), cex.lab = par("cex.lab"),
+                           font.axis = par("font.axis"), font.lab = par("font.lab"),
+                           lty.axis = par("lty"), lty.grid = par("lty"), lty.hide = NULL,
+                           lty.hplot = par("lty"), log = "", asp = NA, ...)
 {
   mem.par <- par(mar = mar)
   x.scal <- y.scal <- z.scal <- 1
-  xlabel <- if (!missing(x))
-    deparse(substitute(x))
-  ylabel <- if (!missing(y))
-    deparse(substitute(y))
-  zlabel <- if (!missing(z))
-    deparse(substitute(z))
+  xlabel <- if (!missing(x))deparse(substitute(x))
+  ylabel <- if (!missing(y))deparse(substitute(y))
+  zlabel <- if (!missing(z))deparse(substitute(z))
   if (highlight.3d && !missing(color))
     warning("color is ignored when highlight.3d = TRUE")
   if (!is.null(d <- dim(x)) && (length(d) == 2) && (d[2] >=
@@ -847,4 +890,137 @@ scatterplot3d <- function (x, y = NULL, z = NULL, color = par("col"), pch = par(
       } else points(x, y, type = type, lty = lty, ...)
     }
   }, par.mar = mem.par))
+}
+
+# Functions taken from the rattle package
+
+printRandomForests <- function (model, models = NULL, include.class = NULL, format = "") {
+  if (is.null(models) || models == 0) 
+    models <- 1:model$ntree
+  for (i in models) printRandomForest(model, i, include.class, 
+                                      format)
+}
+
+printRandomForest <- function (model, n = 1, include.class = NULL, format = "", comment = "") {
+  if (!inherits(model, "randomForest")) 
+    stop(Rtxt("the model is not of the 'randomForest' class"))
+  if (format == "VB") 
+    comment = "'"
+  tr <- randomForest::getTree(model, n)
+  tr.paths <- rattle:::getRFPathNodesTraverse(tr)
+  tr.vars <- attr(model$terms, "dataClasses")[-1]
+  cat(sprintf("%sRandom Forest Model %d", comment, n), "\n\n")
+  cat(paste(comment, "-------------------------------------------------------------\n", 
+            sep = ""))
+  if (format == "VB") 
+    cat("IF FALSE THEN\n' This is a No Op to simplify the code\n\n")
+  nrules <- 0
+  for (i in seq_along(tr.paths)) {
+    tr.path <- tr.paths[[i]]
+    nodenum <- as.integer(names(tr.paths[i]))
+    target <- levels(model$y)[tr[nodenum, "prediction"]]
+    if (!is.null(include.class) && target %notin% include.class) 
+      (next)()
+    cat(sprintf("%sTree %d Rule %d Node %d %s\n \n", comment, 
+                n, i, nodenum, ifelse(is.null(target), "Regression (to do - extract predicted value)", 
+                                      paste("Decision", target))))
+    if (format == "VB") 
+      cat("ELSE IF TRUE\n")
+    nrules <- nrules + 1
+    var.index <- tr[, 3][abs(tr.path)]
+    var.names <- names(tr.vars)[var.index]
+    var.values <- tr[, 4][abs(tr.path)]
+    for (j in 1:(length(tr.path) - 1)) {
+      var.class <- tr.vars[var.index[j]]
+      if (var.class == "character" | var.class == "factor" | 
+          var.class == "ordered") {
+        node.op <- "IN"
+        var.levels <- levels(exe(model$call$data)[[var.names[j]]])
+        bins <- rattle:::sdecimal2binary(var.values[j])
+        bins <- c(bins, rep(0, length(var.levels) - length(bins)))
+        if (tr.path[j] > 0) 
+          node.value <- var.levels[bins == 1]
+        else node.value <- var.levels[bins == 0]
+        node.value <- sprintf("(\"%s\")", paste(node.value, 
+                                                collapse = "\", \""))
+      }
+      else if (var.class == "integer" | var.class == "numeric") {
+        if (tr.path[j] > 0) 
+          node.op <- "<="
+        else node.op <- ">"
+        node.value <- var.values[j]
+      }
+      else stop(sprintf("Rattle E234: getRFRuleSet: class %s not supported.", 
+                        var.class))
+      if (format == "VB") 
+        cat(sprintf("AND\n%s %s %s\n", var.names[j], 
+                    node.op, node.value))
+      else cat(sprintf("%d: %s %s %s\n", j, var.names[j], 
+                       node.op, node.value))
+    }
+    if (format == "VB") 
+      cat("THEN Count = Count + 1\n")
+    cat("-----------------------------------------------------------------\n")
+  }
+  if (format == "VB") 
+    cat("END IF\n\n")
+  cat(sprintf("%sNumber of rules in Tree %d: %d\n\n", comment, 
+              n, nrules))
+}
+
+# To do
+recover_cat <- function(){
+  unlockBinding("cat", .BaseNamespaceEnv)
+  
+  .BaseNamespaceEnv$cat <- function (..., file = "", sep = " ", fill = FALSE, labels = NULL, append = FALSE){
+    if (is.character(file))
+      if (file == "")
+        file <- stdout()
+      else if (substring(file, 1L, 1L) == "|") {
+        file <- pipe(substring(file, 2L), "w")
+        on.exit(close(file))
+      }
+      else {
+        file <- file(file, ifelse(append, "a", "w"))
+        on.exit(close(file))
+      }
+      .Internal(cat(list(...), file, sep, fill, labels, append))
+  }
+  
+  lockBinding("cat", .BaseNamespaceEnv)
+}
+
+overwrite_cat <- function(){
+  unlockBinding("cat", .BaseNamespaceEnv)
+  
+  .BaseNamespaceEnv$cat <- function(..., file = "", sep = " ", fill = FALSE, labels = NULL, append = FALSE){
+    file <- stderr()
+    sep <- ""
+    
+    msg <- .makeMessage(..., domain = NULL, appendLF = TRUE)
+    call <- sys.call()
+    cond <- simpleMessage(msg, call)
+    
+    if (is.character(file))
+      if (file == "")
+        file <- stdout()
+    else if (substring(file, 1L, 1L) == "|") {
+      file <- pipe(substring(file, 2L), "w")
+      on.exit(close(file))
+    }
+    else {
+      file <- file(file, ifelse(append, "a", "w"))
+      on.exit(close(file))
+    }
+    defaultHandler <- function(c) {
+      .Internal(cat(as.list(conditionMessage(c)), file, sep, fill, labels, append))
+    }
+    withRestarts({
+      signalCondition(cond)
+      defaultHandler(cond)
+    }, muffleMessage = function() NULL)
+    invisible()
+  }
+  
+  lockBinding("cat",.BaseNamespaceEnv)
 }

@@ -1,9 +1,11 @@
 Title: Regression Data Analysis System
 Package: regressoR
 Type: Package
-Version: 1.0.7
-Author: Oldemar Rodriguez R. with contributions from Diego Jimenez A. and Andres Navarro D.
-Maintainer: Oldemar Rodriguez <oldemar.rodriguez@ucr.ac.cr>
+Version: 1.1.8
+Authors@R: c(
+    person("Oldemar", "Rodriguez R.", email = "oldemar.rodriguez@ucr.ac.cr", role = c("aut","cre")),
+    person("Andres", "Navarro D.", role = c("ctb","prg")),
+    person("Diego", "Jimenez A.", role = c("ctb","prg")))
 Depends: R (>= 3.5)
 Imports:
     shiny (>= 1.2.0),
@@ -11,8 +13,7 @@ Imports:
     shinydashboardPlus (>= 0.6.0),
     shinyWidgets (>= 0.4.4),
     shinyjs (>= 1.0),
-    flexdashboard (>= 0.5.1.1), 
-    tidyverse (>= 1.2.1),
+    flexdashboard (>= 0.5.1.1),
     neuralnet (>= 1.44.2),
     rpart (>= 4.1-13),
     rattle (>= 5.2.0),
@@ -27,7 +28,12 @@ Imports:
     ROCR (>= 1.0-7),
     glmnet (>= 2.0-16),
     gbm (>= 2.1.5),
-    zip (>= 2.0.0)
+    pls (>= 2.7-1),
+    zip (>= 2.0.0),
+    ggplot2 (>= 3.1.0),
+    dplyr (>= 0.8.0.1),
+    htmltools (>= 0.3.6)
+Suggests: forcats, gridExtra, tibble, scales, scatterplot3d, psych, dummies, testthat
 Description: Perform a supervised data analysis on a database through a 'shiny' graphical interface. It includes methods such as linear regression, penalized regression, k-nearest neighbors, decision trees, ada boosting, extreme gradient boosting, random forest, neural networks, deep learning and support vector machines.
 License: GPL (>=2)
 Encoding: UTF-8
