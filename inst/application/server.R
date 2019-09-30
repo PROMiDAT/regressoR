@@ -43,6 +43,16 @@ shinyServer(function(input, output, session){
     }
   }
 
+  close_tab_panel_pn <- function(tabname = NA, valor = T){
+    select <- paste0("a[data-value='",tabname,"']")
+    if(valor){
+      shinyjs::hide(selector = select)
+    } else {
+      shinyjs::show(selector = select)
+      shinyjs::runjs(paste0("$(\"",select,"\").click()"))
+    }
+  }
+  
   # Common validation for all models
   validate_data <- function(print = TRUE) {
     if (is.null(variable.predecir) & print) {
@@ -86,6 +96,13 @@ shinyServer(function(input, output, session){
   updateAceEditor(session, "fieldFuncNum"  , extract_code("numerical_distribution"))
   updateAceEditor(session, "fieldFuncCat"  , extract_code("categorical_distribution"))
 
+  # cierra los paneles de prediccion de individuos nuevos
+  close_tab_panel_pn("cargarDatosPN", F)
+  close_tab_panel_pn("transDatosPN", T)
+  close_tab_panel_pn("cargarDatos2PN", T)
+  close_tab_panel_pn("crearModelo", T)
+  close_tab_panel_pn("predicModelo", T)
+  
   # REACTIVE VALUES -------------------------------------------------------------------------------------------------------
 
   updatePlot <- reactiveValues(calc.normal = default_calc_normal(), 
@@ -2875,6 +2892,72 @@ shinyServer(function(input, output, session){
     })
   })
 
+  # Botones de next
+  
+  next_panel <- function(validate = NA, error = "", nextP = ""){
+    
+    paneles <- c("cargarDatosPN", "transDatosPN", "cargarDatos2PN", "crearModelo", "predicModelo")
+    
+    tryCatch({
+      if(!is.na(validate)){
+        if(!(exists(validate) && !is.null(get(validate)))){
+          stop(translate(error), call. = FALSE)
+        }
+      }
+      
+      for(panel in paneles){
+        close_tab_panel_pn(panel, panel != nextP)
+      }
+      
+    },error =  function(e){
+      showNotification(as.character(e), duration = 10, type = "error")
+    })
+  }
+  
+  observeEvent(input$nextCargarDatosPN,{
+    next_panel("datos.aprendizaje.completos", "tieneCData", "transDatosPN")
+  })
+  
+  observeEvent(input$nextTransDatosPN,{
+    next_panel(nextP = "crearModelo")
+  })
+  
+  observeEvent(input$nextModeloPN,{
+    next_panel("modelo.nuevos", "ErrorModelo", "cargarDatos2PN")
+  })
+  
+  observeEvent(input$nextCargarDatos2PN,{
+    next_panel("datos.prueba.completos", "ErrorDatosPN", "predicModelo")
+  })
+  
+  observeEvent(input$nextPredictPN,{
+    modelo.nuevos <<- NULL
+    predic.nuevos <<- NULL
+    datos.aprendizaje.completos <<- NULL
+    datos.prueba.completos <<- NULL
+    datos.originales.completos <<- NULL
+    update_pred_pn("")
+    update_model_text_pn("")
+    update_table_pn(c("contentsPred", "contentsPred2", "contentsPred3"))
+    next_panel(nextP = "cargarDatosPN")
+  })
+  
+  observeEvent(input$backTransDatosPN,{
+    next_panel(nextP = "cargarDatosPN")
+  })
+  
+  observeEvent(input$backModeloPN,{
+    next_panel(nextP = "transDatosPN")
+  })
+  
+  observeEvent(input$backCargarDatos2PN,{
+    next_panel(nextP = "crearModelo")
+  })
+  
+  observeEvent(input$backPredictPN,{
+    next_panel(nextP = "cargarDatos2PN")
+  })
+  
   # PAGINA DE REPORTE -----------------------------------------------------------------------------------------------------
 
   # When the user enters the report page
@@ -2982,7 +3065,8 @@ shinyServer(function(input, output, session){
                                 "activa","nn","xgb","selbooster","selnrounds","selectCapas","threshold",
                                 "stepmax","redPlot","rll","rlr","posibLanda","coeff","gcoeff",
                                 "automatico","landa","shrinkage","resumenVarPre", "R2", "distknn",
-                                "ncomp", "rd", "RdPred", "RdVarPred", "errRDnCom", "RMSE"))
+                                "ncomp", "rd", "RdPred", "RdVarPred", "errRDnCom", "RMSE","anterior", 
+                                "siguiente","reiniciar"))
 
     updatePlot$normal <- normal_default("datos", input$sel.normal, input$col.normal, translate("curvanormal"))
     updatePlot$dya.cat <- def_code_cat(variable = input$sel.distribucion.cat)

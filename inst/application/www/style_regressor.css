@@ -506,6 +506,23 @@ input[type="checkbox"]:hover:before {
   color: #CBB051;
 }
 
+#nextCargarDatosPN, #nextTransDatosPN, #nextCargarDatos2PN, #nextPredictPN, #nextModeloPN{
+   background-color: #9eb5e8;
+}
 
+#nextPredictPN{
+  background-color: #dc7878 !important;
+}
 
+#nextCargarDatosPN > i, #nextTransDatosPN > i, #nextCargarDatos2PN > i, #nextPredictPN > i, #nextModeloPN > i{
+   float: right;
+}
+
+#backTransDatosPN, #backCargarDatos2PN, #backModeloPN, #backPredictPN{
+   background-color: #9eb5e8;
+}
+
+#backTransDatosPN > i, #backCargarDatos2PN > i, #backModeloPN > i, #backPredictPN > i{
+   float: left;
+}
 
