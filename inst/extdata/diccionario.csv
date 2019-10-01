@@ -259,3 +259,8 @@ RdPred;Varianza Explicada en Predictores;Variance Explained in Predictors
 RdVarPred;Varianza Explicada en Variable a Predecir;Variance Explained in Variable to Predict
 errRDnCom;La cantidad de componentes excede la cantidad existente;The quantity of components exceeds the existing quantity
 reiniciar;Reiniciar;Restart
+cancelar;Cancelar;Cancel
+aceptar;Aceptar;Accept
+redo1;Si acepta se reiniciará el proceso y tendrá que repetir la creación del modelo.;If you accept, the process will restart and you will have to repeat the creation of the model.
+redo2;En caso de querer cambia solo los datos a predecir seleccione atrás y asegúrese de descarga los resultados obtenidos.;If you want to change only the data to predict, select back and make sure to download the results obtained.
+advertencia;Advertencia;Warning

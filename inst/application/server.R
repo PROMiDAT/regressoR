@@ -2931,6 +2931,21 @@ shinyServer(function(input, output, session){
   })
   
   observeEvent(input$nextPredictPN,{
+    pregunta <- modalDialog(
+      span(translate("redo1")),
+      br(),
+      br(),
+      span(translate("redo2")),
+      title = translate("advertencia"),
+      footer = tagList(
+        modalButton(translate("cancelar")),
+        actionButton("okRedo", translate("aceptar"))
+      )
+    )
+    showModal(pregunta)
+  })
+  
+  observeEvent(input$okRedo,{
     modelo.nuevos <<- NULL
     predic.nuevos <<- NULL
     datos.aprendizaje.completos <<- NULL
@@ -2939,6 +2954,7 @@ shinyServer(function(input, output, session){
     update_pred_pn("")
     update_model_text_pn("")
     update_table_pn(c("contentsPred", "contentsPred2", "contentsPred3"))
+    removeModal()
     next_panel(nextP = "cargarDatosPN")
   })
   
