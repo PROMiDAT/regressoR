@@ -1144,9 +1144,11 @@ shinyServer(function(input, output, session){
 
   # Upgrade code fields to default version
   default_codigo_knn <- function(k.def = FALSE) {
+    kernel <- input$kernel.knn
     if(!is.null(datos.aprendizaje) & k.def){
       k.value <- ifelse(k.def, round(sqrt(nrow(datos.aprendizaje))), input$kmax.knn)
       updateNumericInput(session,"kmax.knn",value = k.value)
+      kernel <- "optimal"
     }else{
       k.value <- input$kmax.knn
     }
@@ -1155,8 +1157,8 @@ shinyServer(function(input, output, session){
     codigo <- kkn_model(variable.pred = variable.predecir,
                         scale = input$switch.scale.knn,
                         kmax = k.value,
-                        kernel = input$kernel.knn,
-                        model.var = paste0("modelo.knn.", input$kernel.knn),
+                        kernel = kernel,
+                        model.var = paste0("modelo.knn.", kernel),
                         distance = input$distance.knn)
     
     updateAceEditor(session, "fieldCodeKnn", value = codigo)
@@ -1164,14 +1166,14 @@ shinyServer(function(input, output, session){
 
     # Se genera el codigo de la prediccion
     codigo <- kkn_prediction(variable.pred = variable.predecir,
-                             model.var = paste0("modelo.knn.", input$kernel.knn), 
-                             pred.var  = paste0("prediccion.knn.", input$kernel.knn))
+                             model.var = paste0("modelo.knn.", kernel), 
+                             pred.var  = paste0("prediccion.knn.", kernel))
     
     updateAceEditor(session, "fieldCodeKnnPred", value = codigo)
     cod.knn.pred <<- codigo
 
     # Se genera el codigo de la dispersion
-    codigo <- disp_models(paste0("prediccion.knn.", input$kernel.knn), translate("knnl"), variable.predecir)
+    codigo <- disp_models(paste0("prediccion.knn.", kernel), translate("knnl"), variable.predecir)
     updateAceEditor(session, "fieldCodeKnnDisp", value = codigo)
 
     # Se genera el codigo de la indices
