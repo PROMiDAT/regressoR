@@ -1,8 +1,7 @@
-
 Title: Regression Data Analysis System
 Package: regressoR
 Type: Package
-Version: 1.1.8
+Version: 1.1.9
 Authors@R: c(
     person("Oldemar", "Rodriguez R.", email = "oldemar.rodriguez@ucr.ac.cr", role = c("aut","cre")),
     person("Andres", "Navarro D.", role = c("ctb","prg")),
@@ -39,4 +38,4 @@ License: GPL (>=2)
 Encoding: UTF-8
 LazyData: true
 URL: http://www.promidat.com
-RoxygenNote: 6.1.1
+RoxygenNote: 7.1.0

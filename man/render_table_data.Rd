@@ -4,8 +4,14 @@
 \alias{render_table_data}
 \title{render_table_data}
 \usage{
-render_table_data(data, editable = TRUE, dom = "frtip",
-  pageLength = 10, scrollY = "27vh", server = T)
+render_table_data(
+  data,
+  editable = TRUE,
+  dom = "frtip",
+  pageLength = 10,
+  scrollY = "27vh",
+  server = T
+)
 }
 \arguments{
 \item{data}{a data.frame to create a the table.}
