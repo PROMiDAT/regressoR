@@ -14,12 +14,14 @@
 ## Fill the DESCRIPTION ----
 ## Add meta data about your application
 golem::fill_desc(
-  pkg_name = "RegressoR", # The Name of the package containing the App 
-  pkg_title = "PKG_TITLE", # The Title of the package containing the App 
-  pkg_description = "PKG_DESC.", # The Description of the package containing the App 
-  author_first_name = "AUTHOR_FIRST", # Your First Name
-  author_last_name = "AUTHOR_LAST", # Your Last Name
-  author_email = "AUTHOR@MAIL.COM", # Your Email
+  pkg_name = "regressoR", # The Name of the package containing the App 
+  pkg_title = "Regression Data Analysis System", # The Title of the package containing the App 
+  pkg_description = "Perform a supervised data analysis on a database through a 'shiny' graphical interface. 
+  It includes methods such as linear regression, penalized regression, k-nearest neighbors, decision trees, ada boosting, 
+  extreme gradient boosting, random forest, neural networks, deep learning and support vector machines.", # The Description of the package containing the App 
+  author_first_name = "Oldemar", # Your First Name
+  author_last_name = "Rodriguez", # Your Last Name
+  author_email = "oldemar.rodriguez@ucr.ac.cr", # Your Email
   repo_url = NULL # The URL of the GitHub Repo (optional) 
 )     
 

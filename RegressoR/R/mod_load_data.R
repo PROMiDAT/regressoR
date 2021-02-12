@@ -1,0 +1,291 @@
+#' load_data UI Function
+#'
+#' @description A shiny Module.
+#'
+#' @param id,input,output,session Internal parameters for {shiny}.
+#'
+#' @noRd 
+#'
+#' @importFrom shiny NS tagList 
+mod_load_data_ui <- function(id){
+  data.upload.panel <- tabPanel(title = labelInput("cargar"), width = 12, solidHeader = FALSE, collapsible = FALSE, collapsed = FALSE,
+                                checkboxInput('header', labelInput("header"), TRUE),
+                                checkboxInput('rowname', labelInput("Rownames"), TRUE),
+                                radioButtonsTr('sep', "separador", c(';', ',', '\t'), c("puntocoma", "coma", "tab")),
+                                radioButtonsTr('dec', "separadordec", c(',', '.'), c("coma", "punto")),
+                                switchInput(inputId = "deleteNA", onStatus = "success", offStatus = "danger", value = T, width = "100%",
+                                            label = labelInput("eliminana"), onLabel = labelInput("si"), offLabel = labelInput("no"), labelWidth = "100%"),
+                                fileInput('file1', label =  labelInput("cargarchivo"), placeholder = "", buttonLabel =  labelInput("subir"), width = "100%",
+                                          accept = c('text/csv', '.csv')),
+                                actionButton("loadButton", labelInput("cargar"), width = "100%"),
+                                br(),br(),
+                                aceEditor("fieldCodeData", mode = "r", theme = "monokai", value = "", height = "13vh", readOnly = T))
+  
+  tansform.data.panel <- tabPanel(title = labelInput("trans"), width = 12, solidHeader = FALSE, collapsible = FALSE, collapsed = FALSE,
+                                  DT::dataTableOutput('transData'),
+                                  br(),br(),
+                                  actionButton("transButton", labelInput("aplicar"), width = "100%"),
+                                  br(),br(),
+                                  aceEditor("fieldCodeTrans", mode = "r", theme = "monokai", value = "", height = "10vh",  readOnly = T))
+  
+  data.segment.panel <- tabPanel(title = labelInput("configuraciones"), width = 12, solidHeader = FALSE, collapsible = FALSE, collapsed = FALSE,
+                                 fluidRow(column(id = "colSemilla",width = 6, numericInput("semilla", labelInput("semilla"), "NULL", width = "100%")), br(),
+                                          column(width = 6, switchInput(inputId = "permitir.semilla", onStatus = "success", offStatus = "danger", value = F, width = "100%",
+                                                                        label = "", onLabel = labelInput("habilitada"), offLabel = labelInput("deshabilitada"), labelWidth = "100%",
+                                                                        inline = T,size = "large"))),
+                                 selectInput(inputId = "sel.predic.var", label = labelInput("seleccionarPredecir"), choices =  "", width = "100%"),
+                                 sliderInput("segmentacionDatosA", labelInput("propA"),width = "100%",
+                                             min = 5, max = 95, value = 70, step = 5),
+                                 sliderInput("segmentacionDatosT", labelInput("propP"), width = "100%",
+                                             min = 5, max = 95, value = 30, step = 5),
+                                 actionButton("segmentButton", labelInput("generar"), width = "100%"),
+                                 br(),br(),
+                                 aceEditor("fieldCodeSegment", mode = "r", theme = "monokai", value = "", height = "8vh",  readOnly = T))
+  
+  show.data <- box(title = labelInput("data"), status = "primary", width = 12, solidHeader = TRUE, collapsible = TRUE, type = 7, color = "#CBB051",
+                   DT::DTOutput('contents'), hr(),
+                   downloadButton("downloaDatos", labelInput("descargar"), width = "100%"))
+  
+  show.learning.data <- box(title = labelInput("dataA"), status = "primary", width = 12, solidHeader = TRUE, collapsible = TRUE, type = 7, color = "#CBB051",
+                            DT::DTOutput('contentsAprend'), hr(),
+                            downloadButton("downloaDatosA", labelInput("descargar"), width = "100%"))
+  
+  show.test.data <- box(title = labelInput("dataP"), status = "primary", width = 12, solidHeader = TRUE, collapsible = TRUE, type = 7, color = "#CBB051",
+                        DT::DTOutput('contentsPrueba'), hr(),
+                        downloadButton("downloaDatosP", labelInput("descargar"), width = "100%"))
+  
+  page.load.data <- tabItem(tabName = "cargar",
+                            fluidRow(column(width = 5, tabBox(id ="tabs", title = NULL, width = 12,
+                                                              data.upload.panel,
+                                                              tansform.data.panel,
+                                                              data.segment.panel)),
+                                     column(width = 7, show.data)),
+                            conditionalPanel(condition = paste0("input.tabs == '", labelInput("configuraciones"),"'"),
+                                             fluidRow(column(width = 6, show.learning.data),
+                                                      column(width = 6, show.test.data))) )
+  ns <- NS(id)
+  tagList(
+    page.load.data
+  )
+}
+    
+#' load_data Server Function
+#'
+#' @noRd 
+mod_load_data_server <- function(input, output, session){
+  
+  
+  # Executes the data upload code
+  upload_data <- function(codigo.carga = "") {
+    tryCatch({
+      isolate(exe(codigo.carga))
+      if(ncol(datos) <= 1) {
+        showNotification(translate("errorCData"), duration = 10, type = "error")
+        return(NULL)
+      }
+      new_report(datos.originales, input$file1$name)
+    },
+    error = function(e) {
+      showNotification(paste0("Error: ", e), duration = 10, type = "error")
+      datos <<- NULL
+      datos.originales <<- NULL
+      return(NULL)
+    })
+  }
+  
+  # Executes data cleanup code (cleaning of raw data)
+  clean_data <- function(){
+    if (any(is.na(datos))) {
+      tryCatch({
+        codigo.na <- paste0(code_NA(deleteNA = input$deleteNA), "\n", "datos <- datos.originales")
+        isolate(exe(codigo.na))
+        
+        insert_report("na.delete", "Imputaci\u00F3n de Datos", codigo.na,"\nhead(datos)\nstr(datos)")
+        
+      }, error = function(e) {
+        showNotification(paste0("Error (NA): ", e), duration = 10, type = "error")
+        datos <<- NULL
+        datos.originales <<- NULL
+        return(NULL)
+      })
+    } else {
+      codigo.na <- ""
+    }
+    return(codigo.na)
+  }
+  
+  # Use and show the codes to transform the data
+  transformar.datos <- function() {
+    var.noactivas <- c()
+    code.res <- "datos <- datos.originales \n"
+    for (var in colnames(datos.originales)) {
+      if (input[[paste0("box", var, contador)]]) {
+        if (input[[paste0("sel", var, contador)]] == "categorico" & class(datos.originales[, var]) %in% c("numeric", "integer")) {
+          code.res <- paste0(code.res, code_transf(var, "categorico"), "\n")
+        }
+        if (input[[paste0("sel", var, contador)]] == "numerico" & !(class(datos.originales[, var]) %in% c("numeric", "integer"))) {
+          code.res <- paste0(code.res, code_transf(var, "numerico"), "\n")
+        }
+        if (input[[paste0("sel", var, contador)]] == "disyuntivo") {
+          code.res <- paste0(code.res, code_transf(var, "disyuntivo"), "\n")
+        }
+      } else {
+        var.noactivas <- c(var.noactivas, var)
+      }
+    }
+    
+    isolate(exe(code.res))
+    code.res <- paste0(code.res, "\n")
+    if (length(var.noactivas) > 0) {
+      isolate(exe(code_deactivate(var.noactivas)))
+      code.res <- paste0(code.res, code_deactivate(var.noactivas))
+    }
+    
+    new_section_report()
+    insert_report("transformar.datos","Transformando Datos", code.res,"\nstr(datos)")
+    return(code.res)
+  }
+  
+  # Update the different selectors
+  aqualize_selecctors <- function() {
+    updateSelectizeInput(session, "sel.normal", choices = colnames_empty(var_numerical(datos)))
+    updateSelectizeInput(session, "select.var", choices = colnames_empty(var_numerical(datos)))
+    updateSelectInput(session, "sel.distribucion.num", choices = colnames_empty(var_numerical(datos)))
+    updateSelectInput(session, "sel.distribucion.cat", choices = colnames_empty(var_categorical(datos)))
+    updateSelectInput(session, "sel.resumen", choices = colnames_empty(datos))
+    updateSelectInput(session, "sel.predic.var", choices = rev(colnames_empty(var_numerical(datos))))
+  }
+  
+  # Executes the code of correlations
+  run_cor_model <- function() {
+    tryCatch({
+      isolate(exe(text = cor_model()))
+      output$txtcor <- renderPrint(print(correlacion))
+    }, error = function(e) {
+      return(datos <- NULL)
+    })
+  }
+  
+  # Clears model data
+  delete_models <- function(flag.datos = TRUE) {
+    if (flag.datos) {
+      datos.prueba <<- NULL
+      datos.aprendizaje <<- NULL
+      variable.predecir <<- NULL
+      real.val <<- NULL
+    }
+    
+    IndicesM <<- list()
+    
+    rm(list = nombres.modelos, envir = options_regressor()$exe.envir)
+    nombres.modelos <<- c()
+    
+    updateCheckboxGroupButtons(session, inputId = "select.models",
+                               choices = c(" ---- " = "NoDisponible"),
+                               size = "sm", status = "primary",
+                               checkIcon = list(yes = icon("ok", lib = "glyphicon"),
+                                                no = icon("remove", lib = "glyphicon")))
+    
+    updateSelectInput(session,"kernel.knn", selected = "optimal")
+  }
+  
+  # When the load data button is pressed
+  observeEvent(input$loadButton, {
+    codigo.carga <- code_load(row.names = input$rowname, 
+                              path = input$file1$datapath,
+                              sep = input$sep, 
+                              sep.dec = input$dec, 
+                              header = input$header)
+    
+    upload_data(codigo.carga)
+    
+    codigo.na <- clean_data()
+    
+    updateAceEditor(session, "fieldCodeData", value = paste0(codigo.carga, "\n", codigo.na))
+    
+    aqualize_selecctors()
+    
+    run_cor_model()
+    
+    delete_models()
+    
+    close_menu("parte1"   , is.null(datos))
+    close_menu("parte2"   , is.null(datos.aprendizaje))
+    close_menu("comparar" , is.null(datos.aprendizaje))
+    close_menu("poderPred", is.null(datos.aprendizaje))
+    
+    update_table()
+  }, priority = 4)
+  
+  # When the button to transform data is pressed
+  observeEvent(input$transButton, {
+    code.res <- transformar.datos()
+    
+    updateAceEditor(session, "fieldCodeTrans", value = code.res)
+    
+    aqualize_selecctors()
+    
+    run_cor_model()
+    
+    delete_models()
+    
+    close_menu("parte1"   , is.null(datos))
+    close_menu("parte2"   , is.null(datos.aprendizaje))
+    close_menu("comparar" , is.null(datos.aprendizaje))
+    close_menu("poderPred", is.null(datos.aprendizaje))
+    
+    update_table()
+  }, priority = 4)
+  
+  # Show the select box of the panel to transform data
+  update_trans <- eventReactive(input$loadButton, {
+    contador <<- contador + 1
+    if(!is.null(datos) && ncol(datos) > 0){
+      res <- data.frame(Variables = colnames(datos), Tipo = c(1:ncol(datos)), Activa = c(1:ncol(datos)))
+      res$Tipo <- sapply(colnames(datos), function(i)
+        paste0('<select id="sel', i, contador, '"> <option value="categorico">',translate("categorico"),'</option>',
+               '<option value="numerico" ', ifelse(class(datos[, i]) %in% c("numeric", "integer"),
+                                                   ' selected="selected"', ""),'>', translate("numerico"),
+               '</option> <option value="disyuntivo">',translate("disyuntivo"),'</option> </select>'))
+      res$Activa <- sapply(colnames(datos), function(i) paste0('<input type="checkbox" id="box', i, contador, '" checked/>'))
+    } else {
+      res <- as.data.frame(NULL)
+      showNotification(translate("tieneCData"), duration = 10, type = "error")
+    }
+    return(res)
+  })
+  
+  # Change the table with the options of the transform panel
+  output$transData <- DT::renderDT({sketch <- htmltools::withTags(table(tags$thead(tags$tr(tags$th(tags$span(`data-id` = "variables", "Variables")),
+                                                                                           tags$th(tags$span(`data-id` = "tipo", "Tipo")),
+                                                                                           tags$th(tags$span(`data-id` = "activa", "Activa"))))))
+  DT::datatable(update_trans(),
+                escape = FALSE, selection = "none", container = sketch,
+                options = list(dom = "t", paging = FALSE, ordering = FALSE, scrollY = "45vh"), rownames = F,
+                callback = JS("table.rows().every(function(i, tab, row) {
+                                                        var $this = $(this.node());
+                                                        $this.attr('id', this.data()[0]);
+                                                        $this.addClass('shiny-input-checkbox');});
+                                                        Shiny.unbindAll(table.table().node());
+                                                        Shiny.bindAll(table.table().node());"))
+  }, server = FALSE)
+  
+  # The download of full data
+  output$downloaDatos <- downloadHandler(
+    filename = function() {
+      input$file1$name
+    },
+    content = function(file) {
+      write.csv(datos, file, row.names = input$rowname)
+    }
+  )
+  ns <- session$ns
+ 
+}
+    
+## To be copied in the UI
+# mod_load_data_ui("load_data_ui_1")
+    
+## To be copied in the server
+# callModule(mod_load_data_server, "load_data_ui_1")
+ 

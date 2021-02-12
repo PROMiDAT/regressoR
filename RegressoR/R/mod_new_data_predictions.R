@@ -1,0 +1,585 @@
+#' new_data_predictions UI Function
+#'
+#' @description A shiny Module.
+#'
+#' @param id,input,output,session Internal parameters for {shiny}.
+#'
+#' @noRd 
+#'
+#' @importFrom shiny NS tagList 
+mod_new_data_predictions_ui <- function(id){
+  
+  
+  # Data display
+  
+  show.data.pred <- box(title = labelInput("data"), status = "primary", width = 12, solidHeader = TRUE, collapsible = TRUE,
+                        DT::DTOutput('contentsPred'), type = 7, color = "#CBB051")
+  
+  show.data.pred2 <- box(title = labelInput("data"), status = "primary", width = 12, solidHeader = TRUE, collapsible = TRUE,
+                         DT::DTOutput('contentsPred2'), type = 7, color = "#CBB051")
+  
+  show.data.pred3 <- box(title = labelInput("data"), status = "primary", width = 12, solidHeader = TRUE, collapsible = TRUE,
+                         DT::DTOutput('contentsPred3'), type = 7, color = "#CBB051")
+  
+  # Loading and transforming data
+  
+  data.upload.panel.pred <- tabPanel(title = labelInput("cargarDatos"), width = 12, solidHeader = FALSE, collapsible = FALSE, collapsed = FALSE,
+                                     fluidRow(column(width = 5,
+                                                     checkboxInput('headerNPred', labelInput("header"), TRUE),
+                                                     checkboxInput('rownameNPred', labelInput("Rownames"), TRUE),
+                                                     radioButtonsTr('sepNPred', 'separador', c(';', ',', '\t'), c("puntocoma", "coma", "tab")),
+                                                     radioButtonsTr('decNPred',"separadordec", c(',', '.'), c("coma", "punto")),
+                                                     switchInput(inputId = "deleteNAnPred", onStatus = "success", offStatus = "danger", value = T, width = "100%",
+                                                                 label = labelInput("eliminana"), onLabel = labelInput("si"), offLabel = labelInput("no"), labelWidth = "100%"),
+                                                     fileInput('file2', label = labelInput("cargarchivo"), placeholder = "", buttonLabel =  labelInput("subir"), width = "100%",
+                                                               accept = c('text/csv', '.csv')),
+                                                     actionButton("loadButtonNPred", labelInput("cargar"), width = "100%")),
+                                              column(width = 7, show.data.pred)))
+  
+  
+  tansform.data.panel <- tabPanel(title = labelInput("transDatos"), width = 12, solidHeader = FALSE, collapsible = FALSE, collapsed = FALSE,
+                                  fluidRow(column(width = 5,
+                                                  DT::dataTableOutput('transDataPredN'),
+                                                  br(),br(),
+                                                  actionButton("transButtonPredN", labelInput("aplicar"), width = "100%")),
+                                           column(width = 7, show.data.pred2)))
+  
+  data.upload.panel.pred2 <- tabPanel(title = labelInput("cargarNuev"), width = 12, solidHeader = FALSE, collapsible = FALSE, collapsed = FALSE,
+                                      fluidRow(column(width = 5,
+                                                      checkboxInput('headerNPred2', labelInput("header"), TRUE),
+                                                      checkboxInput('rownameNPred2',  labelInput("Rownames"), TRUE),
+                                                      radioButtonsTr('sep.nPred2', 'separador', c(';', ',', '\t'), c("puntocoma", "coma", "tab")),
+                                                      radioButtonsTr('dec.nPred2', "separadordec", c(',', '.'), c("coma", "punto")),
+                                                      switchInput(inputId = "deleteNAnPred2", onStatus = "success", offStatus = "danger", value = T, width = "100%",
+                                                                  label = labelInput("eliminana"), onLabel = labelInput("si"), offLabel = labelInput("no"), labelWidth = "100%"),
+                                                      fileInput('file3', label = labelInput("cargarchivo"), placeholder = "", buttonLabel = labelInput("subir"), width = "100%",
+                                                                accept = c('text/csv', '.csv')),
+                                                      actionButton("loadButtonNPred2", labelInput("cargar"), width = "100%")),
+                                               column(width = 7, show.data.pred3)))
+  
+  # Model Options
+  
+  options.rl.pred <- list() # Vacio
+  
+  options.rlr.pred <- fluidRow(column(selectInput(inputId = "alpha.rlr.pred", label = labelInput("selectAlg"),selected = 1,
+                                                  choices = list("Ridge" = 0, "Lasso" = 1)),width = 3),
+                               column(br(), switchInput(inputId = "switch.scale.rlr.pred", onStatus = "success", offStatus = "danger", value = T,
+                                                        label = labelInput("escal"), onLabel = labelInput("si"), offLabel = labelInput("no"), labelWidth = "100%"), width=3),
+                               column(id = "colManualLanda.pred",width = 3, numericInput("landa.pred", labelInput("landa"),value = 2, min = 0, "NULL", width = "100%")), br(),
+                               column(width = 3, switchInput(inputId = "permitir.landa.pred", onStatus = "success", offStatus = "danger", value = F, width = "100%",
+                                                             label = "", onLabel = "Manual", offLabel = labelInput("automatico"), labelWidth = "100%")))
+  
+  options.rd.pred <-  fluidRow(column(selectInput(inputId = "mode.rd.pred", label = labelInput("selectAlg"),selected = 0,
+                                                  choices = list("ACP" = 0, "MCP" = 1)),width = 3),
+                               column(br(), switchInput(inputId = "switch.scale.rd.pred", onStatus = "success", offStatus = "danger", value = T,
+                                                        label = labelInput("escal"), onLabel = labelInput("si"), offLabel = labelInput("no"), labelWidth = "100%"), width=3),
+                               column(id = "colManualCom.pred",width = 3, numericInput("ncomp.rd.pred", labelInput("ncomp"),value = 2, min = 0, "NULL", width = "100%")), br(),
+                               column(width = 3, switchInput(inputId = "permitir.ncomp.pred", onStatus = "success", offStatus = "danger", value = F, width = "100%",
+                                                             label = "", onLabel = "Manual", offLabel = labelInput("automatico"), labelWidth = "100%")))
+  
+  options.knn.pred <- fluidRow(column(width = 3, br() , switchInput(inputId = "switch.scale.knn.pred", onStatus = "success", offStatus = "danger", value = T,
+                                                                    label = labelInput("escal"), onLabel = labelInput("si"), offLabel = labelInput("no"), labelWidth = "100%", width = "100%")),
+                               column(width = 3, numericInput("kmax.knn.pred", labelInput("kmax"), min = 1,step = 1, value = 7,width="100%")),
+                               column(width = 3, selectInput(inputId = "kernel.knn.pred", label = labelInput("selkernel") ,selected = 1, width="100%",
+                                                             choices =  c("optimal", "rectangular", "triangular", "epanechnikov", "biweight",
+                                                                          "triweight", "cos","inv","gaussian"))),
+                               column(width = 3,numericInput("distance.knn.pred", labelInput("distknn"), min = 1,step = 1, value = 2) ))
+  
+  options.svm.pred <- fluidRow(column(width = 6, br(), switchInput(inputId = "switch.scale.svm.pred", onStatus = "success", offStatus = "danger", value = T,
+                                                                   label = labelInput("escal"), onLabel = labelInput("si"), offLabel = labelInput("no"), labelWidth = "100%", width = "100%")),
+                               column(width = 6, selectInput(inputId = "kernel.svm.pred", label = labelInput("selkernel"), selected = "radial", width="100%",
+                                                             choices =  c("linear", "polynomial", "radial", "sigmoid"))))
+  
+  options.dt.pred <- fluidRow(column(width = 6, numericInput("minsplit.dt.pred", labelInput("minsplit"), 20, width = "100%",min = 1)),
+                              column(width = 6, numericInput("maxdepth.dt.pred", labelInput("maxdepth"), 15, width = "100%",min = 0, max = 30, step = 1)))
+  
+  options.rf.pred <- fluidRow(column(width = 6, numericInput("ntree.rf.pred", labelInput("numTree"), 20, width = "100%", min = 0)),
+                              column(width = 6, numericInput("mtry.rf.pred",labelInput("numVars"),1, width = "100%", min = 1)))
+  
+  options.boosting.pred <- list(fluidRow(column(width = 4, numericInput("iter.boosting.pred", labelInput("numTree"), 500, width = "100%",min = 1)),
+                                         column(width = 4, numericInput("shrinkage.boosting.pred",labelInput("shrinkage"), 0.01, width = "100%",min = 0.0001)),
+                                         column(width = 4, selectInput(inputId = "tipo.boosting.pred", label = labelInput("selectAlg"),selected = 1, width = "100%",
+                                                                       choices =  c("gaussian", "laplace", "tdist")))))
+  
+  options.nn.pred <-list(fluidRow(column(numericInput("threshold.nn.pred",labelInput("threshold"),
+                                                      min = 0, step = 0.01, value = 0.05), width = 4),
+                                  column(numericInput("stepmax.nn.pred",labelInput("stepmax"),
+                                                      min = 100, step = 100, value = 5000), width = 4),
+                                  column(sliderInput(inputId = "cant.capas.nn.pred", min = 1, max = 10,
+                                                     label = labelInput("selectCapas"), value = 10), width = 4)),
+                         fluidRow(lapply(1:10, function(i) tags$span(numericInput(paste0("nn.cap.pred.",i), NULL,
+                                                                                  min = 1, step = 1, value = 2),
+                                                                     class = "mini-numeric-select"))))
+  
+  options.model <- list(selectInput(inputId = "sel.predic.var.nuevos", label = labelInput("seleccionarPredecir"), choices =  "", width = "100%"),
+                        radioGroupButtons("selectModelsPred", labelInput("selectMod"), 
+                                          list("<span data-id=\"rll\"></span>" = "rl",
+                                               "<span data-id=\"rlr\"></span>" = "rlr",
+                                               "<span data-id=\"rd\"></span>" = "rd",
+                                               "<span data-id=\"knnl\"></span>" = "knn",
+                                               "<span data-id=\"dtl\"></span>" = "dt",
+                                               "<span data-id=\"rfl\"></span>" = "rf",
+                                               "<span data-id=\"bl\"></span>" = "boosting",
+                                               "<span data-id=\"svml\"></span>" = "svm",
+                                               "<span data-id=\"rd\"></span>" = "rd",
+                                               "<span data-id=\"nn\"></span>" = "nn"),
+                                          size = "sm", status = "primary",individual = FALSE, justified = FALSE, selected = "knn",
+                                          checkIcon = list(yes = icon("ok", lib = "glyphicon"),
+                                                           no = icon("remove", lib = "glyphicon"))))
+  
+  create.pred.model.panel <- tabPanel(title = labelInput("seleParModel"),solidHeader = FALSE, collapsible = FALSE, collapsed = FALSE, value = "crearModelo",
+                                      options.model,
+                                      conditionalPanel(condition =  "input.selectModelsPred == 'rl'",
+                                                       options.rl.pred),
+                                      conditionalPanel(condition =  "input.selectModelsPred == 'rlr'",
+                                                       options.rlr.pred),
+                                      conditionalPanel(condition =  "input.selectModelsPred == 'knn'",
+                                                       options.knn.pred),
+                                      conditionalPanel(condition =  "input.selectModelsPred == 'dt'",
+                                                       options.dt.pred),
+                                      conditionalPanel(condition =  "input.selectModelsPred == 'rf'",
+                                                       options.rf.pred),
+                                      conditionalPanel(condition =  "input.selectModelsPred == 'boosting'",
+                                                       options.boosting.pred),
+                                      conditionalPanel(condition =  "input.selectModelsPred == 'svm'",
+                                                       options.svm.pred),
+                                      conditionalPanel(condition =  "input.selectModelsPred == 'nn'",
+                                                       options.nn.pred),
+                                      conditionalPanel(condition =  "input.selectModelsPred == 'rd'",
+                                                       options.rd.pred),
+                                      verbatimTextOutput("txtPredNuevos"),
+                                      actionButton("PredNuevosBttnModelo", labelInput("generarM"), width  = "100%", style = "background-color:#CBB051;color:#fff;margin-top:9px;"))
+  
+  
+  tabs.models  <- tabsOptions(buttons = list(icon("code")), widths = c(100), heights = c(40),
+                              tabs.content = list(list(aceEditor("fieldPredNuevos", mode = "r", theme = "monokai", value = "", height = "20vh", readOnly = F))))
+  
+  tabs.models2  <- tabsOptions(buttons = list(icon("code")), widths = c(100), heights = c(40),
+                               tabs.content = list(aceEditor("fieldCodePredPN", mode = "r", theme = "monokai",
+                                                             value = "", height = "20vh", readOnly = F, autoComplete = "enabled")))
+  
+  prediccion.pred.panel <- tabPanel(title = labelInput("predicnuevos"), value = "predicModelo",
+                                    DT::dataTableOutput("PrediTablePN"),
+                                    hr(),
+                                    downloadButton("downloaDatosPred", labelInput("descargar"), style = "width:100%"),
+                                    actionButton("predecirPromidat", "preditc"))
+  
+  page.new.predictions <- tabItem(tabName = "predNuevos",
+                                  tabBox(id = "BoxModelo", width = NULL, height ="80%",
+                                         data.upload.panel.pred,
+                                         tansform.data.panel,
+                                         create.pred.model.panel,
+                                         data.upload.panel.pred2,
+                                         prediccion.pred.panel,
+                                         conditionalPanel(condition =  "input.BoxModelo == 'crearModelo'", tabs.models),
+                                         conditionalPanel(condition =  "input.BoxModelo == 'predicModelo'", tabs.models2)))
+  
+  
+  ns <- NS(id)
+  tagList(
+ 
+  )
+}
+    
+#' new_data_predictions Server Function
+#'
+#' @noRd 
+mod_new_data_predictions_server <- function(input, output, session){
+  ns <- session$ns
+ 
+  
+  # Update the different tables in the "shiny" application
+  update_table_pn <- function(tablas = c("contentsPred", "contentsPred2")){
+    if("contentsPred2" %in% tablas){
+      output$contentsPred <- render_table_data(datos.aprendizaje.completos,editable = F,
+                                               scrollY = "25vh", server = F)
+    }
+    if("contentsPred2" %in% tablas){
+      output$contentsPred2 <- render_table_data(datos.aprendizaje.completos,editable = F,
+                                                scrollY = "25vh", server = F)
+    }
+    if("contentsPred3" %in% tablas){
+      output$contentsPred3 <- render_table_data(datos.prueba.completos,editable = F,
+                                                scrollY = "25vh", server = T)
+    }
+  }
+  
+  # Update the model text for prediction of new individuals
+  update_model_text_pn <- function(codigo){
+    updateAceEditor(session, "fieldPredNuevos", value = codigo)
+    if(is.null(modelo.nuevos)){
+      output$txtPredNuevos <- renderPrint(invisible(NULL))
+    }else{
+      output$txtPredNuevos <- renderPrint(print(modelo.nuevos))
+    }
+  }
+  
+  # Update the prediction table of new individuals
+  update_pred_pn <- function(codigo){
+    updateAceEditor(session, "fieldCodePredPN", value = codigo)
+    if(!is.null(predic.nuevos)){
+      datos.aux.prueba <- new_col(datos.prueba.completos, variable.predecir.pn, predic.nuevos)
+      output$PrediTablePN <- render_table_data(datos.aux.prueba,editable = F,
+                                               scrollY = "25vh",server = T)
+    }else{
+      output$PrediTablePN <- DT::renderDT(DT::datatable(data.frame()))
+    }
+  }
+  
+  # Updates neural network layers of new individuals
+  update_nn_layers_pn <- function(){
+    if(!is.null(datos.aprendizaje.completos) && !is.null(input$cant.capas.nn.pred)){
+      for (i in 1:10) {
+        if(i <= input$cant.capas.nn.pred) {
+          shinyjs::show(paste0("nn.cap.pred.", i))
+        } else {
+          shinyjs::hide(paste0("nn.cap.pred.", i))
+        }
+      }
+    }
+  }
+  
+  update_nn_layers_pn()
+  
+  # Download the data with the prediction
+  output$downloaDatosPred <- downloadHandler(
+    filename = function() {
+      input$file3$name
+    },
+    content = function(file) {
+      if(!is.null(predic.nuevos)){
+        write.csv(new_col(datos.prueba.completos, variable.predecir.pn, predic.nuevos), file, row.names = input$rownameNPred2)
+      }
+    }
+  )
+  
+  # When the number of neural network layers changes.
+  observeEvent(c(input$cant.capas.nn.pred), {
+    update_nn_layers_pn()
+  })
+  
+  # When the number of components changes.
+  observeEvent(input$permitir.ncomp.pred, {
+    if (input$permitir.ncomp.pred) {
+      shinyjs::enable("ncomp.rd.pred")
+    } else {
+      shinyjs::disable("ncomp.rd.pred")
+    }
+  })
+  
+  # When allowing the lambda changes
+  observeEvent(input$permitir.landa.pred, {
+    if (input$permitir.landa.pred) {
+      shinyjs::enable("landa.pred")
+    } else {
+      shinyjs::disable("landa.pred")
+    }
+  })
+  
+  
+  # When learning data is loaded
+  observeEvent(input$loadButtonNPred,{
+    codigo.carga <- code_load(row.names = input$rownameNPred,
+                              path = input$file2$datapath,
+                              sep = input$sepNPred,
+                              sep.dec = input$decNPred,
+                              header = input$headerNPred,
+                              d.o = "datos.originales.completos",
+                              d = "datos.aprendizaje.completos")
+    
+    tryCatch({
+      isolate(exe(codigo.carga))
+      if(ncol(datos.originales.completos) <= 1) {
+        showNotification(translate("errorSeg"), duration = 10, type = "error")
+        return(NULL)
+      }
+      codigo.na <- ""
+      codigo.na <- paste0(code_NA(deleteNA = input$deleteNAnPred, d.o = "datos.originales.completos"), 
+                          "\n", "datos.aprendizaje.completos <- datos.originales.completos")
+      isolate(exe(codigo.na))
+      
+      updateSelectInput(session, "sel.predic.var.nuevos", choices = rev(colnames_empty(var_numerical(datos.aprendizaje.completos))))
+      updateNumericInput(session, "kmax.knn.pred", value = round(sqrt(nrow(datos.aprendizaje.completos))))
+      updateNumericInput(session, "mtry.rf.pred", value = round(sqrt(ncol(datos.aprendizaje.completos) -1)))
+    },
+    error = function(e) {
+      showNotification(paste0("Error:", e), duration = 10, type = "error")
+      datos.aprendizaje.completos <<- NULL
+      datos.originales.completos <<- NULL
+      return(NULL)
+    })
+    
+    modelo.nuevos <<- NULL
+    predic.nuevos <<- NULL
+    update_pred_pn("")
+    update_model_text_pn("")
+    update_table_pn()
+  })
+  
+  # Show the select box of the panel to transform data (eventReactive)
+  update_trans_pn <- eventReactive(c(input$loadButtonNPred), {
+    contadorPN <<- contadorPN + 1
+    if (!is.null(datos.aprendizaje.completos) && ncol(datos.aprendizaje.completos) > 0) {
+      res <- data.frame(Variables = colnames(datos.aprendizaje.completos),
+                        Tipo = c(1:ncol(datos.aprendizaje.completos)),
+                        Activa = c(1:ncol(datos.aprendizaje.completos)))
+      res$Tipo <- sapply(colnames(datos.aprendizaje.completos), function(i) paste0(
+        '<select id="Predsel', i, contadorPN, '"> <option value="categorico">',translate("categorico"),'</option>',
+        '<option value="numerico" ', ifelse(class(datos.aprendizaje.completos[, i]) %in% c("numeric", "integer"),' selected="selected"', ""),'>', translate("numerico"),'</option>',
+        '<option value="disyuntivo">',translate("disyuntivo"),'</option> </select>'
+      ))
+      res$Activa <- sapply(colnames(datos.aprendizaje.completos), function(i) paste0('<input type="checkbox" id="Predbox', i, contadorPN, '" checked/>'))
+      update_nn_layers_pn()
+    } else {
+      res <- as.data.frame(NULL)
+      showNotification(translate("tieneCData"), duration = 10, type = "error")
+    }
+    return(res)
+  })
+  
+  # Show the select box of the panel to transform data
+  output$transDataPredN <- DT::renderDataTable(update_trans_pn(),
+                                               escape = FALSE, selection = "none", server = FALSE,
+                                               options = list(dom = "t", paging = FALSE, ordering = FALSE, scrollY = "35vh"), rownames = F,
+                                               callback = JS("table.rows().every(function(i, tab, row) {
+                                                        var $this = $(this.node());
+                                                        $this.attr('id', this.data()[0]);
+                                                        $this.addClass('shiny-input-checkbox');});
+                                                        Shiny.unbindAll(table.table().node());
+                                                        Shiny.bindAll(table.table().node());"))
+  
+  # Use and show the codes to transform the data
+  transform_data_pn <- function() {
+    var.noactivas <- c()
+    code.res <- "datos.aprendizaje.completos <- datos.originales.completos \n"
+    for (var in colnames(datos.originales.completos)) {
+      if (input[[paste0("Predbox", var, contadorPN)]]) {
+        if (input[[paste0("Predsel", var, contadorPN)]] == "categorico" & class(datos.originales.completos[, var]) %in% c("numeric", "integer")) {
+          code.res <- paste0(code.res, code_transf(var, "categorico", d.o = "datos.originales.completos", d = "datos.aprendizaje.completos" ), "\n")
+        }
+        if (input[[paste0("Predsel", var, contadorPN)]] == "numerico" & !(class(datos.originales.completos[, var]) %in% c("numeric", "integer"))) {
+          code.res <- paste0(code.res, code_transf(var, "numerico",  d.o = "datos.originales.completos", d = "datos.aprendizaje.completos" ), "\n")
+        }
+        if (input[[paste0("Predsel", var, contadorPN)]] == "disyuntivo") {
+          code.res <- paste0(code.res, code_transf(var, "disyuntivo", d.o = "datos.originales.completos", d = "datos.aprendizaje.completos" ), "\n")
+        }
+      } else {
+        var.noactivas <- c(var.noactivas, var)
+      }
+    }
+    
+    isolate(exe(code.res))
+    if (length(var.noactivas) > 0) {
+      des <- code_deactivate(var.noactivas,"datos.aprendizaje.completos")
+      isolate(exe(des))
+      code.res <- paste0(code.res, "\n", des)
+    }
+    code.res <- paste0(code.res, "\n")
+    return(code.res)
+  }
+  
+  # When the user enters the prediction panel
+  observeEvent(input$predecirPromidat, {
+    if(!is.null(datos.prueba.completos)){
+      if(exists("modelo.nuevos") && !is.null(modelo.nuevos)){
+        codigo <- switch(modelo.seleccionado.pn,
+                         rl  =  rl_prediction(data = 'datos.prueba.completos', 
+                                              model.var = 'modelo.nuevos', 
+                                              pred.var = 'predic.nuevos'),
+                         rlr =  rlr_prediction(data.a = "datos.aprendizaje.completos",
+                                               data.p = 'datos.prueba.completos',
+                                               variable.pred = variable.predecir.pn,
+                                               model.var = 'modelo.nuevos',
+                                               pred.var = 'predic.nuevos',
+                                               lambda = if(input$permitir.landa.pred){ifelse(is.na(input$landa.pred),NULL,input$landa.pred)}else{NULL},
+                                               cv.var = "cv.glm.nuevos"),
+                         knn =  kkn_prediction(data = 'datos.prueba.completos',
+                                               variable.pred = variable.predecir.pn,
+                                               model.var = 'modelo.nuevos', 
+                                               pred.var  = 'predic.nuevos'),
+                         dt  = dt_prediction(data = "datos.prueba.completos",
+                                             model.var = "modelo.nuevos",
+                                             pred.var = "predic.nuevos"),
+                         rf  = rf_prediction(data = "datos.prueba.completos",
+                                             variable.pred = variable.predecir.pn,
+                                             model.var = "modelo.nuevos",
+                                             pred.var = "predic.nuevos"),
+                         boosting = boosting_prediction(data = "datos.prueba.completos",
+                                                        variable.pred = variable.predecir.pn,
+                                                        model.var = "modelo.nuevos",
+                                                        pred.var = "predic.nuevos",
+                                                        n.trees = input$iter.boosting.pred),
+                         svm = svm_prediction(data = "datos.prueba.completos", 
+                                              variable.pred = variable.predecir.pn,
+                                              model.var = "modelo.nuevos", 
+                                              pred.var = "predic.nuevos"),
+                         rd  =  rd_prediction(data = "datos.prueba.completos",
+                                              model.var = "modelo.nuevos",
+                                              pred.var = "predic.nuevos",
+                                              n.comp = "n.comp.rd.np",
+                                              ncomp = if(input$permitir.ncomp.pred){input$ncomp.rd.pred}else{NULL}),
+                         nn = nn_prediction(data = "datos.prueba.completos",
+                                            variable.pred = variable.predecir.pn,
+                                            model.var = "modelo.nuevos",
+                                            pred.var = "predic.nuevos",
+                                            mean.var = "mean.nn.np",
+                                            sd.var = "sd.nn.np"))
+        tryCatch({
+          exe(codigo)
+          update_pred_pn(codigo)
+        },error =  function(e){
+          showNotification(paste0("Error :", e), duration = 10, type = "error")
+        })
+      }else{
+        showNotification(paste0("Error :", translate("ErrorModelo")), duration = 10, type = "error")
+      }
+    }else{
+      showNotification(paste0("Error :", translate("ErrorDatosPN")), duration = 10, type = "error")
+    }
+  })
+  
+  # When the data transform button is pressed
+  observeEvent(input$transButtonPredN, {
+    code.trans.pn <<- transform_data_pn()
+    
+    updateSelectInput(session, "sel.predic.var.nuevos", choices = rev(colnames_empty(var_numerical(datos.aprendizaje.completos))))
+    updateNumericInput(session, "mtry.rf.pred", value = round(sqrt(ncol(datos.aprendizaje.completos) -1)))
+    
+    modelo.nuevos <<- NULL
+    predic.nuevos <<- NULL
+    update_pred_pn("")
+    
+    update_model_text_pn("")
+    update_table_pn()
+  })
+  
+  # When the user presses the generate model button
+  observeEvent(input$PredNuevosBttnModelo,{
+    variable.predecir.pn <<- input$sel.predic.var.nuevos
+    modelo.seleccionado.pn  <<- input$selectModelsPred
+    
+    codigo <- switch(input$selectModelsPred,
+                     rl   = rl_model(data = "datos.aprendizaje.completos", 
+                                     variable.pred = variable.predecir.pn, 
+                                     model.var = "modelo.nuevos"),
+                     rlr  = rlr_model(data = "datos.aprendizaje.completos",
+                                      variable.pred = variable.predecir.pn,
+                                      model.var = "modelo.nuevos",
+                                      cv.var = "cv.glm.nuevos",
+                                      alpha = input$alpha.rlr.pred,
+                                      standardize = input$switch.scale.rlr.pred),
+                     knn =  kkn_model(data = "datos.aprendizaje.completos",
+                                      variable.pred = variable.predecir.pn,
+                                      scale = input$switch.scale.knn.pred, 
+                                      kmax = input$kmax.knn.pred,
+                                      kernel = input$kernel.knn.pred, 
+                                      model.var = "modelo.nuevos",
+                                      distance = input$distance.knn.pred),
+                     dt  = dt_model(data = "datos.aprendizaje.completos",
+                                    variable.pred = variable.predecir.pn,
+                                    model.var = "modelo.nuevos",
+                                    minsplit = input$minsplit.dt.pred,
+                                    maxdepth = input$maxdepth.dt.pred),
+                     rf  = rf_model(data = "datos.aprendizaje.completos",
+                                    variable.pred = variable.predecir.pn,
+                                    model.var = "modelo.nuevos",
+                                    ntree = input$ntree.rf.pred,
+                                    mtry = input$mtry.rf.pred),
+                     boosting = boosting_model(data = "datos.aprendizaje.completos",
+                                               variable.pred = variable.predecir.pn,
+                                               model.var = "modelo.nuevos",
+                                               n.trees = input$iter.boosting.pred,
+                                               distribution = input$tipo.boosting.pred,
+                                               shrinkage = input$shrinkage.boosting.pre),
+                     svm = svm_model(data = "datos.aprendizaje.completos",
+                                     variable.pred = variable.predecir.pn,
+                                     model.var = "modelo.nuevos",
+                                     scale = input$switch.scale.svm.pred,
+                                     kernel = input$kernel.svm.pred),
+                     rd = rd_model(data = "datos.aprendizaje.completos",
+                                   variable.pred = variable.predecir.pn,
+                                   model.var = "modelo.nuevos",
+                                   n.comp = "n.comp.rd.np",
+                                   mode = input$mode.rd.pred,
+                                   scale = input$switch.scale.rd.pred),
+                     nn = nn_model(data = "datos.aprendizaje.completos",
+                                   variable.pred = variable.predecir.pn,
+                                   model.var = "modelo.nuevos",
+                                   mean.var = "mean.nn.np",
+                                   sd.var = "sd.nn.np",
+                                   threshold = input$threshold.nn.pred,
+                                   stepmax = input$stepmax.nn.pred,
+                                   cant.hidden = input$cant.capas.nn.pred,
+                                   input$nn.cap.pred.1,input$nn.cap.pred.2,
+                                   input$nn.cap.pred.3,input$nn.cap.pred.4,
+                                   input$nn.cap.pred.5,input$nn.cap.pred.6,
+                                   input$nn.cap.pred.7,input$nn.cap.pred.8,
+                                   input$nn.cap.pred.9,input$nn.cap.pred.10))
+    
+    modelo.nuevos <<- NULL
+    predic.nuevos <<- NULL
+    update_pred_pn("")
+    
+    tryCatch({
+      if( (input$selectModelsPred == "boosting" &&
+           !is.null(calibrate_boosting(datos.aprendizaje.completos)) ) ||
+          input$selectModelsPred != "boosting" ){
+        exe(codigo)
+        update_model_text_pn(codigo)
+      }else{
+        showNotification(translate("ErrorBsize"), duration = 15, type = "error")
+      }
+    },
+    error =  function(e){
+      showNotification(paste0("Error: ", e), duration = 10, type = "error")
+    },
+    warning = function(w){
+      if(input$selectModelsPred == "nn"){
+        showNotification(paste0(translate("nnWar")," (NN-01) : ",w), duration = 20, type = "warning")
+      }
+    })
+  })
+  
+  # When the user loads the data
+  observeEvent(input$loadButtonNPred2,{
+    codigo.carga <- code_load(row.names = input$rownameNPred2,
+                              path = input$file3$datapath,
+                              sep = input$sep.nPred2,
+                              sep.dec = input$dec.nPred2,
+                              header  = input$headerNPred2,
+                              d.o = "datos.prueba.completos",
+                              d = "datos.prueba.completos")
+    
+    tryCatch({
+      isolate(exe(codigo.carga))
+      codigo.na <- ""
+      codigo.na <- paste0(code_NA(deleteNA = input$deleteNAnPred2,
+                                  d.o = paste0("datos.prueba.completos")))
+      datos.prueba.completos[,variable.predecir.pn] <<- NULL
+      validate_pn_data(datos.originales.completos, datos.prueba.completos, variable.predecir.pn)
+      isolate(exe( codigo.na))
+      datos.prueba.completos[,variable.predecir.pn] <<- NA_real_
+      code.trans.pn <<- gsub("datos.originales.completos", "datos.prueba.completos", code.trans.pn)
+      code.trans.pn <<- gsub("datos.aprendizaje.completos", "datos.prueba.completos", code.trans.pn)
+      exe(code.trans.pn)
+      if(ncol(datos.prueba.completos) <= 1) {
+        showNotification(translate("errorSeg"), duration = 10, type = "error")
+        return(NULL)
+      }
+      update_table_pn("contentsPred3")
+    },
+    error = function(e) {
+      showNotification(paste0("Error: ", e), duration = 10, type = "error")
+      datos.prueba.completos <<- NULL
+      predic.nuevos <<- NULL
+      return(NULL)
+    })
+  })
+}
+    
+## To be copied in the UI
+# mod_new_data_predictions_ui("new_data_predictions_ui_1")
+    
+## To be copied in the server
+# callModule(mod_new_data_predictions_server, "new_data_predictions_ui_1")
+ 

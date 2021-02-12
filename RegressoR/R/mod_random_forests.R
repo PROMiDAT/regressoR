@@ -1,0 +1,293 @@
+#' random_forests UI Function
+#'
+#' @description A shiny Module.
+#'
+#' @param id,input,output,session Internal parameters for {shiny}.
+#'
+#' @noRd 
+#'
+#' @importFrom shiny NS tagList 
+mod_random_forests_ui <- function(id){
+  
+  rf.options <- list(fluidRow(column(width = 9,h4(labelInput("opciones"))),
+                              column(width = 2,br(),actionButton("runRf", label = labelInput("ejecutar"), icon = icon("play")))),
+                     hr(),
+                     conditionalPanel("input.BoxRf != 'tabRfRules'",
+                                      fluidRow(column(numericInput("ntree.rf", labelInput("numTree"), 20, width = "100%", min = 0), width = 6),
+                                               column(numericInput("mtry.rf",labelInput("numVars"),1, width = "100%", min = 1), width=6))),
+                     conditionalPanel("input.BoxRf == 'tabRfRules'",
+                                      numericInput("rules.rf.n",labelInput("ruleNumTree"),1, width = "100%", min = 1)))
+  
+  rf.code  <- list(h4(labelInput("codigo")), hr(),
+                   conditionalPanel("input.BoxRf == 'tabRfModelo'",
+                                    aceEditor("fieldCodeRf", mode = "r", theme = "monokai",
+                                              value = "", height = "3vh", readOnly = F, autoComplete = "enabled")),
+                   conditionalPanel("input.BoxRf == 'tabRfImp'",
+                                    aceEditor("fieldCodeRfPlot", mode = "r", theme = "monokai",
+                                              value = "", height = "28vh", readOnly = F, autoComplete = "enabled")),
+                   conditionalPanel("input.BoxRf == 'tabRfPred'",
+                                    aceEditor("fieldCodeRfPred", mode = "r", theme = "monokai",
+                                              value = "", height = "3vh", readOnly = F, autoComplete = "enabled")),
+                   conditionalPanel("input.BoxRf == 'tabRfDisp'",
+                                    aceEditor("fieldCodeRfDisp", mode = "r", theme = "monokai",
+                                              value = "", height = "3vh", readOnly = F, autoComplete = "enabled")),
+                   conditionalPanel("input.BoxRf == 'tabRfIndex'",
+                                    aceEditor("fieldCodeRfIG", mode = "r", theme = "monokai",
+                                              value = "", height = "22vh", readOnly = F, autoComplete = "enabled")),
+                   conditionalPanel("input.BoxRf == 'tabRfRules'",
+                                    aceEditor("fieldCodeRfRules", mode = "r", theme = "monokai",
+                                              value = "", height = "4vh", readOnly = F, autoComplete = "enabled")))
+  
+  tabs.rf  <- tabsOptions(buttons = list(icon("gear"),icon("code")), widths = c(50,100), heights = c(65, 95),
+                          tabs.content = list(rf.options, rf.code))
+  
+  generate.rf.panel <- tabPanel(title = labelInput("generatem"),value = "tabRfModelo",
+                                verbatimTextOutput("txtRf"))
+  
+  plot.rf <- tabPanel(title = labelInput("varImp"), value = "tabRfImp",
+                      plotOutput('plot.rf', height = "70vh"))
+  
+  prediction.rf.panel <- tabPanel(title = labelInput("predm"), value = "tabRfPred",
+                                  DT::dataTableOutput("rfPrediTable"))
+  
+  disp.rf.panel <- tabPanel(title = labelInput("dispersion"), value = "tabRfDisp",
+                            plotOutput('plot.rf.disp', height = "55vh"))
+  
+  general.index.rf.panel <- tabPanel(title = labelInput("indices"), value = "tabRfIndex",
+                                     br(),
+                                     fluidRow(tableOutput('indexdfrf')),
+                                     br(),
+                                     fluidRow(column(width = 12, align="center", tags$h3(labelInput("resumenVarPre")))),
+                                     br(),
+                                     fluidRow(tableOutput('indexdfrf2')))
+  
+  rf.rules.panel <- tabPanel(title = labelInput("reglas"), value = "tabRfRules",
+                             verbatimTextOutput("rulesRf"))
+  
+  page.rf <- tabItem(tabName = "rf",
+                     tabBox(id = "BoxRf", width = NULL, height ="80%",
+                            generate.rf.panel,
+                            plot.rf,
+                            prediction.rf.panel,
+                            disp.rf.panel,
+                            general.index.rf.panel,
+                            rf.rules.panel,
+                            tabs.rf))
+  
+  
+  ns <- NS(id)
+  tagList(
+ 
+  )
+}
+    
+#' random_forests Server Function
+#'
+#' @noRd 
+mod_random_forests_server <- function(input, output, session){
+  ns <- session$ns
+ 
+  
+  # When the rf model is generated
+  observeEvent(input$runRf, {
+    if (validate_data()) { # Si se tiene los datos entonces :
+      rf_full()
+    }
+  })
+  
+  # When the user changes the parameters
+  observeEvent(c(input$ntree.rf,input$mtry.rf), {
+    if (validate_data(print = FALSE) & rf.stop.excu) {
+      deafult_codigo_rf()
+    }else{
+      rf.stop.excu <<- TRUE
+    }
+  })
+  
+  # When user change the rule selector
+  observeEvent(input$rules.rf.n,{
+    if(validate_data(print = FALSE)){
+      show_rf_rules(input$rules.rf.n)
+    }
+  })
+  
+  # Upgrade code fields to default version
+  deafult_codigo_rf <- function(rf.def = FALSE){
+    if(!is.null(datos.aprendizaje) & rf.def){
+      mtry.value <- ifelse(rf.def, round(sqrt(ncol(datos.aprendizaje))), input$mtry.rf)
+      updateNumericInput(session,"mtry.rf",value = mtry.value)
+    }else{
+      mtry.value <- input$mtry.rf
+    }
+    
+    # Se acualiza el codigo del modelo
+    codigo <- rf_model(variable.pred = variable.predecir,
+                       ntree = input$ntree.rf,
+                       mtry = mtry.value)
+    
+    updateAceEditor(session, "fieldCodeRf", value = codigo)
+    cod.rf.modelo <<- codigo
+    
+    # Se genera el codigo de la prediccion
+    codigo <- rf_prediction(variable.pred = variable.predecir)
+    updateAceEditor(session, "fieldCodeRfPred", value = codigo)
+    cod.rf.pred <<- codigo
+    
+    # Se genera el codigo de la dispersion
+    codigo <- disp_models("prediccion.rf", translate("rfl"), variable.predecir)
+    updateAceEditor(session, "fieldCodeRfDisp", value = codigo)
+    
+    # Cambia el codigo del grafico de rf
+    updateAceEditor(session, "fieldCodeRfPlot", value = extract_code("importance_plot_rf"))
+    
+    # Se genera el codigo de la indices
+    codigo <- extract_code("general_indices")
+    updateAceEditor(session, "fieldCodeRfIG", value = codigo)
+    cod.rf.ind <<- codigo
+  }
+  
+  # Cleans the data according to the process where the error is generated
+  clean_rf <- function(capa = NULL){
+    for(i in capa:3){
+      switch(i, {
+        modelo.rf <<- NULL
+        output$txtRf <- renderPrint(invisible(""))
+        remove_report_elem("modelo.rf")
+        remove_report_elem("modelo.rf.graf")
+        remove_report_elem("disp.rf")
+      }, {
+        prediccion.rf <<- NULL
+        remove_report_elem("pred.rf")
+        output$rfPrediTable <- DT::renderDataTable(NULL)
+      },{
+        indices.rf <<- rep(0, 10)
+        remove_report_elem("ind.rf")
+      })
+    }
+  }
+  
+  # Shows the chart of importance
+  plotear_rf_imp <- function() {
+    tryCatch({
+      output$plot.rf <- renderPlot(isolate(importance_plot_rf(modelo.rf,translate("impVarA"),translate("impVarRSS"))))
+      cod <- ifelse(input$fieldCodeRfPlot == "", extract_code("importance_plot_rf"), input$fieldCodeRfPlot)
+      insert_report("modelo.rf.graf", "Importancia de las Variables", cod,
+                    "\nimportance_plot_rf(modelo.rf,'",translate('impVarA'),"','",translate('impVarRSS'),"')")
+      
+    }, error = function(e) {
+      output$plot.rf <- renderPlot(NULL)
+      remove_report_elem("modelo.rf.graf")
+    })
+  }
+  
+  # Shows the graph the dispersion of the model with respect to the real values
+  plot_disp_rf <- function(){
+    tryCatch({ # Se corren los codigo
+      output$plot.rf.disp <- renderPlot(exe(input$fieldCodeRfDisp))
+      insert_report("disp.rf", "Dispersi\u00F3n del Modelo RF", input$fieldCodeRfDisp)
+    },
+    error = function(e) { # Regresamos al estado inicial y mostramos un error
+      clean_rf(2)
+      showNotification(paste0("Error (RF-02) : ", e), duration = 15, type = "error")
+    })
+  }
+  
+  # Show Rules
+  show_rf_rules <- function(n){
+    output$rulesRf <- renderPrint({
+      tryCatch({
+        updateAceEditor(session,"fieldCodeRfRules",paste0("printRandomForests(modelo.rf, ",n,", format='VB')"))
+        printRandomForests(modelo.rf, n, format='VB')
+      },error = function(e){
+        stop(translate("NoDRule"))
+      })
+    })
+    insert_report(paste0("modelo.rf.rules.", n),paste0("Reglas del \u00C1rbol #",n),
+                  "printRandomForests(modelo.rf, ",n,")")
+  }
+  
+  # Execute model, prediction and indices
+  rf_full <- function(){
+    execute_rf()
+    execute_rf_pred()
+    execute_rf_ind()
+  }
+  
+  # Generates the model
+  execute_rf <- function() {
+    tryCatch({ # Se corren los codigo
+      isolate(exe(cod.rf.modelo))
+      output$txtRf <- renderPrint(print(modelo.rf))
+      
+      insert_report("modelo.rf","Generaci\u00F3n del Modelo Bosques Aleatorios",
+                    cod.rf.modelo,"\nmodelo.rf")
+      
+      plotear_rf_imp()
+      plot_disp_rf()
+      show_rf_rules(input$rules.rf.n)
+      nombres.modelos <<- c(nombres.modelos, "modelo.rf")
+    },
+    error = function(e) { # Regresamos al estado inicial y mostramos un error
+      clean_rf(1)
+      showNotification(paste0("Error (RF-01) : ",e), duration = 15, type = "error")
+    })
+  }
+  
+  # Generate the prediction
+  execute_rf_pred <- function() {
+    tryCatch({ # Se corren los codigo
+      isolate(exe(cod.rf.pred))
+      
+      output$rfPrediTable <- DT::renderDataTable(tb_predic(real.val, prediccion.rf), server = FALSE)
+      
+      insert_report("pred.rf","Predicci\u00F3n del Modelo Bosques Aleatorios",
+                    cod.rf.pred,"\nkt(head(tb_predic(real.val, prediccion.rf)$x$data[,-1]))",interpretation = FALSE)
+      
+      nombres.modelos <<- c(nombres.modelos, "prediccion.rf")
+      updatePlot$tablaCom <- !updatePlot$tablaCom #graficar otra vez la tabla comprativa
+    },
+    error = function(e) { # Regresamos al estado inicial y mostramos un error
+      clean_rf(2)
+      showNotification(paste0("Error (RF-02) : ", e), duration = 15, type = "error")
+    })
+  }
+  
+  # Generates the indices
+  execute_rf_ind <- function() {
+    if(exists("prediccion.rf") && !is.null(prediccion.rf)){
+      tryCatch({ # Se corren los codigo
+        isolate(exe(cod.rf.ind))
+        
+        indices.rf <- general_indices(datos.prueba[,variable.predecir], prediccion.rf)
+        
+        insert_report("ind.rf","\u00CDndices Generales del Modelo Bosques Aleatorios",
+                      cod.rf.ind, "\nkt(general_indices(datos.prueba[,'",variable.predecir,"'], prediccion.rf))\n",
+                      "indices.rf <- general_indices(datos.prueba[,'",variable.predecir,"'], prediccion.rf)\n",
+                      "IndicesM[['rfl']] <- indices.rf")
+        
+        df <- as.data.frame(indices.rf)
+        colnames(df) <- c(translate("RMSE"), translate("MAE"), translate("ER"), translate("correlacion"))
+        output$indexdfrf <- render_index_table(df)
+        
+        df2 <- as.data.frame(summary_indices(datos.aprendizaje[,variable.predecir]))
+        colnames(df2) <- c(translate("minimo"),translate("q1"),translate("q3"),translate("maximo"))
+        output$indexdfrf2 <- render_index_table(df2)
+        
+        nombres.modelos <<- c(nombres.modelos, "indices.rf")
+        IndicesM[["rfl"]] <<- indices.rf
+        update_comparative_selector()
+      },
+      error = function(e) { # Regresamos al estado inicial y mostramos un error
+        clean_rf(3)
+        showNotification(paste0("Error (RF-03) : ",e), duration = 15, type = "error")
+      })
+    }
+  }
+}
+    
+## To be copied in the UI
+# mod_random_forests_ui("random_forests_ui_1")
+    
+## To be copied in the server
+# callModule(mod_random_forests_server, "random_forests_ui_1")
+ 
