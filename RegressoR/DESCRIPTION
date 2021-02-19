@@ -1,17 +1,22 @@
-Package: RegressoR
-Title: An Amazing Shiny App
+Package: regressoR
+Title: Regression Data Analysis System
 Version: 0.0.0.9000
-Authors@R: 
-    person(given = "firstname",
-           family = "lastname",
-           role = c("aut", "cre"),
-           email = "your@email.com")
-Description: What the package does (one paragraph).
+Authors@R: person('Oldemar', 'Rodriguez', email = 'oldemar.rodriguez@ucr.ac.cr', role = c('cre', 'aut'))
+Description: Perform a supervised data analysis on a database through a 'shiny' graphical interface. 
+  It includes methods such as linear regression, penalized regression, k-nearest neighbors, decision trees, ada boosting, 
+  extreme gradient boosting, random forest, neural networks, deep learning and support vector machines.
 License: What license is it under?
 Imports: 
     config,
     golem,
-    shiny
+    shiny,
+    DT,
+    shinyjs,
+    shinydashboard,
+    shinydashboardPlus,
+    attempt,
+    glue,
+    htmltools
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 6.1.1

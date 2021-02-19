@@ -8,54 +8,56 @@
 #'
 #' @importFrom shiny NS tagList 
 mod_load_data_ui <- function(id){
+  ns <- NS(id)
+  
   data.upload.panel <- tabPanel(title = labelInput("cargar"), width = 12, solidHeader = FALSE, collapsible = FALSE, collapsed = FALSE,
-                                checkboxInput('header', labelInput("header"), TRUE),
-                                checkboxInput('rowname', labelInput("Rownames"), TRUE),
-                                radioButtonsTr('sep', "separador", c(';', ',', '\t'), c("puntocoma", "coma", "tab")),
-                                radioButtonsTr('dec', "separadordec", c(',', '.'), c("coma", "punto")),
-                                switchInput(inputId = "deleteNA", onStatus = "success", offStatus = "danger", value = T, width = "100%",
+                                checkboxInput(ns('header'), labelInput("header"), TRUE),
+                                checkboxInput(ns('rowname'), labelInput("Rownames"), TRUE),
+                                radioButtonsTr(ns('sep'), "separador", c(';', ',', '\t'), c("puntocoma", "coma", "tab")),
+                                radioButtonsTr(ns('dec'), "separadordec", c(',', '.'), c("coma", "punto")),
+                                switchInput(inputId = ns("deleteNA"), onStatus = "success", offStatus = "danger", value = T, width = "100%",
                                             label = labelInput("eliminana"), onLabel = labelInput("si"), offLabel = labelInput("no"), labelWidth = "100%"),
-                                fileInput('file1', label =  labelInput("cargarchivo"), placeholder = "", buttonLabel =  labelInput("subir"), width = "100%",
+                                fileInput(ns('file1'), label =  labelInput("cargarchivo"), placeholder = "", buttonLabel =  labelInput("subir"), width = "100%",
                                           accept = c('text/csv', '.csv')),
-                                actionButton("loadButton", labelInput("cargar"), width = "100%"),
+                                actionButton(ns("loadButton"), labelInput("cargar"), width = "100%"),
                                 br(),br(),
-                                aceEditor("fieldCodeData", mode = "r", theme = "monokai", value = "", height = "13vh", readOnly = T))
+                                aceEditor(ns("fieldCodeData"), mode = "r", theme = "monokai", value = "", height = "13vh", readOnly = T))
   
   tansform.data.panel <- tabPanel(title = labelInput("trans"), width = 12, solidHeader = FALSE, collapsible = FALSE, collapsed = FALSE,
-                                  DT::dataTableOutput('transData'),
+                                  DT::dataTableOutput(ns('transData')),
                                   br(),br(),
-                                  actionButton("transButton", labelInput("aplicar"), width = "100%"),
+                                  actionButton(ns("transButton"), labelInput("aplicar"), width = "100%"),
                                   br(),br(),
-                                  aceEditor("fieldCodeTrans", mode = "r", theme = "monokai", value = "", height = "10vh",  readOnly = T))
+                                  aceEditor(ns("fieldCodeTrans"), mode = "r", theme = "monokai", value = "", height = "10vh",  readOnly = T))
   
   data.segment.panel <- tabPanel(title = labelInput("configuraciones"), width = 12, solidHeader = FALSE, collapsible = FALSE, collapsed = FALSE,
-                                 fluidRow(column(id = "colSemilla",width = 6, numericInput("semilla", labelInput("semilla"), "NULL", width = "100%")), br(),
-                                          column(width = 6, switchInput(inputId = "permitir.semilla", onStatus = "success", offStatus = "danger", value = F, width = "100%",
+                                 fluidRow(column(id = ns("colSemilla"),width = 6, numericInput(ns("semilla"), labelInput("semilla"), "NULL", width = "100%")), br(),
+                                          column(width = 6, switchInput(inputId = ns("permitir.semilla"), onStatus = "success", offStatus = "danger", value = F, width = "100%",
                                                                         label = "", onLabel = labelInput("habilitada"), offLabel = labelInput("deshabilitada"), labelWidth = "100%",
                                                                         inline = T,size = "large"))),
-                                 selectInput(inputId = "sel.predic.var", label = labelInput("seleccionarPredecir"), choices =  "", width = "100%"),
-                                 sliderInput("segmentacionDatosA", labelInput("propA"),width = "100%",
+                                 selectInput(inputId = ns("sel.predic.var"), label = labelInput("seleccionarPredecir"), choices =  "", width = "100%"),
+                                 sliderInput(ns("segmentacionDatosA"), labelInput("propA"),width = "100%",
                                              min = 5, max = 95, value = 70, step = 5),
-                                 sliderInput("segmentacionDatosT", labelInput("propP"), width = "100%",
+                                 sliderInput(ns("segmentacionDatosT"), labelInput("propP"), width = "100%",
                                              min = 5, max = 95, value = 30, step = 5),
-                                 actionButton("segmentButton", labelInput("generar"), width = "100%"),
+                                 actionButton(ns("segmentButton"), labelInput("generar"), width = "100%"),
                                  br(),br(),
-                                 aceEditor("fieldCodeSegment", mode = "r", theme = "monokai", value = "", height = "8vh",  readOnly = T))
+                                 aceEditor(ns("fieldCodeSegment"), mode = "r", theme = "monokai", value = "", height = "8vh",  readOnly = T))
   
   show.data <- box(title = labelInput("data"), status = "primary", width = 12, solidHeader = TRUE, collapsible = TRUE, type = 7, color = "#CBB051",
-                   DT::DTOutput('contents'), hr(),
-                   downloadButton("downloaDatos", labelInput("descargar"), width = "100%"))
+                   DT::DTOutput(ns('contents')), hr(),
+                   downloadButton(ns("downloaDatos"), labelInput("descargar"), width = "100%"))
   
   show.learning.data <- box(title = labelInput("dataA"), status = "primary", width = 12, solidHeader = TRUE, collapsible = TRUE, type = 7, color = "#CBB051",
-                            DT::DTOutput('contentsAprend'), hr(),
-                            downloadButton("downloaDatosA", labelInput("descargar"), width = "100%"))
+                            DT::DTOutput(ns('contentsAprend')), hr(),
+                            downloadButton(ns("downloaDatosA"), labelInput("descargar"), width = "100%"))
   
   show.test.data <- box(title = labelInput("dataP"), status = "primary", width = 12, solidHeader = TRUE, collapsible = TRUE, type = 7, color = "#CBB051",
-                        DT::DTOutput('contentsPrueba'), hr(),
-                        downloadButton("downloaDatosP", labelInput("descargar"), width = "100%"))
+                        DT::DTOutput(ns('contentsPrueba')), hr(),
+                        downloadButton(ns("downloaDatosP"), labelInput("descargar"), width = "100%"))
   
   page.load.data <- tabItem(tabName = "cargar",
-                            fluidRow(column(width = 5, tabBox(id ="tabs", title = NULL, width = 12,
+                            fluidRow(column(width = 5, tabBox(id =ns("tabs"), title = NULL, width = 12,
                                                               data.upload.panel,
                                                               tansform.data.panel,
                                                               data.segment.panel)),
@@ -63,7 +65,6 @@ mod_load_data_ui <- function(id){
                             conditionalPanel(condition = paste0("input.tabs == '", labelInput("configuraciones"),"'"),
                                              fluidRow(column(width = 6, show.learning.data),
                                                       column(width = 6, show.test.data))) )
-  ns <- NS(id)
   tagList(
     page.load.data
   )
@@ -74,7 +75,7 @@ mod_load_data_ui <- function(id){
 #' @noRd 
 mod_load_data_server <- function(input, output, session){
   
-  
+  ns <- session$ns
   # Executes the data upload code
   upload_data <- function(codigo.carga = "") {
     tryCatch({
@@ -207,14 +208,14 @@ mod_load_data_server <- function(input, output, session){
     
     run_cor_model()
     
-    delete_models()
+    #delete_models()
     
     close_menu("parte1"   , is.null(datos))
     close_menu("parte2"   , is.null(datos.aprendizaje))
     close_menu("comparar" , is.null(datos.aprendizaje))
     close_menu("poderPred", is.null(datos.aprendizaje))
     
-    update_table()
+  #  update_table()
   }, priority = 4)
   
   # When the button to transform data is pressed
@@ -279,7 +280,6 @@ mod_load_data_server <- function(input, output, session){
       write.csv(datos, file, row.names = input$rowname)
     }
   )
-  ns <- session$ns
  
 }
     

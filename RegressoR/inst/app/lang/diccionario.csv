@@ -75,7 +75,7 @@ deshabilitada;Deshabilitada;Disabled
 seleccionarPredecir;Seleccionar la variable a predecir:;Select the variable to be predicted:
 propA;Partición de Aprendizaje:;Training partition:
 propP;Partición de Prueba;Test partition:
-VarsPred;Variables Predictoras:;Variables Predictoras:;Predictor Variables:
+VarsPred;Variables Predictoras:;Predictor Variables:
 generar;Generar;Generate
 generarM;Generar Modelo;Generate Model
 tipo;Tipo;Type
