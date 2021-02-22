@@ -74,7 +74,6 @@ mod_load_data_ui <- function(id){
 #'
 #' @noRd 
 mod_load_data_server <- function(input, output, session){
-  
   ns <- session$ns
   # Executes the data upload code
   upload_data <- function(codigo.carga = "") {

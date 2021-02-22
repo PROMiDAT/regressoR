@@ -1,6 +1,6 @@
 #' The application server-side
 #' 
-#' @param input,output,session Internal parameters for {shiny}. 
+#' @param input,output,session Internal parameters for {shiny}.
 #'     DO NOT REMOVE.
 #' @import shiny
 #' @noRd
@@ -18,7 +18,16 @@ app_server <- function( input, output, session ) {
   # there are more variables in the "global" file but these are the most important ones.
   
   # INITIAL SETTINGS ------------------------------------------------------------------------------------------------------
+  source("R/Utilities.R", local = FALSE, echo = FALSE )
   options_regressor(exe.envir = environment())
+  
+  #Unlock all global variables
+  for(variable in ls(envir = ambiente)){
+    unlockBinding(variable, ambiente)
+  }
+  # unlockBinding('datos', ambiente)
+  # unlockBinding('datos.aprendizaje', ambiente)
+  # unlockBinding('datos.originales', ambiente)
   
   clean_report()
   

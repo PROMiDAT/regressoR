@@ -21,9 +21,8 @@ options_regressor(language = "es")
 #' exe("plot(iris$Species)")
 #' 
 exe <- function(..., envir = options_regressor()$exe.envir){
-  print(paste0(...))
   envir <- if(is.null(envir) || !is.environment(envir)) parent.frame() else envir
-  eval(parse(text = paste0(...)), envir = envir)
+  eval(parse(text = paste0(...)), envir = ambiente)
 }
 
 #' extract_code
