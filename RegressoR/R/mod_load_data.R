@@ -118,19 +118,19 @@ mod_load_data_server <- function(input, output, session){
   transformar.datos <- function() {
     var.noactivas <- c()
     code.res <- "datos <- datos.originales \n"
-    for (var in colnames(datos.originales)) {
-      if (input[[paste0("box", var, contador)]]) {
-        if (input[[paste0("sel", var, contador)]] == "categorico" & class(datos.originales[, var]) %in% c("numeric", "integer")) {
-          code.res <- paste0(code.res, code_transf(var, "categorico"), "\n")
+    for (col_name in colnames(datos.originales)) {
+      if (input[[paste0("box", col_name, contador)]]) {
+        if (input[[paste0("sel", col_name, contador)]] == "categorico" & class(datos.originales[, col_name]) %in% c("numeric", "integer")) {
+          code.res <- paste0(code.res, code_transf(col_name, "categorico"), "\n")
         }
-        if (input[[paste0("sel", var, contador)]] == "numerico" & !(class(datos.originales[, var]) %in% c("numeric", "integer"))) {
-          code.res <- paste0(code.res, code_transf(var, "numerico"), "\n")
+        if (input[[paste0("sel", col_name, contador)]] == "numerico" & !(class(datos.originales[, col_name]) %in% c("numeric", "integer"))) {
+          code.res <- paste0(code.res, code_transf(col_name, "numerico"), "\n")
         }
-        if (input[[paste0("sel", var, contador)]] == "disyuntivo") {
-          code.res <- paste0(code.res, code_transf(var, "disyuntivo"), "\n")
+        if (input[[paste0("sel", col_name, contador)]] == "disyuntivo") {
+          code.res <- paste0(code.res, code_transf(col_name, "disyuntivo"), "\n")
         }
       } else {
-        var.noactivas <- c(var.noactivas, var)
+        var.noactivas <- c(var.noactivas, col_name)
       }
     }
     
@@ -207,14 +207,14 @@ mod_load_data_server <- function(input, output, session){
     
     run_cor_model()
     
-    #delete_models()
+    delete_models()
     
     close_menu("parte1"   , is.null(datos))
     close_menu("parte2"   , is.null(datos.aprendizaje))
     close_menu("comparar" , is.null(datos.aprendizaje))
     close_menu("poderPred", is.null(datos.aprendizaje))
     
-  #  update_table()
+    update_table(output = output)
   }, priority = 4)
   
   # When the button to transform data is pressed
@@ -234,7 +234,7 @@ mod_load_data_server <- function(input, output, session){
     close_menu("comparar" , is.null(datos.aprendizaje))
     close_menu("poderPred", is.null(datos.aprendizaje))
     
-    update_table()
+    update_table(output = output)
   }, priority = 4)
   
   # Show the select box of the panel to transform data
@@ -243,11 +243,11 @@ mod_load_data_server <- function(input, output, session){
     if(!is.null(datos) && ncol(datos) > 0){
       res <- data.frame(Variables = colnames(datos), Tipo = c(1:ncol(datos)), Activa = c(1:ncol(datos)))
       res$Tipo <- sapply(colnames(datos), function(i)
-        paste0('<select id="sel', i, contador, '"> <option value="categorico">',translate("categorico"),'</option>',
+        paste0('<select id=', ns(paste0("sel", i, contador)), '> <option value="categorico">',translate("categorico"),'</option>',
                '<option value="numerico" ', ifelse(class(datos[, i]) %in% c("numeric", "integer"),
                                                    ' selected="selected"', ""),'>', translate("numerico"),
                '</option> <option value="disyuntivo">',translate("disyuntivo"),'</option> </select>'))
-      res$Activa <- sapply(colnames(datos), function(i) paste0('<input type="checkbox" id="box', i, contador, '" checked/>'))
+      res$Activa <- sapply(colnames(datos), function(i) paste0('<input type="checkbox" id=', ns(paste0("box", i, contador)), ' checked/>'))
     } else {
       res <- as.data.frame(NULL)
       showNotification(translate("tieneCData"), duration = 10, type = "error")

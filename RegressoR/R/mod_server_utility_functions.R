@@ -1,5 +1,5 @@
 # Update the different tables in the "shiny" application
-update_table <- function(x = c("datos", "datos.aprendizaje", "datos.prueba")){
+update_table <- function(x = c("datos", "datos.aprendizaje", "datos.prueba"), output){
   if(any("datos" %in% x)){ # Change data table
     output$contents <- render_table_data(datos, editable = T, server=F)
   }
