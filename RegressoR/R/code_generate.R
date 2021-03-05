@@ -23,6 +23,7 @@
 #' code_load(TRUE, "MY/PATH/FILE.csv")
 #' 
 code_load <- function(row.names = TRUE, path = NULL, sep = ";", sep.dec = ",", header = TRUE, d.o = "datos.originales", d = "datos"){
+  print(ls(environment()))
   if(!is.null(path)){
     path <-  gsub("\\", "/", path, fixed=TRUE)
   }

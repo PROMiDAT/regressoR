@@ -21,8 +21,20 @@ options_regressor(language = "es")
 #' exe("plot(iris$Species)")
 #' 
 exe <- function(..., envir = options_regressor()$exe.envir){
-  envir <- if(is.null(envir) || !is.environment(envir)) parent.frame() else envir
-  eval(parse(text = paste0(...)), envir = ambiente)
+  environ <- envir
+  envir <- if(is.null(environ) || !is.environment(environ)) parent.frame() else environ
+  
+  print(parse(text = paste0(...)))
+  #Unlock all global variables
+  for(variable in ls(envir = environ)){
+    unlockBinding(variable, environ)
+  }
+  for(variable in ls(envir = parent.env(environ))){
+    unlockBinding(variable, parent.env(environ))
+  }
+  #datos <<- iris3
+  eval(parse(text = paste0(...)), envir = environ)
+  #print(datos)
 }
 
 #' extract_code

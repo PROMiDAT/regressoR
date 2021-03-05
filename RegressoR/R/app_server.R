@@ -18,16 +18,26 @@ app_server <- function( input, output, session ) {
   # there are more variables in the "global" file but these are the most important ones.
   
   # INITIAL SETTINGS ------------------------------------------------------------------------------------------------------
-  source("R/Utilities.R", local = FALSE, echo = FALSE )
-  options_regressor(exe.envir = environment())
-  
-  #Unlock all global variables
-  for(variable in ls(envir = ambiente)){
-    unlockBinding(variable, ambiente)
+  source("Utilities.R", local = FALSE, echo = FALSE )
+  source("R/data_manipulation.R", local = FALSE, echo = FALSE )
+  print("============================")
+  print(parent.env(.GlobalEnv))
+  print(parent.env(parent.env(.GlobalEnv)))
+  padre = environment()
+  for (variable in 1:50) {
+    print(padre)
+    padre <- parent.env(padre)
   }
-  # unlockBinding('datos', ambiente)
-  # unlockBinding('datos.aprendizaje', ambiente)
-  # unlockBinding('datos.originales', ambiente)
+  print("============================")
+  options_regressor(exe.envir = .GlobalEnv)
+  #Unlock all global variables
+  # for(variable in ls(envir = environment())){
+  #   unlockBinding(variable, environment())
+  # }
+  
+
+
+  
   
   clean_report()
   

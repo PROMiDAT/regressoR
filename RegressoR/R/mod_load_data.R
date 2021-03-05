@@ -133,7 +133,7 @@ mod_load_data_server <- function(input, output, session){
         var.noactivas <- c(var.noactivas, col_name)
       }
     }
-    
+    print(code.res)
     isolate(exe(code.res))
     code.res <- paste0(code.res, "\n")
     if (length(var.noactivas) > 0) {

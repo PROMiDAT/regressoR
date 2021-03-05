@@ -17,7 +17,7 @@ comparative_table <- function(sel){
 }
 
 # GLOBAL VARIABLES --------------------------------------------------------------------------------------------------------
-ambiente <- environment()
+#ambiente <- environment()
 # -- Data
 datos             <- NULL
 datos.originales  <- NULL
@@ -99,6 +99,7 @@ modelo.nuevos               <- NULL
 predic.nuevos               <- NULL
 # --  Reports
 salida.code  <- NULL
+
 
 # FUNCTIONS ---------------------------------------------------------------------------------------------------------------
 
