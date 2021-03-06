@@ -15,28 +15,12 @@ app_server <- function( input, output, session ) {
   # datos.aprendizaje = The learning dataset partition
   # real.val = The values of the variable to predict (test data)
   
-  # there are more variables in the "global" file but these are the most important ones.
+  # there are more variables in the "Global_Variables.R" file but these are the most important ones.
   
   # INITIAL SETTINGS ------------------------------------------------------------------------------------------------------
-  source("Utilities.R", local = FALSE, echo = FALSE )
-  source("R/data_manipulation.R", local = FALSE, echo = FALSE )
-  print("============================")
-  print(parent.env(.GlobalEnv))
-  print(parent.env(parent.env(.GlobalEnv)))
-  padre = environment()
-  for (variable in 1:50) {
-    print(padre)
-    padre <- parent.env(padre)
-  }
-  print("============================")
-  options_regressor(exe.envir = .GlobalEnv)
-  #Unlock all global variables
-  # for(variable in ls(envir = environment())){
-  #   unlockBinding(variable, environment())
-  # }
   
-
-
+  #Set the environment where the code will be executed. (.GlobalEnv recommended)
+  options_regressor(exe.envir = .GlobalEnv)
   
   
   clean_report()
