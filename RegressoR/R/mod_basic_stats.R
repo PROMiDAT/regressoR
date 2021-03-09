@@ -13,12 +13,12 @@ mod_basic_stats_ui <- function(id){
   # NUMERICAL SUMMARY PAGE --------------------------------------------------------------------------------------------------
   
   full.summary.table <- box(title = labelInput("resumen"), status = "primary", width = 7, solidHeader = TRUE, collapsible = TRUE,
-                            DT::dataTableOutput("resumen.completo"), hr(),
-                            aceEditor("fieldCodeResum", mode = "r", theme = "monokai", value = "", height = "5vh",  readOnly = T))
+                            DT::dataTableOutput(ns("resumen.completo")), hr(),
+                            aceEditor(ns("fieldCodeResum"), mode = "r", theme = "monokai", value = "", height = "5vh",  readOnly = T))
   
   variable.summary.table <- box(title = labelInput("resumenvar"), status = "primary", width = 5, solidHeader = TRUE, collapsible = TRUE,
-                                selectInput(inputId = "sel.resumen", label = labelInput("selvar"), choices =  ""),
-                                fluidRow(uiOutput("resumen")))
+                                selectInput(inputId = ns("sel.resumen"), label = labelInput("selvar"), choices =  ""),
+                                fluidRow(uiOutput(ns("resumen"))))
   
   page.numerical.summary <- tabItem(tabName = "resumen",
                                     fluidRow(full.summary.table,
@@ -26,25 +26,25 @@ mod_basic_stats_ui <- function(id){
   
   # NORMALITY TEST PAGE -----------------------------------------------------------------------------------------------------
   
-  num.normal.plot.panel <- tabPanel(title = labelInput("plotnormal"), value = "tabNormalPlot", plotOutput('plot.normal', height = "65vh"))
+  num.normal.plot.panel <- tabPanel(title = labelInput("plotnormal"), value = "tabNormalPlot", plotOutput(ns('plot.normal'), height = "65vh"))
   
-  cat.normal.plot.panel <- tabPanel(title = labelInput("normalidad"), value = "tabNormalCalc", DT::dataTableOutput('calculo.normal'))
+  cat.normal.plot.panel <- tabPanel(title = labelInput("normalidad"), value = "tabNormalCalc", DT::dataTableOutput(ns('calculo.normal')))
   
   boton.colores <- list(h4(labelInput("opciones")), hr(),
-                        colourpicker::colourInput("col.normal", labelInput("selcolor"),value = "#00FF22AA", allowTransparent = T))
+                        colourpicker::colourInput(ns("col.normal"), labelInput("selcolor"),value = "#00FF22AA", allowTransparent = T))
   
   normality.code <- list(h4(labelInput("codigo")), hr(),
                          conditionalPanel("input.BoxNormal == 'tabNormalCalc'",
-                                          code_field("run.calc.normal", "fieldCalcNormal", height = "20vh")),
+                                          code_field("run.calc.normal", "fieldCalcNormal", height = "20vh"),ns = ns),
                          conditionalPanel("input.BoxNormal == 'tabNormalPlot'",
-                                          code_field("run.normal", "fieldCodeNormal", height = "25vh")))
+                                          code_field("run.normal", "fieldCodeNormal", height = "25vh"),ns = ns))
   
   tabs.normal <- tabsOptions(heights = c(33, 63), tabs.content = list(boton.colores, normality.code))
   
-  normal.options <-  tags$div(class = "multiple-select-var", selectInput(inputId = "sel.normal", label = NULL, choices =  ""))
+  normal.options <-  tags$div(class = "multiple-select-var", selectInput(inputId = ns("sel.normal"), label = NULL, choices =  ""))
   
   page.test.normality <- tabItem(tabName = "normalidad",
-                                 tabBox(id = "BoxNormal",
+                                 tabBox(id = ns("BoxNormal"),
                                         width = 12, title = normal.options,
                                         num.normal.plot.panel,
                                         cat.normal.plot.panel,
@@ -224,7 +224,7 @@ mod_basic_stats_ui <- function(id){
 #' basic_stats Server Function
 #'
 #' @noRd 
-mod_basic_stats_server <- function(input, output, session){
+mod_basic_stats_server <- function(input, output, session, updatePlot, disp.ranges){
   ns <- session$ns
  
   # SUMMARY PAGE ----------------------------------------------------------------------------------------------------------

@@ -127,7 +127,8 @@ app_ui <- function(request) {
       dashboardBody(mi.head,
                     load.page,
                     tabItems(
-                      tabItem(tabName = "cargar",  mod_load_data_ui("load_data_ui_1"))))
+                      tabItem(tabName = "cargar",  mod_load_data_ui("load_data_ui_1")),
+                      tabItem(tabName = "parte1",  mod_basic_stats_ui("basic_stats_ui_1"))))
       )
     
   )

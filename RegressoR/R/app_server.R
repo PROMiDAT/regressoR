@@ -74,4 +74,5 @@ app_server <- function( input, output, session ) {
     
   ###################################  Modules  ###############################
   callModule(mod_load_data_server,"load_data_ui_1")
+  callModule(mod_basic_stats_server, "basic_stats_ui_1",updatePlot,disp.ranges)
 }

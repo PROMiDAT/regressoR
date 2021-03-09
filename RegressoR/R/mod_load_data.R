@@ -64,7 +64,8 @@ mod_load_data_ui <- function(id){
                                      column(width = 7, show.data)),
                             conditionalPanel(condition = paste0("input.tabs == '", labelInput("configuraciones"),"'"),
                                              fluidRow(column(width = 6, show.learning.data),
-                                                      column(width = 6, show.test.data))) )
+                                                      column(width = 6, show.test.data)), ns = ns) )
+  
   tagList(
     page.load.data
   )
@@ -276,6 +277,104 @@ mod_load_data_server <- function(input, output, session){
     },
     content = function(file) {
       write.csv(datos, file, row.names = input$rowname)
+    }
+  )
+  
+  
+  # SPLIT DATA PAGE -------------------------------------------------------------------------------------------------------
+  
+  # Executes data segmentation code
+  segmentar.datos <- function(codigo) {
+    tryCatch({
+      isolate(exe(codigo))
+      updateAceEditor(session, "fieldCodeSegment", value = codigo)
+    }, error = function(e) {
+      showNotification(paste0(translate("errorSeg"), e), duration = 15, type = "error")
+    })
+  }
+  
+  # When the segment data button is pressed
+  observeEvent(input$segmentButton, {
+    if(input$sel.predic.var != ""){
+      codigo <- partition_code("datos", input$segmentacionDatosA,
+                               input$sel.predic.var,
+                               input$semilla,
+                               input$permitir.semilla)
+      
+      semilla       <<- input$permitir.semilla
+      knn.stop.excu <<- FALSE
+      rf.stop.excu  <<- FALSE
+      
+      
+      segmentar.datos(codigo)
+
+      new_section_report()
+      
+      insert_report("segmentar.datos","Datos de Aprendizaje",codigo, "\nhead(datos.aprendizaje)", interpretation = FALSE)
+      insert_report("segmentar.datos","Datos de Prueba","head(datos.prueba)", add = TRUE, interpretation = FALSE)
+      
+      delete_models(FALSE)
+      
+      # change model codes
+      # 
+      # deafult_codigo_rl()
+      # deafult_codigo_rlr()
+      # default_codigo_knn(k.def = TRUE)
+      # default_codigo_svm()
+      # deafult_codigo_rd()
+      # default_codigo_dt()
+      # deafult_codigo_rf(rf.def = TRUE)
+      # deault_codigo_boosting()
+      # default_codigo_nn()
+      
+    } else {
+      showNotification(translate("tieneSVP"), duration = 15, type = "error")
+    }
+    
+    close_menu("parte2",    is.null(datos.aprendizaje))
+    close_menu("comparar",  is.null(datos.aprendizaje))
+    close_menu("poderPred", is.null(datos.aprendizaje))
+    
+    update_table(c("datos.aprendizaje", "datos.prueba"),output = output)
+    
+  },priority = 5)
+  
+  # When user press enable or disable the seed
+  observeEvent(input$permitir.semilla, {
+    if (input$permitir.semilla) {
+      shinyjs::enable("semilla")
+    } else {
+      shinyjs::disable("semilla")
+    }
+  })
+  
+  # When the data provider bar changes (Learning Data)
+  observeEvent(input$segmentacionDatosA, {
+    updateSliderInput(session, "segmentacionDatosT", value = 100 - input$segmentacionDatosA)
+  })
+  
+  # When the data provider bar changes (Test Data)
+  observeEvent(input$segmentacionDatosT, {
+    updateSliderInput(session, "segmentacionDatosA", value = 100 - input$segmentacionDatosT)
+  })
+  
+  # Download the learning table
+  output$downloaDatosA <- downloadHandler(
+    filename = function(){
+      paste0("(",translate("dataA"),")",input$file1$name)
+    },
+    content = function(file) {
+      write.csv(datos.aprendizaje, file, row.names = input$rowname)
+    }
+  )
+  
+  # Download the test table
+  output$downloaDatosP <- downloadHandler(
+    filename = function() {
+      paste0("(",translate("dataP"),")",input$file1$name)
+    },
+    content = function(file) {
+      write.csv(datos.prueba, file, row.names = input$rowname)
     }
   )
  
