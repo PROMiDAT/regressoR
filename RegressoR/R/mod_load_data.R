@@ -74,8 +74,9 @@ mod_load_data_ui <- function(id){
 #' load_data Server Function
 #'
 #' @noRd 
-mod_load_data_server <- function(input, output, session){
+mod_load_data_server <- function(input, output, session,updateData){
   ns <- session$ns
+  
   # Executes the data upload code
   upload_data <- function(codigo.carga = "") {
     tryCatch({
@@ -115,6 +116,11 @@ mod_load_data_server <- function(input, output, session){
     return(codigo.na)
   }
   
+  #Executes each time 'datos' changes
+  observeEvent(updateData$datos,{
+    updateSelectInput(session, "sel.predic.var", choices = rev(colnames_empty(var_numerical(updateData$datos))))
+  })
+  
   # Use and show the codes to transform the data
   transformar.datos <- function() {
     var.noactivas <- c()
@@ -146,25 +152,6 @@ mod_load_data_server <- function(input, output, session){
     return(code.res)
   }
   
-  # Update the different selectors
-  aqualize_selecctors <- function() {
-    updateSelectizeInput(session, "sel.normal", choices = colnames_empty(var_numerical(datos)))
-    updateSelectizeInput(session, "select.var", choices = colnames_empty(var_numerical(datos)))
-    updateSelectInput(session, "sel.distribucion.num", choices = colnames_empty(var_numerical(datos)))
-    updateSelectInput(session, "sel.distribucion.cat", choices = colnames_empty(var_categorical(datos)))
-    updateSelectInput(session, "sel.resumen", choices = colnames_empty(datos))
-    updateSelectInput(session, "sel.predic.var", choices = rev(colnames_empty(var_numerical(datos))))
-  }
-  
-  # Executes the code of correlations
-  run_cor_model <- function() {
-    tryCatch({
-      isolate(exe(text = cor_model()))
-      output$txtcor <- renderPrint(print(correlacion))
-    }, error = function(e) {
-      return(datos <- NULL)
-    })
-  }
   
   # Clears model data
   delete_models <- function(flag.datos = TRUE) {
@@ -203,9 +190,7 @@ mod_load_data_server <- function(input, output, session){
     
     updateAceEditor(session, "fieldCodeData", value = paste0(codigo.carga, "\n", codigo.na))
     
-    aqualize_selecctors()
-    
-    run_cor_model()
+    updateData$datos <- datos
     
     delete_models()
     
@@ -223,9 +208,7 @@ mod_load_data_server <- function(input, output, session){
     
     updateAceEditor(session, "fieldCodeTrans", value = code.res)
     
-    aqualize_selecctors()
-    
-    run_cor_model()
+    updateData$datos <- datos
     
     delete_models()
     
@@ -307,6 +290,8 @@ mod_load_data_server <- function(input, output, session){
       
       
       segmentar.datos(codigo)
+      updateData$datos.aprendizaje <- datos.aprendizaje
+      updateData$datos.prueba <- datos.prueba
 
       new_section_report()
       

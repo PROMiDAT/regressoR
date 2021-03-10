@@ -137,9 +137,9 @@ numerical_distribution <- function(var, var.name, color){
 categorical_distribution <- function(var) {
   colores <- sapply(levels(var),function(i) rgb(runif(1), runif(1), runif(1), 0.8))
   data <- data.frame(label = levels(var), value = summary(var))
-  ggplot(data, aes(data$label, data$value)) +
+  ggplot(data, aes(label, value)) +
     geom_bar(stat = 'identity', fill = colores) +
-    geom_text(aes(label = data$value, y = data$value), vjust = -0.5, size = 4) +
+    geom_text(aes(label = value, y = value), vjust = -0.5, size = 4) +
     theme_minimal() + ggplot2::labs(x = "label", y = "value")
 }
 

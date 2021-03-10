@@ -36,8 +36,10 @@ app_ui <- function(request) {
     library(zip)
     library(pls)
   }))
+  
   # MENU --------------------------------------------------------------------------------------------------------------------
   load.menu <- menuItem(labelInput("data"), tabName = "cargar", icon = icon("dashboard"))
+
   
   statistics.menu <- menuItem(labelInput("basico"), tabName = "parte1", icon = icon("th-list"),
                               menuSubItem(labelInput("resumen"), tabName = "resumen", icon = icon("sort-numeric-asc")),
@@ -117,9 +119,9 @@ app_ui <- function(request) {
     # Leave this function for adding external resources
     golem_add_external_resources(),
     # List the first level UI elements here 
-    dashboardPagePlus(
+    dashboardPage(
       title="PROMiDAT - RegressoR",
-      dashboardHeaderPlus(
+      dashboardHeader(
         title = tags$a(href="https://promidat.com", target = "_blank",
                        img(src="img/Logo2.png", height=55, width="100%",
                            id="imgPromidat"))),
@@ -128,7 +130,13 @@ app_ui <- function(request) {
                     load.page,
                     tabItems(
                       tabItem(tabName = "cargar",  mod_load_data_ui("load_data_ui_1")),
-                      tabItem(tabName = "parte1",  mod_basic_stats_ui("basic_stats_ui_1"))))
+                      tabItem(tabName = "resumen",  mod_r_numerico_ui("r_numerico_ui_1")),
+                      tabItem(tabName = "normalidad",  mod_normal_ui("normal_ui_1")),
+                      tabItem(tabName = "dispersion",  mod_dispersion_ui("dispersion_ui_1")),
+                      tabItem(tabName = "distribucion",  mod_distribuciones_ui("distribuciones_ui_1")),
+                      tabItem(tabName = "correlacion",  mod_correlacion_ui("correlacion_ui_1")),
+                      tabItem(tabName = "poderPred",  mod_Predictive_Power_ui("Predictive_Power_ui_1"))
+                      ))
       )
     
   )

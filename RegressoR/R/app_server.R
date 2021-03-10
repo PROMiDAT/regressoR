@@ -41,13 +41,10 @@ app_server <- function( input, output, session ) {
   shinyjs::disable(selector = 'a[href^="#shiny-tab-poderPred"]')
   shinyjs::disable(selector = 'a[href^="#shiny-tab-parte1"]')
   
-  # Some code fields that are not parameter-dependent
-  updateAceEditor(session, "fieldCodeResum", value = code_summary())
-  updateAceEditor(session, "fieldModelCor" , value = cor_model())
-  updateAceEditor(session, "fieldFuncNum"  , extract_code("numerical_distribution"))
-  updateAceEditor(session, "fieldFuncCat"  , extract_code("categorical_distribution"))
   
   # REACTIVE VALUES -------------------------------------------------------------------------------------------------------
+  #updateData always has the same values of the global variables(datos, datos.prueba, datos.aprendizaje).
+  updateData <- reactiveValues(datos = NULL, datos.prueba = NULL, datos.aprendizaje = NULL)
   
   updatePlot <- reactiveValues(calc.normal = default_calc_normal(), 
                                normal      = NULL, 
@@ -73,6 +70,11 @@ app_server <- function( input, output, session ) {
     
     
   ###################################  Modules  ###############################
-  callModule(mod_load_data_server,"load_data_ui_1")
-  callModule(mod_basic_stats_server, "basic_stats_ui_1",updatePlot,disp.ranges)
+  callModule(mod_load_data_server,"load_data_ui_1",updateData)
+  callModule(mod_r_numerico_server, "r_numerico_ui_1",updateData)
+  callModule(mod_normal_server, "normal_ui_1",updateData, updatePlot,disp.ranges)
+  callModule(mod_dispersion_server, "dispersion_ui_1", updateData, updatePlot,disp.ranges)
+  callModule(mod_distribuciones_server, "distribuciones_ui_1", updateData, updatePlot,disp.ranges)
+  callModule(mod_correlacion_server, "correlacion_ui_1", updateData, updatePlot,disp.ranges)
+  callModule(mod_Predictive_Power_server, "Predictive_Power_ui_1", updateData, updatePlot,disp.ranges)
 }
