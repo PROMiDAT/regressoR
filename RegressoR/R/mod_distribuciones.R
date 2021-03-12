@@ -108,8 +108,7 @@ mod_distribuciones_server <- function(input, output, session, updateData, update
   })
   
   # Creates the atypical table
-  #c(input$distribucion_numerica, input$sel.distribucion.num)
-  observeEvent(input$sel.distribucion.num, {
+  observeEvent(c(input$distribucion_numerica), {
     output$mostrarAtipicos <- DT::renderDataTable({
       atipicos <- boxplot.stats(datos[, input$sel.distribucion.num])
       datos <- datos[datos[, input$sel.distribucion.num] %in% atipicos$out, input$sel.distribucion.num, drop = F]

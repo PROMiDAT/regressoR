@@ -5,7 +5,7 @@ var promidat_flat_models = {knn: true, dt: true, rf: true,
 nya_btn = true;
 
 function nya_btn_fun(e){
-  nya_btn = nya_btn?($("#distribucion_numerica").click(),false):true;
+  nya_btn = nya_btn?($("#distribuciones_ui_1-distribucion_numerica").click(),false):true;
 }
 
 function promidat_model_firt(e, model, id){
@@ -30,18 +30,18 @@ function promidat_model_firt(e, model, id){
   $("a[href^='#shiny-tab-rlr']").on('click', function(e){promidat_model_firt(e,"rlr","runRlr")});
   $("a[href^='#shiny-tab-rd']").on('click', function(e){promidat_model_firt(e,"rd","runRd")});
   $("a[data-value='predicModelo']").on('click', function(e){ $("#predecirPromidat").click()});
-  $($($($("#tabDyA").next().children()[2]).children()[4]).children()[2]).on('click', nya_btn_fun)
-  $("#segmentButton").on('click',function(e){
+  $($($($("#distribuciones_ui_1-tabDyA").next().children()[2]).children()[4]).children()[2]).on('click', nya_btn_fun)
+  $("#load_data_ui_1-segmentButton").on('click',function(e){
     promidat_flat_models = {knn: true, dt: true, rf: true, boosting: true, svm: true, rl: true, nn: true, rlr: true, rd:true};
   });
 });
 
 
 function eliminar_tabs_extras(){
-  $("ul#BoxNormal li")[2].remove();
-  $("ul#BoxDisp li")[1].remove();
-  $("ul#tabDyA li")[2].remove();
-  $("ul#tabCor li").last().remove();
+  $("ul#normal_ui_1-BoxNormal li")[2].remove();
+  $("ul#dispersion_ui_1-BoxDisp li")[1].remove();
+  $("ul#distribuciones_ui_1-tabDyA li")[2].remove();
+  $("ul#correlacion_ui_1-tabCor li").last().remove();
   $("ul#BoxKnn li").last().remove();
   $("ul#BoxDt li").last().remove();
   $("ul#BoxRf li").last().remove();
