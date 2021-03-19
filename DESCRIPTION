@@ -1,16 +1,17 @@
 Title: Regression Data Analysis System
 Package: regressoR
 Type: Package
-Version: 1.1.9
+Version: 1.2.0
 Authors@R: c(
     person("Oldemar", "Rodriguez R.", email = "oldemar.rodriguez@ucr.ac.cr", role = c("aut","cre")),
     person("Andres", "Navarro D.", role = c("ctb","prg")),
-    person("Diego", "Jimenez A.", role = c("ctb","prg")))
+    person("Diego", "Jimenez A.", role = c("ctb","prg")),
+    person("Ariel", "Arroyo S.", role = c("ctb","prg")))
 Depends: R (>= 3.5)
 Imports:
     shiny (>= 1.2.0),
     shinyAce (>= 0.3.3),
-    shinydashboardPlus (>= 0.6.0),
+    shinydashboardPlus (>= 2.0.0),
     shinyWidgets (>= 0.4.4),
     shinyjs (>= 1.0),
     flexdashboard (>= 0.5.1.1),
@@ -37,5 +38,5 @@ Description: Perform a supervised data analysis on a database through a 'shiny' 
 License: GPL (>=2)
 Encoding: UTF-8
 LazyData: true
-URL: http://www.promidat.com
-RoxygenNote: 7.1.0
+URL: https://www.promidat.com
+RoxygenNote: 7.1.1
