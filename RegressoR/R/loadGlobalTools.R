@@ -7,5 +7,6 @@ load_globals <- function(envir = .GlobalEnv){
   source("R/GlobalEnv/plots_manipulation.R", local = envir, echo = FALSE )
   source("R/GlobalEnv/report_manipulation.R", local = envir, echo = FALSE )
   source("R/GlobalEnv/string_manipulation.R", local = envir, echo = FALSE )
+  source("R/GlobalEnv/utils_inputs.R", local = envir, echo = FALSE )
   source("R/GlobalEnv/shiny_tools.R", local = envir, echo = FALSE )
 }

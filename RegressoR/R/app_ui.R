@@ -93,7 +93,7 @@ app_ui <- function(request) {
                          supervised.learning.menu,
                          compare.menu,
                          new.prediction.menu,
-                         report.menu,
+                         #report.menu,
                          info.menu,
                          hr(),
                          menu.language,
@@ -104,10 +104,8 @@ app_ui <- function(request) {
   
   #Imports .css and .js, also decide the icon
   mi.head <- tags$head(
-    tags$link(rel = "stylesheet", type = "text/css", href = "style_regressor.css"),
-    tags$link(rel="icon", href="http://www.promidat.org/theme/image.php/formal_white/theme/1438713216/favicon"),
-    useShinyjs(),
-    tags$script(src = "script_regressor.js"))
+    tags$link(rel="icon", href="https://www.promidat.org/theme/image.php/formal_white/theme/1438713216/favicon"),
+    useShinyjs())
   
   #The loading page
   load.page <- conditionalPanel(condition="($('html').hasClass('shiny-busy'))",
