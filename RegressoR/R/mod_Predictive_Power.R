@@ -51,7 +51,7 @@ mod_Predictive_Power_server <- function(input, output, session, updateData, upda
         if (ncol(var_numerical(datos)) >= 2) {
           if(ncol(var_numerical(datos)) <= 25){
             res <- isolate(exe(cod.poder.num))
-            insert_report("poder.num","Poder Predictivo Variables Num\u00E9ricas", cod.poder.num)
+            #insert_report("poder.num","Poder Predictivo Variables Num\u00E9ricas", cod.poder.num)
             return(res)
           }else{
             showNotification(translate("bigPlot"), duration = 10, type = "message")

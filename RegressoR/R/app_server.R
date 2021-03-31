@@ -44,7 +44,7 @@ app_server <- function( input, output, session ) {
   
   # REACTIVE VALUES -------------------------------------------------------------------------------------------------------
   #updateData always has the same values of the global variables(datos, datos.prueba, datos.aprendizaje).
-  updateData <- reactiveValues(datos = NULL, datos.prueba = NULL, datos.aprendizaje = NULL)
+  updateData <- reactiveValues(datos = NULL, datos.prueba = NULL, datos.aprendizaje = NULL, IndicesM = list())
   
   updatePlot <- reactiveValues(calc.normal = default_calc_normal(), 
                                normal      = NULL, 
@@ -77,4 +77,7 @@ app_server <- function( input, output, session ) {
   callModule(mod_distribuciones_server, "distribuciones_ui_1", updateData, updatePlot,disp.ranges)
   callModule(mod_correlacion_server, "correlacion_ui_1", updateData, updatePlot,disp.ranges)
   callModule(mod_Predictive_Power_server, "Predictive_Power_ui_1", updateData, updatePlot,disp.ranges)
+  callModule(mod_linear_regression_server, "linear_regression_ui_1",updateData, updatePlot)
+  callModule(mod_model_comparison_server, "model_comparison_ui_1",updateData,updatePlot)
+  callModule(mod_information_page_server, "information_page_ui_1")
 }

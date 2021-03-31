@@ -133,7 +133,10 @@ app_ui <- function(request) {
                       tabItem(tabName = "dispersion",  mod_dispersion_ui("dispersion_ui_1")),
                       tabItem(tabName = "distribucion",  mod_distribuciones_ui("distribuciones_ui_1")),
                       tabItem(tabName = "correlacion",  mod_correlacion_ui("correlacion_ui_1")),
-                      tabItem(tabName = "poderPred",  mod_Predictive_Power_ui("Predictive_Power_ui_1"))
+                      tabItem(tabName = "poderPred",  mod_Predictive_Power_ui("Predictive_Power_ui_1")),
+                      tabItem(tabName = "rl",  mod_linear_regression_ui("linear_regression_ui_1")),
+                      tabItem(tabName = "comparar",  mod_model_comparison_ui("model_comparison_ui_1")),
+                      tabItem(tabName = "acercaDe",  mod_information_page_ui("information_page_ui_1"))
                       ))
       )
     

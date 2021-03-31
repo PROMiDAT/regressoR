@@ -8,8 +8,9 @@
 #'
 #' @importFrom shiny NS tagList 
 mod_model_comparison_ui <- function(id){
+  ns <- NS(id)
   
-  model.selector <- checkboxGroupButtons("select.models", labelInput("selectMod"), c(" ---- " = "NoDisponible"),
+  model.selector <- checkboxGroupButtons(ns("select.models"), labelInput("selectMod"), c(" ---- " = "NoDisponible"),
                                          size = "sm", status = "primary",
                                          checkIcon = list(yes = icon("ok", lib = "glyphicon"),
                                                           no = icon("remove", lib = "glyphicon")))
@@ -23,29 +24,31 @@ mod_model_comparison_ui <- function(id){
                                   tabs.content = list(comparison.options))
   
   table.comparison.panel <- tabPanel(title = labelInput("tablaComp"),
-                                     DT::dataTableOutput("TablaComp", height="70vh"))
+                                     DT::dataTableOutput(ns("TablaComp"), height="70vh"))
   
   page.comparison <- tabItem(tabName = "comparar",
-                             tabBox(id = "BoxCom", width = NULL, height ="80%",
+                             tabBox(id = ns("BoxCom"), width = NULL, height ="80%",
                                     table.comparison.panel,
                                     tabs.comparison))
   
-  ns <- NS(id)
   tagList(
- 
+    page.comparison
   )
 }
     
 #' model_comparison Server Function
 #'
 #' @noRd 
-mod_model_comparison_server <- function(input, output, session){
+mod_model_comparison_server <- function(input, output, session, updateData, updatePlot){
   ns <- session$ns
  
+  observeEvent(updateData$IndicesM,{
+    update_comparative_selector()
+  })
   
   # Updates the selectors in the comparison table page
   update_comparative_selector <- function(){
-    nombres <- models_mode(IndicesM)
+    nombres <- models_mode(updateData$IndicesM)
     shinyWidgets::updateCheckboxGroupButtons(session,"select.models",choices = sort(nombres),selected = sort(nombres),
                                              status = "primary",checkIcon = list(yes = icon("ok", lib = "glyphicon"),
                                                                                  no = icon("remove", lib = "glyphicon")))
@@ -56,7 +59,7 @@ mod_model_comparison_server <- function(input, output, session){
     graficar <- updatePlot$tablaCom
     if (!is.null(datos.aprendizaje)) {
       
-      insert_report("tabla.comparativa","Tabla Comparativa","kt(comparative_table(",as_string_c(input$select.models),",IndicesM) )")
+      #insert_report("tabla.comparativa","Tabla Comparativa","kt(comparative_table(",as_string_c(input$select.models),",IndicesM) )")
       
       DT::datatable(comparative_table(input$select.models),
                     selection = "none", editable = FALSE,

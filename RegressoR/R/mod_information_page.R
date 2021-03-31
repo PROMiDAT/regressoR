@@ -11,7 +11,7 @@ mod_information_page_ui <- function(id){
   ns <- NS(id)
   
   page.info <- tabItem(tabName = "acercaDe",
-                       img(src="Logo.png", style="padding-bottom:20px;margin-left: auto;margin-right: auto;display: block;width: 50%;"),
+                       img(src="img/Logo.png", style="padding-bottom:20px;margin-left: auto;margin-right: auto;display: block;width: 50%;"),
                        infoBoxPROMiDAT(labelInput("copyright"), "PROMiDAT S.A.", icon = icon("copyright")),
                        infoBoxPROMiDAT(labelInput("info"), tags$a( href="https://www.promidat.com/", style = "color:white;",
                                                                    target = "_blank", "https://www.promidat.com"), icon = icon("info")),
@@ -28,7 +28,6 @@ mod_information_page_ui <- function(id){
 #' @noRd 
 mod_information_page_server <- function(input, output, session){
   ns <- session$ns
- 
 }
     
 ## To be copied in the UI

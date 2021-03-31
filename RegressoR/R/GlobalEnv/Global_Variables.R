@@ -20,7 +20,7 @@ cod.dya.cat   <- NULL
 cod.dya.num   <- NULL
 cod.normal    <- NULL
 # -- Models
-IndicesM  <- list()
+#IndicesM  <- list()  ahora en updateData
 # -- RL
 cod.rl.modelo <- NULL
 cod.rl.pred   <- NULL

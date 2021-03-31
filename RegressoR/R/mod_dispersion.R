@@ -60,9 +60,9 @@ mod_dispersion_server <- function(input, output, session, updateData, updatePlot
       tryCatch({
         cod.disp <<- updatePlot$disp
         updateAceEditor(session, "fieldCodeDisp", value = cod.disp)
-        if(!is.null(cod.disp) && cod.disp != "") {
-          insert_report(paste0("dispersion.", paste(input$select.var, collapse = ".")), "Dispersi\u00F3n", cod.disp)
-        }
+        # if(!is.null(cod.disp) && cod.disp != "") {
+        #   insert_report(paste0("dispersion.", paste(input$select.var, collapse = ".")), "Dispersi\u00F3n", cod.disp)
+        # }
         return(isolate(exe(cod.disp)))
       }, error = function(e) {
         if(ncol(var_numerical(datos)) <= 1){

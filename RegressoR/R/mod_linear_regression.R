@@ -11,50 +11,50 @@ mod_linear_regression_ui <- function(id){
   ns <- NS(id)
   
   rl.code  <- list(fluidRow(column(width = 9,h4(labelInput("codigo"))),
-                            column(width = 2,br(),actionButton("runRl", label = labelInput("ejecutar"), icon = icon("play")))),
+                            column(width = 2,br(),actionButton(ns("runRl"), label = labelInput("ejecutar"), icon = icon("play")))),
                    hr(),
                    conditionalPanel("input.BoxRl == 'tabRlModelo'",
-                                    aceEditor("fieldCodeRl", mode = "r", theme = "monokai",
+                                    aceEditor(ns("fieldCodeRl"), mode = "r", theme = "monokai",
                                               value = "", height = "3vh", readOnly = F, autoComplete = "enabled")),
                    conditionalPanel("input.BoxRl == 'tabRlCoef'",
-                                    aceEditor("fieldCodeRlCoef", mode = "r", theme = "monokai",
+                                    aceEditor(ns("fieldCodeRlCoef"), mode = "r", theme = "monokai",
                                               value = "", height = "10vh", readOnly = F, autoComplete = "enabled")),
                    conditionalPanel("input.BoxRl == 'tabRlPred'",
-                                    aceEditor("fieldCodeRlPred", mode = "r", theme = "monokai",
+                                    aceEditor(ns("fieldCodeRlPred"), mode = "r", theme = "monokai",
                                               value = "", height = "3vh", readOnly = F, autoComplete = "enabled")),
                    conditionalPanel("input.BoxRl == 'tabRlDisp'",
-                                    aceEditor("fieldCodeRlDisp", mode = "r", theme = "monokai",
+                                    aceEditor(ns("fieldCodeRlDisp"), mode = "r", theme = "monokai",
                                               value = "", height = "3vh", readOnly = F, autoComplete = "enabled")),
                    conditionalPanel("input.BoxRl == 'tabRlIndex'",
-                                    aceEditor("fieldCodeRlIG", mode = "r", theme = "monokai",
+                                    aceEditor(ns("fieldCodeRlIG"), mode = "r", theme = "monokai",
                                               value = "", height = "22vh", readOnly = F, autoComplete = "enabled")))
   
   tabs.rl  <- tabsOptions(buttons = list(icon("code")), widths = c(100), heights = c(95),
                           tabs.content = list(rl.code))
   
   generate.rl.panel <- tabPanel(title = labelInput("generatem"),value = "tabRlModelo",
-                                verbatimTextOutput("txtRl"))
+                                verbatimTextOutput(ns("txtRl")))
   
   coefficients.rl.panel <- tabPanel(title = labelInput("coeff"), value = "tabRlCoef",
-                                    DT::dataTableOutput("rlCoefTable"))
+                                    DT::dataTableOutput(ns("rlCoefTable")))
   
   prediccion.rl.panel <- tabPanel(title = labelInput("predm"), value = "tabRlPred",
-                                  DT::dataTableOutput("rlPrediTable"))
+                                  DT::dataTableOutput(ns("rlPrediTable")))
   
   disp.rl.panel <- tabPanel(title = labelInput("dispersion"), value = "tabRlDisp",
-                            plotOutput('plot.rl.disp', height = "55vh"))
+                            plotOutput(ns('plot.rl.disp'), height = "55vh"))
   
   rl.general.index.panel <- tabPanel(title = labelInput("indices"), value = "tabRlIndex",
                                      br(),
-                                     fluidRow(tableOutput('indexdfrl')),
+                                     fluidRow(tableOutput(ns('indexdfrl'))),
                                      br(),
                                      fluidRow(column(width = 12, align="center", tags$h3(labelInput("resumenVarPre")))),
                                      br(),
-                                     fluidRow(tableOutput('indexdfrl2')))
+                                     fluidRow(tableOutput(ns('indexdfrl2'))))
   
   
   page.rl <- tabItem(tabName = "rl",
-                     tabBox(id = "BoxRl", width = NULL, height ="80%",
+                     tabBox(id = ns("BoxRl"), width = NULL, height ="80%",
                             generate.rl.panel,
                             coefficients.rl.panel,
                             prediccion.rl.panel,
@@ -63,14 +63,20 @@ mod_linear_regression_ui <- function(id){
                             tabs.rl))
   
   tagList(
+    page.rl
   )
 }
     
 #' linear_regression Server Function
 #'
 #' @noRd 
-mod_linear_regression_server <- function(input, output, session){
+mod_linear_regression_server <- function(input, output, session, updateData, updatePlot){
   ns <- session$ns
+  
+  # change model codes
+  observeEvent(updateData$datos.aprendizaje,{
+    deafult_codigo_rl()
+  })
   
   # When the rl model is generated
   observeEvent(input$runRl, {
@@ -113,15 +119,15 @@ mod_linear_regression_server <- function(input, output, session){
       switch(i, {
         modelo.rl <<- NULL
         output$txtRl <- renderPrint(invisible(""))
-        remove_report_elem("modelo.rl")
-        remove_report_elem("disp.rl")
+        # remove_report_elem("modelo.rl")
+        # remove_report_elem("disp.rl")
       }, {
         prediccion.rl <<- NULL
-        remove_report_elem("pred.rl")
+        #remove_report_elem("pred.rl")
         output$rlPrediTable <- DT::renderDataTable(NULL)
       },{
         indices.rl <<- rep(0, 10)
-        remove_report_elem("ind.rl")
+        #remove_report_elem("ind.rl")
       })
     }
   }
@@ -130,7 +136,7 @@ mod_linear_regression_server <- function(input, output, session){
   plot_disp_rl <- function(){
     tryCatch({ # Se corren los codigo
       output$plot.rl.disp <- renderPlot(exe(input$fieldCodeRlDisp))
-      insert_report("disp.rl", "Dispersi\u00F3n del Modelo Regresi\u00F3n Lineal", input$fieldCodeRlDisp)
+      #insert_report("disp.rl", "Dispersi\u00F3n del Modelo Regresi\u00F3n Lineal", input$fieldCodeRlDisp)
     },
     error = function(e) { # Regresamos al estado inicial y mostramos un error
       clean_rl(2)
@@ -143,8 +149,8 @@ mod_linear_regression_server <- function(input, output, session){
     tryCatch({ # Se corren los codigo
       isolate(exe(input$fieldCodeRlCoef))
       
-      output$rlCoefTable <- regressoR::render_table_data(df.rl[,c(1,4)], server = FALSE)
-      insert_report("coeff.rl", "Coeficientes del Modelo Regresi\u00F3n Lineal", input$fieldCodeRlCoef, "\ndf.rl")
+      output$rlCoefTable <- render_table_data(df.rl[,c(1,4)], server = FALSE)
+      #insert_report("coeff.rl", "Coeficientes del Modelo Regresi\u00F3n Lineal", input$fieldCodeRlCoef, "\ndf.rl")
     },
     error = function(e) { # Regresamos al estado inicial y mostramos un error
       clean_rl(1)
@@ -165,7 +171,7 @@ mod_linear_regression_server <- function(input, output, session){
       isolate(exe(cod.rl.modelo))
       output$txtRl <- renderPrint(print(summary(modelo.rl)))
       
-      insert_report("modelo.rl","Generaci\u00F3n del Modelo Regresi\u00F3n Lineal", cod.rl.modelo,"\nsummary(modelo.rl)")
+      #insert_report("modelo.rl","Generaci\u00F3n del Modelo Regresi\u00F3n Lineal", cod.rl.modelo,"\nsummary(modelo.rl)")
       coefficients_rl()
       
       nombres.modelos <<- c(nombres.modelos, "modelo.rl")
@@ -183,8 +189,8 @@ mod_linear_regression_server <- function(input, output, session){
       
       output$rlPrediTable <- DT::renderDataTable(tb_predic(real.val, prediccion.rl), server = FALSE)
       
-      insert_report("pred.rl", "Predicci\u00F3n del Modelo Regresi\u00F3n Lineal",cod.rl.pred,
-                    "\nkt(head(tb_predic(real.val, prediccion.rl)$x$data[,-1]))", interpretation = FALSE)
+      # insert_report("pred.rl", "Predicci\u00F3n del Modelo Regresi\u00F3n Lineal",cod.rl.pred,
+      #               "\nkt(head(tb_predic(real.val, prediccion.rl)$x$data[,-1]))", interpretation = FALSE)
       
       plot_disp_rl()
       
@@ -206,10 +212,10 @@ mod_linear_regression_server <- function(input, output, session){
         
         indices.rl <- general_indices(datos.prueba[,variable.predecir], prediccion.rl)
         
-        insert_report("ind.rl","\u00CDndices Generales del Modelo Regresi\u00F3n Lineal", cod.rl.ind,
-                      "\nkt(general_indices(datos.prueba[,'", variable.predecir, "'], prediccion.rl))\n",
-                      "indices.rl<- general_indices(datos.prueba[,'",variable.predecir,"'], prediccion.rl)\n",
-                      "IndicesM[['rll']] <- indices.rl")
+        # insert_report("ind.rl","\u00CDndices Generales del Modelo Regresi\u00F3n Lineal", cod.rl.ind,
+        #               "\nkt(general_indices(datos.prueba[,'", variable.predecir, "'], prediccion.rl))\n",
+        #               "indices.rl<- general_indices(datos.prueba[,'",variable.predecir,"'], prediccion.rl)\n",
+        #               "IndicesM[['rll']] <- indices.rl")
         
         df <- cbind(as.data.frame(indices.rl), r2)
         df <- df[,c(1,2,3,5,4)]
@@ -221,8 +227,7 @@ mod_linear_regression_server <- function(input, output, session){
         output$indexdfrl2 <- render_index_table(df2)
         
         nombres.modelos <<- c(nombres.modelos, "indices.rl")
-        IndicesM[["rll"]] <<- indices.rl
-        update_comparative_selector()
+        updateData$IndicesM[["rll"]] <<- indices.rl
       },
       error = function(e) { # Regresamos al estado inicial y mostramos un error
         clean_rl(3)

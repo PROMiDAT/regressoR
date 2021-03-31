@@ -26,7 +26,7 @@ function promidat_model_firt(e, model, id){
   $("a[href^='#shiny-tab-boosting']").on('click', function(e){promidat_model_firt(e,"boosting","runBoosting")});
   $("a[href^='#shiny-tab-svm']").on('click', function(e){promidat_model_firt(e,"svm","runSvm")});
   $("a[href^='#shiny-tab-nn']").on('click', function(e){promidat_model_firt(e,"nn","runNn")});
-  $("a[href$='#shiny-tab-rl']").on('click', function(e){promidat_model_firt(e,"rl","runRl")});
+  $("a[href$='#shiny-tab-rl']").on('click', function(e){promidat_model_firt(e,"rl","linear_regression_ui_1-runRl")});
   $("a[href^='#shiny-tab-rlr']").on('click', function(e){promidat_model_firt(e,"rlr","runRlr")});
   $("a[href^='#shiny-tab-rd']").on('click', function(e){promidat_model_firt(e,"rd","runRd")});
   $("a[data-value='predicModelo']").on('click', function(e){ $("#predecirPromidat").click()});
@@ -47,13 +47,13 @@ function eliminar_tabs_extras(){
   $("ul#BoxRf li").last().remove();
   $("ul#BoxB li").last().remove();
   $("ul#BoxSvm li").last().remove();
-  $("ul#BoxCom li").last().remove();
+  $("ul#model_comparison_ui_1-BoxCom li").last().remove();
   $("ul#BoxModelo li").last().remove();
   $("ul#BoxModelo li").last().remove();
   $("ul#BoxPodPred li").last().remove();
   $("ul#BoxPodPred li").last().remove();
   $("ul#BoxNn li").last().remove();
-  $("ul#BoxRl li").last().remove();
+  $("ul#linear_regression_ui_1-BoxRl li").last().remove();
   $("ul#BoxRd li").last().remove();
 }
 
