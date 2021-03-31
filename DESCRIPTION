@@ -17,7 +17,6 @@ Imports:
     flexdashboard (>= 0.5.1.1),
     neuralnet (>= 1.44.2),
     rpart (>= 4.1-13),
-    rattle (>= 5.2.0),
     xgboost (>= 0.81.0.1),
     colourpicker (>= 1.0),
     DT (>= 0.5),
@@ -27,13 +26,10 @@ Imports:
     corrplot (>= 0.84),
     ROCR (>= 1.0-7),
     glmnet (>= 2.0-16),
-    gbm (>= 2.1.5),
-    pls (>= 2.7-1),
-    zip (>= 2.0.0),
     ggplot2 (>= 3.1.0),
     dplyr (>= 0.8.0.1),
     htmltools (>= 0.3.6)
-Suggests: forcats, gridExtra, tibble, scales, scatterplot3d, psych, dummies, testthat
+Suggests: forcats, gridExtra, tibble, scales, scatterplot3d, psych, dummies, testthat, zip, pls, gbm, rattle
 Description: Perform a supervised data analysis on a database through a 'shiny' graphical interface. It includes methods such as linear regression, penalized regression, k-nearest neighbors, decision trees, ada boosting, extreme gradient boosting, random forest, neural networks, deep learning and support vector machines.
 License: GPL (>=2)
 Encoding: UTF-8
