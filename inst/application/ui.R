@@ -1,4 +1,3 @@
-
 suppressMessages(suppressWarnings({
   library(regressoR)
   library(DT)
@@ -7,11 +6,8 @@ suppressMessages(suppressWarnings({
   library(shiny)
   library(e1071)
   library(rpart)
-  library(knitr)
   library(glmnet)
-  library(rattle)
   library(xtable)
-  library(xgboost)
   library(shinyjs)
   library(ggplot2)
   library(stringr)
@@ -26,8 +22,8 @@ suppressMessages(suppressWarnings({
   library(flexdashboard)
   library(shinydashboard)
   library(shinydashboardPlus)
+  library(rattle)
   library(dplyr)
-  library(zip)
   library(pls)
 }))
 
@@ -1118,7 +1114,7 @@ page.info <- tabItem(tabName = "acercaDe",
                        infoBoxPROMiDAT(labelInput("copyright"), "PROMiDAT S.A.", icon = icon("copyright")),
                        infoBoxPROMiDAT(labelInput("info"), tags$a( href="https://www.promidat.com/", style = "color:white;",
                                                                    target = "_blank", "https://www.promidat.com"), icon = icon("info")),
-                       infoBoxPROMiDAT(labelInput("version"), "1.2.0", icon = icon("file-code-o")))
+                       infoBoxPROMiDAT(labelInput("version"), "1.2.1", icon = icon("file-code-o")))
 
 # FULL PAGE ---------------------------------------------------------------------------------------------------------------
 
