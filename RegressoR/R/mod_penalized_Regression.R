@@ -12,73 +12,73 @@ mod_penalized_Regression_ui <- function(id){
   
   
   rlr.options <- list(fluidRow(column(width = 9,h4(labelInput("opciones"))),
-                               column(width = 2,br(),actionButton("runRlr", label = labelInput("ejecutar"), icon = icon("play")))),
+                               column(width = 2,br(),actionButton(ns("runRlr"), label = labelInput("ejecutar"), icon = icon("play")))),
                       hr(),
-                      fluidRow(column(selectInput(inputId = "alpha.rlr", label = labelInput("selectAlg"), selected = 1,
+                      fluidRow(column(selectInput(inputId = ns("alpha.rlr"), label = labelInput("selectAlg"), selected = 1,
                                                   choices = list("Ridge" = 0, "Lasso" = 1)),width = 6),
-                               column(br(), switchInput(inputId = "switch.scale.rlr", onStatus = "success", offStatus = "danger", value = T,
+                               column(br(), switchInput(inputId = ns("switch.scale.rlr"), onStatus = "success", offStatus = "danger", value = T,
                                                         label = labelInput("escal"), onLabel = labelInput("si"), offLabel = labelInput("no"), labelWidth = "100%"), width=6)),
-                      fluidRow(column(id = "colManualLanda",width = 5, numericInput("landa", labelInput("landa"),value = 2, "NULL", width = "100%")), br(),
-                               column(width = 6, switchInput(inputId = "permitir.landa", onStatus = "success", offStatus = "danger", value = F, width = "100%",
+                      fluidRow(column(id = ns("colManualLanda"),width = 5, numericInput(ns("landa"), labelInput("landa"),value = 2, "NULL", width = "100%")), br(),
+                               column(width = 6, switchInput(inputId = ns("permitir.landa"), onStatus = "success", offStatus = "danger", value = F, width = "100%",
                                                              label = "", onLabel = "Manual", offLabel = labelInput("automatico"), labelWidth = "100%"),
                                       style = "padding-top: 5px;")))
   
   rlr.code  <- list(fluidRow(column(width = 9, h4(labelInput("codigo")))),
                     hr(),
                     conditionalPanel("input.BoxRlr == 'tabRlrModelo'",
-                                     aceEditor("fieldCodeRlr", mode = "r", theme = "monokai",
-                                               value = "", height = "8vh", readOnly = F, autoComplete = "enabled")),
+                                     aceEditor(ns("fieldCodeRlr"), mode = "r", theme = "monokai",
+                                               value = "", height = "8vh", readOnly = F, autoComplete = "enabled"),ns = ns),
                     conditionalPanel("input.BoxRlr == 'tabRlrLanda'",
-                                     aceEditor("fieldCodeRlrLanda", mode = "r", theme = "monokai",
-                                               value = "", height = "8vh", readOnly = F, autoComplete = "enabled")),
+                                     aceEditor(ns("fieldCodeRlrLanda"), mode = "r", theme = "monokai",
+                                               value = "", height = "8vh", readOnly = F, autoComplete = "enabled"),ns = ns),
                     conditionalPanel("input.BoxRlr == 'tabRlrPosibLanda'",
-                                     aceEditor("fieldCodeRlrPosibLanda", mode = "r", theme = "monokai",
-                                               value = "", height = "8vh", readOnly = F, autoComplete = "enabled")),
+                                     aceEditor(ns("fieldCodeRlrPosibLanda"), mode = "r", theme = "monokai",
+                                               value = "", height = "8vh", readOnly = F, autoComplete = "enabled"),ns = ns),
                     conditionalPanel("input.BoxRlr == 'tabRlrCoeff'",
-                                     aceEditor("fieldCodeRlrCoeff", mode = "r", theme = "monokai",
-                                               value = "", height = "8vh", readOnly = F, autoComplete = "enabled")),
+                                     aceEditor(ns("fieldCodeRlrCoeff"), mode = "r", theme = "monokai",
+                                               value = "", height = "8vh", readOnly = F, autoComplete = "enabled"),ns = ns),
                     conditionalPanel("input.BoxRlr == 'tabRlrPred'",
-                                     aceEditor("fieldCodeRlrPred", mode = "r", theme = "monokai",
-                                               value = "", height = "10vh", readOnly = F, autoComplete = "enabled")),
+                                     aceEditor(ns("fieldCodeRlrPred"), mode = "r", theme = "monokai",
+                                               value = "", height = "10vh", readOnly = F, autoComplete = "enabled"),ns = ns),
                     conditionalPanel("input.BoxRlr == 'tabRlrDisp'",
-                                     aceEditor("fieldCodeRlrDisp", mode = "r", theme = "monokai",
-                                               value = "", height = "3vh", readOnly = F, autoComplete = "enabled")),
+                                     aceEditor(ns("fieldCodeRlrDisp"), mode = "r", theme = "monokai",
+                                               value = "", height = "3vh", readOnly = F, autoComplete = "enabled"),ns = ns),
                     conditionalPanel("input.BoxRlr == 'tabRlrIndex'",
-                                     aceEditor("fieldCodeRlrIG", mode = "r", theme = "monokai",
-                                               value = "", height = "22vh", readOnly = F, autoComplete = "enabled")))
+                                     aceEditor(ns("fieldCodeRlrIG"), mode = "r", theme = "monokai",
+                                               value = "", height = "22vh", readOnly = F, autoComplete = "enabled"),ns = ns))
   
   tabs.rlr  <- tabsOptions(buttons = list(icon("gear"),icon("code")), widths = c(50,100), heights = c(80, 95),
                            tabs.content = list(rlr.options, rlr.code))
   
   generate.rlr.panel <- tabPanel(title = labelInput("generatem"),value = "tabRlrModelo",
-                                 verbatimTextOutput("txtRlr"))
+                                 verbatimTextOutput(ns("txtRlr")))
   
   posib.landa.rlr.panel <- tabPanel(title = labelInput("posibLanda"),value = "tabRlrPosibLanda",
-                                    plotOutput('plot.rlr.posiblanda', height = "55vh"))
+                                    plotOutput(ns('plot.rlr.posiblanda'), height = "55vh"))
   
   coeff.rlr.panel <- tabPanel(title = labelInput("coeff"),value = "tabRlrCoeff",
-                              verbatimTextOutput("txtRlrCoeff"))
+                              verbatimTextOutput(ns("txtRlrCoeff")))
   
   landa.rlr.panel <- tabPanel(title = labelInput("gcoeff"),value = "tabRlrLanda",
-                              plotOutput('plot.rlr.landa', height = "55vh"))
+                              plotOutput(ns('plot.rlr.landa'), height = "55vh"))
   
   prediccion.rlr.panel <- tabPanel(title = labelInput("predm"), value = "tabRlrPred",
-                                   DT::dataTableOutput("rlrPrediTable"))
+                                   DT::dataTableOutput(ns("rlrPrediTable")))
   
   disp.rlr.panel <- tabPanel(title = labelInput("dispersion"), value = "tabRlrDisp",
-                             plotOutput('plot.rlr.disp', height = "55vh"))
+                             plotOutput(ns('plot.rlr.disp'), height = "55vh"))
   
   rlr.general.index.panel <- tabPanel(title = labelInput("indices"), value = "tabRlrIndex",
                                       br(),
-                                      fluidRow(tableOutput('indexdfrlr')),
+                                      fluidRow(tableOutput(ns('indexdfrlr'))),
                                       br(),
                                       fluidRow(column(width = 12, align="center", tags$h3(labelInput("resumenVarPre")))),
                                       br(),
-                                      fluidRow(tableOutput('indexdfrlr2')))
+                                      fluidRow(tableOutput(ns('indexdfrlr2'))))
   
   
   page.rlr <- tabItem(tabName = "rlr",
-                      tabBox(id = "BoxRlr", width = NULL, height ="80%",
+                      tabBox(id = ns("BoxRlr"), width = NULL, height ="80%",
                              generate.rlr.panel,
                              posib.landa.rlr.panel,
                              landa.rlr.panel,
@@ -89,15 +89,20 @@ mod_penalized_Regression_ui <- function(id){
                              tabs.rlr))
   
   tagList(
- 
+    page.rlr
   )
 }
     
 #' penalized_Regression Server Function
 #'
 #' @noRd 
-mod_penalized_Regression_server <- function(input, output, session){
+mod_penalized_Regression_server <- function(input, output, session, updateData, updatePlot){
   ns <- session$ns
+  
+  # change model codes
+  observeEvent(updateData$datos.aprendizaje,{
+    deafult_codigo_rlr()
+  })
  
   # When the rlr model is generated
   observeEvent(input$runRlr, {
@@ -189,16 +194,16 @@ mod_penalized_Regression_server <- function(input, output, session){
       switch(i, {
         modelo.rlr <<- NULL
         output$txtRlr <- renderPrint(invisible(""))
-        remove_report_elem(paste0("modelo.rlr.",rlr_type()))
-        remove_report_elem(paste0("disp.rlr.",rlr_type()))
-        remove_report_elem(paste0("landa.rlr.",rlr_type()))
+        # remove_report_elem(paste0("modelo.rlr.",rlr_type()))
+        # remove_report_elem(paste0("disp.rlr.",rlr_type()))
+        # remove_report_elem(paste0("landa.rlr.",rlr_type()))
       }, {
         prediccion.rlr <<- NULL
-        remove_report_elem(paste0("pred.rlr.",rlr_type()))
+        #remove_report_elem(paste0("pred.rlr.",rlr_type()))
         output$rlrPrediTable <- DT::renderDataTable(NULL)
       },{
         indices.rlr <<- rep(0, 10)
-        remove_report_elem(paste0("ind.rlr",rlr_type()))
+        #remove_report_elem(paste0("ind.rlr",rlr_type()))
       })
     }
   }
@@ -208,7 +213,7 @@ mod_penalized_Regression_server <- function(input, output, session){
     tryCatch({ # Se corren los codigo
       codigo <- input$fieldCodeRlrDisp
       output$plot.rlr.disp <- renderPlot(isolate(exe(codigo)))
-      insert_report(paste0("disp.rlr.",rlr_type()), paste0("Dispersi\u00F3n del Modelo Regresi\u00F3n Penalizada (",rlr_type(),")"), codigo)
+      #insert_report(paste0("disp.rlr.",rlr_type()), paste0("Dispersi\u00F3n del Modelo Regresi\u00F3n Penalizada (",rlr_type(),")"), codigo)
     },
     error = function(e) { # Regresamos al estado inicial y mostramos un error
       clean_rlr(2)
@@ -220,7 +225,7 @@ mod_penalized_Regression_server <- function(input, output, session){
   plot_posib_landa_rlr <- function(){
     tryCatch({ # Se corren los codigo
       output$plot.rlr.posiblanda <- renderPlot(exe("plot(cv.glm.",rlr_type(),")"))
-      insert_report(paste0("posib.landa.rlr.",rlr_type()), paste0("Posible lambda (",rlr_type(),")"),cod.select.landa,"\nplot(cv.glm.",rlr_type(),")")
+      #insert_report(paste0("posib.landa.rlr.",rlr_type()), paste0("Posible lambda (",rlr_type(),")"),cod.select.landa,"\nplot(cv.glm.",rlr_type(),")")
     },
     error = function(e) { # Regresamos al estado inicial y mostramos un error
       clean_rlr(2)
@@ -233,7 +238,7 @@ mod_penalized_Regression_server <- function(input, output, session){
     tryCatch({ # Se corren los codigo
       codigo <- input$fieldCodeRlrCoeff
       output$txtRlrCoeff <- renderPrint(print(isolate(exe(codigo))))
-      insert_report(paste0("coeff.landa.rlr.",rlr_type()),paste0("Coeficientes (",rlr_type(),")"), codigo)
+      #insert_report(paste0("coeff.landa.rlr.",rlr_type()),paste0("Coeficientes (",rlr_type(),")"), codigo)
     },
     error = function(e) { # Regresamos al estado inicial y mostramos un error
       clean_rlr(2)
@@ -258,7 +263,7 @@ mod_penalized_Regression_server <- function(input, output, session){
       
       #codigo <- input$fieldCodeRlrLanda
       output$plot.rlr.landa <- renderPlot(isolate(exe(codigo)))
-      insert_report(paste0("gcoeff.landa.rlr.",rlr_type()),paste0("Coeficientes y lamdas (",rlr_type(),")"),codigo)
+      #insert_report(paste0("gcoeff.landa.rlr.",rlr_type()),paste0("Coeficientes y lamdas (",rlr_type(),")"),codigo)
     },
     error = function(e){ # Regresamos al estado inicial y mostramos un error
       clean_rlr(2)
@@ -280,8 +285,8 @@ mod_penalized_Regression_server <- function(input, output, session){
       isolate(tipo <- rlr_type())
       output$txtRlr <- renderPrint(print(exe("modelo.rlr.",tipo)))
       
-      insert_report(paste0("modelo.rlr.",tipo),paste0("Generaci\u00F3n del Modelo Regresi\u00F3n Penalizada (",rlr_type(),")"),
-                    cod.rlr.modelo,"\nmodelo.rlr.",tipo)
+      # insert_report(paste0("modelo.rlr.",tipo),paste0("Generaci\u00F3n del Modelo Regresi\u00F3n Penalizada (",rlr_type(),")"),
+      #               cod.rlr.modelo,"\nmodelo.rlr.",tipo)
       
       plot_posib_landa_rlr()
       print_coeff()
@@ -302,8 +307,8 @@ mod_penalized_Regression_server <- function(input, output, session){
       isolate(tipo <- rlr_type())
       output$rlrPrediTable <- DT::renderDataTable(tb_predic(real.val, exe("prediccion.rlr.",tipo)), server = FALSE)
       
-      insert_report(paste0("pred.rlr.",tipo), paste0("Predicci\u00F3n del Modelo Regresi\u00F3n Penalizada (",rlr_type(),")"),
-                    cod.rlr.pred,"\nkt(head(tb_predic(real.val, prediccion.rlr.",tipo,")$x$data[,-1]))", interpretation = FALSE)
+      # insert_report(paste0("pred.rlr.",tipo), paste0("Predicci\u00F3n del Modelo Regresi\u00F3n Penalizada (",rlr_type(),")"),
+      #               cod.rlr.pred,"\nkt(head(tb_predic(real.val, prediccion.rlr.",tipo,")$x$data[,-1]))", interpretation = FALSE)
       
       plot_disp_rlr()
       nombres.modelos <<- c(nombres.modelos, "prediccion.rlr")
@@ -323,10 +328,10 @@ mod_penalized_Regression_server <- function(input, output, session){
         
         indices.rlr <- general_indices(datos.prueba[,variable.predecir], exe("prediccion.rlr.",rlr_type()))
         
-        insert_report(paste0("ind.rlr.",rlr_type()),paste0("\u00CDndices Generales del Modelo Regresi\u00F3n Penalizada (",rlr_type(),")"),
-                      cod.rlr.ind, "\nkt(general_indices(datos.prueba[,'",variable.predecir,"'], prediccion.rlr.",rlr_type(),"))\n",
-                      "indices.rlr <- general_indices(datos.prueba[,'",variable.predecir,"'], prediccion.rlr.",rlr_type(),")\n",
-                      "IndicesM[['rlr-",rlr_type(),"']] <- indices.rlr")
+        # insert_report(paste0("ind.rlr.",rlr_type()),paste0("\u00CDndices Generales del Modelo Regresi\u00F3n Penalizada (",rlr_type(),")"),
+        #               cod.rlr.ind, "\nkt(general_indices(datos.prueba[,'",variable.predecir,"'], prediccion.rlr.",rlr_type(),"))\n",
+        #               "indices.rlr <- general_indices(datos.prueba[,'",variable.predecir,"'], prediccion.rlr.",rlr_type(),")\n",
+        #               "IndicesM[['rlr-",rlr_type(),"']] <- indices.rlr")
         
         df <- as.data.frame(indices.rlr)
         colnames(df) <- c(translate("RMSE"), translate("MAE"), translate("ER"), translate("correlacion"))
@@ -336,8 +341,7 @@ mod_penalized_Regression_server <- function(input, output, session){
         colnames(df2) <- c(translate("minimo"),translate("q1"),translate("q3"),translate("maximo"))
         output$indexdfrlr2 <- render_index_table(df2)
         
-        IndicesM[[paste0("rlr-",rlr_type())]] <<- indices.rlr
-        update_comparative_selector()
+        updateData$IndicesM[[paste0("rlr-",rlr_type())]] <<-  indices.rlr
       },
       error = function(e) { # Regresamos al estado inicial y mostramos un error
         clean_rlr(3)

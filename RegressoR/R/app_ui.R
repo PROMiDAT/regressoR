@@ -135,6 +135,8 @@ app_ui <- function(request) {
                       tabItem(tabName = "correlacion",  mod_correlacion_ui("correlacion_ui_1")),
                       tabItem(tabName = "poderPred",  mod_Predictive_Power_ui("Predictive_Power_ui_1")),
                       tabItem(tabName = "rl",  mod_linear_regression_ui("linear_regression_ui_1")),
+                      tabItem(tabName = "rlr",  mod_penalized_Regression_ui("penalized_Regression_ui_1")),
+                      tabItem(tabName = "dt",  mod_regression_trees_ui("regression_trees_ui_1")),
                       tabItem(tabName = "comparar",  mod_model_comparison_ui("model_comparison_ui_1")),
                       tabItem(tabName = "acercaDe",  mod_information_page_ui("information_page_ui_1"))
                       ))

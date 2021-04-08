@@ -21,13 +21,13 @@ function promidat_model_firt(e, model, id){
 
   /* Los modelos se vuelven ejecutar al ser seleccionados una vez se haga una segmentacion diferente*/
   $("a[href^='#shiny-tab-knn']").on('click', function(e){promidat_model_firt(e,"knn","runKnn")});
-  $("a[href^='#shiny-tab-dt']").on('click', function(e){promidat_model_firt(e,"dt","runDt")});
+  $("a[href^='#shiny-tab-dt']").on('click', function(e){promidat_model_firt(e,"dt","regression_trees_ui_1-runDt")});
   $("a[href^='#shiny-tab-rf']").on('click', function(e){promidat_model_firt(e,"rf","runRf")});
   $("a[href^='#shiny-tab-boosting']").on('click', function(e){promidat_model_firt(e,"boosting","runBoosting")});
   $("a[href^='#shiny-tab-svm']").on('click', function(e){promidat_model_firt(e,"svm","runSvm")});
   $("a[href^='#shiny-tab-nn']").on('click', function(e){promidat_model_firt(e,"nn","runNn")});
   $("a[href$='#shiny-tab-rl']").on('click', function(e){promidat_model_firt(e,"rl","linear_regression_ui_1-runRl")});
-  $("a[href^='#shiny-tab-rlr']").on('click', function(e){promidat_model_firt(e,"rlr","runRlr")});
+  $("a[href^='#shiny-tab-rlr']").on('click', function(e){promidat_model_firt(e,"rlr","penalized_Regression_ui_1-runRlr")});
   $("a[href^='#shiny-tab-rd']").on('click', function(e){promidat_model_firt(e,"rd","runRd")});
   $("a[data-value='predicModelo']").on('click', function(e){ $("#predecirPromidat").click()});
   $($($($("#distribuciones_ui_1-tabDyA").next().children()[2]).children()[4]).children()[2]).on('click', nya_btn_fun)
@@ -42,19 +42,19 @@ function eliminar_tabs_extras(){
   $("ul#dispersion_ui_1-BoxDisp li")[1].remove();
   $("ul#distribuciones_ui_1-tabDyA li")[2].remove();
   $("ul#correlacion_ui_1-tabCor li").last().remove();
-  $("ul#BoxKnn li").last().remove();
-  $("ul#BoxDt li").last().remove();
-  $("ul#BoxRf li").last().remove();
-  $("ul#BoxB li").last().remove();
-  $("ul#BoxSvm li").last().remove();
+  $("ul#KNN_ui_1-BoxKnn li").last().remove();
+  $("ul#regression_trees_ui_1-BoxDt li").last().remove();
+  $("ul#random_forests_ui_1-BoxRf li").last().remove();
+  $("ul#boosting_ui_1-BoxB li").last().remove();
+  $("ul#SVM_ui_1-BoxSvm li").last().remove();
   $("ul#model_comparison_ui_1-BoxCom li").last().remove();
-  $("ul#BoxModelo li").last().remove();
-  $("ul#BoxModelo li").last().remove();
-  $("ul#BoxPodPred li").last().remove();
-  $("ul#BoxPodPred li").last().remove();
-  $("ul#BoxNn li").last().remove();
+  $("ul#new_data_predictions_ui_1-BoxModelo li").last().remove();
+  $("ul#new_data_predictions_ui_1-BoxModelo li").last().remove();
+  $("ul#Predictive_Power_ui_1-BoxPodPred li").last().remove();
+  $("ul#Predictive_Power_ui_1-BoxPodPred li").last().remove();
+  $("ul#neural_networks_ui_1-BoxNn li").last().remove();
   $("ul#linear_regression_ui_1-BoxRl li").last().remove();
-  $("ul#BoxRd li").last().remove();
+  $("ul#dimension_reduction_ui_1-BoxRd li").last().remove();
 }
 
 

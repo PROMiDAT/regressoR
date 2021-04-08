@@ -1,24 +1,6 @@
 
 # Edit > Folding > Collapse All (is of much help to visualize in an orderly way the code).
 
-# WRAPPERS ----------------------------------------------------------------------------------------------------------------
-
-# In order to avoid changing the server code and since these functions always use the same parameters, 
-# the following wrappers were made.
-
-# Wrapper of regressoR::exe to set the environment
-# exe <- function(...){
-#   regressoR::exe(..., envir = parent.frame())
-# }
-
-# Wrapper of regressoR::comparative_table to set the list of values and the language
-comparative_table <- function(sel){
-  regressoR::comparative_table(sel, IndicesM)
-}
-
-
-
-
 # FUNCTIONS ---------------------------------------------------------------------------------------------------------------
 
 # To help reduce the huge list of imports:

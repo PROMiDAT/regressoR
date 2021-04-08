@@ -78,6 +78,8 @@ app_server <- function( input, output, session ) {
   callModule(mod_correlacion_server, "correlacion_ui_1", updateData, updatePlot,disp.ranges)
   callModule(mod_Predictive_Power_server, "Predictive_Power_ui_1", updateData, updatePlot,disp.ranges)
   callModule(mod_linear_regression_server, "linear_regression_ui_1",updateData, updatePlot)
+  callModule(mod_penalized_Regression_server, "penalized_Regression_ui_1",updateData, updatePlot)
+  callModule(mod_regression_trees_server, "regression_trees_ui_1",updateData, updatePlot)
   callModule(mod_model_comparison_server, "model_comparison_ui_1",updateData,updatePlot)
   callModule(mod_information_page_server, "information_page_ui_1")
 }

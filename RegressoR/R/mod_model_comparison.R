@@ -46,13 +46,6 @@ mod_model_comparison_server <- function(input, output, session, updateData, upda
     update_comparative_selector()
   })
   
-  # Updates the selectors in the comparison table page
-  update_comparative_selector <- function(){
-    nombres <- models_mode(updateData$IndicesM)
-    shinyWidgets::updateCheckboxGroupButtons(session,"select.models",choices = sort(nombres),selected = sort(nombres),
-                                             status = "primary",checkIcon = list(yes = icon("ok", lib = "glyphicon"),
-                                                                                 no = icon("remove", lib = "glyphicon")))
-  }
   
   #Muestra la tabla comparativa.
   output$TablaComp <- DT::renderDataTable({
@@ -61,11 +54,20 @@ mod_model_comparison_server <- function(input, output, session, updateData, upda
       
       #insert_report("tabla.comparativa","Tabla Comparativa","kt(comparative_table(",as_string_c(input$select.models),",IndicesM) )")
       
-      DT::datatable(comparative_table(input$select.models),
+      DT::datatable(comparative_table(input$select.models,updateData$IndicesM),
                     selection = "none", editable = FALSE,
                     options = list(dom = "frtip", pageLength = 9, buttons = NULL))
     }
   },server = FALSE)
+  
+  # Updates the selectors in the comparison table page
+  update_comparative_selector <- function(){
+    nombres <- models_mode(updateData$IndicesM)
+    shinyWidgets::updateCheckboxGroupButtons(session,"select.models",choices = sort(nombres),selected = sort(nombres),
+                                             status = "primary",checkIcon = list(yes = icon("ok", lib = "glyphicon"),
+                                                                                 no = icon("remove", lib = "glyphicon")))
+  }
+  
 }
     
 ## To be copied in the UI

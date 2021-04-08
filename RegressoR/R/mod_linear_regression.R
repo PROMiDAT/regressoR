@@ -15,19 +15,19 @@ mod_linear_regression_ui <- function(id){
                    hr(),
                    conditionalPanel("input.BoxRl == 'tabRlModelo'",
                                     aceEditor(ns("fieldCodeRl"), mode = "r", theme = "monokai",
-                                              value = "", height = "3vh", readOnly = F, autoComplete = "enabled")),
+                                              value = "", height = "3vh", readOnly = F, autoComplete = "enabled"),ns = ns),
                    conditionalPanel("input.BoxRl == 'tabRlCoef'",
                                     aceEditor(ns("fieldCodeRlCoef"), mode = "r", theme = "monokai",
-                                              value = "", height = "10vh", readOnly = F, autoComplete = "enabled")),
+                                              value = "", height = "10vh", readOnly = F, autoComplete = "enabled"),ns = ns),
                    conditionalPanel("input.BoxRl == 'tabRlPred'",
                                     aceEditor(ns("fieldCodeRlPred"), mode = "r", theme = "monokai",
-                                              value = "", height = "3vh", readOnly = F, autoComplete = "enabled")),
+                                              value = "", height = "3vh", readOnly = F, autoComplete = "enabled"),ns = ns),
                    conditionalPanel("input.BoxRl == 'tabRlDisp'",
                                     aceEditor(ns("fieldCodeRlDisp"), mode = "r", theme = "monokai",
-                                              value = "", height = "3vh", readOnly = F, autoComplete = "enabled")),
+                                              value = "", height = "3vh", readOnly = F, autoComplete = "enabled"),ns = ns),
                    conditionalPanel("input.BoxRl == 'tabRlIndex'",
                                     aceEditor(ns("fieldCodeRlIG"), mode = "r", theme = "monokai",
-                                              value = "", height = "22vh", readOnly = F, autoComplete = "enabled")))
+                                              value = "", height = "22vh", readOnly = F, autoComplete = "enabled"),ns = ns))
   
   tabs.rl  <- tabsOptions(buttons = list(icon("code")), widths = c(100), heights = c(95),
                           tabs.content = list(rl.code))
