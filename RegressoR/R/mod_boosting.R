@@ -9,56 +9,58 @@
 #' @importFrom shiny NS tagList 
 mod_boosting_ui <- function(id){
   
+  ns <- NS(id)
+  
   b.options <- list(fluidRow(column(width = 9,h4(labelInput("opciones"))),
-                             column(width = 2,br(),actionButton("runBoosting", label = labelInput("ejecutar"), icon = icon("play")))),
+                             column(width = 2,br(),actionButton(ns("runBoosting"), label = labelInput("ejecutar"), icon = icon("play")))),
                     hr(),
-                    fluidRow(column(numericInput("iter.boosting", labelInput("numTree"), 20, width = "100%",min = 1), width = 6),
-                             column(numericInput("shrinkage.boosting", labelInput("shrinkage"), 0.01, width = "100%",min = 0.001, step = 0.001), width=6)),
-                    fluidRow(column(selectInput(inputId = "tipo.boosting", label = labelInput("selectAlg"),selected = 1,
+                    fluidRow(column(numericInput(ns("iter.boosting"), labelInput("numTree"), 20, width = "100%",min = 1), width = 6),
+                             column(numericInput(ns("shrinkage.boosting"), labelInput("shrinkage"), 0.01, width = "100%",min = 0.001, step = 0.001), width=6)),
+                    fluidRow(column(selectInput(inputId = ns("tipo.boosting"), label = labelInput("selectAlg"),selected = 1,
                                                 choices =  c("gaussian", "laplace", "tdist")), width = 6)))
   
   b.code  <- list(h4(labelInput("codigo")), hr(),
                   conditionalPanel("input.BoxB == 'tabBModelo'",
-                                   aceEditor("fieldCodeBoosting", mode = "r", theme = "monokai",
-                                             value = "", height = "5vh", readOnly = F, autoComplete = "enabled")),
+                                   aceEditor(ns("fieldCodeBoosting"), mode = "r", theme = "monokai",
+                                             value = "", height = "5vh", readOnly = F, autoComplete = "enabled"),ns = ns),
                   conditionalPanel("input.BoxB == 'tabBImp'",
-                                   aceEditor("fieldCodeBoostingPlotImport", mode = "r", theme = "monokai",
-                                             value = "", height = "10vh", readOnly = F, autoComplete = "enabled")),
+                                   aceEditor(ns("fieldCodeBoostingPlotImport"), mode = "r", theme = "monokai",
+                                             value = "", height = "10vh", readOnly = F, autoComplete = "enabled"),ns = ns),
                   conditionalPanel("input.BoxB == 'tabBPred'",
-                                   aceEditor("fieldCodeBoostingPred", mode = "r", theme = "monokai",
-                                             value = "", height = "3vh", readOnly = F, autoComplete = "enabled")),
+                                   aceEditor(ns("fieldCodeBoostingPred"), mode = "r", theme = "monokai",
+                                             value = "", height = "3vh", readOnly = F, autoComplete = "enabled"),ns = ns),
                   conditionalPanel("input.BoxB == 'tabBDisp'",
-                                   aceEditor("fieldCodeBoostingDisp", mode = "r", theme = "monokai",
-                                             value = "", height = "3vh", readOnly = F, autoComplete = "enabled")),
+                                   aceEditor(ns("fieldCodeBoostingDisp"), mode = "r", theme = "monokai",
+                                             value = "", height = "3vh", readOnly = F, autoComplete = "enabled"),ns = ns),
                   conditionalPanel("input.BoxB == 'tabBIndex'",
-                                   aceEditor("fieldCodeBoostingIG", mode = "r", theme = "monokai",
-                                             value = "", height = "22vh", readOnly = F, autoComplete = "enabled")))
+                                   aceEditor(ns("fieldCodeBoostingIG"), mode = "r", theme = "monokai",
+                                             value = "", height = "22vh", readOnly = F, autoComplete = "enabled"),ns = ns))
   
   tabs.b  <- tabsOptions(buttons = list(icon("gear"),icon("code")), widths = c(50,100), heights = c(63, 95),
                          tabs.content = list(b.options, b.code))
   
   generate.b.panel <- tabPanel(title = labelInput("generatem"), value = "tabBModelo",
-                               verbatimTextOutput("txtBoosting"))
+                               verbatimTextOutput(ns("txtBoosting")))
   
   plot.boosting.import <- tabPanel(title = labelInput("varImp"), value = "tabBImp",
-                                   plotOutput('plot.boosting.import', height = "70vh"))
+                                   plotOutput(ns('plot.boosting.import'), height = "70vh"))
   
   prediction.b.panel <- tabPanel(title = labelInput("predm"), value = "tabBPred",
-                                 DT::dataTableOutput("boostingPrediTable"))
+                                 DT::dataTableOutput(ns("boostingPrediTable")))
   
   disp.boosting.panel <- tabPanel(title = labelInput("dispersion"), value = "tabBDisp",
-                                  plotOutput('plot.boosting.disp', height = "55vh"))
+                                  plotOutput(ns('plot.boosting.disp'), height = "55vh"))
   
   general.index.b.panel <- tabPanel(title = labelInput("indices"),value = "tabBIndex",
                                     br(),
-                                    fluidRow(tableOutput('indexdfb')),
+                                    fluidRow(tableOutput(ns('indexdfb'))),
                                     br(),
                                     fluidRow(column(width = 12, align="center", tags$h3(labelInput("resumenVarPre")))),
                                     br(),
-                                    fluidRow(tableOutput('indexdfb2')))
+                                    fluidRow(tableOutput(ns('indexdfb2'))))
   
   pagina.boosting <- tabItem(tabName = "boosting",
-                             tabBox(id = "BoxB", width = NULL, height ="80%",
+                             tabBox(id = ns("BoxB"), width = NULL, height ="80%",
                                     generate.b.panel,
                                     plot.boosting.import,
                                     prediction.b.panel,
@@ -66,17 +68,21 @@ mod_boosting_ui <- function(id){
                                     general.index.b.panel,
                                     tabs.b))
   
-  ns <- NS(id)
   tagList(
- 
+    pagina.boosting
   )
 }
     
 #' boosting Server Function
 #'
 #' @noRd 
-mod_boosting_server <- function(input, output, session){
+mod_boosting_server <- function(input, output, session,updateData, updatePlot){
   ns <- session$ns
+  
+  # change model codes
+  observeEvent(updateData$datos.aprendizaje,{
+    deault_codigo_boosting()
+  })
  
   # When the boosting model is generated
   observeEvent(input$runBoosting, {
@@ -259,8 +265,7 @@ mod_boosting_server <- function(input, output, session){
         output$indexdfb2 <- render_index_table(df2)
         
         #nombres.modelos <<- c(nombres.modelos, paste0("indices.boosting.",tipo))
-        IndicesM[[paste0("bl-",tipo)]] <<- indices.boosting
-        update_comparative_selector()
+        updateData$IndicesM[[paste0("bl-",tipo)]] <<- indices.boosting
       },
       error = function(e) { # Regresamos al estado inicial y mostramos un error
         clean_boosting(3)

@@ -80,6 +80,8 @@ app_server <- function( input, output, session ) {
   callModule(mod_linear_regression_server, "linear_regression_ui_1",updateData, updatePlot)
   callModule(mod_penalized_Regression_server, "penalized_Regression_ui_1",updateData, updatePlot)
   callModule(mod_regression_trees_server, "regression_trees_ui_1",updateData, updatePlot)
+  callModule(mod_random_forests_server, "random_forests_ui_1",updateData, updatePlot)
+  callModule(mod_boosting_server, "boosting_ui_1",updateData, updatePlot)
   callModule(mod_model_comparison_server, "model_comparison_ui_1",updateData,updatePlot)
   callModule(mod_information_page_server, "information_page_ui_1")
 }

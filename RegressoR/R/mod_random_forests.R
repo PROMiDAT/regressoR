@@ -9,63 +9,65 @@
 #' @importFrom shiny NS tagList 
 mod_random_forests_ui <- function(id){
   
+  ns <- NS(id)
+  
   rf.options <- list(fluidRow(column(width = 9,h4(labelInput("opciones"))),
-                              column(width = 2,br(),actionButton("runRf", label = labelInput("ejecutar"), icon = icon("play")))),
+                              column(width = 2,br(),actionButton(ns("runRf"), label = labelInput("ejecutar"), icon = icon("play")))),
                      hr(),
                      conditionalPanel("input.BoxRf != 'tabRfRules'",
-                                      fluidRow(column(numericInput("ntree.rf", labelInput("numTree"), 20, width = "100%", min = 0), width = 6),
-                                               column(numericInput("mtry.rf",labelInput("numVars"),1, width = "100%", min = 1), width=6))),
+                                      fluidRow(column(numericInput(ns("ntree.rf"), labelInput("numTree"), 20, width = "100%", min = 0), width = 6),
+                                               column(numericInput(ns("mtry.rf"),labelInput("numVars"),1, width = "100%", min = 1), width=6)), ns = ns),
                      conditionalPanel("input.BoxRf == 'tabRfRules'",
-                                      numericInput("rules.rf.n",labelInput("ruleNumTree"),1, width = "100%", min = 1)))
+                                      numericInput(ns("rules.rf.n"),labelInput("ruleNumTree"),1, width = "100%", min = 1),ns = ns))
   
   rf.code  <- list(h4(labelInput("codigo")), hr(),
                    conditionalPanel("input.BoxRf == 'tabRfModelo'",
-                                    aceEditor("fieldCodeRf", mode = "r", theme = "monokai",
-                                              value = "", height = "3vh", readOnly = F, autoComplete = "enabled")),
+                                    aceEditor(ns("fieldCodeRf"), mode = "r", theme = "monokai",
+                                              value = "", height = "3vh", readOnly = F, autoComplete = "enabled"),ns = ns),
                    conditionalPanel("input.BoxRf == 'tabRfImp'",
-                                    aceEditor("fieldCodeRfPlot", mode = "r", theme = "monokai",
-                                              value = "", height = "28vh", readOnly = F, autoComplete = "enabled")),
+                                    aceEditor(ns("fieldCodeRfPlot"), mode = "r", theme = "monokai",
+                                              value = "", height = "28vh", readOnly = F, autoComplete = "enabled"),ns = ns),
                    conditionalPanel("input.BoxRf == 'tabRfPred'",
-                                    aceEditor("fieldCodeRfPred", mode = "r", theme = "monokai",
-                                              value = "", height = "3vh", readOnly = F, autoComplete = "enabled")),
+                                    aceEditor(ns("fieldCodeRfPred"), mode = "r", theme = "monokai",
+                                              value = "", height = "3vh", readOnly = F, autoComplete = "enabled"),ns = ns),
                    conditionalPanel("input.BoxRf == 'tabRfDisp'",
-                                    aceEditor("fieldCodeRfDisp", mode = "r", theme = "monokai",
-                                              value = "", height = "3vh", readOnly = F, autoComplete = "enabled")),
+                                    aceEditor(ns("fieldCodeRfDisp"), mode = "r", theme = "monokai",
+                                              value = "", height = "3vh", readOnly = F, autoComplete = "enabled"),ns = ns),
                    conditionalPanel("input.BoxRf == 'tabRfIndex'",
-                                    aceEditor("fieldCodeRfIG", mode = "r", theme = "monokai",
-                                              value = "", height = "22vh", readOnly = F, autoComplete = "enabled")),
+                                    aceEditor(ns("fieldCodeRfIG"), mode = "r", theme = "monokai",
+                                              value = "", height = "22vh", readOnly = F, autoComplete = "enabled"),ns = ns),
                    conditionalPanel("input.BoxRf == 'tabRfRules'",
-                                    aceEditor("fieldCodeRfRules", mode = "r", theme = "monokai",
-                                              value = "", height = "4vh", readOnly = F, autoComplete = "enabled")))
+                                    aceEditor(ns("fieldCodeRfRules"), mode = "r", theme = "monokai",
+                                              value = "", height = "4vh", readOnly = F, autoComplete = "enabled"),ns = ns))
   
   tabs.rf  <- tabsOptions(buttons = list(icon("gear"),icon("code")), widths = c(50,100), heights = c(65, 95),
                           tabs.content = list(rf.options, rf.code))
   
   generate.rf.panel <- tabPanel(title = labelInput("generatem"),value = "tabRfModelo",
-                                verbatimTextOutput("txtRf"))
+                                verbatimTextOutput(ns("txtRf")))
   
   plot.rf <- tabPanel(title = labelInput("varImp"), value = "tabRfImp",
-                      plotOutput('plot.rf', height = "70vh"))
+                      plotOutput(ns('plot.rf'), height = "70vh"))
   
   prediction.rf.panel <- tabPanel(title = labelInput("predm"), value = "tabRfPred",
-                                  DT::dataTableOutput("rfPrediTable"))
+                                  DT::dataTableOutput(ns("rfPrediTable")))
   
   disp.rf.panel <- tabPanel(title = labelInput("dispersion"), value = "tabRfDisp",
-                            plotOutput('plot.rf.disp', height = "55vh"))
+                            plotOutput(ns('plot.rf.disp'), height = "55vh"))
   
   general.index.rf.panel <- tabPanel(title = labelInput("indices"), value = "tabRfIndex",
                                      br(),
-                                     fluidRow(tableOutput('indexdfrf')),
+                                     fluidRow(tableOutput(ns('indexdfrf'))),
                                      br(),
                                      fluidRow(column(width = 12, align="center", tags$h3(labelInput("resumenVarPre")))),
                                      br(),
-                                     fluidRow(tableOutput('indexdfrf2')))
+                                     fluidRow(tableOutput(ns('indexdfrf2'))))
   
   rf.rules.panel <- tabPanel(title = labelInput("reglas"), value = "tabRfRules",
-                             verbatimTextOutput("rulesRf"))
+                             verbatimTextOutput(ns("rulesRf")))
   
   page.rf <- tabItem(tabName = "rf",
-                     tabBox(id = "BoxRf", width = NULL, height ="80%",
+                     tabBox(id = ns("BoxRf"), width = NULL, height ="80%",
                             generate.rf.panel,
                             plot.rf,
                             prediction.rf.panel,
@@ -75,17 +77,21 @@ mod_random_forests_ui <- function(id){
                             tabs.rf))
   
   
-  ns <- NS(id)
   tagList(
- 
+    page.rf
   )
 }
     
 #' random_forests Server Function
 #'
 #' @noRd 
-mod_random_forests_server <- function(input, output, session){
+mod_random_forests_server <- function(input, output, session,updateData, updatePlot){
   ns <- session$ns
+  
+  # change model codes
+  observeEvent(updateData$datos.aprendizaje,{
+    deafult_codigo_rf(rf.def = TRUE)
+  })
  
   
   # When the rf model is generated
@@ -152,16 +158,16 @@ mod_random_forests_server <- function(input, output, session){
       switch(i, {
         modelo.rf <<- NULL
         output$txtRf <- renderPrint(invisible(""))
-        remove_report_elem("modelo.rf")
-        remove_report_elem("modelo.rf.graf")
-        remove_report_elem("disp.rf")
+        # remove_report_elem("modelo.rf")
+        # remove_report_elem("modelo.rf.graf")
+        # remove_report_elem("disp.rf")
       }, {
         prediccion.rf <<- NULL
-        remove_report_elem("pred.rf")
+        #remove_report_elem("pred.rf")
         output$rfPrediTable <- DT::renderDataTable(NULL)
       },{
         indices.rf <<- rep(0, 10)
-        remove_report_elem("ind.rf")
+        #remove_report_elem("ind.rf")
       })
     }
   }
@@ -171,12 +177,12 @@ mod_random_forests_server <- function(input, output, session){
     tryCatch({
       output$plot.rf <- renderPlot(isolate(importance_plot_rf(modelo.rf,translate("impVarA"),translate("impVarRSS"))))
       cod <- ifelse(input$fieldCodeRfPlot == "", extract_code("importance_plot_rf"), input$fieldCodeRfPlot)
-      insert_report("modelo.rf.graf", "Importancia de las Variables", cod,
-                    "\nimportance_plot_rf(modelo.rf,'",translate('impVarA'),"','",translate('impVarRSS'),"')")
+      # insert_report("modelo.rf.graf", "Importancia de las Variables", cod,
+      #               "\nimportance_plot_rf(modelo.rf,'",translate('impVarA'),"','",translate('impVarRSS'),"')")
       
     }, error = function(e) {
       output$plot.rf <- renderPlot(NULL)
-      remove_report_elem("modelo.rf.graf")
+      #remove_report_elem("modelo.rf.graf")
     })
   }
   
@@ -184,7 +190,7 @@ mod_random_forests_server <- function(input, output, session){
   plot_disp_rf <- function(){
     tryCatch({ # Se corren los codigo
       output$plot.rf.disp <- renderPlot(exe(input$fieldCodeRfDisp))
-      insert_report("disp.rf", "Dispersi\u00F3n del Modelo RF", input$fieldCodeRfDisp)
+      #insert_report("disp.rf", "Dispersi\u00F3n del Modelo RF", input$fieldCodeRfDisp)
     },
     error = function(e) { # Regresamos al estado inicial y mostramos un error
       clean_rf(2)
@@ -202,8 +208,8 @@ mod_random_forests_server <- function(input, output, session){
         stop(translate("NoDRule"))
       })
     })
-    insert_report(paste0("modelo.rf.rules.", n),paste0("Reglas del \u00C1rbol #",n),
-                  "printRandomForests(modelo.rf, ",n,")")
+    # insert_report(paste0("modelo.rf.rules.", n),paste0("Reglas del \u00C1rbol #",n),
+    #               "printRandomForests(modelo.rf, ",n,")")
   }
   
   # Execute model, prediction and indices
@@ -219,8 +225,8 @@ mod_random_forests_server <- function(input, output, session){
       isolate(exe(cod.rf.modelo))
       output$txtRf <- renderPrint(print(modelo.rf))
       
-      insert_report("modelo.rf","Generaci\u00F3n del Modelo Bosques Aleatorios",
-                    cod.rf.modelo,"\nmodelo.rf")
+      # insert_report("modelo.rf","Generaci\u00F3n del Modelo Bosques Aleatorios",
+      #               cod.rf.modelo,"\nmodelo.rf")
       
       plotear_rf_imp()
       plot_disp_rf()
@@ -240,8 +246,8 @@ mod_random_forests_server <- function(input, output, session){
       
       output$rfPrediTable <- DT::renderDataTable(tb_predic(real.val, prediccion.rf), server = FALSE)
       
-      insert_report("pred.rf","Predicci\u00F3n del Modelo Bosques Aleatorios",
-                    cod.rf.pred,"\nkt(head(tb_predic(real.val, prediccion.rf)$x$data[,-1]))",interpretation = FALSE)
+      # insert_report("pred.rf","Predicci\u00F3n del Modelo Bosques Aleatorios",
+      #               cod.rf.pred,"\nkt(head(tb_predic(real.val, prediccion.rf)$x$data[,-1]))",interpretation = FALSE)
       
       nombres.modelos <<- c(nombres.modelos, "prediccion.rf")
       updatePlot$tablaCom <- !updatePlot$tablaCom #graficar otra vez la tabla comprativa
@@ -260,10 +266,10 @@ mod_random_forests_server <- function(input, output, session){
         
         indices.rf <- general_indices(datos.prueba[,variable.predecir], prediccion.rf)
         
-        insert_report("ind.rf","\u00CDndices Generales del Modelo Bosques Aleatorios",
-                      cod.rf.ind, "\nkt(general_indices(datos.prueba[,'",variable.predecir,"'], prediccion.rf))\n",
-                      "indices.rf <- general_indices(datos.prueba[,'",variable.predecir,"'], prediccion.rf)\n",
-                      "IndicesM[['rfl']] <- indices.rf")
+        # insert_report("ind.rf","\u00CDndices Generales del Modelo Bosques Aleatorios",
+        #               cod.rf.ind, "\nkt(general_indices(datos.prueba[,'",variable.predecir,"'], prediccion.rf))\n",
+        #               "indices.rf <- general_indices(datos.prueba[,'",variable.predecir,"'], prediccion.rf)\n",
+        #               "IndicesM[['rfl']] <- indices.rf")
         
         df <- as.data.frame(indices.rf)
         colnames(df) <- c(translate("RMSE"), translate("MAE"), translate("ER"), translate("correlacion"))
@@ -274,8 +280,7 @@ mod_random_forests_server <- function(input, output, session){
         output$indexdfrf2 <- render_index_table(df2)
         
         nombres.modelos <<- c(nombres.modelos, "indices.rf")
-        IndicesM[["rfl"]] <<- indices.rf
-        update_comparative_selector()
+        updateData$IndicesM[["rfl"]] <<- indices.rf
       },
       error = function(e) { # Regresamos al estado inicial y mostramos un error
         clean_rf(3)

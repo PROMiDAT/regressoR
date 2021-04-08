@@ -22,8 +22,8 @@ function promidat_model_firt(e, model, id){
   /* Los modelos se vuelven ejecutar al ser seleccionados una vez se haga una segmentacion diferente*/
   $("a[href^='#shiny-tab-knn']").on('click', function(e){promidat_model_firt(e,"knn","runKnn")});
   $("a[href^='#shiny-tab-dt']").on('click', function(e){promidat_model_firt(e,"dt","regression_trees_ui_1-runDt")});
-  $("a[href^='#shiny-tab-rf']").on('click', function(e){promidat_model_firt(e,"rf","runRf")});
-  $("a[href^='#shiny-tab-boosting']").on('click', function(e){promidat_model_firt(e,"boosting","runBoosting")});
+  $("a[href^='#shiny-tab-rf']").on('click', function(e){promidat_model_firt(e,"rf","random_forests_ui_1-runRf")});
+  $("a[href^='#shiny-tab-boosting']").on('click', function(e){promidat_model_firt(e,"boosting","boosting_ui_1-runBoosting")});
   $("a[href^='#shiny-tab-svm']").on('click', function(e){promidat_model_firt(e,"svm","runSvm")});
   $("a[href^='#shiny-tab-nn']").on('click', function(e){promidat_model_firt(e,"nn","runNn")});
   $("a[href$='#shiny-tab-rl']").on('click', function(e){promidat_model_firt(e,"rl","linear_regression_ui_1-runRl")});

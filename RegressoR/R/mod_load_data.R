@@ -304,8 +304,6 @@ mod_load_data_server <- function(input, output, session,updateData){
       # default_codigo_knn(k.def = TRUE)
       # default_codigo_svm()
       # deafult_codigo_rd()
-      # deafult_codigo_rf(rf.def = TRUE)
-      # deault_codigo_boosting()
       # default_codigo_nn()
       
     } else {
