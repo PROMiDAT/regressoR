@@ -11,51 +11,51 @@ mod_KNN_ui <- function(id){
   ns <- NS(id)
   
   knn.options <- list(fluidRow(column(width = 9,h4(labelInput("opciones"))),
-                               column(width = 2,br(),actionButton("runKnn", label = labelInput("ejecutar"), icon = icon("play")))),
+                               column(width = 2,br(),actionButton(ns("runKnn"), label = labelInput("ejecutar"), icon = icon("play")))),
                       hr(),
-                      fluidRow(column(numericInput("kmax.knn", labelInput("kmax"), min = 1,step = 1, value = 7), width = 6),
-                               column(selectInput(inputId = "kernel.knn", label = labelInput("selkernel"),selected = 1,
+                      fluidRow(column(numericInput(ns("kmax.knn"), labelInput("kmax"), min = 1,step = 1, value = 7), width = 6),
+                               column(selectInput(inputId = ns("kernel.knn"), label = labelInput("selkernel"),selected = 1,
                                                   choices = c("optimal", "rectangular", "triangular", "epanechnikov", "biweight",
                                                               "triweight", "cos","inv","gaussian")),width = 6)),
-                      fluidRow(column(br(),switchInput(inputId = "switch.scale.knn", onStatus = "success", offStatus = "danger", value = T,
+                      fluidRow(column(br(),switchInput(inputId = ns("switch.scale.knn"), onStatus = "success", offStatus = "danger", value = T,
                                                        label = labelInput("escal"), onLabel = labelInput("si"), offLabel = labelInput("no"), labelWidth = "100%"), width=6),
-                               column(width=6, numericInput("distance.knn", labelInput("distknn"), min = 1,step = 1, value = 2))) )
+                               column(width=6, numericInput(ns("distance.knn"), labelInput("distknn"), min = 1,step = 1, value = 2))) )
   
   knn.code <- list(h4(labelInput("codigo")), hr(),
                    conditionalPanel("input.BoxKnn == 'tabKknModelo'",
-                                    aceEditor("fieldCodeKnn", mode = "r", theme = "monokai", value = "", height = "4vh", readOnly = F)),
+                                    aceEditor(ns("fieldCodeKnn"), mode = "r", theme = "monokai", value = "", height = "4vh", readOnly = F),ns = ns),
                    conditionalPanel("input.BoxKnn == 'tabKknPred'",
-                                    aceEditor("fieldCodeKnnPred", mode = "r", theme = "monokai",
-                                              value = "", height = "3vh", readOnly = F, autoComplete = "enabled")),
+                                    aceEditor(ns("fieldCodeKnnPred"), mode = "r", theme = "monokai",
+                                              value = "", height = "3vh", readOnly = F, autoComplete = "enabled"),ns = ns),
                    conditionalPanel("input.BoxKnn == 'tabKknDisp'",
-                                    aceEditor("fieldCodeKnnDisp", mode = "r", theme = "monokai",
-                                              value = "", height = "3vh", readOnly = F, autoComplete = "enabled")),
+                                    aceEditor(ns("fieldCodeKnnDisp"), mode = "r", theme = "monokai",
+                                              value = "", height = "3vh", readOnly = F, autoComplete = "enabled"),ns = ns),
                    conditionalPanel("input.BoxKnn == 'tabKknIndex'",
-                                    aceEditor("fieldCodeKnnIG", mode = "r", theme = "monokai",
-                                              value = "", height = "22vh", readOnly = F, autoComplete = "enabled")))
+                                    aceEditor(ns("fieldCodeKnnIG"), mode = "r", theme = "monokai",
+                                              value = "", height = "22vh", readOnly = F, autoComplete = "enabled"),ns = ns))
   
   tabs.knn <- tabsOptions(buttons = list(icon("gear"),icon("code")), widths = c(50,100), heights = c(80, 95),
                           tabs.content = list(knn.options, knn.code))
   
   generate.knn.panel <- tabPanel(title = labelInput("generatem"), value = "tabKknModelo",
-                                 verbatimTextOutput("txtknn"))
+                                 verbatimTextOutput(ns("txtknn")))
   
   prediccion.knn.panel <- tabPanel(title = labelInput("predm"), value = "tabKknPred",
-                                   DT::dataTableOutput("knnPrediTable"))
+                                   DT::dataTableOutput(ns("knnPrediTable")))
   
   disp.knn.panel <- tabPanel(title = labelInput("dispersion"), value = "tabKknDisp",
-                             plotOutput('plot.knn.disp', height = "55vh"))
+                             plotOutput(ns('plot.knn.disp'), height = "55vh"))
   
   general.index.knn.panel <- tabPanel(title = labelInput("indices"), value = "tabKknIndex",
                                       br(),
-                                      fluidRow(tableOutput('indexdfknn')),
+                                      fluidRow(tableOutput(ns('indexdfknn'))),
                                       br(),
                                       fluidRow(column(width = 12, align="center", tags$h3(labelInput("resumenVarPre")))),
                                       br(),
-                                      fluidRow(tableOutput('indexdfknn2')))
+                                      fluidRow(tableOutput(ns('indexdfknn2'))))
   
   page.knn <- tabItem(tabName = "knn",
-                      tabBox(id = "BoxKnn", width = NULL, height ="80%",
+                      tabBox(id = ns("BoxKnn"), width = NULL, height ="80%",
                              generate.knn.panel,
                              prediccion.knn.panel,
                              disp.knn.panel,
@@ -63,37 +63,46 @@ mod_KNN_ui <- function(id){
                              tabs.knn))
   
   tagList(
- 
+    page.knn
   )
 }
     
 #' KNN Server Function
 #'
 #' @noRd 
-mod_KNN_server <- function(input, output, session){
+mod_KNN_server <- function(input, output, session,updateData, updatePlot){
   ns <- session$ns
+  
+  
+  # change model codes
+  # observeEvent(updateData$datos.aprendizaje,{
+  #   default_codigo_knn(k.def = TRUE)
+  # })
+  
  
   # When the knn model is generated
   observeEvent(input$runKnn, {
     if (validate_data()) { # Si se tiene los datos entonces :
+      default_codigo_knn(knn.args.default)
       knn_full()
     }
   })
   
   # When the user changes the parameters
-  observeEvent(c(input$switch.scale.knn, input$kmax.knn, input$kernel.knn, input$distance.knn), {
-    if (validate_data(print = FALSE) & knn.stop.excu) {
-      default_codigo_knn()
-    }else{
-      knn.stop.excu <<- TRUE
-    }
-  })
+  # observeEvent(c(input$switch.scale.knn, input$kmax.knn, input$kernel.knn, input$distance.knn), {
+  #   if (validate_data(print = FALSE) & knn.stop.excu) {
+  #     default_codigo_knn()
+  #   }else{
+  #     knn.stop.excu <<- TRUE
+  #   }
+  # })
   
   # Upgrade code fields to default version
   default_codigo_knn <- function(k.def = FALSE) {
     if(!is.null(datos.aprendizaje) & k.def){
-      k.value <- ifelse(k.def, round(sqrt(nrow(datos.aprendizaje))), input$kmax.knn)
+      k.value <- round(sqrt(nrow(datos.aprendizaje)))
       updateNumericInput(session,"kmax.knn",value = k.value)
+      knn.args.default <<- FALSE
     }else{
       k.value <- input$kmax.knn
     }
@@ -133,14 +142,14 @@ mod_KNN_server <- function(input, output, session){
       switch(i, {
         exe("modelo.knn.",input$kernel.knn," <<- NULL")
         output$txtknn <- renderPrint(invisible(""))
-        remove_report_elem(paste0("modelo.knn.",input$kernel.knn))
+        #remove_report_elem(paste0("modelo.knn.",input$kernel.knn))
       }, {
         exe("prediccion.knn.",input$kernel.knn," <<- NULL")
-        remove_report_elem(paste0("pred.knn.",input$kernel.knn))
+        #remove_report_elem(paste0("pred.knn.",input$kernel.knn))
         output$knnPrediTable <- DT::renderDataTable(NULL)
       }, {
         exe("indices.knn.",input$kernel.knn," <<- NULL")
-        remove_report_elem(paste0("ind.knn.",input$kernel.knn))
+        #remove_report_elem(paste0("ind.knn.",input$kernel.knn))
       })
     }
   }
@@ -151,7 +160,7 @@ mod_KNN_server <- function(input, output, session){
       codigo <- input$fieldCodeKnnDisp
       isolate(kernel <- input$kernel.knn)
       output$plot.knn.disp <- renderPlot(exe(codigo))
-      insert_report(paste0("disp.knn.",kernel), paste0("Dispersi\u00F3n del Modelo KNN (",kernel,")"), codigo)
+      #insert_report(paste0("disp.knn.",kernel), paste0("Dispersi\u00F3n del Modelo KNN (",kernel,")"), codigo)
     },
     error = function(e) { # Regresamos al estado inicial y mostramos un error
       clean_knn(2)
@@ -173,7 +182,7 @@ mod_KNN_server <- function(input, output, session){
       isolate(kernel <- input$kernel.knn)
       updateAceEditor(session, "fieldCodeKnn", value = cod.knn.modelo)
       output$txtknn <- renderPrint(exe("modelo.knn.",kernel))
-      insert_report(paste0("modelo.knn.",kernel), paste0("Generaci\u00F3n del Modelo KNN (",kernel,")"),cod.knn.modelo,"\nmodelo.knn.", kernel)
+      #insert_report(paste0("modelo.knn.",kernel), paste0("Generaci\u00F3n del Modelo KNN (",kernel,")"),cod.knn.modelo,"\nmodelo.knn.", kernel)
       
       nombres.modelos <<- c(nombres.modelos, paste0("modelo.knn.",kernel))
     },
@@ -192,8 +201,8 @@ mod_KNN_server <- function(input, output, session){
       
       # Cambia la tabla con la prediccion de knn
       output$knnPrediTable <- DT::renderDataTable(tb_predic(real.val, exe("prediccion.knn.",kernel)), server = FALSE)
-      insert_report(paste0("pred.knn.",kernel), paste0("Predicci\u00F3n del Modelo KNN (",kernel,")"), 
-                    cod.knn.pred,"\nkt(head(tb_predic(real.val, prediccion.knn.",kernel,")$x$data[,-1]))", interpretation = FALSE)
+      # insert_report(paste0("pred.knn.",kernel), paste0("Predicci\u00F3n del Modelo KNN (",kernel,")"), 
+      #               cod.knn.pred,"\nkt(head(tb_predic(real.val, prediccion.knn.",kernel,")$x$data[,-1]))", interpretation = FALSE)
       
       plot_disp_knn()
       nombres.modelos <<- c(nombres.modelos, paste0("prediccion.knn.",kernel))
@@ -215,10 +224,10 @@ mod_KNN_server <- function(input, output, session){
         indices.knn <- general_indices(datos.prueba[,variable.predecir], exe("prediccion.knn.",kernel))
         #eval(parse(text = paste0("indices.knn.",kernel, "<<- indices.knn")))
         
-        insert_report(paste0("ind.knn.",kernel), paste0("\u00CDndices del Modelo KNN (",kernel,")"),
-                      cod.knn.ind, "\nkt(general_indices(datos.prueba[,'",variable.predecir,"'] ,prediccion.knn.",kernel,"))\n",
-                      "indices.knn <- general_indices(datos.prueba[,'",variable.predecir,"'], prediccion.knn.",kernel,")\n",
-                      "IndicesM[['knnl-",kernel,"']] <- indices.knn")
+        # insert_report(paste0("ind.knn.",kernel), paste0("\u00CDndices del Modelo KNN (",kernel,")"),
+        #               cod.knn.ind, "\nkt(general_indices(datos.prueba[,'",variable.predecir,"'] ,prediccion.knn.",kernel,"))\n",
+        #               "indices.knn <- general_indices(datos.prueba[,'",variable.predecir,"'], prediccion.knn.",kernel,")\n",
+        #               "IndicesM[['knnl-",kernel,"']] <- indices.knn")
         
         df <- as.data.frame(indices.knn)
         colnames(df) <- c(translate("RMSE"), translate("MAE"), translate("ER"), translate("correlacion"))
@@ -229,8 +238,7 @@ mod_KNN_server <- function(input, output, session){
         output$indexdfknn2 <- render_index_table(df2)
         
         #nombres.modelos <<- c(nombres.modelos, paste0("indices.knn.",kernel))
-        IndicesM[[paste0("knnl-",kernel)]] <<- indices.knn
-        update_comparative_selector()
+        updateData$IndicesM[[paste0("knnl-",kernel)]] <<- indices.knn
       },
       error = function(e) { # Regresamos al estado inicial y mostramos un error
         clean_knn(3)

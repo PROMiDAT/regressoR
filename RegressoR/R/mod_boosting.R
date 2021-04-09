@@ -146,16 +146,16 @@ mod_boosting_server <- function(input, output, session,updateData, updatePlot){
         exe("modelo.boosting.",input$tipo.boosting," <<- NULL")
         output$txtBoosting <- renderPrint(invisible(""))
         output$plot.boosting.import <- renderPlot(NULL)
-        remove_report_elem(paste0("modelo.b.",input$tipo.boosting))
-        remove_report_elem(paste0("modelo.b.error.",input$tipo.boosting))
-        remove_report_elem(paste0("modelo.b.imp.",input$tipo.boosting))
+        #remove_report_elem(paste0("modelo.b.",input$tipo.boosting))
+        #remove_report_elem(paste0("modelo.b.error.",input$tipo.boosting))
+        #remove_report_elem(paste0("modelo.b.imp.",input$tipo.boosting))
       }, {
         exe("prediccion.boosting.",input$tipo.boosting," <<- NULL")
-        remove_report_elem(paste0("pred.b.",input$tipo.boosting))
+        #remove_report_elem(paste0("pred.b.",input$tipo.boosting))
         output$boostingPrediTable <- DT::renderDataTable(NULL)
       },{
         exe("indices.boosting.",input$tipo.boosting," <<- NULL")
-        remove_report_elem(paste0("ind.b.",input$tipo.boosting))
+        #remove_report_elem(paste0("ind.b.",input$tipo.boosting))
       })
     }
   }
@@ -167,9 +167,9 @@ mod_boosting_server <- function(input, output, session,updateData, updatePlot){
       tipo <- input$tipo.boosting
       output$plot.boosting.import <- renderPlot(isolate(exe(codigo)))
       cod <- ifelse(codigo == "",boosting_importance_plot(paste0("modelo.boosting.",input$tipo.boosting)), codigo)
-      insert_report(paste0("modelo.b.imp.",tipo), 
-                    paste0("Importancia de las Variables (",tipo,")"),
-                    cod)
+      # insert_report(paste0("modelo.b.imp.",tipo), 
+      #               paste0("Importancia de las Variables (",tipo,")"),
+      #               cod)
     }, error = function(e) {
       clean_boosting(1)
     })
@@ -181,7 +181,7 @@ mod_boosting_server <- function(input, output, session,updateData, updatePlot){
       tipo <- input$tipo.boosting
       codigo <- input$fieldCodeBoostingDisp
       output$plot.boosting.disp <- renderPlot(exe(codigo))
-      insert_report(paste0("disp.boosting.",tipo),paste0("Dispersi\u00F3n del Modelo BOOSTING (",tipo,")"), codigo)
+      #insert_report(paste0("disp.boosting.",tipo),paste0("Dispersi\u00F3n del Modelo BOOSTING (",tipo,")"), codigo)
     },
     error = function(e) { # Regresamos al estado inicial y mostramos un error
       clean_boosting(2)
@@ -209,8 +209,8 @@ mod_boosting_server <- function(input, output, session,updateData, updatePlot){
       
       plotear_boosting_imp()
       
-      insert_report(paste0("modelo.b.",tipo), paste0("Generaci\u00F3n del Modelo BOOSTING (",tipo,")"),
-                    cod.b.modelo, "\nmodelo.boosting.",tipo)
+      # insert_report(paste0("modelo.b.",tipo), paste0("Generaci\u00F3n del Modelo BOOSTING (",tipo,")"),
+      #               cod.b.modelo, "\nmodelo.boosting.",tipo)
       
       nombres.modelos <<- c(nombres.modelos, paste0("modelo.boosting.",tipo))
     },
@@ -228,8 +228,8 @@ mod_boosting_server <- function(input, output, session,updateData, updatePlot){
       
       # Cambia la tabla con la prediccion de boosting
       output$boostingPrediTable <- DT::renderDataTable(tb_predic(real.val, exe("prediccion.boosting.",tipo)),server = FALSE)
-      insert_report(paste0("pred.b.",tipo),paste0("Predicci\u00F3n del Modelo BOOSTING (",tipo,")"),
-                    cod.b.pred,"\nkt(head(tb_predic(real.val, prediccion.boosting.",input$tipo.boosting,")$x$data[,-1]))",interpretation = FALSE)
+      # insert_report(paste0("pred.b.",tipo),paste0("Predicci\u00F3n del Modelo BOOSTING (",tipo,")"),
+      #               cod.b.pred,"\nkt(head(tb_predic(real.val, prediccion.boosting.",input$tipo.boosting,")$x$data[,-1]))",interpretation = FALSE)
       
       plot_disp_boosting()
       nombres.modelos <<- c(nombres.modelos, paste0("modelo.boosting.",tipo))
@@ -251,10 +251,10 @@ mod_boosting_server <- function(input, output, session,updateData, updatePlot){
         indices.boosting <- general_indices(datos.prueba[,variable.predecir], exe("prediccion.boosting.",tipo))
         #eval(parse(text = paste0("indices.boosting.",tipo, "<<- indices.boosting")))
         
-        insert_report(paste0("ind.b.",tipo), paste0("\u00CDndices Generales del Modelo (",tipo,")"),
-                      cod.knn.ind, "\nkt(general_indices(datos.prueba[,'",variable.predecir,"'] ,prediccion.boosting.",tipo,"))\n",
-                      "indices.boosting <- general_indices(datos.prueba[,'",variable.predecir,"'], prediccion.boosting.",tipo,")\n",
-                      "IndicesM[['bl-",tipo,"']] <- indices.boosting")
+        # insert_report(paste0("ind.b.",tipo), paste0("\u00CDndices Generales del Modelo (",tipo,")"),
+        #               cod.knn.ind, "\nkt(general_indices(datos.prueba[,'",variable.predecir,"'] ,prediccion.boosting.",tipo,"))\n",
+        #               "indices.boosting <- general_indices(datos.prueba[,'",variable.predecir,"'], prediccion.boosting.",tipo,")\n",
+        #               "IndicesM[['bl-",tipo,"']] <- indices.boosting")
         
         df <- as.data.frame(indices.boosting)
         colnames(df) <- c(translate("RMSE"), translate("MAE"), translate("ER"), translate("correlacion"))

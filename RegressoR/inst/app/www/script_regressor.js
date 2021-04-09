@@ -20,7 +20,7 @@ function promidat_model_firt(e, model, id){
   $("header").find("nav").append('<span class="header-title"> <i>regresso</i>R </span>');
 
   /* Los modelos se vuelven ejecutar al ser seleccionados una vez se haga una segmentacion diferente*/
-  $("a[href^='#shiny-tab-knn']").on('click', function(e){promidat_model_firt(e,"knn","runKnn")});
+  $("a[href^='#shiny-tab-knn']").on('click', function(e){promidat_model_firt(e,"knn","KNN_ui_1-runKnn")});
   $("a[href^='#shiny-tab-dt']").on('click', function(e){promidat_model_firt(e,"dt","regression_trees_ui_1-runDt")});
   $("a[href^='#shiny-tab-rf']").on('click', function(e){promidat_model_firt(e,"rf","random_forests_ui_1-runRf")});
   $("a[href^='#shiny-tab-boosting']").on('click', function(e){promidat_model_firt(e,"boosting","boosting_ui_1-runBoosting")});

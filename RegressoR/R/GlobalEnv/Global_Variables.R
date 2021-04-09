@@ -34,6 +34,7 @@ cod.select.landa <- NULL
 cod.knn.modelo <- NULL
 cod.knn.pred   <- NULL
 cod.knn.ind    <- NULL
+knn.args.default <- TRUE
 knn.stop.excu  <- FALSE
 # -- SVM
 cod.svm.modelo <- NULL

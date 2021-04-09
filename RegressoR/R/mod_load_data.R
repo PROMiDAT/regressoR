@@ -301,7 +301,6 @@ mod_load_data_server <- function(input, output, session,updateData){
       
       # change model codes
     
-      # default_codigo_knn(k.def = TRUE)
       # default_codigo_svm()
       # deafult_codigo_rd()
       # default_codigo_nn()
