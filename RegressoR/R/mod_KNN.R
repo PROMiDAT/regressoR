@@ -157,7 +157,8 @@ mod_KNN_server <- function(input, output, session,updateData, updatePlot){
   # Shows the graph the dispersion of the model with respect to the real values
   plot_disp_knn <- function(){
     tryCatch({ # Se corren los codigo
-      codigo <- input$fieldCodeKnnDisp
+      #codigo <- input$fieldCodeKnnDisp
+      codigo <- disp_models(paste0("prediccion.knn.", input$kernel.knn), translate("knnl"), variable.predecir)
       isolate(kernel <- input$kernel.knn)
       output$plot.knn.disp <- renderPlot(exe(codigo))
       #insert_report(paste0("disp.knn.",kernel), paste0("Dispersi\u00F3n del Modelo KNN (",kernel,")"), codigo)
