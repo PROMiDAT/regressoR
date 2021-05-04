@@ -140,6 +140,8 @@ app_ui <- function(request) {
                       tabItem(tabName = "rf",  mod_random_forests_ui("random_forests_ui_1")),
                       tabItem(tabName = "boosting",  mod_boosting_ui("boosting_ui_1")),
                       tabItem(tabName = "knn",  mod_KNN_ui("KNN_ui_1")),
+                      tabItem(tabName = "svm",  mod_SVM_ui("SVM_ui_1")),
+                      tabItem(tabName = "rd",  mod_dimension_reduction_ui("dimension_reduction_ui_1")),
                       tabItem(tabName = "comparar",  mod_model_comparison_ui("model_comparison_ui_1")),
                       tabItem(tabName = "acercaDe",  mod_information_page_ui("information_page_ui_1"))
                       ))

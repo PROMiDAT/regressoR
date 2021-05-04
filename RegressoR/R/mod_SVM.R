@@ -9,50 +9,52 @@
 #' @importFrom shiny NS tagList 
 mod_SVM_ui <- function(id){
   
+  ns <- NS(id)
+  
   svm.options <- list(fluidRow(column(width = 9,h4(labelInput("opciones"))),
-                               column(width = 2,br(),actionButton("runSvm", label = labelInput("ejecutar"), icon = icon("play")))),
+                               column(width = 2,br(),actionButton(ns("runSvm"), label = labelInput("ejecutar"), icon = icon("play")))),
                       hr(),
                       conditionalPanel("input.BoxSvm != 'tabSvmPlot'",
-                                       fluidRow(column(br(),switchInput(inputId = "switch.scale.svm", onStatus = "success", offStatus = "danger", value = T,
+                                       fluidRow(column(br(),switchInput(inputId = ns("switch.scale.svm"), onStatus = "success", offStatus = "danger", value = T,
                                                                         label = labelInput("escal"), onLabel = labelInput("si"), offLabel = labelInput("no"), labelWidth = "100%"), width = 6),
-                                                column(selectInput(inputId = "kernel.svm", label = labelInput("selkernel"), selected = "radial",
-                                                                   choices =  c("linear", "polynomial", "radial", "sigmoid")), width=6))))
+                                                column(selectInput(inputId = ns("kernel.svm"), label = labelInput("selkernel"), selected = "radial",
+                                                                   choices =  c("linear", "polynomial", "radial", "sigmoid")), width=6)), ns = ns))
   
   svm.code <- list(h4(labelInput("codigo")), hr(),
                    conditionalPanel("input.BoxSvm == 'tabSvmModelo'",
-                                    aceEditor("fieldCodeSvm", mode = "r", theme = "monokai", value = "", height = "3vh", readOnly = F, autoComplete = "enabled")),
+                                    aceEditor(ns("fieldCodeSvm"), mode = "r", theme = "monokai", value = "", height = "3vh", readOnly = F, autoComplete = "enabled"), ns = ns),
                    conditionalPanel("input.BoxSvm == 'tabSvmDisp'",
-                                    aceEditor("fieldCodeSvmDisp", mode = "r", theme = "monokai",
-                                              value = "", height = "6vh", readOnly = F, autoComplete = "enabled")),
+                                    aceEditor(ns("fieldCodeSvmDisp"), mode = "r", theme = "monokai",
+                                              value = "", height = "6vh", readOnly = F, autoComplete = "enabled"), ns = ns),
                    conditionalPanel("input.BoxSvm == 'tabSvmPred'",
-                                    aceEditor("fieldCodeSvmPred", mode = "r", theme = "monokai",
-                                              value = "", height = "3vh", readOnly = F, autoComplete = "enabled")),
+                                    aceEditor(ns("fieldCodeSvmPred"), mode = "r", theme = "monokai",
+                                              value = "", height = "3vh", readOnly = F, autoComplete = "enabled"), ns = ns),
                    conditionalPanel("input.BoxSvm == 'tabSvmIndex'",
-                                    aceEditor("fieldCodeSvmIG", mode = "r", theme = "monokai",
-                                              value = "", height = "22vh", readOnly = F, autoComplete = "enabled")))
+                                    aceEditor(ns("fieldCodeSvmIG"), mode = "r", theme = "monokai",
+                                              value = "", height = "22vh", readOnly = F, autoComplete = "enabled"), ns = ns))
   
   tabs.svm <- tabsOptions(buttons = list(icon("gear"),icon("code")), widths = c(50,100), heights = c(60, 95),
                           tabs.content = list(svm.options, svm.code))
   
   generate.svm.panel <- tabPanel(title = labelInput("generatem"), value = "tabSvmModelo",
-                                 verbatimTextOutput("txtSvm"))
+                                 verbatimTextOutput(ns("txtSvm")))
   
   disp.svm.panel <- tabPanel(title = labelInput("dispersion"), value = "tabSvmDisp",
-                             plotOutput('plot.svm.disp', height = "55vh"))
+                             plotOutput(ns('plot.svm.disp'), height = "55vh"))
   
   prediction.svm.panel <- tabPanel(title = labelInput("predm"), value = "tabSvmPred",
-                                   DT::dataTableOutput("svmPrediTable"))
+                                   DT::dataTableOutput(ns("svmPrediTable")))
   
   general.index.svm.panel <- tabPanel(title = labelInput("indices"), value = "tabSvmIndex",
                                       br(),
-                                      fluidRow(tableOutput('indexdfsvm')),
+                                      fluidRow(tableOutput(ns('indexdfsvm'))),
                                       br(),
                                       fluidRow(column(width = 12, align="center", tags$h3(labelInput("resumenVarPre")))),
                                       br(),
-                                      fluidRow(tableOutput('indexdfsvm2')))
+                                      fluidRow(tableOutput(ns('indexdfsvm2'))))
   
   page.svm <- tabItem(tabName = "svm",
-                      tabBox(id = "BoxSvm", width = NULL, height ="80%",
+                      tabBox(id = ns("BoxSvm"), width = NULL, height ="80%",
                              generate.svm.panel,
                              prediction.svm.panel,
                              disp.svm.panel,
@@ -60,31 +62,31 @@ mod_SVM_ui <- function(id){
                              tabs.svm))
   
   
-  ns <- NS(id)
   tagList(
- 
+    page.svm
   )
 }
     
 #' SVM Server Function
 #'
 #' @noRd 
-mod_SVM_server <- function(input, output, session){
+mod_SVM_server <- function(input, output, session,updateData, updatePlot){
   ns <- session$ns
   
   # When the knn model is generated
   observeEvent(input$runSvm, {
     if (validate_data()) { # Si se tiene los datos entonces :
+      default_codigo_svm()
       svm_full()
     }
   })
   
   # When the user changes the parameters
-  observeEvent(c(input$switch.scale.svm, input$kernel.svm), {
-    if (validate_data(print = FALSE)){
-      default_codigo_svm()
-    }
-  })
+  # observeEvent(c(input$switch.scale.svm, input$kernel.svm), {
+  #   if (validate_data(print = FALSE)){
+  #     default_codigo_svm()
+  #   }
+  # })
   
   # Upgrade code fields to default version
   default_codigo_svm <- function() {
@@ -120,14 +122,14 @@ mod_SVM_server <- function(input, output, session){
       switch(i, {
         exe("modelo.svm.",input$kernel.svm,"<<- NULL")
         output$txtSvm <- renderPrint(invisible(""))
-        remove_report_elem(paste0("modelo.svm.",input$kernel.svm))
+        #remove_report_elem(paste0("modelo.svm.",input$kernel.svm))
       }, {
         exe("prediccion.svm.",input$kernel.svm,"<<- NULL")
-        remove_report_elem(paste0("pred.svm.",input$kernel.svm))
+        #remove_report_elem(paste0("pred.svm.",input$kernel.svm))
         output$svmPrediTable <- DT::renderDataTable(NULL)
       }, {
         exe("indices.svm.",input$kernel.svm,"<<- NULL")
-        remove_report_elem(paste0("ind.svm.",input$kernel.svm))
+        #remove_report_elem(paste0("ind.svm.",input$kernel.svm))
       })
     }
   }
@@ -143,9 +145,10 @@ mod_SVM_server <- function(input, output, session){
   plot_disp_svm <- function(){
     tryCatch({ # Se corren los codigo
       isolate(kernel <- input$kernel.svm)
-      codigo <- input$fieldCodeSvmDisp
+      #codigo <- input$fieldCodeSvmDisp
+      codigo <- disp_models(paste0("prediccion.svm.",input$kernel.svm), translate("svml"), variable.predecir)
       output$plot.svm.disp <- renderPlot(exe(codigo))
-      insert_report(paste0("disp.svm.", kernel), paste0("Dispersi\u00F3n del Modelo SVM (",kernel,")"), codigo)
+      #insert_report(paste0("disp.svm.", kernel), paste0("Dispersi\u00F3n del Modelo SVM (",kernel,")"), codigo)
     },
     error = function(e) { # Regresamos al estado inicial y mostramos un error
       clean_svm(2)
@@ -161,7 +164,7 @@ mod_SVM_server <- function(input, output, session){
       output$txtSvm <- renderPrint(exe("print(modelo.svm.",kernel,")"))
       updateAceEditor(session, "fieldCodeSvm", value = cod.svm.modelo)
       
-      insert_report(paste0("modelo.svm.",kernel), paste0("Generaci\u00F3n del Modelo SVM (",kernel,")"), cod.svm.modelo, "\nmodelo.svm.", kernel)
+      #insert_report(paste0("modelo.svm.",kernel), paste0("Generaci\u00F3n del Modelo SVM (",kernel,")"), cod.svm.modelo, "\nmodelo.svm.", kernel)
       
       nombres.modelos <<- c(nombres.modelos, paste0("modelo.svm.", kernel))
     },
@@ -179,8 +182,8 @@ mod_SVM_server <- function(input, output, session){
       
       # Cambia la tabla con la prediccion de knn
       output$svmPrediTable <- DT::renderDataTable(exe("tb_predic(real.val, prediccion.svm.",kernel,")"),server = FALSE)
-      insert_report(paste0("pred.svm.",input$kernel.svm), paste0("Predicci\u00F3n del Modelo SVM (",kernel,")"), 
-                    cod.svm.pred,"\nkt(head(tb_predic(real.val, prediccion.svm.",kernel,")$x$data[,-1]))",interpretation = FALSE)
+      # insert_report(paste0("pred.svm.",input$kernel.svm), paste0("Predicci\u00F3n del Modelo SVM (",kernel,")"), 
+      #               cod.svm.pred,"\nkt(head(tb_predic(real.val, prediccion.svm.",kernel,")$x$data[,-1]))",interpretation = FALSE)
       
       nombres.modelos <<- c(nombres.modelos, paste0("prediccion.svm.",kernel))
       
@@ -202,10 +205,10 @@ mod_SVM_server <- function(input, output, session){
         indices.svm <- general_indices(datos.prueba[,variable.predecir], exe("prediccion.svm.",kernel))
         #eval(parse(text =paste0("indices.svm.",kernel, "<<- indices.svm")))
         
-        insert_report(paste0("ind.svm.",kernel), paste0("\u00CDndices Generales del modelo SVM (",kernel,")"),
-                      cod.svm.ind, "\nkt(general_indices(datos.prueba[,'",variable.predecir,"'], prediccion.svm.",kernel,"))\n",
-                      "indices.svm <- general_indices(datos.prueba[,'",variable.predecir,"'], prediccion.svm.",kernel,")\n",
-                      "IndicesM[['svml-",kernel,"']] <- indices.svm")
+        # insert_report(paste0("ind.svm.",kernel), paste0("\u00CDndices Generales del modelo SVM (",kernel,")"),
+        #               cod.svm.ind, "\nkt(general_indices(datos.prueba[,'",variable.predecir,"'], prediccion.svm.",kernel,"))\n",
+        #               "indices.svm <- general_indices(datos.prueba[,'",variable.predecir,"'], prediccion.svm.",kernel,")\n",
+        #               "IndicesM[['svml-",kernel,"']] <- indices.svm")
         
         df <- as.data.frame(indices.svm)
         colnames(df) <- c(translate("RMSE"), translate("MAE"), translate("ER"), translate("correlacion"))
@@ -217,8 +220,8 @@ mod_SVM_server <- function(input, output, session){
         
         plot_disp_svm()
         #nombres.modelos <<- c(nombres.modelos, paste0("indices.svm.",kernel))
-        IndicesM[[paste0("svml-",kernel)]] <<- indices.svm
-        update_comparative_selector()
+
+        updateData$IndicesM[[paste0("svml-",kernel)]] <<- indices.svm
       },
       error = function(e) { # Regresamos al estado inicial y mostramos un error
         clean_svm(3)

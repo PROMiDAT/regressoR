@@ -35,7 +35,8 @@ cod.knn.modelo <- NULL
 cod.knn.pred   <- NULL
 cod.knn.ind    <- NULL
 knn.args.default <- TRUE
-knn.stop.excu  <- FALSE
+#knn.stop.excu  <- FALSE
+
 # -- SVM
 cod.svm.modelo <- NULL
 cod.svm.pred   <- NULL
