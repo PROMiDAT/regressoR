@@ -85,6 +85,7 @@ app_server <- function( input, output, session ) {
   callModule(mod_KNN_server, "KNN_ui_1",updateData, updatePlot)
   callModule(mod_SVM_server, "SVM_ui_1",updateData, updatePlot)
   callModule(mod_dimension_reduction_server, "dimension_reduction_ui_1",updateData, updatePlot)
+  callModule(mod_neural_networks_server, "neural_networks_ui_1",updateData, updatePlot)
   callModule(mod_model_comparison_server, "model_comparison_ui_1",updateData,updatePlot)
   callModule(mod_information_page_server, "information_page_ui_1")
 }

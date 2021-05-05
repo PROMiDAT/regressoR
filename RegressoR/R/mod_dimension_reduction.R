@@ -198,7 +198,8 @@ mod_dimension_reduction_server <- function(input, output, session,updateData, up
   # Shows the graph the dispersion of the model with respect to the real values
   plot_disp_rd <- function(){
     tryCatch({ # Se corren los codigo
-      codigo <- input$fieldCodeRdDisp
+      #codigo <- input$fieldCodeRdDisp
+      codigo <- disp_models(paste0("prediccion.rd.",rd_type()), translate("rd"), variable.predecir)
       output$plot.rd.disp <- renderPlot(isolate(exe(codigo)))
       # insert_report(paste0("disp.rd.",rd_type()),
       #               paste0("Dispersi\u00F3n del Modelo Reducci\u00F3n de Dimensiones (",rd_type(),")"),

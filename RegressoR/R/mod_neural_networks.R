@@ -9,59 +9,61 @@
 #' @importFrom shiny NS tagList 
 mod_neural_networks_ui <- function(id){
   
+  ns <- NS(id)
+  
   nn.options <- list(fluidRow(column(width = 9,h4(labelInput("opciones"))),
-                              column(width = 2,br(),actionButton("runNn", label = labelInput("ejecutar"), icon = icon("play")))),
+                              column(width = 2,br(),actionButton(ns("runNn"), label = labelInput("ejecutar"), icon = icon("play")))),
                      hr(),
-                     fluidRow(column(numericInput("threshold.nn",labelInput("threshold"),
+                     fluidRow(column(numericInput(ns("threshold.nn"),labelInput("threshold"),
                                                   min = 0, step = 0.01, value = 0.05), width = 6),
-                              column(numericInput("stepmax.nn",labelInput("stepmax"),
+                              column(numericInput(ns("stepmax.nn"),labelInput("stepmax"),
                                                   min = 100, step = 100, value = 5000), width = 6)),
-                     fluidRow(column(sliderInput(inputId = "cant.capas.nn", min = 1, max = 10,
+                     fluidRow(column(sliderInput(inputId = ns("cant.capas.nn"), min = 1, max = 10,
                                                  label = labelInput("selectCapas"), value = 2), width = 12)),
-                     fluidRow(lapply(1:10, function(i) tags$span(numericInput(paste0("nn.cap.",i), NULL,
+                     fluidRow(lapply(1:10, function(i) tags$span(numericInput(paste0(ns("nn.cap."),i), NULL,
                                                                               min = 1, step = 1, value = 2),
                                                                  class = "mini-numeric-select"))))
   
   nn.code <- list(h4(labelInput("codigo")), hr(),
                   conditionalPanel("input.BoxNn == 'tabNnModelo'",
-                                   aceEditor("fieldCodeNn", mode = "r", theme = "monokai", value = "", height = "22vh", readOnly = F)),
+                                   aceEditor(ns("fieldCodeNn"), mode = "r", theme = "monokai", value = "", height = "22vh", readOnly = F),ns = ns),
                   conditionalPanel("input.BoxNn == 'tabNnPlot'",
-                                   aceEditor("fieldCodeNnPlot", mode = "r", theme = "monokai", value = "", height = "9vh", readOnly = F)),
+                                   aceEditor(ns("fieldCodeNnPlot"), mode = "r", theme = "monokai", value = "", height = "9vh", readOnly = F),ns = ns),
                   conditionalPanel("input.BoxNn == 'tabNnPred'",
-                                   aceEditor("fieldCodeNnPred", mode = "r", theme = "monokai",
-                                             value = "", height = "10vh", readOnly = F, autoComplete = "enabled")),
+                                   aceEditor(ns("fieldCodeNnPred"), mode = "r", theme = "monokai",
+                                             value = "", height = "10vh", readOnly = F, autoComplete = "enabled"),ns = ns),
                   conditionalPanel("input.BoxNn == 'tabNnDisp'",
-                                   aceEditor("fieldCodeNnDisp", mode = "r", theme = "monokai",
-                                             value = "", height = "3vh", readOnly = F, autoComplete = "enabled")),
+                                   aceEditor(ns("fieldCodeNnDisp"), mode = "r", theme = "monokai",
+                                             value = "", height = "3vh", readOnly = F, autoComplete = "enabled"),ns = ns),
                   conditionalPanel("input.BoxNn == 'tabNnIndex'",
-                                   aceEditor("fieldCodeNnIG", mode = "r", theme = "monokai",
-                                             value = "", height = "22vh", readOnly = F, autoComplete = "enabled")))
+                                   aceEditor(ns("fieldCodeNnIG"), mode = "r", theme = "monokai",
+                                             value = "", height = "22vh", readOnly = F, autoComplete = "enabled"),ns = ns))
   
   tabs.nn <- tabsOptions(buttons = list(icon("gear"),icon("code")), widths = c(75,100), heights = c(95, 95),
                          tabs.content = list(nn.options, nn.code))
   
   plot.nn <- tabPanel(title = labelInput("redPlot"), value = "tabNnPlot",
-                      plotOutput('plot.nn', height = "55vh"))
+                      plotOutput(ns('plot.nn'), height = "55vh"))
   
   generate.nn.panel <- tabPanel(title = labelInput("generatem"), value = "tabNnModelo",
-                                verbatimTextOutput("txtnn"))
+                                verbatimTextOutput(ns("txtnn")))
   
   prediction.nn.panel <- tabPanel(title = labelInput("predm"), value = "tabNnPred",
-                                  DT::dataTableOutput("nnPrediTable"))
+                                  DT::dataTableOutput(ns("nnPrediTable")))
   
   disp.nn.panel <- tabPanel(title = labelInput("dispersion"), value = "tabNnDisp",
-                            plotOutput('plot.nn.disp', height = "55vh"))
+                            plotOutput(ns('plot.nn.disp'), height = "55vh"))
   
   general.index.nn.panel <- tabPanel(title = labelInput("indices"), value = "tabNnIndex",
                                      br(),
-                                     fluidRow(tableOutput('indexdfnn')),
+                                     fluidRow(tableOutput(ns('indexdfnn'))),
                                      br(),
                                      fluidRow(column(width = 12, align="center", tags$h3(labelInput("resumenVarPre")))),
                                      br(),
-                                     fluidRow(tableOutput('indexdfnn2')))
+                                     fluidRow(tableOutput(ns('indexdfnn2'))))
   
   page.nn  <- tabItem(tabName = "nn",
-                      tabBox(id = "BoxNn", width = NULL, height ="80%",
+                      tabBox(id = ns("BoxNn"), width = NULL, height ="80%",
                              generate.nn.panel,
                              plot.nn,
                              prediction.nn.panel,
@@ -69,47 +71,74 @@ mod_neural_networks_ui <- function(id){
                              general.index.nn.panel,
                              tabs.nn))
   
-  ns <- NS(id)
+  
   tagList(
- 
+    page.nn
   )
 }
     
 #' neural_networks Server Function
 #'
 #' @noRd 
-mod_neural_networks_server <- function(input, output, session){
+mod_neural_networks_server <- function(input, output, session,updateData, updatePlot){
   ns <- session$ns
+  
+  observeEvent(updateData$datos.aprendizaje, {
+    #Change to default values
+    return.nn.default.values()
+  })
   
   
   # When user change the layer selector
-  observeEvent(c(input$cant.capas.nn, input$segmentButton), {
+  observeEvent(input$cant.capas.nn, {
+    updateLayers()
+  })
+  
+  return.nn.default.values <- function(){
+    updateSliderInput(session, "cant.capas.nn", value = 2)
+    updateNumericInput(session, "threshold.nn", value = 0.05)
+    updateNumericInput(session, "stepmax.nn", value = 5000)
+    updateLayers()
+    output$plot.nn <- renderPlot(NULL)
+    output$nnPrediTable <- DT::renderDataTable(NULL)
+    output$plot.nn.disp <- renderPlot(NULL)
+    output$indexdfnn <- render_index_table(NULL)
+    output$indexdfnn2 <- render_index_table(NULL)
+  }
+  
+  
+  updateLayers <- function(){
     if(!is.null(datos.aprendizaje) && !is.null(input$cant.capas.nn)){
       for (i in 1:10) {
         if(i <= input$cant.capas.nn) {
+          #No se usa ns() x el parámetro asis de show y hide.
           shinyjs::show(paste0("nn.cap.", i))
         } else {
           shinyjs::hide(paste0("nn.cap.", i))
         }
       }
     }
-  })
+  }
   
   # When the nn model is generated
   observeEvent(input$runNn, {
     if (validate_data()) { # Si se tiene los datos entonces :
+      default_codigo_nn()
       nn_full()
     }
   })
   
+  
   # When the user changes the parameters
-  observeEvent(c(input$cant.capas.nn,input$threshold.nn,input$stepmax.nn,
-                 input$nn.cap.1,input$nn.cap.2,input$nn.cap.3,input$nn.cap.4,input$nn.cap.5,
-                 input$nn.cap.6,input$nn.cap.7,input$nn.cap.8,input$nn.cap.9,input$nn.cap.10),{
-                   if(validate_data(print = FALSE)){
-                     default_codigo_nn()
-                   }
-                 })
+  # observeEvent(c(input$cant.capas.nn,input$threshold.nn,input$stepmax.nn,
+  #                input$nn.cap.1,input$nn.cap.2,input$nn.cap.3,input$nn.cap.4,input$nn.cap.5,
+  #                input$nn.cap.6,input$nn.cap.7,input$nn.cap.8,input$nn.cap.9,input$nn.cap.10),{
+  #                  if(validate_data(print = FALSE)){
+  #                    default_codigo_nn()
+  #                  }
+  #                })
+  
+  
   
   # Upgrade code fields to default version
   default_codigo_nn <- function(){
@@ -157,24 +186,27 @@ mod_neural_networks_server <- function(input, output, session){
                  input$nn.cap.5,input$nn.cap.6,input$nn.cap.7,input$nn.cap.8,input$nn.cap.9,input$nn.cap.10)
       capas <- capas[1:input$cant.capas.nn]
       if(input$cant.capas.nn * sum(capas) <= 1000 & ncol(modelo.nn$covariate) <= 25){
-        output$plot.nn <- renderPlot(isolate(exe(input$fieldCodeNnPlot)))
-        cod <- ifelse(input$fieldCodeNnPlot == "", nn_plot(), input$fieldCodeNnPlot)
-        insert_report("modelo.nn.graf", "Red Neuronal", cod)
+        codigo = nn_plot()
+        output$plot.nn <- renderPlot(isolate(exe(codigo)))
+        #cod <- ifelse(codigo == "", nn_plot(), codigo)
+        #insert_report("modelo.nn.graf", "Red Neuronal", cod)
       }else{
         showNotification(translate("bigPlot"), duration = 10, type = "message")
       }
     },
     error = function(e){
       output$plot.nn <- renderPlot(NULL)
-      remove_report_elem("modelo.nn.graf")
+      #remove_report_elem("modelo.nn.graf")
     })
   }
   
   # Shows the graph the dispersion of the model with respect to the real values
   plot_disp_nn <- function(){
     tryCatch({ # Se corren los codigo
-      output$plot.nn.disp <- renderPlot(exe(input$fieldCodeNnDisp))
-      insert_report("disp.nn", "Dispersi\u00F3n del Modelo Redes Neuronales", input$fieldCodeNnDisp)
+      codigo <- disp_models("prediccion.nn", translate("nn"), variable.predecir)
+      output$plot.nn.disp <- renderPlot(exe(codigo))
+      #output$plot.nn.disp <- renderPlot(exe(input$fieldCodeNnDisp))
+      #insert_report("disp.nn", "Dispersi\u00F3n del Modelo Redes Neuronales", input$fieldCodeNnDisp)
     },
     error = function(e) { # Regresamos al estado inicial y mostramos un error
       clean_nn(2)
@@ -189,15 +221,15 @@ mod_neural_networks_server <- function(input, output, session){
         exe("modelo.nn <- NULL")
         output$txtnn <- renderPrint(invisible(""))
         output$plot.nn <- renderPlot(NULL)
-        remove_report_elem("modelo.nn")
-        remove_report_elem("modelo.nn.graf")
+        # remove_report_elem("modelo.nn")
+        # remove_report_elem("modelo.nn.graf")
       }, {
         exe("prediccion.nn <- NULL")
-        remove_report_elem("pred.nn")
+        #remove_report_elem("pred.nn")
         output$nnPrediTable <- DT::renderDataTable(NULL)
       },{
         exe("indices.nn <- NULL")
-        remove_report_elem("ind.nn")
+        #remove_report_elem("ind.nn")
       })
     }
   }
@@ -216,8 +248,8 @@ mod_neural_networks_server <- function(input, output, session){
     tryCatch({ # Se corren los codigo
       isolate(exe(cod.nn.modelo))
       output$txtnn <- renderPrint(print(modelo.nn))
-      insert_report("modelo.nn", "Generaci\u00F3n del modelo Redes Neuronales",
-                    cod.nn.modelo,"\nsummary(modelo.nn)")
+      # insert_report("modelo.nn", "Generaci\u00F3n del modelo Redes Neuronales",
+      #               cod.nn.modelo,"\nsummary(modelo.nn)")
       plot_net()
       nombres.modelos <<- c(nombres.modelos,"modelo.nn")
       NN_EXECUTION <<- TRUE
@@ -241,8 +273,8 @@ mod_neural_networks_server <- function(input, output, session){
       # Cambia la tabla con la prediccion de nn
       output$nnPrediTable <- DT::renderDataTable(tb_predic(real.val, prediccion.nn),server = FALSE)
       
-      insert_report("pred.nn", "Predicci\u00F3n del Modelo Redes Neuronales", cod.nn.pred,
-                    "\nkt(head(tb_predic(real.val, prediccion.nn)$x$data[,-1]))",interpretation = FALSE)
+      # insert_report("pred.nn", "Predicci\u00F3n del Modelo Redes Neuronales", cod.nn.pred,
+      #               "\nkt(head(tb_predic(real.val, prediccion.nn)$x$data[,-1]))",interpretation = FALSE)
       
       plot_disp_nn()
       nombres.modelos <<- c(nombres.modelos,"prediccion.nn")
@@ -261,11 +293,11 @@ mod_neural_networks_server <- function(input, output, session){
         isolate(exe(cod.nn.ind))
         indices.nn <- general_indices(datos.prueba[,variable.predecir], prediccion.nn)
         
-        insert_report("ind.nn","\u00CDndices Generales del Modelo Redes Neuronales",
-                      cod.nn.ind, 
-                      "\nkt(general_indices(datos.prueba[,'",variable.predecir,"'], prediccion.nn))\n",
-                      "indices.nn <- general_indices(datos.prueba[,'",variable.predecir,"'], prediccion.nn)\n",
-                      "IndicesM[['nn']] <- indices.nn")
+        # insert_report("ind.nn","\u00CDndices Generales del Modelo Redes Neuronales",
+        #               cod.nn.ind, 
+        #               "\nkt(general_indices(datos.prueba[,'",variable.predecir,"'], prediccion.nn))\n",
+        #               "indices.nn <- general_indices(datos.prueba[,'",variable.predecir,"'], prediccion.nn)\n",
+        #               "IndicesM[['nn']] <- indices.nn")
         
         df <- as.data.frame(indices.nn)
         colnames(df) <- c(translate("RMSE"), translate("MAE"), translate("ER"), translate("correlacion"))
@@ -275,8 +307,7 @@ mod_neural_networks_server <- function(input, output, session){
         colnames(df2) <- c(translate("minimo"),translate("q1"),translate("q3"),translate("maximo"))
         output$indexdfnn2 <- render_index_table(df2)
         
-        IndicesM[["nn"]] <<- indices.nn
-        update_comparative_selector()
+        updateData$IndicesM[["nn"]] <<- indices.nn
       },
       error = function(e) { #Regresamos al estado inicial y mostramos un error
         clean_nn(3)
