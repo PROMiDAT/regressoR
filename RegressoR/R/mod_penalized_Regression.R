@@ -99,25 +99,39 @@ mod_penalized_Regression_ui <- function(id){
 mod_penalized_Regression_server <- function(input, output, session, updateData, updatePlot){
   ns <- session$ns
   
+  return.rlr.default.values <- function(){
+    output$txtRlr <- renderText(NULL)
+    output$plot.rlr.posiblanda <- renderPlot(NULL)
+    output$txtRlrCoeff <- renderText(NULL)
+    output$rlCoefTable <- DT::renderDataTable(NULL)
+    output$plot.rlr.landa <- renderPlot(NULL)
+    output$rlrPrediTable <- DT::renderDataTable(NULL)
+    output$plot.rlr.disp <- renderPlot(NULL)
+    output$indexdfrlr <- render_index_table(NULL)
+    output$indexdfrlr2 <- render_index_table(NULL)
+  }
+  
   # change model codes
   observeEvent(updateData$datos.aprendizaje,{
-    deafult_codigo_rlr()
+    return.rlr.default.values()
   })
  
   # When the rlr model is generated
   observeEvent(input$runRlr, {
     if (validate_data()) { # If you have the data then :
+      options_regressor(rlr.alpha = input$alpha.rlr)
+      deafult_codigo_rlr()
       rlr_full()
     }
   })
   
   # When the user changes the parameters
-  observeEvent(c(input$alpha.rlr, input$switch.scale.rlr, input$landa, input$permitir.landa), {
-    if (validate_data(print = FALSE)) {
-      options_regressor(rlr.alpha = input$alpha.rlr)
-      deafult_codigo_rlr()
-    }
-  })
+  # observeEvent(c(input$alpha.rlr, input$switch.scale.rlr, input$landa, input$permitir.landa), {
+  #   if (validate_data(print = FALSE)) {
+  #     options_regressor(rlr.alpha = input$alpha.rlr)
+  #     deafult_codigo_rlr()
+  #   }
+  # })
   
   # When user press enable or disable the lambda
   observeEvent(input$permitir.landa, {
@@ -211,8 +225,7 @@ mod_penalized_Regression_server <- function(input, output, session, updateData, 
   # Shows the graph the dispersion of the model with respect to the real values
   plot_disp_rlr <- function(){
     tryCatch({ # Se corren los codigo
-      codigo <- input$fieldCodeRlrDisp
-      output$plot.rlr.disp <- renderPlot(isolate(exe(codigo)))
+      output$plot.rlr.disp <- renderPlot(isolate(exe(input$fieldCodeRlrDisp)))
       #insert_report(paste0("disp.rlr.",rlr_type()), paste0("Dispersi\u00F3n del Modelo Regresi\u00F3n Penalizada (",rlr_type(),")"), codigo)
     },
     error = function(e) { # Regresamos al estado inicial y mostramos un error
@@ -236,9 +249,7 @@ mod_penalized_Regression_server <- function(input, output, session, updateData, 
   # Displays coefficients as text
   print_coeff <- function(){
     tryCatch({ # Se corren los codigo
-      codigo <- input$fieldCodeRlrCoeff
-      output$txtRlrCoeff <- renderPrint(print(isolate(exe(codigo))))
-      #insert_report(paste0("coeff.landa.rlr.",rlr_type()),paste0("Coeficientes (",rlr_type(),")"), codigo)
+      output$txtRlrCoeff <- renderPrint(print(isolate(exe(input$fieldCodeRlrCoeff))))
     },
     error = function(e) { # Regresamos al estado inicial y mostramos un error
       clean_rlr(2)
@@ -249,20 +260,7 @@ mod_penalized_Regression_server <- function(input, output, session, updateData, 
   # Show the graph of the coefficients
   plot_coeff <- function(){
     tryCatch({ # Se corren los codigo
-      landa <- NULL
-      
-      if (input$permitir.landa) {
-        if (!is.na(input$landa)) {
-          landa <- input$landa
-        }
-      }
-      
-      codigo <- plot_coef_lambda(model.var = paste0("modelo.rlr.", rlr_type()),
-                                 lambda = landa,
-                                 cv.var = paste0("cv.glm.", rlr_type()))
-      
-      #codigo <- input$fieldCodeRlrLanda
-      output$plot.rlr.landa <- renderPlot(isolate(exe(codigo)))
+      output$plot.rlr.landa <- renderPlot(isolate(exe(input$fieldCodeRlrLanda)))
       #insert_report(paste0("gcoeff.landa.rlr.",rlr_type()),paste0("Coeficientes y lamdas (",rlr_type(),")"),codigo)
     },
     error = function(e){ # Regresamos al estado inicial y mostramos un error

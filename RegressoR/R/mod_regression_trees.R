@@ -84,25 +84,36 @@ mod_regression_trees_ui <- function(id){
 mod_regression_trees_server <- function(input, output, session,updateData, updatePlot){
   ns <- session$ns
   
+  return.dt.default.values <- function(){
+    output$txtDt <- renderText(NULL)
+    output$plot.dt <- renderPlot(NULL)
+    output$dtPrediTable <- DT::renderDataTable(NULL)
+    output$plot.dt.disp <- renderPlot(NULL)
+    output$indexdfdt <- render_index_table(NULL)
+    output$indexdfdt2 <- render_index_table(NULL)
+    output$rulesDt <- renderText(NULL)
+  }
+  
   # change model codes
   observeEvent(updateData$datos.aprendizaje,{
-    default_codigo_dt()
+    return.dt.default.values()
   })
   
   
   #  When the dt model is generated
   observeEvent(input$runDt, {
     if (validate_data()) { # Si se tiene los datos entonces :
+      default_codigo_dt()
       dt_full()
     }
   })
   
   # When the user changes the parameters
-  observeEvent(c(input$minsplit.dt, input$maxdepth.dt), {
-    if (validate_data(print = FALSE)){
-      default_codigo_dt()
-    }
-  })
+  # observeEvent(c(input$minsplit.dt, input$maxdepth.dt), {
+  #   if (validate_data(print = FALSE)){
+  #     default_codigo_dt()
+  #   }
+  # })
   
   # Upgrade code fields to default version
   default_codigo_dt <- function() {
@@ -137,8 +148,6 @@ mod_regression_trees_server <- function(input, output, session,updateData, updat
   plot_tree <- function(){
     tryCatch({
       output$plot.dt <- renderPlot(isolate(exe(input$fieldCodeDtPlot)))
-      cod <- ifelse(input$fieldCodeDtPlot == "", dt_plot(), input$fieldCodeDtPlot)
-      #insert_report("modelo.dt.graf", "\u00C1rboles de Decisi\u00F3n", cod)
     },
     error = function(e){
       output$plot.dt <- renderPlot(NULL)

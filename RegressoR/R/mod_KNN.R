@@ -74,10 +74,10 @@ mod_KNN_server <- function(input, output, session,updateData, updatePlot){
   ns <- session$ns
   
   
-  # change model codes
-  # observeEvent(updateData$datos.aprendizaje,{
-  #   default_codigo_knn(k.def = TRUE)
-  # })
+  #change model codes
+  observeEvent(updateData$datos.aprendizaje,{
+    knn.args.default <<- FALSE
+  })
   
  
   # When the knn model is generated

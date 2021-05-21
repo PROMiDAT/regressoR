@@ -88,27 +88,40 @@ mod_random_forests_ui <- function(id){
 mod_random_forests_server <- function(input, output, session,updateData, updatePlot){
   ns <- session$ns
   
+  return.rf.default.values <- function(){
+    rf.args.default <<- TRUE
+    
+    output$txtRf <- renderText(NULL)
+    output$plot.rf <- renderPlot(NULL)
+    output$rfPrediTable <- DT::renderDataTable(NULL)
+    output$plot.rf.disp <- renderPlot(NULL)
+    output$indexdfrf <- render_index_table(NULL)
+    output$indexdfrf2 <- render_index_table(NULL)
+    output$rulesRf <- renderText(NULL)
+  }
+  
   # change model codes
   observeEvent(updateData$datos.aprendizaje,{
-    deafult_codigo_rf(rf.def = TRUE)
+    return.rf.default.values()
   })
  
   
   # When the rf model is generated
   observeEvent(input$runRf, {
     if (validate_data()) { # Si se tiene los datos entonces :
+      deafult_codigo_rf()
       rf_full()
     }
   })
   
   # When the user changes the parameters
-  observeEvent(c(input$ntree.rf,input$mtry.rf), {
-    if (validate_data(print = FALSE) & rf.stop.excu) {
-      deafult_codigo_rf()
-    }else{
-      rf.stop.excu <<- TRUE
-    }
-  })
+  # observeEvent(c(input$ntree.rf,input$mtry.rf), {
+  #   if (validate_data(print = FALSE) & rf.stop.excu) {
+  #     deafult_codigo_rf()
+  #   }else{
+  #     rf.stop.excu <<- TRUE
+  #   }
+  # })
   
   # When user change the rule selector
   observeEvent(input$rules.rf.n,{
@@ -118,10 +131,11 @@ mod_random_forests_server <- function(input, output, session,updateData, updateP
   })
   
   # Upgrade code fields to default version
-  deafult_codigo_rf <- function(rf.def = FALSE){
-    if(!is.null(datos.aprendizaje) & rf.def){
-      mtry.value <- ifelse(rf.def, round(sqrt(ncol(datos.aprendizaje))), input$mtry.rf)
+  deafult_codigo_rf <- function(){
+    if(!is.null(datos.aprendizaje) & rf.args.default){
+      mtry.value <- round(sqrt(ncol(datos.aprendizaje)))
       updateNumericInput(session,"mtry.rf",value = mtry.value)
+      rf.args.default <<- FALSE
     }else{
       mtry.value <- input$mtry.rf
     }

@@ -299,12 +299,6 @@ mod_load_data_server <- function(input, output, session,updateData){
       
       delete_models(FALSE)
       
-      # change model codes
-    
-      # default_codigo_svm()
-      # deafult_codigo_rd()
-      # default_codigo_nn()
-      
     } else {
       showNotification(translate("tieneSVP"), duration = 15, type = "error")
     }

@@ -56,7 +56,8 @@ cod.dt.ind    <- NULL
 cod.rf.modelo <- NULL
 cod.rf.pred   <- NULL
 cod.rf.ind    <- NULL
-rf.stop.excu  <- FALSE
+rf.args.default <- TRUE
+#rf.stop.excu  <- FALSE
 # -- BOOSTING
 cod.b.modelo <- NULL
 cod.b.pred   <- NULL

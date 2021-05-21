@@ -73,14 +73,25 @@ mod_linear_regression_ui <- function(id){
 mod_linear_regression_server <- function(input, output, session, updateData, updatePlot){
   ns <- session$ns
   
-  # change model codes
+  return.rl.default.values <- function(){
+    output$txtRl <- renderText(NULL)
+    output$rlCoefTable <- DT::renderDataTable(NULL)
+    output$rlPrediTable <- DT::renderDataTable(NULL)
+    output$plot.rl.disp <- renderPlot(NULL)
+    output$indexdfrl <- render_index_table(NULL)
+    output$indexdfrl2 <- render_index_table(NULL)
+  }
+  
+
   observeEvent(updateData$datos.aprendizaje,{
-    deafult_codigo_rl()
+    #Change to default values
+    return.rl.default.values()
   })
   
   # When the rl model is generated
   observeEvent(input$runRl, {
     if (validate_data()) { # Si se tiene los datos entonces :
+      deafult_codigo_rl()
       rl_full()
     }
   })
