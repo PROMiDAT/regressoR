@@ -15,7 +15,7 @@ mod_boosting_ui <- function(id){
                              column(width = 2,br(),actionButton(ns("runBoosting"), label = labelInput("ejecutar"), icon = icon("play")))),
                     hr(),
                     fluidRow(column(numericInput(ns("iter.boosting"), labelInput("numTree"), 20, width = "100%",min = 1), width = 6),
-                             column(numericInput(ns("shrinkage.boosting"), labelInput("shrinkage"), 0.01, width = "100%",min = 0.001, step = 0.001), width=6)),
+                             column(numericInput(ns("shrinkage.boosting"), labelInput("shrinkage"), 0.1, width = "100%",min = 0.01, step = 0.01), width=6)),
                     fluidRow(column(selectInput(inputId = ns("tipo.boosting"), label = labelInput("selectAlg"),selected = 1,
                                                 choices =  c("gaussian", "laplace", "tdist")), width = 6)))
   
@@ -79,31 +79,38 @@ mod_boosting_ui <- function(id){
 mod_boosting_server <- function(input, output, session,updateData, updatePlot){
   ns <- session$ns
   
-  # change model codes
+  return.boosting.default.values <- function(){
+    output$txtBoosting <- renderText(NULL)
+    output$plot.boosting.import <- renderPlot(NULL)
+    output$boostingPrediTable <- DT::renderDataTable(NULL)
+    output$plot.boosting.disp <- renderPlot(NULL)
+    output$indexdfb <- render_index_table(NULL)
+    output$indexdfb2 <- render_index_table(NULL)
+  }
+  
+
   observeEvent(updateData$datos.aprendizaje,{
-    deault_codigo_boosting()
+    return.boosting.default.values()
   })
  
   # When the boosting model is generated
   observeEvent(input$runBoosting, {
     if (validate_data()){ # Si se tiene los datos entonces :
+      # change model codes
+      deault_codigo_boosting()
       boosting_full()
     }
   })
   
-  # When user change the rule selector
-  observeEvent(input$rules.b.n,{
-    if(validate_data(print = FALSE)){
-      mostrar.reglas.boosting(input$rules.b.n)
-    }
-  })
   
   # When the user changes the parameters
-  observeEvent(c(input$iter.boosting, input$nu.boosting, input$tipo.boosting, input$shrinkage.boosting, input$maxdepth.boosting), {
-    if (validate_data(print = FALSE)){
-      deault_codigo_boosting()
-    }
-  })
+  # observeEvent(c(input$iter.boosting, input$nu.boosting, input$tipo.boosting, input$shrinkage.boosting, input$maxdepth.boosting), {
+  #   if (validate_data(print = FALSE)){
+  #     deault_codigo_boosting()
+  #   }
+  # })
+  
+  
   
   # Upgrade code fields to default version
   deault_codigo_boosting <- function() {
@@ -163,13 +170,7 @@ mod_boosting_server <- function(input, output, session,updateData, updatePlot){
   # Shows the chart of importance
   plotear_boosting_imp <- function() {
     tryCatch({
-      codigo <- input$fieldCodeBoostingPlotImport
-      tipo <- input$tipo.boosting
-      output$plot.boosting.import <- renderPlot(isolate(exe(codigo)))
-      cod <- ifelse(codigo == "",boosting_importance_plot(paste0("modelo.boosting.",input$tipo.boosting)), codigo)
-      # insert_report(paste0("modelo.b.imp.",tipo), 
-      #               paste0("Importancia de las Variables (",tipo,")"),
-      #               cod)
+      output$plot.boosting.import <- renderPlot(isolate(exe(input$fieldCodeBoostingPlotImport)))
     }, error = function(e) {
       clean_boosting(1)
     })
@@ -178,10 +179,7 @@ mod_boosting_server <- function(input, output, session,updateData, updatePlot){
   # Shows the graph the dispersion of the model with respect to the real values
   plot_disp_boosting <- function(){
     tryCatch({ # Se corren los codigo
-      tipo <- input$tipo.boosting
-      codigo <- input$fieldCodeBoostingDisp
-      output$plot.boosting.disp <- renderPlot(exe(codigo))
-      #insert_report(paste0("disp.boosting.",tipo),paste0("Dispersi\u00F3n del Modelo BOOSTING (",tipo,")"), codigo)
+      output$plot.boosting.disp <- renderPlot(exe(input$fieldCodeBoostingDisp))
     },
     error = function(e) { # Regresamos al estado inicial y mostramos un error
       clean_boosting(2)
@@ -249,12 +247,6 @@ mod_boosting_server <- function(input, output, session,updateData, updatePlot){
         isolate(tipo <- input$tipo.boosting)
         
         indices.boosting <- general_indices(datos.prueba[,variable.predecir], exe("prediccion.boosting.",tipo))
-        #eval(parse(text = paste0("indices.boosting.",tipo, "<<- indices.boosting")))
-        
-        # insert_report(paste0("ind.b.",tipo), paste0("\u00CDndices Generales del Modelo (",tipo,")"),
-        #               cod.knn.ind, "\nkt(general_indices(datos.prueba[,'",variable.predecir,"'] ,prediccion.boosting.",tipo,"))\n",
-        #               "indices.boosting <- general_indices(datos.prueba[,'",variable.predecir,"'], prediccion.boosting.",tipo,")\n",
-        #               "IndicesM[['bl-",tipo,"']] <- indices.boosting")
         
         df <- as.data.frame(indices.boosting)
         colnames(df) <- c(translate("RMSE"), translate("MAE"), translate("ER"), translate("correlacion"))

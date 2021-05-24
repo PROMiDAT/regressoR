@@ -73,17 +73,26 @@ mod_KNN_ui <- function(id){
 mod_KNN_server <- function(input, output, session,updateData, updatePlot){
   ns <- session$ns
   
+  return.knn.default.values <- function(){
+    knn.args.default <<- TRUE
+    
+    output$txtknn <- renderText(NULL)
+    output$knnPrediTable <- DT::renderDataTable(NULL)
+    output$plot.knn.disp <- renderPlot(NULL)
+    output$indexdfknn <- render_index_table(NULL)
+    output$indexdfknn2 <- render_index_table(NULL)
+  }
   
-  #change model codes
+  
   observeEvent(updateData$datos.aprendizaje,{
-    knn.args.default <<- FALSE
+    return.knn.default.values()
   })
   
  
   # When the knn model is generated
   observeEvent(input$runKnn, {
     if (validate_data()) { # Si se tiene los datos entonces :
-      default_codigo_knn(knn.args.default)
+      default_codigo_knn()
       knn_full()
     }
   })
@@ -98,8 +107,8 @@ mod_KNN_server <- function(input, output, session,updateData, updatePlot){
   # })
   
   # Upgrade code fields to default version
-  default_codigo_knn <- function(k.def = FALSE) {
-    if(!is.null(datos.aprendizaje) & k.def){
+  default_codigo_knn <- function() {
+    if(!is.null(datos.aprendizaje) & knn.args.default){
       k.value <- round(sqrt(nrow(datos.aprendizaje)))
       updateNumericInput(session,"kmax.knn",value = k.value)
       knn.args.default <<- FALSE
@@ -157,10 +166,8 @@ mod_KNN_server <- function(input, output, session,updateData, updatePlot){
   # Shows the graph the dispersion of the model with respect to the real values
   plot_disp_knn <- function(){
     tryCatch({ # Se corren los codigo
-      #codigo <- input$fieldCodeKnnDisp
-      codigo <- disp_models(paste0("prediccion.knn.", input$kernel.knn), translate("knnl"), variable.predecir)
       isolate(kernel <- input$kernel.knn)
-      output$plot.knn.disp <- renderPlot(exe(codigo))
+      output$plot.knn.disp <- renderPlot(exe(input$fieldCodeKnnDisp))
       #insert_report(paste0("disp.knn.",kernel), paste0("Dispersi\u00F3n del Modelo KNN (",kernel,")"), codigo)
     },
     error = function(e) { # Regresamos al estado inicial y mostramos un error

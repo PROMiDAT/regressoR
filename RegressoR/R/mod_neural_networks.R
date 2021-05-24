@@ -203,9 +203,8 @@ mod_neural_networks_server <- function(input, output, session,updateData, update
   # Shows the graph the dispersion of the model with respect to the real values
   plot_disp_nn <- function(){
     tryCatch({ # Se corren los codigo
-      codigo <- disp_models("prediccion.nn", translate("nn"), variable.predecir)
-      output$plot.nn.disp <- renderPlot(exe(codigo))
-      #output$plot.nn.disp <- renderPlot(exe(input$fieldCodeNnDisp))
+      output$plot.nn.disp <- renderPlot(exe(input$fieldCodeNnDisp))
+      
       #insert_report("disp.nn", "Dispersi\u00F3n del Modelo Redes Neuronales", input$fieldCodeNnDisp)
     },
     error = function(e) { # Regresamos al estado inicial y mostramos un error
@@ -262,6 +261,12 @@ mod_neural_networks_server <- function(input, output, session,updateData, update
       clean_nn(1)
       NN_EXECUTION <<- FALSE
       showNotification(paste0(translate("nnWar")," (NN-01) : ",w), duration = 20, type = "warning")
+    },
+    #Por si no converge
+    finally = {
+      output$plot.nn.disp <- renderPlot(NULL)
+      output$indexdfnn <- render_index_table(NULL)
+      output$indexdfnn2 <- render_index_table(NULL)
     })
   }
   

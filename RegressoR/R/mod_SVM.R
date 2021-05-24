@@ -73,6 +73,14 @@ mod_SVM_ui <- function(id){
 mod_SVM_server <- function(input, output, session,updateData, updatePlot){
   ns <- session$ns
   
+  return.svm.default.values <- function(){
+    output$txtSvm <- renderText(NULL)
+    output$svmPrediTable <- DT::renderDataTable(NULL)
+    output$plot.svm.disp <- renderPlot(NULL)
+    output$indexdfsvm <- render_index_table(NULL)
+    output$indexdfsvm2 <- render_index_table(NULL)
+  }
+  
   # When the knn model is generated
   observeEvent(input$runSvm, {
     if (validate_data()) { # Si se tiene los datos entonces :
@@ -145,9 +153,7 @@ mod_SVM_server <- function(input, output, session,updateData, updatePlot){
   plot_disp_svm <- function(){
     tryCatch({ # Se corren los codigo
       isolate(kernel <- input$kernel.svm)
-      #codigo <- input$fieldCodeSvmDisp
-      codigo <- disp_models(paste0("prediccion.svm.",input$kernel.svm), translate("svml"), variable.predecir)
-      output$plot.svm.disp <- renderPlot(exe(codigo))
+      output$plot.svm.disp <- renderPlot(exe(input$fieldCodeSvmDisp))
       #insert_report(paste0("disp.svm.", kernel), paste0("Dispersi\u00F3n del Modelo SVM (",kernel,")"), codigo)
     },
     error = function(e) { # Regresamos al estado inicial y mostramos un error
@@ -219,8 +225,8 @@ mod_SVM_server <- function(input, output, session,updateData, updatePlot){
         output$indexdfsvm2 <- render_index_table(df2)
         
         plot_disp_svm()
+        
         #nombres.modelos <<- c(nombres.modelos, paste0("indices.svm.",kernel))
-
         updateData$IndicesM[[paste0("svml-",kernel)]] <<- indices.svm
       },
       error = function(e) { # Regresamos al estado inicial y mostramos un error

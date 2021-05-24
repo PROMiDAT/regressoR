@@ -98,6 +98,20 @@ mod_dimension_reduction_ui <- function(id){
 mod_dimension_reduction_server <- function(input, output, session,updateData, updatePlot){
   ns <- session$ns
   
+  return.rd.default.values <- function(){
+    output$txtRd <- renderText(NULL)
+    output$plot.rd.rmse <- renderPlot(NULL)
+    output$plot.rd.pred <- renderPlot(NULL)
+    output$plot.rd.var.pred <- renderPlot(NULL)
+    output$rdPrediTable <- DT::renderDataTable(NULL)
+    output$plot.rd.disp <- renderPlot(NULL)
+    output$indexdfrd <- render_index_table(NULL)
+    output$indexdfrd2 <- render_index_table(NULL)
+  }
+  
+  observeEvent(updateData$datos.aprendizaje,{
+    return.rd.default.values()
+  })
   
   #  When the dt model is generated
   observeEvent(input$runRd, {
@@ -198,9 +212,7 @@ mod_dimension_reduction_server <- function(input, output, session,updateData, up
   # Shows the graph the dispersion of the model with respect to the real values
   plot_disp_rd <- function(){
     tryCatch({ # Se corren los codigo
-      #codigo <- input$fieldCodeRdDisp
-      codigo <- disp_models(paste0("prediccion.rd.",rd_type()), translate("rd"), variable.predecir)
-      output$plot.rd.disp <- renderPlot(isolate(exe(codigo)))
+      output$plot.rd.disp <- renderPlot(isolate(exe(input$fieldCodeRdDisp)))
       # insert_report(paste0("disp.rd.",rd_type()),
       #               paste0("Dispersi\u00F3n del Modelo Reducci\u00F3n de Dimensiones (",rd_type(),")"),
       #               codigo)
