@@ -99,6 +99,11 @@ mod_dimension_reduction_server <- function(input, output, session,updateData, up
   ns <- session$ns
   
   return.rd.default.values <- function(){
+    updateSelectInput(session,"modo.rd",selected = 0)
+    updateSwitchInput(session,"switch.scale.rd", value = T)
+    updateNumericInput(session,"ncomp.rd", value = 2)
+    updateSwitchInput(session,"permitir.ncomp", value = F)
+    
     output$txtRd <- renderText(NULL)
     output$plot.rd.rmse <- renderPlot(NULL)
     output$plot.rd.pred <- renderPlot(NULL)
@@ -302,7 +307,7 @@ mod_dimension_reduction_server <- function(input, output, session,updateData, up
       rd_plot_pred()
       rd_plot_var_pred()
       
-      nombres.modelos <<- c(nombres.modelos, paste0("modelo.rd.",tipo))
+      #nombres.modelos <<- c(nombres.modelos, paste0("modelo.rd.",tipo))
     },
     error = function(e) { # Regresamos al estado inicial y mostramos un error
       clean_rd(1)
@@ -333,7 +338,7 @@ mod_dimension_reduction_server <- function(input, output, session,updateData, up
       #               cod.rd.pred, "\nkt(head(tb_predic(real.val, prediccion.rd.",tipo,")$x$data[,-1]))")
       
       plot_disp_rd()
-      nombres.modelos <<- c(nombres.modelos, "prediccion.rd")
+      #nombres.modelos <<- c(nombres.modelos, "prediccion.rd")
       updatePlot$tablaCom <- !updatePlot$tablaCom #graficar otra vez la tabla comprativa
     },
     error = function(e) { # Regresamos al estado inicial y mostramos un error

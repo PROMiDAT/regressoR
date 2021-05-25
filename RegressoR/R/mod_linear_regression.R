@@ -185,7 +185,7 @@ mod_linear_regression_server <- function(input, output, session, updateData, upd
       #insert_report("modelo.rl","Generaci\u00F3n del Modelo Regresi\u00F3n Lineal", cod.rl.modelo,"\nsummary(modelo.rl)")
       coefficients_rl()
       
-      nombres.modelos <<- c(nombres.modelos, "modelo.rl")
+      #nombres.modelos <<- c(nombres.modelos, "modelo.rl")
     },
     error = function(e) { # Regresamos al estado inicial y mostramos un error
       clean_rl(1)
@@ -205,7 +205,7 @@ mod_linear_regression_server <- function(input, output, session, updateData, upd
       
       plot_disp_rl()
       
-      nombres.modelos <<- c(nombres.modelos, "prediccion.rl")
+      #nombres.modelos <<- c(nombres.modelos, "prediccion.rl")
       updatePlot$tablaCom <- !updatePlot$tablaCom #graficar otra vez la tabla comprativa
     },
     error = function(e) { # Regresamos al estado inicial y mostramos un error
@@ -237,7 +237,7 @@ mod_linear_regression_server <- function(input, output, session, updateData, upd
         colnames(df2) <- c(translate("minimo"),translate("q1"),translate("q3"),translate("maximo"))
         output$indexdfrl2 <- render_index_table(df2)
         
-        nombres.modelos <<- c(nombres.modelos, "indices.rl")
+        #nombres.modelos <<- c(nombres.modelos, "indices.rl")
         updateData$IndicesM[["rll"]] <<- indices.rl
       },
       error = function(e) { # Regresamos al estado inicial y mostramos un error

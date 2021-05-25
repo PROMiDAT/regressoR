@@ -85,6 +85,8 @@ mod_regression_trees_server <- function(input, output, session,updateData, updat
   ns <- session$ns
   
   return.dt.default.values <- function(){
+    updateNumericInput(session,inputId = "minsplit.dt", value = 2)
+    updateNumericInput(session,inputId = "maxdepth.dt", value = 15)
     output$txtDt <- renderText(NULL)
     output$plot.dt <- renderPlot(NULL)
     output$dtPrediTable <- DT::renderDataTable(NULL)
@@ -210,7 +212,7 @@ mod_regression_trees_server <- function(input, output, session,updateData, updat
       #insert_report("modelo.dt", "Generaci\u00F3n del modelo \u00C1rboles de Decisi\u00F3n", cod.dt.modelo, "\nmodelo.dt")
       plot_tree()
       show_dt_rules()
-      nombres.modelos <<- c(nombres.modelos, "modelo.dt")
+      #nombres.modelos <<- c(nombres.modelos, "modelo.dt")
     },
     error = function(e) { # Regresamos al estado inicial y mostramos un error
       clean_dt(1)
@@ -229,7 +231,7 @@ mod_regression_trees_server <- function(input, output, session,updateData, updat
       #               cod.dt.pred,"\nkt(head(tb_predic(real.val, prediccion.dt)$x$data[,-1]))",interpretation = FALSE)
       
       plot_disp_dt()
-      nombres.modelos <<- c(nombres.modelos, "prediccion.dt")
+      #nombres.modelos <<- c(nombres.modelos, "prediccion.dt")
       updatePlot$tablaCom <- !updatePlot$tablaCom #graficar otra vez la tabla comprativa
     },
     error = function(e) { # Regresamos al estado inicial y mostramos un error

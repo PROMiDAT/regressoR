@@ -250,7 +250,7 @@ mod_neural_networks_server <- function(input, output, session,updateData, update
       # insert_report("modelo.nn", "Generaci\u00F3n del modelo Redes Neuronales",
       #               cod.nn.modelo,"\nsummary(modelo.nn)")
       plot_net()
-      nombres.modelos <<- c(nombres.modelos,"modelo.nn")
+      #nombres.modelos <<- c(nombres.modelos,"modelo.nn")
       NN_EXECUTION <<- TRUE
     },
     error = function(e) { # Regresamos al estado inicial y mostramos un error
@@ -282,7 +282,7 @@ mod_neural_networks_server <- function(input, output, session,updateData, update
       #               "\nkt(head(tb_predic(real.val, prediccion.nn)$x$data[,-1]))",interpretation = FALSE)
       
       plot_disp_nn()
-      nombres.modelos <<- c(nombres.modelos,"prediccion.nn")
+      #nombres.modelos <<- c(nombres.modelos,"prediccion.nn")
       updatePlot$tablaCom <- !updatePlot$tablaCom #graficar otra vez la tabla comparativa
     },
     error = function(e) { # Regresamos al estado inicial y mostramos un error

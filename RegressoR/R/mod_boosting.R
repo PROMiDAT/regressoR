@@ -16,7 +16,7 @@ mod_boosting_ui <- function(id){
                     hr(),
                     fluidRow(column(numericInput(ns("iter.boosting"), labelInput("numTree"), 20, width = "100%",min = 1), width = 6),
                              column(numericInput(ns("shrinkage.boosting"), labelInput("shrinkage"), 0.1, width = "100%",min = 0.01, step = 0.01), width=6)),
-                    fluidRow(column(selectInput(inputId = ns("tipo.boosting"), label = labelInput("selectAlg"),selected = 1,
+                    fluidRow(column(selectInput(inputId = ns("tipo.boosting"), label = labelInput("selectAlg"),selected = "gaussian",
                                                 choices =  c("gaussian", "laplace", "tdist")), width = 6)))
   
   b.code  <- list(h4(labelInput("codigo")), hr(),
@@ -80,6 +80,11 @@ mod_boosting_server <- function(input, output, session,updateData, updatePlot){
   ns <- session$ns
   
   return.boosting.default.values <- function(){
+    updateSelectInput(session,inputId = "tipo.boosting", selected = "gaussian")
+    updateNumericInput(session, inputId = "iter.boosting", value = 20)
+    updateNumericInput(session, inputId = "shrinkage.boosting", value = 0.1)
+    
+    
     output$txtBoosting <- renderText(NULL)
     output$plot.boosting.import <- renderPlot(NULL)
     output$boostingPrediTable <- DT::renderDataTable(NULL)
@@ -210,7 +215,7 @@ mod_boosting_server <- function(input, output, session,updateData, updatePlot){
       # insert_report(paste0("modelo.b.",tipo), paste0("Generaci\u00F3n del Modelo BOOSTING (",tipo,")"),
       #               cod.b.modelo, "\nmodelo.boosting.",tipo)
       
-      nombres.modelos <<- c(nombres.modelos, paste0("modelo.boosting.",tipo))
+      #nombres.modelos <<- c(nombres.modelos, paste0("modelo.boosting.",tipo))
     },
     error = function(e) { # Regresamos al estado inicial y mostramos un error
       clean_boosting(1)
@@ -230,7 +235,7 @@ mod_boosting_server <- function(input, output, session,updateData, updatePlot){
       #               cod.b.pred,"\nkt(head(tb_predic(real.val, prediccion.boosting.",input$tipo.boosting,")$x$data[,-1]))",interpretation = FALSE)
       
       plot_disp_boosting()
-      nombres.modelos <<- c(nombres.modelos, paste0("modelo.boosting.",tipo))
+      #nombres.modelos <<- c(nombres.modelos, paste0("modelo.boosting.",tipo))
       updatePlot$tablaCom <- !updatePlot$tablaCom #graficar otra vez la tabla comprativa
     },
     error = function(e) { # Regresamos al estado inicial y mostramos un error

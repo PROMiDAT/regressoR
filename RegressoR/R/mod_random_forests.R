@@ -89,6 +89,8 @@ mod_random_forests_server <- function(input, output, session,updateData, updateP
   ns <- session$ns
   
   return.rf.default.values <- function(){
+    updateNumericInput(session = session, inputId = "ntree.rf", value = 20)
+    
     rf.args.default <<- TRUE
     
     output$txtRf <- renderText(NULL)
@@ -245,7 +247,7 @@ mod_random_forests_server <- function(input, output, session,updateData, updateP
       plotear_rf_imp()
       plot_disp_rf()
       show_rf_rules(input$rules.rf.n)
-      nombres.modelos <<- c(nombres.modelos, "modelo.rf")
+      #nombres.modelos <<- c(nombres.modelos, "modelo.rf")
     },
     error = function(e) { # Regresamos al estado inicial y mostramos un error
       clean_rf(1)
@@ -263,7 +265,7 @@ mod_random_forests_server <- function(input, output, session,updateData, updateP
       # insert_report("pred.rf","Predicci\u00F3n del Modelo Bosques Aleatorios",
       #               cod.rf.pred,"\nkt(head(tb_predic(real.val, prediccion.rf)$x$data[,-1]))",interpretation = FALSE)
       
-      nombres.modelos <<- c(nombres.modelos, "prediccion.rf")
+      #nombres.modelos <<- c(nombres.modelos, "prediccion.rf")
       updatePlot$tablaCom <- !updatePlot$tablaCom #graficar otra vez la tabla comprativa
     },
     error = function(e) { # Regresamos al estado inicial y mostramos un error
@@ -293,7 +295,7 @@ mod_random_forests_server <- function(input, output, session,updateData, updateP
         colnames(df2) <- c(translate("minimo"),translate("q1"),translate("q3"),translate("maximo"))
         output$indexdfrf2 <- render_index_table(df2)
         
-        nombres.modelos <<- c(nombres.modelos, "indices.rf")
+        #nombres.modelos <<- c(nombres.modelos, "indices.rf")
         updateData$IndicesM[["rfl"]] <<- indices.rf
       },
       error = function(e) { # Regresamos al estado inicial y mostramos un error

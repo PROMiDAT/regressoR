@@ -74,12 +74,20 @@ mod_SVM_server <- function(input, output, session,updateData, updatePlot){
   ns <- session$ns
   
   return.svm.default.values <- function(){
+    updateSwitchInput(session,"switch.scale.svm",value = T)
+    updateSelectInput(session,"kernel.svm",selected = "radial")
+    
     output$txtSvm <- renderText(NULL)
     output$svmPrediTable <- DT::renderDataTable(NULL)
     output$plot.svm.disp <- renderPlot(NULL)
     output$indexdfsvm <- render_index_table(NULL)
     output$indexdfsvm2 <- render_index_table(NULL)
   }
+  
+  
+  observeEvent(updateData$datos.aprendizaje,{
+    return.svm.default.values()
+  })
   
   # When the knn model is generated
   observeEvent(input$runSvm, {
@@ -172,7 +180,7 @@ mod_SVM_server <- function(input, output, session,updateData, updatePlot){
       
       #insert_report(paste0("modelo.svm.",kernel), paste0("Generaci\u00F3n del Modelo SVM (",kernel,")"), cod.svm.modelo, "\nmodelo.svm.", kernel)
       
-      nombres.modelos <<- c(nombres.modelos, paste0("modelo.svm.", kernel))
+      #nombres.modelos <<- c(nombres.modelos, paste0("modelo.svm.", kernel))
     },
     error = function(e) { # Regresamos al estado inicial y mostramos un error
       clean_svm(1)
@@ -191,7 +199,7 @@ mod_SVM_server <- function(input, output, session,updateData, updatePlot){
       # insert_report(paste0("pred.svm.",input$kernel.svm), paste0("Predicci\u00F3n del Modelo SVM (",kernel,")"), 
       #               cod.svm.pred,"\nkt(head(tb_predic(real.val, prediccion.svm.",kernel,")$x$data[,-1]))",interpretation = FALSE)
       
-      nombres.modelos <<- c(nombres.modelos, paste0("prediccion.svm.",kernel))
+      #nombres.modelos <<- c(nombres.modelos, paste0("prediccion.svm.",kernel))
       
       updatePlot$tablaCom <- !updatePlot$tablaCom #graficar otra vez la tabla comprativa
     },

@@ -14,7 +14,7 @@ mod_KNN_ui <- function(id){
                                column(width = 2,br(),actionButton(ns("runKnn"), label = labelInput("ejecutar"), icon = icon("play")))),
                       hr(),
                       fluidRow(column(numericInput(ns("kmax.knn"), labelInput("kmax"), min = 1,step = 1, value = 7), width = 6),
-                               column(selectInput(inputId = ns("kernel.knn"), label = labelInput("selkernel"),selected = 1,
+                               column(selectInput(inputId = ns("kernel.knn"), label = labelInput("selkernel"),selected = "optimal",
                                                   choices = c("optimal", "rectangular", "triangular", "epanechnikov", "biweight",
                                                               "triweight", "cos","inv","gaussian")),width = 6)),
                       fluidRow(column(br(),switchInput(inputId = ns("switch.scale.knn"), onStatus = "success", offStatus = "danger", value = T,
@@ -74,6 +74,10 @@ mod_KNN_server <- function(input, output, session,updateData, updatePlot){
   ns <- session$ns
   
   return.knn.default.values <- function(){
+    updateSelectInput(session, "kernel.knn",selected = "optimal")
+    updateSwitchInput(session,"switch.scale.knn", value = T)
+    updateNumericInput(session, "distance.knn", value = 2)
+    
     knn.args.default <<- TRUE
     
     output$txtknn <- renderText(NULL)
@@ -192,7 +196,7 @@ mod_KNN_server <- function(input, output, session,updateData, updatePlot){
       output$txtknn <- renderPrint(exe("modelo.knn.",kernel))
       #insert_report(paste0("modelo.knn.",kernel), paste0("Generaci\u00F3n del Modelo KNN (",kernel,")"),cod.knn.modelo,"\nmodelo.knn.", kernel)
       
-      nombres.modelos <<- c(nombres.modelos, paste0("modelo.knn.",kernel))
+      #nombres.modelos <<- c(nombres.modelos, paste0("modelo.knn.",kernel))
     },
     error = function(e) { # Regresamos al estado inicial y mostramos un error
       clean_knn(1)
@@ -213,7 +217,7 @@ mod_KNN_server <- function(input, output, session,updateData, updatePlot){
       #               cod.knn.pred,"\nkt(head(tb_predic(real.val, prediccion.knn.",kernel,")$x$data[,-1]))", interpretation = FALSE)
       
       plot_disp_knn()
-      nombres.modelos <<- c(nombres.modelos, paste0("prediccion.knn.",kernel))
+      #nombres.modelos <<- c(nombres.modelos, paste0("prediccion.knn.",kernel))
       updatePlot$tablaCom <- !updatePlot$tablaCom #graficar otra vez la tabla comprativa
     },
     error = function(e) { # Regresamos al estado inicial y mostramos un error

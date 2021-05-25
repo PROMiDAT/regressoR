@@ -164,8 +164,8 @@ mod_load_data_server <- function(input, output, session,updateData){
     
     updateData$IndicesM <- list()
     
-    rm(list = nombres.modelos, envir = options_regressor()$exe.envir)
-    nombres.modelos <<- c()
+    #rm(list = nombres.modelos, envir = options_regressor()$exe.envir)
+    #nombres.modelos <<- c()
     
     updateCheckboxGroupButtons(session, inputId = "select.models",
                                choices = c(" ---- " = "NoDisponible"),

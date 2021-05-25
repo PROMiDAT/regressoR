@@ -100,6 +100,10 @@ mod_penalized_Regression_server <- function(input, output, session, updateData, 
   ns <- session$ns
   
   return.rlr.default.values <- function(){
+    updateSelectInput(session, "alpha.rlr",selected = 1)
+    updateSwitchInput(session, "switch.scale.rlr", value = T)
+    updateNumericInput(session,"landa",value = 2)
+    updateSwitchInput(session, "permitir.landa", value = F)
     output$txtRlr <- renderText(NULL)
     output$plot.rlr.posiblanda <- renderPlot(NULL)
     output$txtRlrCoeff <- renderText(NULL)
@@ -111,7 +115,7 @@ mod_penalized_Regression_server <- function(input, output, session, updateData, 
     output$indexdfrlr2 <- render_index_table(NULL)
   }
   
-  # change model codes
+
   observeEvent(updateData$datos.aprendizaje,{
     return.rlr.default.values()
   })
@@ -290,7 +294,7 @@ mod_penalized_Regression_server <- function(input, output, session, updateData, 
       print_coeff()
       plot_coeff()
       
-      nombres.modelos <<- c(nombres.modelos, paste0("modelo.rlr.",tipo))
+      #nombres.modelos <<- c(nombres.modelos, paste0("modelo.rlr.",tipo))
     },
     error = function(e) { # Regresamos al estado inicial y mostramos un error
       clean_rlr(1)
@@ -309,7 +313,7 @@ mod_penalized_Regression_server <- function(input, output, session, updateData, 
       #               cod.rlr.pred,"\nkt(head(tb_predic(real.val, prediccion.rlr.",tipo,")$x$data[,-1]))", interpretation = FALSE)
       
       plot_disp_rlr()
-      nombres.modelos <<- c(nombres.modelos, "prediccion.rlr")
+      #nombres.modelos <<- c(nombres.modelos, "prediccion.rlr")
       updatePlot$tablaCom <- !updatePlot$tablaCom #graficar otra vez la tabla comprativa
     },
     error = function(e) { # Regresamos al estado inicial y mostramos un error
