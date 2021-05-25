@@ -153,7 +153,6 @@ mod_regression_trees_server <- function(input, output, session,updateData, updat
     },
     error = function(e){
       output$plot.dt <- renderPlot(NULL)
-      #remove_report_elem("modelo.dt.graf")
     })
   }
   
@@ -161,7 +160,6 @@ mod_regression_trees_server <- function(input, output, session,updateData, updat
   plot_disp_dt <- function(){
     tryCatch({ # Se corren los codigo
       output$plot.dt.disp <- renderPlot(exe(input$fieldCodeDtDisp))
-      #insert_report("disp.dt", "Dispersi\u00F3n del Modelo \u00C1rboles de Decisi\u00F3n", input$fieldCodeDtDisp)
     },
     error = function(e) { # Regresamos al estado inicial y mostramos un error
       clean_dt(2)
@@ -173,7 +171,6 @@ mod_regression_trees_server <- function(input, output, session,updateData, updat
   show_dt_rules <- function(){
     output$rulesDt <- renderPrint(rattle::asRules(modelo.dt))
     updateAceEditor(session, "fieldCodeDtRule", paste0("asRules(modelo.dt)"))
-    #insert_report("modelo.dt.rules", "Reglas del Modelo \u00C1rboles de Decisi\u00F3n", "rattle::asRules(modelo.dt)")
   }
   
   # Cleans the data according to the process where the error is generated
@@ -183,16 +180,11 @@ mod_regression_trees_server <- function(input, output, session,updateData, updat
         modelo.dt <<- NULL
         output$txtDt <- renderPrint(invisible(""))
         output$plot.dt <- renderPlot(NULL)
-        # remove_report_elem("modelo.dt")
-        # remove_report_elem("modelo.dt.graf")
-        # remove_report_elem("disp.dt")
       }, {
         prediccion.dt <<- NULL
-        #remove_report_elem("pred.dt")
         output$dtPrediTable <- DT::renderDataTable(NULL)
       }, {
         indices.dt <<- rep(0, 10)
-        #remove_report_elem("ind.dt")
       })
     }
   }
@@ -209,7 +201,7 @@ mod_regression_trees_server <- function(input, output, session,updateData, updat
     tryCatch({ # Se corren los codigo
       isolate(exe(cod.dt.modelo))
       output$txtDt <- renderPrint(print(modelo.dt))
-      #insert_report("modelo.dt", "Generaci\u00F3n del modelo \u00C1rboles de Decisi\u00F3n", cod.dt.modelo, "\nmodelo.dt")
+
       plot_tree()
       show_dt_rules()
       #nombres.modelos <<- c(nombres.modelos, "modelo.dt")
@@ -226,9 +218,6 @@ mod_regression_trees_server <- function(input, output, session,updateData, updat
       isolate(exe(cod.dt.pred))
       # Cambia la tabla con la prediccion de dt
       output$dtPrediTable <- DT::renderDataTable(tb_predic(real.val, prediccion.dt),server = FALSE)
-      
-      # insert_report("pred.dt", "Predicci\u00F3n del Modelo \u00C1rboles de Decisi\u00F3n", 
-      #               cod.dt.pred,"\nkt(head(tb_predic(real.val, prediccion.dt)$x$data[,-1]))",interpretation = FALSE)
       
       plot_disp_dt()
       #nombres.modelos <<- c(nombres.modelos, "prediccion.dt")
@@ -247,11 +236,6 @@ mod_regression_trees_server <- function(input, output, session,updateData, updat
         isolate(exe(cod.dt.ind))
         
         indices.dt <- general_indices(datos.prueba[,variable.predecir], prediccion.dt)
-        
-        # insert_report("ind.dt", "\u00CDndices Generales del Modelo \u00C1rboles de Decisi\u00F3n",
-        #               cod.dt.ind,"\nkt(general_indices(datos.prueba[,'",variable.predecir,"'], prediccion.dt))\n",
-        #               "indices.dt <- general_indices(datos.prueba[,'",variable.predecir,"'], prediccion.dt)\n",
-        #               "IndicesM[['dtl']] <- indices.dt")
         
         df <- as.data.frame(indices.dt)
         colnames(df) <- c(translate("RMSE"), translate("MAE"), translate("ER"), translate("correlacion"))

@@ -198,18 +198,11 @@ mod_dimension_reduction_server <- function(input, output, session,updateData, up
       switch(i, {
         modelo.rd <<- NULL
         output$txtRd <- renderPrint(invisible(""))
-        # remove_report_elem(paste0("modelo.rd.",rd_type()))
-        # remove_report_elem(paste0("rmse.rd.",rd_type()))
-        # remove_report_elem(paste0("plot.pred.rd.",rd_type())) 
-        # remove_report_elem(paste0("plot.var.pred.rd.",rd_type()))
       }, {
         prediccion.rd <<- NULL
-        # remove_report_elem(paste0("pred.rd.",rd_type()))
-        # remove_report_elem(paste0("disp.rd.",rd_type())) 
         output$rdPrediTable <- DT::renderDataTable(NULL)
       },{
         indices.rd <<- rep(0, 10)
-        #remove_report_elem(paste0("ind.rd",rd_type()))
       })
     }
   }
@@ -218,9 +211,6 @@ mod_dimension_reduction_server <- function(input, output, session,updateData, up
   plot_disp_rd <- function(){
     tryCatch({ # Se corren los codigo
       output$plot.rd.disp <- renderPlot(isolate(exe(input$fieldCodeRdDisp)))
-      # insert_report(paste0("disp.rd.",rd_type()),
-      #               paste0("Dispersi\u00F3n del Modelo Reducci\u00F3n de Dimensiones (",rd_type(),")"),
-      #               codigo)
     },
     error = function(e) { # Regresamos al estado inicial y mostramos un error
       clean_rd(2)
@@ -238,9 +228,6 @@ mod_dimension_reduction_server <- function(input, output, session,updateData, up
         }
       }
       output$plot.rd.rmse <- renderPlot(exe("plot_RMSE(modelo.rd.",tipo,",",ncomp,")"))
-      # insert_report(paste0("rmse.rd.",tipo),
-      #               "Error RMSE seg\u00fan N\u00famero de Componentes",
-      #               paste0("plot_RMSE(modelo.rd.",tipo,",",ncomp,")"))
     },
     error = function(e) { # Regresamos al estado inicial y mostramos un error
       clean_rd(1)
@@ -258,8 +245,6 @@ mod_dimension_reduction_server <- function(input, output, session,updateData, up
         }
       }
       output$plot.rd.pred <- renderPlot(exe("plot_pred_rd(modelo.rd.",tipo,",",ncomp,")"))
-      # insert_report(paste0("plot.pred.rd.",tipo), "Gr\u00e1fico de varianza explicada en los predictores",
-      #               paste0("plot_pred_rd(modelo.rd.",tipo,",",ncomp,")"))
     },
     error = function(e) { # Regresamos al estado inicial y mostramos un error
       clean_rd(1)
@@ -277,8 +262,6 @@ mod_dimension_reduction_server <- function(input, output, session,updateData, up
         }
       }
       output$plot.rd.var.pred <- renderPlot(exe("plot_var_pred_rd(modelo.rd.",tipo,",",ncomp,")"))
-      # insert_report(paste0("plot.var.pred.rd.",tipo), "Gr\u00e1fico de varianza explicada en la variable a predecir",
-      #               paste0("plot_var_pred_rd(modelo.rd.",tipo,",",ncomp,")"))
     },
     error = function(e) { # Regresamos al estado inicial y mostramos un error
       clean_rd(1)
@@ -299,9 +282,6 @@ mod_dimension_reduction_server <- function(input, output, session,updateData, up
       isolate(exe(cod.rd.modelo))
       isolate(tipo <- rd_type())
       output$txtRd <- renderPrint(print(exe("summary(modelo.rd.",tipo,")")))
-      
-      # insert_report(paste0("modelo.rd.",tipo), paste0("Generaci\u00f3n del Modelo Reducci\u00f3n de Dimensiones(",tipo,")"),
-      #               cod.rd.modelo, "\nsummary(modelo.rd.",tipo,")")
       
       plot_rmse_rd()
       rd_plot_pred()
@@ -333,10 +313,6 @@ mod_dimension_reduction_server <- function(input, output, session,updateData, up
       isolate(exe(cod.rd.pred))
       output$rdPrediTable <- DT::renderDataTable(tb_predic(real.val,exe("prediccion.rd.",tipo)), server = FALSE)
       
-      # insert_report(paste0("pred.rd.",tipo),
-      #               paste0("Predicci\u00f3n del Modelo Reducci\u00f3n de Dimensiones(",tipo,")"), 
-      #               cod.rd.pred, "\nkt(head(tb_predic(real.val, prediccion.rd.",tipo,")$x$data[,-1]))")
-      
       plot_disp_rd()
       #nombres.modelos <<- c(nombres.modelos, "prediccion.rd")
       updatePlot$tablaCom <- !updatePlot$tablaCom #graficar otra vez la tabla comprativa
@@ -353,12 +329,6 @@ mod_dimension_reduction_server <- function(input, output, session,updateData, up
       tryCatch({ # Se corren los codigo
         isolate(exe(cod.rd.ind))
         indices.rd <- general_indices(datos.prueba[,variable.predecir], exe("prediccion.rd.",rd_type()))
-        
-        # insert_report(paste0("ind.rd.",rd_type()),"\u00cdndices Generales del Modelo Reducci\u00f3n de Dimensiones",
-        #               cod.rd.ind, 
-        #               "\nkt(general_indices(datos.prueba[,'",variable.predecir,"'], prediccion.rd.",rd_type(),"))\n",
-        #               "indices.rd <- general_indices(datos.prueba[,'",variable.predecir,"'], prediccion.rd.",rd_type(),")\n",
-        #               "IndicesM[['rd-",rd_type(),"']] <- indices.rd")
         
         df <- as.data.frame(indices.rd)
         colnames(df) <- c(translate("RMSE"), translate("MAE"), translate("ER"), translate("correlacion"))

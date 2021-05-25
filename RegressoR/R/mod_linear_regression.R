@@ -130,15 +130,11 @@ mod_linear_regression_server <- function(input, output, session, updateData, upd
       switch(i, {
         modelo.rl <<- NULL
         output$txtRl <- renderPrint(invisible(""))
-        # remove_report_elem("modelo.rl")
-        # remove_report_elem("disp.rl")
       }, {
         prediccion.rl <<- NULL
-        #remove_report_elem("pred.rl")
         output$rlPrediTable <- DT::renderDataTable(NULL)
       },{
         indices.rl <<- rep(0, 10)
-        #remove_report_elem("ind.rl")
       })
     }
   }
@@ -147,7 +143,6 @@ mod_linear_regression_server <- function(input, output, session, updateData, upd
   plot_disp_rl <- function(){
     tryCatch({ # Se corren los codigo
       output$plot.rl.disp <- renderPlot(exe(input$fieldCodeRlDisp))
-      #insert_report("disp.rl", "Dispersi\u00F3n del Modelo Regresi\u00F3n Lineal", input$fieldCodeRlDisp)
     },
     error = function(e) { # Regresamos al estado inicial y mostramos un error
       clean_rl(2)
@@ -161,7 +156,6 @@ mod_linear_regression_server <- function(input, output, session, updateData, upd
       isolate(exe(input$fieldCodeRlCoef))
       
       output$rlCoefTable <- render_table_data(df.rl[,c(1,4)], server = FALSE)
-      #insert_report("coeff.rl", "Coeficientes del Modelo Regresi\u00F3n Lineal", input$fieldCodeRlCoef, "\ndf.rl")
     },
     error = function(e) { # Regresamos al estado inicial y mostramos un error
       clean_rl(1)
@@ -182,7 +176,6 @@ mod_linear_regression_server <- function(input, output, session, updateData, upd
       isolate(exe(cod.rl.modelo))
       output$txtRl <- renderPrint(print(summary(modelo.rl)))
       
-      #insert_report("modelo.rl","Generaci\u00F3n del Modelo Regresi\u00F3n Lineal", cod.rl.modelo,"\nsummary(modelo.rl)")
       coefficients_rl()
       
       #nombres.modelos <<- c(nombres.modelos, "modelo.rl")
@@ -199,9 +192,6 @@ mod_linear_regression_server <- function(input, output, session, updateData, upd
       isolate(exe(cod.rl.pred))
       
       output$rlPrediTable <- DT::renderDataTable(tb_predic(real.val, prediccion.rl), server = FALSE)
-      
-      # insert_report("pred.rl", "Predicci\u00F3n del Modelo Regresi\u00F3n Lineal",cod.rl.pred,
-      #               "\nkt(head(tb_predic(real.val, prediccion.rl)$x$data[,-1]))", interpretation = FALSE)
       
       plot_disp_rl()
       
@@ -222,11 +212,6 @@ mod_linear_regression_server <- function(input, output, session, updateData, upd
         isolate(exe(cod.rl.ind))
         
         indices.rl <- general_indices(datos.prueba[,variable.predecir], prediccion.rl)
-        
-        # insert_report("ind.rl","\u00CDndices Generales del Modelo Regresi\u00F3n Lineal", cod.rl.ind,
-        #               "\nkt(general_indices(datos.prueba[,'", variable.predecir, "'], prediccion.rl))\n",
-        #               "indices.rl<- general_indices(datos.prueba[,'",variable.predecir,"'], prediccion.rl)\n",
-        #               "IndicesM[['rll']] <- indices.rl")
         
         df <- cbind(as.data.frame(indices.rl), r2)
         df <- df[,c(1,2,3,5,4)]

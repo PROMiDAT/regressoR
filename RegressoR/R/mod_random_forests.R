@@ -174,16 +174,11 @@ mod_random_forests_server <- function(input, output, session,updateData, updateP
       switch(i, {
         modelo.rf <<- NULL
         output$txtRf <- renderPrint(invisible(""))
-        # remove_report_elem("modelo.rf")
-        # remove_report_elem("modelo.rf.graf")
-        # remove_report_elem("disp.rf")
       }, {
         prediccion.rf <<- NULL
-        #remove_report_elem("pred.rf")
         output$rfPrediTable <- DT::renderDataTable(NULL)
       },{
         indices.rf <<- rep(0, 10)
-        #remove_report_elem("ind.rf")
       })
     }
   }
@@ -193,12 +188,9 @@ mod_random_forests_server <- function(input, output, session,updateData, updateP
     tryCatch({
       output$plot.rf <- renderPlot(isolate(importance_plot_rf(modelo.rf,translate("impVarA"),translate("impVarRSS"))))
       cod <- ifelse(input$fieldCodeRfPlot == "", extract_code("importance_plot_rf"), input$fieldCodeRfPlot)
-      # insert_report("modelo.rf.graf", "Importancia de las Variables", cod,
-      #               "\nimportance_plot_rf(modelo.rf,'",translate('impVarA'),"','",translate('impVarRSS'),"')")
       
     }, error = function(e) {
       output$plot.rf <- renderPlot(NULL)
-      #remove_report_elem("modelo.rf.graf")
     })
   }
   
@@ -206,7 +198,6 @@ mod_random_forests_server <- function(input, output, session,updateData, updateP
   plot_disp_rf <- function(){
     tryCatch({ # Se corren los codigo
       output$plot.rf.disp <- renderPlot(exe(input$fieldCodeRfDisp))
-      #insert_report("disp.rf", "Dispersi\u00F3n del Modelo RF", input$fieldCodeRfDisp)
     },
     error = function(e) { # Regresamos al estado inicial y mostramos un error
       clean_rf(2)
@@ -224,8 +215,6 @@ mod_random_forests_server <- function(input, output, session,updateData, updateP
         stop(translate("NoDRule"))
       })
     })
-    # insert_report(paste0("modelo.rf.rules.", n),paste0("Reglas del \u00C1rbol #",n),
-    #               "printRandomForests(modelo.rf, ",n,")")
   }
   
   # Execute model, prediction and indices
@@ -240,9 +229,6 @@ mod_random_forests_server <- function(input, output, session,updateData, updateP
     tryCatch({ # Se corren los codigo
       isolate(exe(cod.rf.modelo))
       output$txtRf <- renderPrint(print(modelo.rf))
-      
-      # insert_report("modelo.rf","Generaci\u00F3n del Modelo Bosques Aleatorios",
-      #               cod.rf.modelo,"\nmodelo.rf")
       
       plotear_rf_imp()
       plot_disp_rf()
@@ -262,9 +248,6 @@ mod_random_forests_server <- function(input, output, session,updateData, updateP
       
       output$rfPrediTable <- DT::renderDataTable(tb_predic(real.val, prediccion.rf), server = FALSE)
       
-      # insert_report("pred.rf","Predicci\u00F3n del Modelo Bosques Aleatorios",
-      #               cod.rf.pred,"\nkt(head(tb_predic(real.val, prediccion.rf)$x$data[,-1]))",interpretation = FALSE)
-      
       #nombres.modelos <<- c(nombres.modelos, "prediccion.rf")
       updatePlot$tablaCom <- !updatePlot$tablaCom #graficar otra vez la tabla comprativa
     },
@@ -281,11 +264,6 @@ mod_random_forests_server <- function(input, output, session,updateData, updateP
         isolate(exe(cod.rf.ind))
         
         indices.rf <- general_indices(datos.prueba[,variable.predecir], prediccion.rf)
-        
-        # insert_report("ind.rf","\u00CDndices Generales del Modelo Bosques Aleatorios",
-        #               cod.rf.ind, "\nkt(general_indices(datos.prueba[,'",variable.predecir,"'], prediccion.rf))\n",
-        #               "indices.rf <- general_indices(datos.prueba[,'",variable.predecir,"'], prediccion.rf)\n",
-        #               "IndicesM[['rfl']] <- indices.rf")
         
         df <- as.data.frame(indices.rf)
         colnames(df) <- c(translate("RMSE"), translate("MAE"), translate("ER"), translate("correlacion"))

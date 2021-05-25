@@ -22,9 +22,6 @@ app_server <- function( input, output, session ) {
   #Set the environment where the code will be executed. (.GlobalEnv recommended)
   options_regressor(exe.envir = .GlobalEnv)
   
-  
-  clean_report()
-  
   options(shiny.maxRequestSize = 209715200, width = 200, # 209715200 = 200 * 1024^2
           DT.options = list(aLengthMenu = c(10, 30, 50), iDisplayLength = 10, scrollX = TRUE, 
                             language = list(search = HTML('<i class="fa fa-search"></i>'),

@@ -52,8 +52,6 @@ mod_model_comparison_server <- function(input, output, session, updateData, upda
     graficar <- updatePlot$tablaCom
     if (!is.null(datos.aprendizaje)) {
       
-      #insert_report("tabla.comparativa","Tabla Comparativa","kt(comparative_table(",as_string_c(input$select.models),",IndicesM) )")
-      
       DT::datatable(comparative_table(input$select.models,updateData$IndicesM),
                     selection = "none", editable = FALSE,
                     options = list(dom = "frtip", pageLength = 9, buttons = NULL))

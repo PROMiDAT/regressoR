@@ -188,15 +188,12 @@ mod_neural_networks_server <- function(input, output, session,updateData, update
       if(input$cant.capas.nn * sum(capas) <= 1000 & ncol(modelo.nn$covariate) <= 25){
         codigo = nn_plot()
         output$plot.nn <- renderPlot(isolate(exe(codigo)))
-        #cod <- ifelse(codigo == "", nn_plot(), codigo)
-        #insert_report("modelo.nn.graf", "Red Neuronal", cod)
       }else{
         showNotification(translate("bigPlot"), duration = 10, type = "message")
       }
     },
     error = function(e){
       output$plot.nn <- renderPlot(NULL)
-      #remove_report_elem("modelo.nn.graf")
     })
   }
   
@@ -204,8 +201,6 @@ mod_neural_networks_server <- function(input, output, session,updateData, update
   plot_disp_nn <- function(){
     tryCatch({ # Se corren los codigo
       output$plot.nn.disp <- renderPlot(exe(input$fieldCodeNnDisp))
-      
-      #insert_report("disp.nn", "Dispersi\u00F3n del Modelo Redes Neuronales", input$fieldCodeNnDisp)
     },
     error = function(e) { # Regresamos al estado inicial y mostramos un error
       clean_nn(2)
@@ -220,15 +215,11 @@ mod_neural_networks_server <- function(input, output, session,updateData, update
         exe("modelo.nn <- NULL")
         output$txtnn <- renderPrint(invisible(""))
         output$plot.nn <- renderPlot(NULL)
-        # remove_report_elem("modelo.nn")
-        # remove_report_elem("modelo.nn.graf")
       }, {
         exe("prediccion.nn <- NULL")
-        #remove_report_elem("pred.nn")
         output$nnPrediTable <- DT::renderDataTable(NULL)
       },{
         exe("indices.nn <- NULL")
-        #remove_report_elem("ind.nn")
       })
     }
   }
@@ -247,8 +238,6 @@ mod_neural_networks_server <- function(input, output, session,updateData, update
     tryCatch({ # Se corren los codigo
       isolate(exe(cod.nn.modelo))
       output$txtnn <- renderPrint(print(modelo.nn))
-      # insert_report("modelo.nn", "Generaci\u00F3n del modelo Redes Neuronales",
-      #               cod.nn.modelo,"\nsummary(modelo.nn)")
       plot_net()
       #nombres.modelos <<- c(nombres.modelos,"modelo.nn")
       NN_EXECUTION <<- TRUE
@@ -278,9 +267,6 @@ mod_neural_networks_server <- function(input, output, session,updateData, update
       # Cambia la tabla con la prediccion de nn
       output$nnPrediTable <- DT::renderDataTable(tb_predic(real.val, prediccion.nn),server = FALSE)
       
-      # insert_report("pred.nn", "Predicci\u00F3n del Modelo Redes Neuronales", cod.nn.pred,
-      #               "\nkt(head(tb_predic(real.val, prediccion.nn)$x$data[,-1]))",interpretation = FALSE)
-      
       plot_disp_nn()
       #nombres.modelos <<- c(nombres.modelos,"prediccion.nn")
       updatePlot$tablaCom <- !updatePlot$tablaCom #graficar otra vez la tabla comparativa
@@ -297,12 +283,6 @@ mod_neural_networks_server <- function(input, output, session,updateData, update
       tryCatch({ # Se corren los codigo
         isolate(exe(cod.nn.ind))
         indices.nn <- general_indices(datos.prueba[,variable.predecir], prediccion.nn)
-        
-        # insert_report("ind.nn","\u00CDndices Generales del Modelo Redes Neuronales",
-        #               cod.nn.ind, 
-        #               "\nkt(general_indices(datos.prueba[,'",variable.predecir,"'], prediccion.nn))\n",
-        #               "indices.nn <- general_indices(datos.prueba[,'",variable.predecir,"'], prediccion.nn)\n",
-        #               "IndicesM[['nn']] <- indices.nn")
         
         df <- as.data.frame(indices.nn)
         colnames(df) <- c(translate("RMSE"), translate("MAE"), translate("ER"), translate("correlacion"))

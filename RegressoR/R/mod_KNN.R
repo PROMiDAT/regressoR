@@ -155,14 +155,11 @@ mod_KNN_server <- function(input, output, session,updateData, updatePlot){
       switch(i, {
         exe("modelo.knn.",input$kernel.knn," <<- NULL")
         output$txtknn <- renderPrint(invisible(""))
-        #remove_report_elem(paste0("modelo.knn.",input$kernel.knn))
       }, {
         exe("prediccion.knn.",input$kernel.knn," <<- NULL")
-        #remove_report_elem(paste0("pred.knn.",input$kernel.knn))
         output$knnPrediTable <- DT::renderDataTable(NULL)
       }, {
         exe("indices.knn.",input$kernel.knn," <<- NULL")
-        #remove_report_elem(paste0("ind.knn.",input$kernel.knn))
       })
     }
   }
@@ -172,7 +169,6 @@ mod_KNN_server <- function(input, output, session,updateData, updatePlot){
     tryCatch({ # Se corren los codigo
       isolate(kernel <- input$kernel.knn)
       output$plot.knn.disp <- renderPlot(exe(input$fieldCodeKnnDisp))
-      #insert_report(paste0("disp.knn.",kernel), paste0("Dispersi\u00F3n del Modelo KNN (",kernel,")"), codigo)
     },
     error = function(e) { # Regresamos al estado inicial y mostramos un error
       clean_knn(2)
@@ -194,7 +190,6 @@ mod_KNN_server <- function(input, output, session,updateData, updatePlot){
       isolate(kernel <- input$kernel.knn)
       updateAceEditor(session, "fieldCodeKnn", value = cod.knn.modelo)
       output$txtknn <- renderPrint(exe("modelo.knn.",kernel))
-      #insert_report(paste0("modelo.knn.",kernel), paste0("Generaci\u00F3n del Modelo KNN (",kernel,")"),cod.knn.modelo,"\nmodelo.knn.", kernel)
       
       #nombres.modelos <<- c(nombres.modelos, paste0("modelo.knn.",kernel))
     },
@@ -213,8 +208,6 @@ mod_KNN_server <- function(input, output, session,updateData, updatePlot){
       
       # Cambia la tabla con la prediccion de knn
       output$knnPrediTable <- DT::renderDataTable(tb_predic(real.val, exe("prediccion.knn.",kernel)), server = FALSE)
-      # insert_report(paste0("pred.knn.",kernel), paste0("Predicci\u00F3n del Modelo KNN (",kernel,")"), 
-      #               cod.knn.pred,"\nkt(head(tb_predic(real.val, prediccion.knn.",kernel,")$x$data[,-1]))", interpretation = FALSE)
       
       plot_disp_knn()
       #nombres.modelos <<- c(nombres.modelos, paste0("prediccion.knn.",kernel))
@@ -235,11 +228,6 @@ mod_KNN_server <- function(input, output, session,updateData, updatePlot){
         
         indices.knn <- general_indices(datos.prueba[,variable.predecir], exe("prediccion.knn.",kernel))
         #eval(parse(text = paste0("indices.knn.",kernel, "<<- indices.knn")))
-        
-        # insert_report(paste0("ind.knn.",kernel), paste0("\u00CDndices del Modelo KNN (",kernel,")"),
-        #               cod.knn.ind, "\nkt(general_indices(datos.prueba[,'",variable.predecir,"'] ,prediccion.knn.",kernel,"))\n",
-        #               "indices.knn <- general_indices(datos.prueba[,'",variable.predecir,"'], prediccion.knn.",kernel,")\n",
-        #               "IndicesM[['knnl-",kernel,"']] <- indices.knn")
         
         df <- as.data.frame(indices.knn)
         colnames(df) <- c(translate("RMSE"), translate("MAE"), translate("ER"), translate("correlacion"))

@@ -158,16 +158,11 @@ mod_boosting_server <- function(input, output, session,updateData, updatePlot){
         exe("modelo.boosting.",input$tipo.boosting," <<- NULL")
         output$txtBoosting <- renderPrint(invisible(""))
         output$plot.boosting.import <- renderPlot(NULL)
-        #remove_report_elem(paste0("modelo.b.",input$tipo.boosting))
-        #remove_report_elem(paste0("modelo.b.error.",input$tipo.boosting))
-        #remove_report_elem(paste0("modelo.b.imp.",input$tipo.boosting))
       }, {
         exe("prediccion.boosting.",input$tipo.boosting," <<- NULL")
-        #remove_report_elem(paste0("pred.b.",input$tipo.boosting))
         output$boostingPrediTable <- DT::renderDataTable(NULL)
       },{
         exe("indices.boosting.",input$tipo.boosting," <<- NULL")
-        #remove_report_elem(paste0("ind.b.",input$tipo.boosting))
       })
     }
   }
@@ -212,9 +207,6 @@ mod_boosting_server <- function(input, output, session,updateData, updatePlot){
       
       plotear_boosting_imp()
       
-      # insert_report(paste0("modelo.b.",tipo), paste0("Generaci\u00F3n del Modelo BOOSTING (",tipo,")"),
-      #               cod.b.modelo, "\nmodelo.boosting.",tipo)
-      
       #nombres.modelos <<- c(nombres.modelos, paste0("modelo.boosting.",tipo))
     },
     error = function(e) { # Regresamos al estado inicial y mostramos un error
@@ -231,8 +223,6 @@ mod_boosting_server <- function(input, output, session,updateData, updatePlot){
       
       # Cambia la tabla con la prediccion de boosting
       output$boostingPrediTable <- DT::renderDataTable(tb_predic(real.val, exe("prediccion.boosting.",tipo)),server = FALSE)
-      # insert_report(paste0("pred.b.",tipo),paste0("Predicci\u00F3n del Modelo BOOSTING (",tipo,")"),
-      #               cod.b.pred,"\nkt(head(tb_predic(real.val, prediccion.boosting.",input$tipo.boosting,")$x$data[,-1]))",interpretation = FALSE)
       
       plot_disp_boosting()
       #nombres.modelos <<- c(nombres.modelos, paste0("modelo.boosting.",tipo))

@@ -59,7 +59,6 @@ mod_normal_server <- function(input, output, session, updateData,updatePlot, dis
         cod.normal <<- updatePlot$normal
         res <- isolate(exe(cod.normal))
         updateAceEditor(session, "fieldCodeNormal", value = cod.normal)
-        #insert_report(paste0("normalidad.", input$sel.normal), "Test de Normalidad", cod.normal)
         return(res)
       }, error = function(e){
         if(ncol(var_numerical(datos)) <= 0){

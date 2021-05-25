@@ -85,7 +85,6 @@ mod_load_data_server <- function(input, output, session,updateData){
         showNotification(translate("errorCData"), duration = 10, type = "error")
         return(NULL)
       }
-      #new_report(datos.originales, input$file1$name)
     },
     error = function(e) {
       showNotification(paste0("Error: ", e), duration = 10, type = "error")
@@ -101,8 +100,6 @@ mod_load_data_server <- function(input, output, session,updateData){
       tryCatch({
         codigo.na <- paste0(code_NA(deleteNA = input$deleteNA), "\n", "datos <- datos.originales")
         isolate(exe(codigo.na))
-        
-        #insert_report("na.delete", "Imputaci\u00F3n de Datos", codigo.na,"\nhead(datos)\nstr(datos)")
         
       }, error = function(e) {
         showNotification(paste0("Error (NA): ", e), duration = 10, type = "error")
@@ -146,9 +143,6 @@ mod_load_data_server <- function(input, output, session,updateData){
       isolate(exe(code_deactivate(var.noactivas)))
       code.res <- paste0(code.res, code_deactivate(var.noactivas))
     }
-    
-    #new_section_report()
-    #insert_report("transformar.datos","Transformando Datos", code.res,"\nstr(datos)")
     return(code.res)
   }
   
@@ -292,10 +286,6 @@ mod_load_data_server <- function(input, output, session,updateData){
       segmentar.datos(codigo)
       updateData$datos.aprendizaje <- datos.aprendizaje
       updateData$datos.prueba <- datos.prueba
-
-      #new_section_report()
-      # insert_report("segmentar.datos","Datos de Aprendizaje",codigo, "\nhead(datos.aprendizaje)", interpretation = FALSE)
-      # insert_report("segmentar.datos","Datos de Prueba","head(datos.prueba)", add = TRUE, interpretation = FALSE)
       
       delete_models(FALSE)
       

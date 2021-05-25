@@ -138,14 +138,11 @@ mod_SVM_server <- function(input, output, session,updateData, updatePlot){
       switch(i, {
         exe("modelo.svm.",input$kernel.svm,"<<- NULL")
         output$txtSvm <- renderPrint(invisible(""))
-        #remove_report_elem(paste0("modelo.svm.",input$kernel.svm))
       }, {
         exe("prediccion.svm.",input$kernel.svm,"<<- NULL")
-        #remove_report_elem(paste0("pred.svm.",input$kernel.svm))
         output$svmPrediTable <- DT::renderDataTable(NULL)
       }, {
         exe("indices.svm.",input$kernel.svm,"<<- NULL")
-        #remove_report_elem(paste0("ind.svm.",input$kernel.svm))
       })
     }
   }
@@ -162,7 +159,6 @@ mod_SVM_server <- function(input, output, session,updateData, updatePlot){
     tryCatch({ # Se corren los codigo
       isolate(kernel <- input$kernel.svm)
       output$plot.svm.disp <- renderPlot(exe(input$fieldCodeSvmDisp))
-      #insert_report(paste0("disp.svm.", kernel), paste0("Dispersi\u00F3n del Modelo SVM (",kernel,")"), codigo)
     },
     error = function(e) { # Regresamos al estado inicial y mostramos un error
       clean_svm(2)
@@ -177,8 +173,6 @@ mod_SVM_server <- function(input, output, session,updateData, updatePlot){
       isolate(kernel <- input$kernel.svm)
       output$txtSvm <- renderPrint(exe("print(modelo.svm.",kernel,")"))
       updateAceEditor(session, "fieldCodeSvm", value = cod.svm.modelo)
-      
-      #insert_report(paste0("modelo.svm.",kernel), paste0("Generaci\u00F3n del Modelo SVM (",kernel,")"), cod.svm.modelo, "\nmodelo.svm.", kernel)
       
       #nombres.modelos <<- c(nombres.modelos, paste0("modelo.svm.", kernel))
     },
@@ -196,8 +190,6 @@ mod_SVM_server <- function(input, output, session,updateData, updatePlot){
       
       # Cambia la tabla con la prediccion de knn
       output$svmPrediTable <- DT::renderDataTable(exe("tb_predic(real.val, prediccion.svm.",kernel,")"),server = FALSE)
-      # insert_report(paste0("pred.svm.",input$kernel.svm), paste0("Predicci\u00F3n del Modelo SVM (",kernel,")"), 
-      #               cod.svm.pred,"\nkt(head(tb_predic(real.val, prediccion.svm.",kernel,")$x$data[,-1]))",interpretation = FALSE)
       
       #nombres.modelos <<- c(nombres.modelos, paste0("prediccion.svm.",kernel))
       
@@ -218,11 +210,6 @@ mod_SVM_server <- function(input, output, session,updateData, updatePlot){
         
         indices.svm <- general_indices(datos.prueba[,variable.predecir], exe("prediccion.svm.",kernel))
         #eval(parse(text =paste0("indices.svm.",kernel, "<<- indices.svm")))
-        
-        # insert_report(paste0("ind.svm.",kernel), paste0("\u00CDndices Generales del modelo SVM (",kernel,")"),
-        #               cod.svm.ind, "\nkt(general_indices(datos.prueba[,'",variable.predecir,"'], prediccion.svm.",kernel,"))\n",
-        #               "indices.svm <- general_indices(datos.prueba[,'",variable.predecir,"'], prediccion.svm.",kernel,")\n",
-        #               "IndicesM[['svml-",kernel,"']] <- indices.svm")
         
         df <- as.data.frame(indices.svm)
         colnames(df) <- c(translate("RMSE"), translate("MAE"), translate("ER"), translate("correlacion"))

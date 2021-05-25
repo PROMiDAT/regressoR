@@ -60,8 +60,6 @@ app_ui <- function(request) {
                                           menuSubItem(labelInput("rd"), tabName = "rd",icon = icon("chart-pie")),
                                           menuSubItem(labelInput("nn"),tabName = "nn",icon = icon("brain")))
   
-  report.menu <- menuItem(labelInput("reporte"), tabName = "reporte", icon = icon("save-file",lib = "glyphicon"))
-  
   compare.menu <- menuItem(labelInput("comparacion"), tabName = "comparar", icon = icon("eye"))
   
   new.prediction.menu <- menuItem(labelInput("predicnuevos"), tabName = "predNuevos", icon = icon("table"))
@@ -93,7 +91,6 @@ app_ui <- function(request) {
                          supervised.learning.menu,
                          compare.menu,
                          new.prediction.menu,
-                         #report.menu,
                          info.menu,
                          hr(),
                          menu.language,

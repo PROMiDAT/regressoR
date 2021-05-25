@@ -50,7 +50,6 @@ mod_r_numerico_server <- function(input, output, session,updateData){
     
     # Change the table with the summary on the summary page
     output$resumen.completo <- DT::renderDataTable({ 
-      #insert_report("resumen","Resumen Num\u00E9rico", "summary(datos)")
       data.frame(unclass(summary(datos)), check.names = FALSE, stringsAsFactors = FALSE)
     }, options = list(dom = "ft", scrollX = TRUE), rownames = F)
     

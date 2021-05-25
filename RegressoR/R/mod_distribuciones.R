@@ -82,8 +82,7 @@ mod_distribuciones_server <- function(input, output, session, updateData, update
         cod.dya.num <<- updatePlot$dya.num
         res <- isolate(exe(cod.dya.num))
         updateAceEditor(session, "fieldCodeNum", value = cod.dya.num)
-        #insert_report(paste0("dya.num.", input$sel.distribucion.num), "Distribuci\u00F3n y atipicidad", cod.dya.num)
-        
+
         return(res)
       }, error = function(e) {
         if (ncol(var_numerical(datos)) == 0){
@@ -125,7 +124,6 @@ mod_distribuciones_server <- function(input, output, session, updateData, update
         cod.dya.cat <<- updatePlot$dya.cat
         res <- isolate(exe(cod.dya.cat))
         updateAceEditor(session, "fieldCodeCat", value = cod.dya.cat)
-        #insert_report(paste0("dya.cat.", input$sel.distribucion.cat), "Distribuci\u00F3n", cod.dya.cat)
         return(res)
       }, error = function(e) {
         if (ncol(var_categorical(datos)) == 0){

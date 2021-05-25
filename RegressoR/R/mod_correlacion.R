@@ -70,7 +70,6 @@ mod_correlacion_server <- function(input, output, session, updateData, updatePlo
         cod.cor <<- updatePlot$cor
         res <- isolate(exe(cod.cor))
         updateAceEditor(session, "fieldCodeCor", value = cod.cor)
-        #insert_report("correlacion", "Correlaci\u00F3n", cor_model(),"\n", cod.cor)
         return(res)
       }, error = function(e) {
         if (ncol(var_numerical(datos)) == 0){

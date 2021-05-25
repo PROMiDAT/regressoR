@@ -212,16 +212,11 @@ mod_penalized_Regression_server <- function(input, output, session, updateData, 
       switch(i, {
         modelo.rlr <<- NULL
         output$txtRlr <- renderPrint(invisible(""))
-        # remove_report_elem(paste0("modelo.rlr.",rlr_type()))
-        # remove_report_elem(paste0("disp.rlr.",rlr_type()))
-        # remove_report_elem(paste0("landa.rlr.",rlr_type()))
       }, {
         prediccion.rlr <<- NULL
-        #remove_report_elem(paste0("pred.rlr.",rlr_type()))
         output$rlrPrediTable <- DT::renderDataTable(NULL)
       },{
         indices.rlr <<- rep(0, 10)
-        #remove_report_elem(paste0("ind.rlr",rlr_type()))
       })
     }
   }
@@ -230,7 +225,6 @@ mod_penalized_Regression_server <- function(input, output, session, updateData, 
   plot_disp_rlr <- function(){
     tryCatch({ # Se corren los codigo
       output$plot.rlr.disp <- renderPlot(isolate(exe(input$fieldCodeRlrDisp)))
-      #insert_report(paste0("disp.rlr.",rlr_type()), paste0("Dispersi\u00F3n del Modelo Regresi\u00F3n Penalizada (",rlr_type(),")"), codigo)
     },
     error = function(e) { # Regresamos al estado inicial y mostramos un error
       clean_rlr(2)
@@ -242,7 +236,6 @@ mod_penalized_Regression_server <- function(input, output, session, updateData, 
   plot_posib_landa_rlr <- function(){
     tryCatch({ # Se corren los codigo
       output$plot.rlr.posiblanda <- renderPlot(exe("plot(cv.glm.",rlr_type(),")"))
-      #insert_report(paste0("posib.landa.rlr.",rlr_type()), paste0("Posible lambda (",rlr_type(),")"),cod.select.landa,"\nplot(cv.glm.",rlr_type(),")")
     },
     error = function(e) { # Regresamos al estado inicial y mostramos un error
       clean_rlr(2)
@@ -265,7 +258,6 @@ mod_penalized_Regression_server <- function(input, output, session, updateData, 
   plot_coeff <- function(){
     tryCatch({ # Se corren los codigo
       output$plot.rlr.landa <- renderPlot(isolate(exe(input$fieldCodeRlrLanda)))
-      #insert_report(paste0("gcoeff.landa.rlr.",rlr_type()),paste0("Coeficientes y lamdas (",rlr_type(),")"),codigo)
     },
     error = function(e){ # Regresamos al estado inicial y mostramos un error
       clean_rlr(2)
@@ -287,9 +279,6 @@ mod_penalized_Regression_server <- function(input, output, session, updateData, 
       isolate(tipo <- rlr_type())
       output$txtRlr <- renderPrint(print(exe("modelo.rlr.",tipo)))
       
-      # insert_report(paste0("modelo.rlr.",tipo),paste0("Generaci\u00F3n del Modelo Regresi\u00F3n Penalizada (",rlr_type(),")"),
-      #               cod.rlr.modelo,"\nmodelo.rlr.",tipo)
-      
       plot_posib_landa_rlr()
       print_coeff()
       plot_coeff()
@@ -309,9 +298,6 @@ mod_penalized_Regression_server <- function(input, output, session, updateData, 
       isolate(tipo <- rlr_type())
       output$rlrPrediTable <- DT::renderDataTable(tb_predic(real.val, exe("prediccion.rlr.",tipo)), server = FALSE)
       
-      # insert_report(paste0("pred.rlr.",tipo), paste0("Predicci\u00F3n del Modelo Regresi\u00F3n Penalizada (",rlr_type(),")"),
-      #               cod.rlr.pred,"\nkt(head(tb_predic(real.val, prediccion.rlr.",tipo,")$x$data[,-1]))", interpretation = FALSE)
-      
       plot_disp_rlr()
       #nombres.modelos <<- c(nombres.modelos, "prediccion.rlr")
       updatePlot$tablaCom <- !updatePlot$tablaCom #graficar otra vez la tabla comprativa
@@ -329,11 +315,6 @@ mod_penalized_Regression_server <- function(input, output, session, updateData, 
         isolate(exe(cod.rlr.ind))
         
         indices.rlr <- general_indices(datos.prueba[,variable.predecir], exe("prediccion.rlr.",rlr_type()))
-        
-        # insert_report(paste0("ind.rlr.",rlr_type()),paste0("\u00CDndices Generales del Modelo Regresi\u00F3n Penalizada (",rlr_type(),")"),
-        #               cod.rlr.ind, "\nkt(general_indices(datos.prueba[,'",variable.predecir,"'], prediccion.rlr.",rlr_type(),"))\n",
-        #               "indices.rlr <- general_indices(datos.prueba[,'",variable.predecir,"'], prediccion.rlr.",rlr_type(),")\n",
-        #               "IndicesM[['rlr-",rlr_type(),"']] <- indices.rlr")
         
         df <- as.data.frame(indices.rlr)
         colnames(df) <- c(translate("RMSE"), translate("MAE"), translate("ER"), translate("correlacion"))
