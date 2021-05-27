@@ -8,7 +8,6 @@
 run_app <- function(
   ...
 ) {
-  
   #Loads all the functions and variables that the whole application needs
   load_globals()
   

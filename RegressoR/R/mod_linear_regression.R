@@ -82,6 +82,10 @@ mod_linear_regression_server <- function(input, output, session, updateData, upd
     output$indexdfrl2 <- render_index_table(NULL)
   }
   
+  observeEvent(updateData$idioma,{
+    execute_rl_ind()
+  })
+  
 
   observeEvent(updateData$datos.aprendizaje,{
     #Change to default values
@@ -153,7 +157,7 @@ mod_linear_regression_server <- function(input, output, session, updateData, upd
   # Displays model coefficients
   coefficients_rl <- function(){
     tryCatch({ # Se corren los codigo
-      isolate(exe(input$fieldCodeRlCoef))
+      isolate(exe(rl_coeff()))
       
       output$rlCoefTable <- render_table_data(df.rl[,c(1,4)], server = FALSE)
     },

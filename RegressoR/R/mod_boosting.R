@@ -93,6 +93,10 @@ mod_boosting_server <- function(input, output, session,updateData, updatePlot){
     output$indexdfb2 <- render_index_table(NULL)
   }
   
+  
+  observeEvent(updateData$idioma,{
+    execute_boosting_ind()
+  })
 
   observeEvent(updateData$datos.aprendizaje,{
     return.boosting.default.values()
@@ -170,7 +174,7 @@ mod_boosting_server <- function(input, output, session,updateData, updatePlot){
   # Shows the chart of importance
   plotear_boosting_imp <- function() {
     tryCatch({
-      output$plot.boosting.import <- renderPlot(isolate(exe(input$fieldCodeBoostingPlotImport)))
+      output$plot.boosting.import <- renderPlot(isolate(exe(boosting_importance_plot(paste0("modelo.boosting.",input$tipo.boosting)))))
     }, error = function(e) {
       clean_boosting(1)
     })
@@ -236,7 +240,8 @@ mod_boosting_server <- function(input, output, session,updateData, updatePlot){
   
   # Generates the indices
   execute_boosting_ind <- function() {
-    if(exists(paste0("prediccion.boosting.",input$tipo.boosting))){
+    var.prediction.name <- paste0("prediccion.boosting.",input$tipo.boosting)
+    if(exists(var.prediction.name)){
       tryCatch({ # Se corren los codigo
         isolate(exe(cod.b.ind))
         isolate(tipo <- input$tipo.boosting)

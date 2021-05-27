@@ -18,6 +18,8 @@ app_server <- function( input, output, session ) {
   # there are more variables in the "Global_Variables.R" file but these are the most important ones.
   
   # INITIAL SETTINGS ------------------------------------------------------------------------------------------------------
+  #Loads all variables that the whole application needs
+  load_global_variables()
   
   #Set the environment where the code will be executed. (.GlobalEnv recommended)
   options_regressor(exe.envir = .GlobalEnv)
@@ -41,7 +43,7 @@ app_server <- function( input, output, session ) {
   
   # REACTIVE VALUES -------------------------------------------------------------------------------------------------------
   #updateData always has the same values of the global variables(datos, datos.prueba, datos.aprendizaje).
-  updateData <- reactiveValues(datos = NULL, datos.prueba = NULL, datos.aprendizaje = NULL, IndicesM = list())
+  updateData <- reactiveValues(datos = NULL, datos.prueba = NULL, datos.aprendizaje = NULL, IndicesM = list(), idioma = "es")
   
   updatePlot <- reactiveValues(calc.normal = default_calc_normal(), 
                                normal      = NULL, 
@@ -60,9 +62,30 @@ app_server <- function( input, output, session ) {
   # CHANGE LANGUAGE -------------------------------------------------------------------------------------------------------
   
   # When the user changes the language
-  observeEvent(c(input$idioma), {
+  observeEvent(input$idioma, {
+    if(updateData$idioma != input$idioma){
+      updateData$idioma <- input$idioma
+    }
     options_regressor(language = input$idioma)
     updateLabelInput(session, cambiar.labels(), tr(cambiar.labels(), input$idioma))
+  })
+  
+  
+  
+  # END THE SESSION -------------------------------------------------------------------------------------------------------
+  
+  # When the session closes
+  onStop(function(){
+    options_regressor(exe.envir = NULL)
+    
+    #Eliminamos todas las variables y funciones que se crearon
+    rm(list = ls(.GlobalEnv,all.names = TRUE),envir = .GlobalEnv)
+    
+    #Como se elimina todo del .GlobalEnv, cargamos las funciones globales por si el usuario cambia de sesion(refresca pag)
+    #y continua usando la app
+    load_globals()
+    
+    #stopApp()
   })
     
     

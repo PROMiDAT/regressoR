@@ -1,3 +1,5 @@
+options_regressor(language = "es")
+
 cambiar.labels <- function(){
   c("idioma","selidioma","data","basico","resumen","normalidad",
     "dispersion","distribucion","correlacion","poderpred","reporte",

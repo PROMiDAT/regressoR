@@ -107,6 +107,11 @@ mod_neural_networks_server <- function(input, output, session,updateData, update
   }
   
   
+  observeEvent(updateData$idioma,{
+    execute_nn_ind()
+  })
+  
+  
   updateLayers <- function(){
     if(!is.null(datos.aprendizaje) && !is.null(input$cant.capas.nn)){
       for (i in 1:10) {
@@ -279,7 +284,7 @@ mod_neural_networks_server <- function(input, output, session,updateData, update
   
   # Generates the indices
   execute_nn_ind <- function() {
-    if(exists("prediccion.nn")){
+    if(exists("prediccion.nn") && !is.null(prediccion.nn)){
       tryCatch({ # Se corren los codigo
         isolate(exe(cod.nn.ind))
         indices.nn <- general_indices(datos.prueba[,variable.predecir], prediccion.nn)

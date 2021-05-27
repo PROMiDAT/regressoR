@@ -105,6 +105,11 @@ mod_normal_server <- function(input, output, session, updateData,updatePlot, dis
   })
   
   
+  observeEvent(updateData$idioma, {
+    updatePlot$normal <- normal_default(data = "datos", vars = input$sel.normal, color = input$col.normal, translate("curvanormal"))
+    updatePlot$calc.normal <- default_calc_normal(label.yes = translate("positivo"),label.no = translate("negativo"),label.without = translate("sinasimetria"))
+  })
+  
 }
     
 ## To be copied in the UI

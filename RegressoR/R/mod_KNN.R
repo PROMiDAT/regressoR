@@ -87,6 +87,11 @@ mod_KNN_server <- function(input, output, session,updateData, updatePlot){
     output$indexdfknn2 <- render_index_table(NULL)
   }
   
+  observeEvent(updateData$idioma,{
+    execute_knn_ind()
+  })
+  
+  
   
   observeEvent(updateData$datos.aprendizaje,{
     return.knn.default.values()
@@ -221,7 +226,8 @@ mod_KNN_server <- function(input, output, session,updateData, updatePlot){
   
   # Generates the indices
   execute_knn_ind <- function(){
-    if(exists(paste0("prediccion.knn.",input$kernel.knn))){
+    var.prediction.name <- paste0("prediccion.knn.",input$kernel.knn)
+    if(exists(var.prediction.name)){
       tryCatch({ # Se corren los codigo
         isolate(exe(cod.knn.ind))
         isolate(kernel <- input$kernel.knn)

@@ -84,6 +84,10 @@ mod_SVM_server <- function(input, output, session,updateData, updatePlot){
     output$indexdfsvm2 <- render_index_table(NULL)
   }
   
+  observeEvent(updateData$idioma,{
+    execute_svm_ind()
+  })
+  
   
   observeEvent(updateData$datos.aprendizaje,{
     return.svm.default.values()
@@ -203,7 +207,8 @@ mod_SVM_server <- function(input, output, session,updateData, updatePlot){
   
   # Generates the indices
   execute_svm_ind <- function(){
-    if(exists(paste0("prediccion.svm.",input$kernel.svm))){
+    var.prediction.name <- paste0("prediccion.svm.",input$kernel.svm)
+    if(exists(var.prediction.name)){
       tryCatch({ # Se corren los codigo
         isolate(exe(cod.svm.ind))
         isolate(kernel <- input$kernel.svm)
@@ -228,6 +233,7 @@ mod_SVM_server <- function(input, output, session,updateData, updatePlot){
         clean_svm(3)
         showNotification(paste0("Error (SVM-03) : ",e), duration = 15, type = "error")
       })
+      
     }
   }
  

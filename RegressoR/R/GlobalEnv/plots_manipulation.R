@@ -181,7 +181,7 @@ importance_plot_rf <- function(model.rf, title.1, title.2){
     theme(axis.text.x = element_text(angle = 45, hjust = 1), 
           axis.text.y = element_text(size=rel(size.y)),
           plot.title = element_text(size = 10), legend.position = 'none')
-  print(gridExtra::grid.arrange(g1, g2, ncol = 2, nrow = 1))
+  #print(gridExtra::grid.arrange(g1, g2, ncol = 2, nrow = 1))
 }
 
 

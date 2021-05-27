@@ -1,7 +1,6 @@
 
 load("inst/app/lang/translation.bin") # Load translation.bin (dictionary to change language)
 enc <- "utf8"
-options_regressor(language = "es")
 
 # Updates the labelInputs that the language changes
 

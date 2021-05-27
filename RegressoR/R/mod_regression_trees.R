@@ -96,7 +96,11 @@ mod_regression_trees_server <- function(input, output, session,updateData, updat
     output$rulesDt <- renderText(NULL)
   }
   
-  # change model codes
+  observeEvent(updateData$idioma,{
+    execute_dt_ind()
+  })
+  
+
   observeEvent(updateData$datos.aprendizaje,{
     return.dt.default.values()
   })
@@ -149,7 +153,7 @@ mod_regression_trees_server <- function(input, output, session,updateData, updat
   # Shows the graph of the tree
   plot_tree <- function(){
     tryCatch({
-      output$plot.dt <- renderPlot(isolate(exe(input$fieldCodeDtPlot)))
+      output$plot.dt <- renderPlot(exe(input$fieldCodeDtPlot))
     },
     error = function(e){
       output$plot.dt <- renderPlot(NULL)

@@ -115,6 +115,10 @@ mod_penalized_Regression_server <- function(input, output, session, updateData, 
     output$indexdfrlr2 <- render_index_table(NULL)
   }
   
+  observeEvent(updateData$idioma,{
+    execute_rlr_ind()
+  })
+  
 
   observeEvent(updateData$datos.aprendizaje,{
     return.rlr.default.values()
@@ -310,7 +314,8 @@ mod_penalized_Regression_server <- function(input, output, session, updateData, 
   
   # Generates the indices
   execute_rlr_ind <- function() {
-    if(exists(paste0("prediccion.rlr.",rlr_type()))){
+    var.prediction.name <- paste0("prediccion.rlr.",rlr_type())
+    if(exists(var.prediction.name)){
       tryCatch({ # Se corren los codigo
         isolate(exe(cod.rlr.ind))
         

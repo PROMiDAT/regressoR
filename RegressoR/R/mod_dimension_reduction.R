@@ -114,6 +114,10 @@ mod_dimension_reduction_server <- function(input, output, session,updateData, up
     output$indexdfrd2 <- render_index_table(NULL)
   }
   
+  observeEvent(updateData$idioma,{
+    execute_rd_ind()
+  })
+  
   observeEvent(updateData$datos.aprendizaje,{
     return.rd.default.values()
   })
@@ -325,7 +329,8 @@ mod_dimension_reduction_server <- function(input, output, session,updateData, up
   
   # Generates the indices
   execute_rd_ind <- function() {
-    if(exists(paste0("prediccion.rd.",rd_type()))){
+    var.prediction.name <- paste0("prediccion.rd.",rd_type())
+    if(exists(var.prediction.name)){
       tryCatch({ # Se corren los codigo
         isolate(exe(cod.rd.ind))
         indices.rd <- general_indices(datos.prueba[,variable.predecir], exe("prediccion.rd.",rd_type()))

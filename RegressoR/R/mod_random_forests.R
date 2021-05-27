@@ -102,6 +102,10 @@ mod_random_forests_server <- function(input, output, session,updateData, updateP
     output$rulesRf <- renderText(NULL)
   }
   
+  observeEvent(updateData$idioma,{
+    execute_rf_ind()
+  })
+  
   # change model codes
   observeEvent(updateData$datos.aprendizaje,{
     return.rf.default.values()

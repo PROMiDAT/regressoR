@@ -142,8 +142,8 @@ mod_distribuciones_server <- function(input, output, session, updateData, update
   })
   
   # Executes the code when parameters change
-  observeEvent(input$sel.distribucion.cat, {
-    updatePlot$dya.cat <<- def_code_cat(variable = input$sel.distribucion.cat)
+  observeEvent(c(input$sel.distribucion.cat, updateData$idioma), {
+    updatePlot$dya.cat <- def_code_cat(variable = input$sel.distribucion.cat)
   })
  
 }
