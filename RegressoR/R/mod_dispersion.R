@@ -24,7 +24,7 @@ mod_dispersion_ui <- function(id){
   dispersion.data <- column(width = 4, DT::dataTableOutput(ns('mostrar.disp.zoom')), hr(), plotOutput(ns('plot.disp.zoom'), height = "41vh"))
   
   dispersion.options <- fluidRow(h4(style = "float:left;font-size: 20px;", labelInput("selvars")),
-                                 tags$div(class="multiple-select-var",style = "width:60%;",
+                                 tags$div(class="multiple-select-var",
                                           selectizeInput(ns("select.var"), NULL, multiple = T, choices = c(""),
                                                          options = list(maxItems = 3))))
   

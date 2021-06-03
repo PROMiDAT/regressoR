@@ -9,110 +9,110 @@
 #' @importFrom shiny NS tagList 
 mod_new_data_predictions_ui <- function(id){
   
+  ns <- NS(id)
+  
   
   # Data display
   
   show.data.pred <- box(title = labelInput("data"), status = "primary", width = 12, solidHeader = TRUE, collapsible = TRUE,
-                        DT::DTOutput('contentsPred'), type = 7, color = "#CBB051")
+                        DT::DTOutput(ns('contentsPred')), type = 7, color = "#CBB051")
   
   show.data.pred2 <- box(title = labelInput("data"), status = "primary", width = 12, solidHeader = TRUE, collapsible = TRUE,
-                         DT::DTOutput('contentsPred2'), type = 7, color = "#CBB051")
+                         DT::DTOutput(ns('contentsPred2')), type = 7, color = "#CBB051")
   
   show.data.pred3 <- box(title = labelInput("data"), status = "primary", width = 12, solidHeader = TRUE, collapsible = TRUE,
-                         DT::DTOutput('contentsPred3'), type = 7, color = "#CBB051")
+                         DT::DTOutput(ns('contentsPred3')), type = 7, color = "#CBB051")
   
   # Loading and transforming data
   
   data.upload.panel.pred <- tabPanel(title = labelInput("cargarDatos"), width = 12, solidHeader = FALSE, collapsible = FALSE, collapsed = FALSE,
                                      fluidRow(column(width = 5,
-                                                     checkboxInput('headerNPred', labelInput("header"), TRUE),
-                                                     checkboxInput('rownameNPred', labelInput("Rownames"), TRUE),
-                                                     radioButtonsTr('sepNPred', 'separador', c(';', ',', '\t'), c("puntocoma", "coma", "tab")),
-                                                     radioButtonsTr('decNPred',"separadordec", c(',', '.'), c("coma", "punto")),
-                                                     switchInput(inputId = "deleteNAnPred", onStatus = "success", offStatus = "danger", value = T, width = "100%",
-                                                                 label = labelInput("eliminana"), onLabel = labelInput("si"), offLabel = labelInput("no"), labelWidth = "100%"),
-                                                     fileInput('file2', label = labelInput("cargarchivo"), placeholder = "", buttonLabel =  labelInput("subir"), width = "100%",
+                                                     checkboxInput(ns('headerNPred'), labelInput("header"), TRUE),
+                                                     checkboxInput(ns('rownameNPred'), labelInput("Rownames"), TRUE),
+                                                     radioButtons(ns('sepNPred'), labelInput("separador"), inline = T, choiceValues = c(';', ',', '\t'), choiceNames = c(';', ',', 'TAB')),
+                                                     radioButtons(ns('decNPred'),labelInput("separadordec"), inline = T,choiceValues = c(',', '.'), choiceNames = c(',', '.')),
+                                                     radioSwitch(ns("deleteNAnPred"), "eliminana", c("eliminar", "imputar")),
+                                                     fileInput(ns('file2'), label = labelInput("cargarchivo"), placeholder = "", buttonLabel =  labelInput("subir"), width = "100%",
                                                                accept = c('text/csv', '.csv')),
-                                                     actionButton("loadButtonNPred", labelInput("cargar"), width = "100%")),
+                                                     actionButton(ns("loadButtonNPred"), labelInput("cargar"), width = "100%")),
                                               column(width = 7, show.data.pred)))
   
   
   tansform.data.panel <- tabPanel(title = labelInput("transDatos"), width = 12, solidHeader = FALSE, collapsible = FALSE, collapsed = FALSE,
                                   fluidRow(column(width = 5,
-                                                  DT::dataTableOutput('transDataPredN'),
+                                                  DT::dataTableOutput(ns('transDataPredN')),
                                                   br(),br(),
-                                                  actionButton("transButtonPredN", labelInput("aplicar"), width = "100%")),
+                                                  actionButton(ns("transButtonPredN"), labelInput("aplicar"), width = "100%")),
                                            column(width = 7, show.data.pred2)))
   
   data.upload.panel.pred2 <- tabPanel(title = labelInput("cargarNuev"), width = 12, solidHeader = FALSE, collapsible = FALSE, collapsed = FALSE,
                                       fluidRow(column(width = 5,
-                                                      checkboxInput('headerNPred2', labelInput("header"), TRUE),
-                                                      checkboxInput('rownameNPred2',  labelInput("Rownames"), TRUE),
-                                                      radioButtonsTr('sep.nPred2', 'separador', c(';', ',', '\t'), c("puntocoma", "coma", "tab")),
-                                                      radioButtonsTr('dec.nPred2', "separadordec", c(',', '.'), c("coma", "punto")),
-                                                      switchInput(inputId = "deleteNAnPred2", onStatus = "success", offStatus = "danger", value = T, width = "100%",
-                                                                  label = labelInput("eliminana"), onLabel = labelInput("si"), offLabel = labelInput("no"), labelWidth = "100%"),
-                                                      fileInput('file3', label = labelInput("cargarchivo"), placeholder = "", buttonLabel = labelInput("subir"), width = "100%",
+                                                      checkboxInput(ns('headerNPred2'), labelInput("header"), TRUE),
+                                                      checkboxInput(ns('rownameNPred2'),  labelInput("Rownames"), TRUE),
+                                                      radioButtons(ns('sep.nPred2'), labelInput("separador"), inline = T, choiceValues = c(';', ',', '\t'), choiceNames = c(';', ',', 'TAB')),
+                                                      radioButtons(ns('dec.nPred2'),labelInput("separadordec"), inline = T,choiceValues = c(',', '.'), choiceNames = c(',', '.')),
+                                                      radioSwitch(ns("deleteNAnPred2"), "eliminana", c("eliminar", "imputar")),
+                                                      fileInput(ns('file3'), label = labelInput("cargarchivo"), placeholder = "", buttonLabel = labelInput("subir"), width = "100%",
                                                                 accept = c('text/csv', '.csv')),
-                                                      actionButton("loadButtonNPred2", labelInput("cargar"), width = "100%")),
+                                                      actionButton(ns("loadButtonNPred2"), labelInput("cargar"), width = "100%")),
                                                column(width = 7, show.data.pred3)))
   
   # Model Options
   
   options.rl.pred <- list() # Vacio
   
-  options.rlr.pred <- fluidRow(column(selectInput(inputId = "alpha.rlr.pred", label = labelInput("selectAlg"),selected = 1,
+  options.rlr.pred <- fluidRow(column(selectInput(inputId = ns("alpha.rlr.pred"), label = labelInput("selectAlg"),selected = 1,
                                                   choices = list("Ridge" = 0, "Lasso" = 1)),width = 3),
-                               column(br(), switchInput(inputId = "switch.scale.rlr.pred", onStatus = "success", offStatus = "danger", value = T,
+                               column(br(), switchInput(inputId = ns("switch.scale.rlr.pred"), onStatus = "success", offStatus = "danger", value = T,
                                                         label = labelInput("escal"), onLabel = labelInput("si"), offLabel = labelInput("no"), labelWidth = "100%"), width=3),
-                               column(id = "colManualLanda.pred",width = 3, numericInput("landa.pred", labelInput("landa"),value = 2, min = 0, "NULL", width = "100%")), br(),
-                               column(width = 3, switchInput(inputId = "permitir.landa.pred", onStatus = "success", offStatus = "danger", value = F, width = "100%",
+                               column(id = ns("colManualLanda.pred"),width = 3, numericInput(ns("landa.pred"), labelInput("landa"),value = 2, min = 0, "NULL", width = "100%")), br(),
+                               column(width = 3, switchInput(inputId = ns("permitir.landa.pred"), onStatus = "success", offStatus = "danger", value = F, width = "100%",
                                                              label = "", onLabel = "Manual", offLabel = labelInput("automatico"), labelWidth = "100%")))
   
-  options.rd.pred <-  fluidRow(column(selectInput(inputId = "mode.rd.pred", label = labelInput("selectAlg"),selected = 0,
+  options.rd.pred <-  fluidRow(column(selectInput(inputId = ns("mode.rd.pred"), label = labelInput("selectAlg"),selected = 0,
                                                   choices = list("ACP" = 0, "MCP" = 1)),width = 3),
-                               column(br(), switchInput(inputId = "switch.scale.rd.pred", onStatus = "success", offStatus = "danger", value = T,
+                               column(br(), switchInput(inputId = ns("switch.scale.rd.pred"), onStatus = "success", offStatus = "danger", value = T,
                                                         label = labelInput("escal"), onLabel = labelInput("si"), offLabel = labelInput("no"), labelWidth = "100%"), width=3),
-                               column(id = "colManualCom.pred",width = 3, numericInput("ncomp.rd.pred", labelInput("ncomp"),value = 2, min = 0, "NULL", width = "100%")), br(),
-                               column(width = 3, switchInput(inputId = "permitir.ncomp.pred", onStatus = "success", offStatus = "danger", value = F, width = "100%",
+                               column(id = ns("colManualCom.pred"),width = 3, numericInput(ns("ncomp.rd.pred"), labelInput("ncomp"),value = 2, min = 0, "NULL", width = "100%")), br(),
+                               column(width = 3, switchInput(inputId = ns("permitir.ncomp.pred"), onStatus = "success", offStatus = "danger", value = F, width = "100%",
                                                              label = "", onLabel = "Manual", offLabel = labelInput("automatico"), labelWidth = "100%")))
   
-  options.knn.pred <- fluidRow(column(width = 3, br() , switchInput(inputId = "switch.scale.knn.pred", onStatus = "success", offStatus = "danger", value = T,
+  options.knn.pred <- fluidRow(column(width = 3, br() , switchInput(inputId = ns("switch.scale.knn.pred"), onStatus = "success", offStatus = "danger", value = T,
                                                                     label = labelInput("escal"), onLabel = labelInput("si"), offLabel = labelInput("no"), labelWidth = "100%", width = "100%")),
-                               column(width = 3, numericInput("kmax.knn.pred", labelInput("kmax"), min = 1,step = 1, value = 7,width="100%")),
-                               column(width = 3, selectInput(inputId = "kernel.knn.pred", label = labelInput("selkernel") ,selected = 1, width="100%",
+                               column(width = 3, numericInput(ns("kmax.knn.pred"), labelInput("kmax"), min = 1,step = 1, value = 7,width="100%")),
+                               column(width = 3, selectInput(inputId = ns("kernel.knn.pred"), label = labelInput("selkernel") ,selected = 1, width="100%",
                                                              choices =  c("optimal", "rectangular", "triangular", "epanechnikov", "biweight",
                                                                           "triweight", "cos","inv","gaussian"))),
-                               column(width = 3,numericInput("distance.knn.pred", labelInput("distknn"), min = 1,step = 1, value = 2) ))
+                               column(width = 3,numericInput(ns("distance.knn.pred"), labelInput("distknn"), min = 1,step = 1, value = 2) ))
   
-  options.svm.pred <- fluidRow(column(width = 6, br(), switchInput(inputId = "switch.scale.svm.pred", onStatus = "success", offStatus = "danger", value = T,
+  options.svm.pred <- fluidRow(column(width = 6, br(), switchInput(inputId = ns("switch.scale.svm.pred"), onStatus = "success", offStatus = "danger", value = T,
                                                                    label = labelInput("escal"), onLabel = labelInput("si"), offLabel = labelInput("no"), labelWidth = "100%", width = "100%")),
-                               column(width = 6, selectInput(inputId = "kernel.svm.pred", label = labelInput("selkernel"), selected = "radial", width="100%",
+                               column(width = 6, selectInput(inputId = ns("kernel.svm.pred"), label = labelInput("selkernel"), selected = "radial", width="100%",
                                                              choices =  c("linear", "polynomial", "radial", "sigmoid"))))
   
-  options.dt.pred <- fluidRow(column(width = 6, numericInput("minsplit.dt.pred", labelInput("minsplit"), 20, width = "100%",min = 1)),
-                              column(width = 6, numericInput("maxdepth.dt.pred", labelInput("maxdepth"), 15, width = "100%",min = 0, max = 30, step = 1)))
+  options.dt.pred <- fluidRow(column(width = 6, numericInput(ns("minsplit.dt.pred"), labelInput("minsplit"), 20, width = "100%",min = 1)),
+                              column(width = 6, numericInput(ns("maxdepth.dt.pred"), labelInput("maxdepth"), 15, width = "100%",min = 0, max = 30, step = 1)))
   
-  options.rf.pred <- fluidRow(column(width = 6, numericInput("ntree.rf.pred", labelInput("numTree"), 20, width = "100%", min = 0)),
-                              column(width = 6, numericInput("mtry.rf.pred",labelInput("numVars"),1, width = "100%", min = 1)))
+  options.rf.pred <- fluidRow(column(width = 6, numericInput(ns("ntree.rf.pred"), labelInput("numTree"), 20, width = "100%", min = 0)),
+                              column(width = 6, numericInput(ns("mtry.rf.pred"),labelInput("numVars"),1, width = "100%", min = 1)))
   
-  options.boosting.pred <- list(fluidRow(column(width = 4, numericInput("iter.boosting.pred", labelInput("numTree"), 500, width = "100%",min = 1)),
-                                         column(width = 4, numericInput("shrinkage.boosting.pred",labelInput("shrinkage"), 0.01, width = "100%",min = 0.0001)),
-                                         column(width = 4, selectInput(inputId = "tipo.boosting.pred", label = labelInput("selectAlg"),selected = 1, width = "100%",
+  options.boosting.pred <- list(fluidRow(column(width = 4, numericInput(ns("iter.boosting.pred"), labelInput("numTree"), 300, width = "100%",min = 1)),
+                                         column(width = 4, numericInput(ns("shrinkage.boosting.pred"),labelInput("shrinkage"), 0.1, width = "100%",min = 0.0001)),
+                                         column(width = 4, selectInput(inputId = ns("tipo.boosting.pred"), label = labelInput("selectAlg"),selected = 1, width = "100%",
                                                                        choices =  c("gaussian", "laplace", "tdist")))))
   
-  options.nn.pred <-list(fluidRow(column(numericInput("threshold.nn.pred",labelInput("threshold"),
+  options.nn.pred <-list(fluidRow(column(numericInput(ns("threshold.nn.pred"),labelInput("threshold"),
                                                       min = 0, step = 0.01, value = 0.05), width = 4),
-                                  column(numericInput("stepmax.nn.pred",labelInput("stepmax"),
+                                  column(numericInput(ns("stepmax.nn.pred"),labelInput("stepmax"),
                                                       min = 100, step = 100, value = 5000), width = 4),
-                                  column(sliderInput(inputId = "cant.capas.nn.pred", min = 1, max = 10,
+                                  column(sliderInput(inputId = ns("cant.capas.nn.pred"), min = 1, max = 10,
                                                      label = labelInput("selectCapas"), value = 10), width = 4)),
-                         fluidRow(lapply(1:10, function(i) tags$span(numericInput(paste0("nn.cap.pred.",i), NULL,
+                         fluidRow(lapply(1:10, function(i) tags$span(numericInput(ns(paste0("nn.cap.pred.",i)), NULL,
                                                                                   min = 1, step = 1, value = 2),
                                                                      class = "mini-numeric-select"))))
   
-  options.model <- list(selectInput(inputId = "sel.predic.var.nuevos", label = labelInput("seleccionarPredecir"), choices =  "", width = "100%"),
-                        radioGroupButtons("selectModelsPred", labelInput("selectMod"), 
+  options.model <- list(selectInput(inputId = ns("sel.predic.var.nuevos"), label = labelInput("seleccionarPredecir"), choices =  "", width = "100%"),
+                        radioGroupButtons(ns("selectModelsPred"), labelInput("selectMod"), 
                                           list("<span data-id=\"rll\"></span>" = "rl",
                                                "<span data-id=\"rlr\"></span>" = "rlr",
                                                "<span data-id=\"rd\"></span>" = "rd",
@@ -130,61 +130,61 @@ mod_new_data_predictions_ui <- function(id){
   create.pred.model.panel <- tabPanel(title = labelInput("seleParModel"),solidHeader = FALSE, collapsible = FALSE, collapsed = FALSE, value = "crearModelo",
                                       options.model,
                                       conditionalPanel(condition =  "input.selectModelsPred == 'rl'",
-                                                       options.rl.pred),
+                                                       options.rl.pred, ns = ns),
                                       conditionalPanel(condition =  "input.selectModelsPred == 'rlr'",
-                                                       options.rlr.pred),
+                                                       options.rlr.pred, ns = ns),
                                       conditionalPanel(condition =  "input.selectModelsPred == 'knn'",
-                                                       options.knn.pred),
+                                                       options.knn.pred, ns = ns),
                                       conditionalPanel(condition =  "input.selectModelsPred == 'dt'",
-                                                       options.dt.pred),
+                                                       options.dt.pred, ns = ns),
                                       conditionalPanel(condition =  "input.selectModelsPred == 'rf'",
-                                                       options.rf.pred),
+                                                       options.rf.pred, ns = ns),
                                       conditionalPanel(condition =  "input.selectModelsPred == 'boosting'",
-                                                       options.boosting.pred),
+                                                       options.boosting.pred, ns = ns),
                                       conditionalPanel(condition =  "input.selectModelsPred == 'svm'",
-                                                       options.svm.pred),
+                                                       options.svm.pred, ns = ns),
                                       conditionalPanel(condition =  "input.selectModelsPred == 'nn'",
-                                                       options.nn.pred),
+                                                       options.nn.pred, ns = ns),
                                       conditionalPanel(condition =  "input.selectModelsPred == 'rd'",
-                                                       options.rd.pred),
-                                      verbatimTextOutput("txtPredNuevos"),
-                                      actionButton("PredNuevosBttnModelo", labelInput("generarM"), width  = "100%", style = "background-color:#CBB051;color:#fff;margin-top:9px;"))
+                                                       options.rd.pred, ns = ns),
+                                      verbatimTextOutput(ns("txtPredNuevos")),
+                                      actionButton(ns("PredNuevosBttnModelo"), labelInput("generarM"), width  = "100%", style = "background-color:#CBB051;color:#fff;margin-top:9px;"))
   
   
   tabs.models  <- tabsOptions(buttons = list(icon("code")), widths = c(100), heights = c(40),
-                              tabs.content = list(list(aceEditor("fieldPredNuevos", mode = "r", theme = "monokai", value = "", height = "20vh", readOnly = F))))
+                              tabs.content = list(list(aceEditor(ns("fieldPredNuevos"), mode = "r", theme = "monokai", value = "", height = "20vh", readOnly = F))))
   
   tabs.models2  <- tabsOptions(buttons = list(icon("code")), widths = c(100), heights = c(40),
-                               tabs.content = list(aceEditor("fieldCodePredPN", mode = "r", theme = "monokai",
+                               tabs.content = list(aceEditor(ns("fieldCodePredPN"), mode = "r", theme = "monokai",
                                                              value = "", height = "20vh", readOnly = F, autoComplete = "enabled")))
   
   prediccion.pred.panel <- tabPanel(title = labelInput("predicnuevos"), value = "predicModelo",
-                                    DT::dataTableOutput("PrediTablePN"),
+                                    DT::dataTableOutput(ns("PrediTablePN")),
                                     hr(),
-                                    downloadButton("downloaDatosPred", labelInput("descargar"), style = "width:100%"),
-                                    actionButton("predecirPromidat", "preditc"))
+                                    downloadButton(ns("downloaDatosPred"), labelInput("descargar"), style = "width:100%"),
+                                    actionButton(ns("predecirPromidat"), "preditc",style="display:none;"))
   
   page.new.predictions <- tabItem(tabName = "predNuevos",
-                                  tabBox(id = "BoxModelo", width = NULL, height ="80%",
+                                  tabBox(id = ns("BoxModelo"), width = NULL, height ="80%",
                                          data.upload.panel.pred,
                                          tansform.data.panel,
                                          create.pred.model.panel,
                                          data.upload.panel.pred2,
                                          prediccion.pred.panel,
-                                         conditionalPanel(condition =  "input.BoxModelo == 'crearModelo'", tabs.models),
-                                         conditionalPanel(condition =  "input.BoxModelo == 'predicModelo'", tabs.models2)))
+                                         conditionalPanel(condition =  "input.BoxModelo == 'crearModelo'", tabs.models, ns = ns),
+                                         conditionalPanel(condition =  "input.BoxModelo == 'predicModelo'", tabs.models2, ns = ns)))
   
   
-  ns <- NS(id)
+  
   tagList(
- 
+    page.new.predictions
   )
 }
     
 #' new_data_predictions Server Function
 #'
 #' @noRd 
-mod_new_data_predictions_server <- function(input, output, session){
+mod_new_data_predictions_server <- function(input, output, session,updateData,updatePlot){
   ns <- session$ns
  
   
@@ -228,7 +228,7 @@ mod_new_data_predictions_server <- function(input, output, session){
   
   # Updates neural network layers of new individuals
   update_nn_layers_pn <- function(){
-    if(!is.null(datos.aprendizaje.completos) && !is.null(input$cant.capas.nn.pred)){
+    if(!is.null(input$cant.capas.nn.pred)){
       for (i in 1:10) {
         if(i <= input$cant.capas.nn.pred) {
           shinyjs::show(paste0("nn.cap.pred.", i))
@@ -239,7 +239,7 @@ mod_new_data_predictions_server <- function(input, output, session){
     }
   }
   
-  update_nn_layers_pn()
+  #update_nn_layers_pn()
   
   # Download the data with the prediction
   output$downloaDatosPred <- downloadHandler(
@@ -324,11 +324,11 @@ mod_new_data_predictions_server <- function(input, output, session){
                         Tipo = c(1:ncol(datos.aprendizaje.completos)),
                         Activa = c(1:ncol(datos.aprendizaje.completos)))
       res$Tipo <- sapply(colnames(datos.aprendizaje.completos), function(i) paste0(
-        '<select id="Predsel', i, contadorPN, '"> <option value="categorico">',translate("categorico"),'</option>',
+        '<select id="', ns('Predsel'), i, contadorPN, '"> <option value="categorico">',translate("categorico"),'</option>',
         '<option value="numerico" ', ifelse(class(datos.aprendizaje.completos[, i]) %in% c("numeric", "integer"),' selected="selected"', ""),'>', translate("numerico"),'</option>',
         '<option value="disyuntivo">',translate("disyuntivo"),'</option> </select>'
       ))
-      res$Activa <- sapply(colnames(datos.aprendizaje.completos), function(i) paste0('<input type="checkbox" id="Predbox', i, contadorPN, '" checked/>'))
+      res$Activa <- sapply(colnames(datos.aprendizaje.completos), function(i) paste0('<input type="checkbox" id="',ns('Predbox'), i, contadorPN, '" checked/>'))
       update_nn_layers_pn()
     } else {
       res <- as.data.frame(NULL)
@@ -441,7 +441,6 @@ mod_new_data_predictions_server <- function(input, output, session){
   # When the data transform button is pressed
   observeEvent(input$transButtonPredN, {
     code.trans.pn <<- transform_data_pn()
-    
     updateSelectInput(session, "sel.predic.var.nuevos", choices = rev(colnames_empty(var_numerical(datos.aprendizaje.completos))))
     updateNumericInput(session, "mtry.rf.pred", value = round(sqrt(ncol(datos.aprendizaje.completos) -1)))
     

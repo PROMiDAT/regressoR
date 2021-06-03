@@ -46,15 +46,15 @@ mod_load_data_ui <- function(id){
   
   show.data <- box(title = labelInput("data"), status = "primary", width = 12, solidHeader = TRUE, collapsible = TRUE, type = 7, color = "#CBB051",
                    DT::DTOutput(ns('contents')), hr(),
-                   downloadButton(ns("downloaDatos"), labelInput("descargar"), width = "100%"))
+                   downloadButton(ns("downloaDatos"), labelInput("descargar"), width = "100%", class = "descargaDatos"))
   
   show.learning.data <- box(title = labelInput("dataA"), status = "primary", width = 12, solidHeader = TRUE, collapsible = TRUE, type = 7, color = "#CBB051",
                             DT::DTOutput(ns('contentsAprend')), hr(),
-                            downloadButton(ns("downloaDatosA"), labelInput("descargar"), width = "100%"))
+                            downloadButton(ns("downloaDatosA"), labelInput("descargar"), width = "100%", class = "descargaDatos"))
   
   show.test.data <- box(title = labelInput("dataP"), status = "primary", width = 12, solidHeader = TRUE, collapsible = TRUE, type = 7, color = "#CBB051",
                         DT::DTOutput(ns('contentsPrueba')), hr(),
-                        downloadButton(ns("downloaDatosP"), labelInput("descargar"), width = "100%"))
+                        downloadButton(ns("downloaDatosP"), labelInput("descargar"), width = "100%", class = "descargaDatos"))
   
   page.load.data <- tabItem(tabName = "cargar",
                             fluidRow(column(width = 5, tabBox(id =ns("tabs"), title = NULL, width = 12,

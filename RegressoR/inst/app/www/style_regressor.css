@@ -23,34 +23,26 @@
 }
 
 /* En el menu de configuracion de datos, el espacio en el selector de la semilla */
-#colSemilla{
+#load_data_ui_1-colSemilla{
   padding-left:0px;
 }
 
-#predecirPromidat{
-  display:none;
-}
-
-#rfPrediTable, #knnPrediTable, #svmPrediTable, #dtPrediTable, #rfPrediTable, 
-#boostingPrediTable, #nnPrediTable, #rlPrediTable, #rlrPrediTable, #rlCoefTable,
-#rdPrediTable{
+#random_forests_ui_1-rfPrediTable, #KNN_ui_1-knnPrediTable, #SVM_ui_1-svmPrediTable, #regression_trees_ui_1-dtPrediTable,
+#boosting_ui_1-boostingPrediTable, #neural_networks_ui_1-nnPrediTable, #linear_regression_ui_1-rlPrediTable, #penalized_Regression_ui_1rlrPrediTable, 
+#linear_regression_ui_1-rlCoefTable,#dimension_reduction_ui_1-rdPrediTable{
   min-height: 370px !important;
 }
 
-div[id^="indexdf"] table td{
+div[id*="indexdf"] table td{
   color: #000000 !important;
   background-color: #e2e2e2;
   font-size:20px;
 }
 
-div[id^="indexdf"] table thead tr{
+div[id*="indexdf"] table thead tr{
   color: #000000 !important;
   background-color: #CBB051 !important;
   font-size:20px;
-}
-
-#distribucion_numerica{
-  display:none;
 }
 
 .mini-numeric-select .form-group.shiny-input-container {
@@ -114,7 +106,7 @@ table.spacing-xs tr th{
   background-color: #777777;
 }
 
-#calculo\.normal{
+#normal_ui_1-calculo\.normal{
   min-height: 350px;
 }
 
@@ -239,12 +231,7 @@ table.spacing-xs tr th{
     background: #555;
 }
 
-#txtreport {
-  min-height: 25vh !important;
-  height: 25vh;
-}
-
-#rulesDt{
+#regression_trees_ui_1-rulesDt{
   height: 24vh;
 }
 
@@ -269,7 +256,7 @@ table.spacing-xs tr th{
 
 .multiple-select-var{
   float: right;
-  width: 100%;
+  width: 275px;
   margin-bottom: -3px;
   margin-top: 6px;
   font-size: 14px;
@@ -286,11 +273,11 @@ table.spacing-xs tr th{
   height: 70vh;
 }
 
-#txtcor {
+#correlacion_ui_1-txtcor {
   height: 70vh;
 }
 
-#txtk {
+#KNN_ui_1-txtk {
   height: 70vh;
 }
 
@@ -302,7 +289,7 @@ table.spacing-xs tr th{
   height: 22vh;
 }
 
-#downloaDatos {
+.descargaDatos {
   width: 100%;
 }
 
@@ -451,7 +438,3 @@ table.spacing-xs tr th{
   background-color: #777777;
   color: #CBB051;
 }
-
-
-
-

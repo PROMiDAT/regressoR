@@ -191,8 +191,6 @@ mod_random_forests_server <- function(input, output, session,updateData, updateP
   plotear_rf_imp <- function() {
     tryCatch({
       output$plot.rf <- renderPlot(isolate(importance_plot_rf(modelo.rf,translate("impVarA"),translate("impVarRSS"))))
-      cod <- ifelse(input$fieldCodeRfPlot == "", extract_code("importance_plot_rf"), input$fieldCodeRfPlot)
-      
     }, error = function(e) {
       output$plot.rf <- renderPlot(NULL)
     })
