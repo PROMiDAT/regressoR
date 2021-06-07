@@ -11,6 +11,9 @@ mod_new_data_predictions_ui <- function(id){
   
   ns <- NS(id)
   
+  btn_style <- "width: 100%;background-color: #3d8dbc;color: white;"
+  btn_style_hidden <- "width: 100%;background-color: #3d8dbc;color: white; display:none;"
+  
   
   # Data display
   
@@ -25,8 +28,9 @@ mod_new_data_predictions_ui <- function(id){
   
   # Loading and transforming data
   
-  data.upload.panel.pred <- tabPanel(title = labelInput("cargarDatos"), width = 12, solidHeader = FALSE, collapsible = FALSE, collapsed = FALSE,
-                                     fluidRow(column(width = 5,
+  data.upload.panel.pred <- div(id = ns("seccion1"),fluidRow(column(width = 11, 
+                                    tabBox(width = 12,
+                                          tabPanel(title =labelInput("cargarDatos"), fluidRow(column(width = 5,
                                                      checkboxInput(ns('headerNPred'), labelInput("header"), TRUE),
                                                      checkboxInput(ns('rownameNPred'), labelInput("Rownames"), TRUE),
                                                      radioButtons(ns('sepNPred'), labelInput("separador"), inline = T, choiceValues = c(';', ',', '\t'), choiceNames = c(';', ',', 'TAB')),
@@ -35,27 +39,47 @@ mod_new_data_predictions_ui <- function(id){
                                                      fileInput(ns('file2'), label = labelInput("cargarchivo"), placeholder = "", buttonLabel =  labelInput("subir"), width = "100%",
                                                                accept = c('text/csv', '.csv')),
                                                      actionButton(ns("loadButtonNPred"), labelInput("cargar"), width = "100%")),
-                                              column(width = 7, show.data.pred)))
+                                              column(width = 7, show.data.pred))))),
+                                    
+                                     column(width = 1, actionButton(inputId = ns("btn_next1"),
+                                                                    label = NULL, icon = icon("forward"), style = btn_style_hidden) )))
   
   
-  tansform.data.panel <- tabPanel(title = labelInput("transDatos"), width = 12, solidHeader = FALSE, collapsible = FALSE, collapsed = FALSE,
-                                  fluidRow(column(width = 5,
-                                                  DT::dataTableOutput(ns('transDataPredN')),
-                                                  br(),br(),
-                                                  actionButton(ns("transButtonPredN"), labelInput("aplicar"), width = "100%")),
-                                           column(width = 7, show.data.pred2)))
+  tansform.data.panel <-   div(id = ns("seccion2"), style= "display:none;",fluidRow(
+    column(width = 1, actionButton(inputId = ns("btn_prev1"),
+                                   label = NULL, icon = icon("backward"), style = btn_style) ),
+    column(width = 10,tabBox(
+      width = 12,
+      tabPanel(title = labelInput("transDatos"), width = 12, solidHeader = FALSE, collapsible = FALSE, collapsed = FALSE,
+               fluidRow(column(width = 5,
+                               DT::dataTableOutput(ns('transDataPredN')),
+                               br(),br(),
+                               actionButton(ns("transButtonPredN"), labelInput("aplicar"), width = "100%")),
+                        column(width = 7, show.data.pred2))))),
+    
+    column(width = 1, actionButton(inputId = ns("btn_next2"),
+                                   label = NULL, icon = icon("forward"), style = btn_style) )))
   
-  data.upload.panel.pred2 <- tabPanel(title = labelInput("cargarNuev"), width = 12, solidHeader = FALSE, collapsible = FALSE, collapsed = FALSE,
-                                      fluidRow(column(width = 5,
-                                                      checkboxInput(ns('headerNPred2'), labelInput("header"), TRUE),
-                                                      checkboxInput(ns('rownameNPred2'),  labelInput("Rownames"), TRUE),
-                                                      radioButtons(ns('sep.nPred2'), labelInput("separador"), inline = T, choiceValues = c(';', ',', '\t'), choiceNames = c(';', ',', 'TAB')),
-                                                      radioButtons(ns('dec.nPred2'),labelInput("separadordec"), inline = T,choiceValues = c(',', '.'), choiceNames = c(',', '.')),
-                                                      radioSwitch(ns("deleteNAnPred2"), "eliminana", c("eliminar", "imputar")),
-                                                      fileInput(ns('file3'), label = labelInput("cargarchivo"), placeholder = "", buttonLabel = labelInput("subir"), width = "100%",
-                                                                accept = c('text/csv', '.csv')),
-                                                      actionButton(ns("loadButtonNPred2"), labelInput("cargar"), width = "100%")),
-                                               column(width = 7, show.data.pred3)))
+  
+  
+  data.upload.panel.pred2 <- div(id = ns("seccion3"), style= "display:none;",fluidRow(
+    column(width = 1, actionButton(inputId = ns("btn_prev2"),
+                                   label = NULL, icon = icon("backward"), style = btn_style) ),
+    column(width = 10,tabBox(
+      width = 12,
+      tabPanel(title = labelInput("cargarNuev"), width = 12, solidHeader = FALSE, collapsible = FALSE, collapsed = FALSE,
+               fluidRow(column(width = 5,
+                               checkboxInput(ns('headerNPred2'), labelInput("header"), TRUE),
+                               checkboxInput(ns('rownameNPred2'),  labelInput("Rownames"), TRUE),
+                               radioButtons(ns('sep.nPred2'), labelInput("separador"), inline = T, choiceValues = c(';', ',', '\t'), choiceNames = c(';', ',', 'TAB')),
+                               radioButtons(ns('dec.nPred2'),labelInput("separadordec"), inline = T,choiceValues = c(',', '.'), choiceNames = c(',', '.')),
+                               radioSwitch(ns("deleteNAnPred2"), "eliminana", c("eliminar", "imputar")),
+                               fileInput(ns('file3'), label = labelInput("cargarchivo"), placeholder = "", buttonLabel = labelInput("subir"), width = "100%",
+                                         accept = c('text/csv', '.csv')),
+                               actionButton(ns("loadButtonNPred2"), labelInput("cargar"), width = "100%")),
+                        column(width = 7, show.data.pred3))))),
+    column(width = 1, actionButton(inputId = ns("btn_next3"),
+                                   label = NULL, icon = icon("forward"), style = btn_style) )))
   
   # Model Options
   
@@ -127,28 +151,37 @@ mod_new_data_predictions_ui <- function(id){
                                           checkIcon = list(yes = icon("ok", lib = "glyphicon"),
                                                            no = icon("remove", lib = "glyphicon"))))
   
-  create.pred.model.panel <- tabPanel(title = labelInput("seleParModel"),solidHeader = FALSE, collapsible = FALSE, collapsed = FALSE, value = "crearModelo",
-                                      options.model,
-                                      conditionalPanel(condition =  "input.selectModelsPred == 'rl'",
-                                                       options.rl.pred, ns = ns),
-                                      conditionalPanel(condition =  "input.selectModelsPred == 'rlr'",
-                                                       options.rlr.pred, ns = ns),
-                                      conditionalPanel(condition =  "input.selectModelsPred == 'knn'",
-                                                       options.knn.pred, ns = ns),
-                                      conditionalPanel(condition =  "input.selectModelsPred == 'dt'",
-                                                       options.dt.pred, ns = ns),
-                                      conditionalPanel(condition =  "input.selectModelsPred == 'rf'",
-                                                       options.rf.pred, ns = ns),
-                                      conditionalPanel(condition =  "input.selectModelsPred == 'boosting'",
-                                                       options.boosting.pred, ns = ns),
-                                      conditionalPanel(condition =  "input.selectModelsPred == 'svm'",
-                                                       options.svm.pred, ns = ns),
-                                      conditionalPanel(condition =  "input.selectModelsPred == 'nn'",
-                                                       options.nn.pred, ns = ns),
-                                      conditionalPanel(condition =  "input.selectModelsPred == 'rd'",
-                                                       options.rd.pred, ns = ns),
-                                      verbatimTextOutput(ns("txtPredNuevos")),
-                                      actionButton(ns("PredNuevosBttnModelo"), labelInput("generarM"), width  = "100%", style = "background-color:#CBB051;color:#fff;margin-top:9px;"))
+  create.pred.model.panel <- div(id = ns("seccion4"), style= "display:none;",fluidRow(
+    column(width = 1, actionButton(inputId = ns("btn_prev3"),
+                                   label = NULL, icon = icon("backward"), style = btn_style) ),
+    column(width = 10,tabBox(
+      width = 12,
+      tabPanel(title = labelInput("seleParModel"),solidHeader = FALSE, collapsible = FALSE, collapsed = FALSE, value = "crearModelo",
+               options.model,
+               conditionalPanel(condition =  "input.selectModelsPred == 'rl'",
+                                options.rl.pred, ns = ns),
+               conditionalPanel(condition =  "input.selectModelsPred == 'rlr'",
+                                options.rlr.pred, ns = ns),
+               conditionalPanel(condition =  "input.selectModelsPred == 'knn'",
+                                options.knn.pred, ns = ns),
+               conditionalPanel(condition =  "input.selectModelsPred == 'dt'",
+                                options.dt.pred, ns = ns),
+               conditionalPanel(condition =  "input.selectModelsPred == 'rf'",
+                                options.rf.pred, ns = ns),
+               conditionalPanel(condition =  "input.selectModelsPred == 'boosting'",
+                                options.boosting.pred, ns = ns),
+               conditionalPanel(condition =  "input.selectModelsPred == 'svm'",
+                                options.svm.pred, ns = ns),
+               conditionalPanel(condition =  "input.selectModelsPred == 'nn'",
+                                options.nn.pred, ns = ns),
+               conditionalPanel(condition =  "input.selectModelsPred == 'rd'",
+                                options.rd.pred, ns = ns),
+               verbatimTextOutput(ns("txtPredNuevos")),
+               actionButton(ns("PredNuevosBttnModelo"), labelInput("generarM"), 
+                            width  = "100%", style = "background-color:#CBB051;color:#fff;margin-top:9px;")))),
+    column(width = 1, actionButton(inputId = ns("btn_next4"),
+                                   label = NULL, icon = icon("forward"), style = btn_style) )
+  ))
   
   
   tabs.models  <- tabsOptions(buttons = list(icon("code")), widths = c(100), heights = c(40),
@@ -158,11 +191,16 @@ mod_new_data_predictions_ui <- function(id){
                                tabs.content = list(aceEditor(ns("fieldCodePredPN"), mode = "r", theme = "monokai",
                                                              value = "", height = "20vh", readOnly = F, autoComplete = "enabled")))
   
-  prediccion.pred.panel <- tabPanel(title = labelInput("predicnuevos"), value = "predicModelo",
-                                    DT::dataTableOutput(ns("PrediTablePN")),
-                                    hr(),
-                                    downloadButton(ns("downloaDatosPred"), labelInput("descargar"), style = "width:100%"),
-                                    actionButton(ns("predecirPromidat"), "preditc",style="display:none;"))
+  prediccion.pred.panel <- div(id = ns("seccion5"), style= "display:none;",fluidRow(
+    column(width = 1, actionButton(inputId = ns("btn_prev4"),
+                                   label = NULL, icon = icon("backward"), style = btn_style) ),
+    column(width = 11,tabBox(
+      width = 12,
+      tabPanel(title = labelInput("predicnuevos"), value = "predicModelo",
+               DT::dataTableOutput(ns("PrediTablePN")),
+               hr(),
+               downloadButton(ns("downloaDatosPred"), labelInput("descargar"), style = "width:100%"),
+               actionButton(ns("predecirPromidat"), "preditc",style="display:none;"))))))
   
   page.new.predictions <- tabItem(tabName = "predNuevos",
                                   tabBox(id = ns("BoxModelo"), width = NULL, height ="80%",
@@ -177,7 +215,12 @@ mod_new_data_predictions_ui <- function(id){
   
   
   tagList(
-    page.new.predictions
+    data.upload.panel.pred,
+    tansform.data.panel,
+    create.pred.model.panel,
+    data.upload.panel.pred2,
+    prediccion.pred.panel
+    #page.new.predictions
   )
 }
     
@@ -186,6 +229,46 @@ mod_new_data_predictions_ui <- function(id){
 #' @noRd 
 mod_new_data_predictions_server <- function(input, output, session,updateData,updatePlot){
   ns <- session$ns
+  
+  observeEvent(input$btn_next1,{
+    shinyjs::hide("seccion1",anim = T)
+    shinyjs::show("seccion2",anim = T)
+  })
+  
+  observeEvent(input$btn_prev1,{
+    shinyjs::show("seccion1",anim = T)
+    shinyjs::hide("seccion2",anim = T)
+  })
+  
+  observeEvent(input$btn_next2,{
+    shinyjs::hide("seccion2",anim = T)
+    shinyjs::show("seccion3",anim = T)
+  })
+  
+  observeEvent(input$btn_prev2,{
+    shinyjs::show("seccion2",anim = T)
+    shinyjs::hide("seccion3",anim = T)
+  })
+  
+  observeEvent(input$btn_next3,{
+    shinyjs::hide("seccion3",anim = T)
+    shinyjs::show("seccion4",anim = T)
+  })
+  
+  observeEvent(input$btn_prev3,{
+    shinyjs::show("seccion3",anim = T)
+    shinyjs::hide("seccion4",anim = T)
+  })
+  
+  observeEvent(input$btn_next4,{
+    shinyjs::hide("seccion4",anim = T)
+    shinyjs::show("seccion5",anim = T)
+  })
+  
+  observeEvent(input$btn_prev4,{
+    shinyjs::show("seccion4",anim = T)
+    shinyjs::hide("seccion5",anim = T)
+  })
  
   
   # Update the different tables in the "shiny" application
@@ -279,6 +362,7 @@ mod_new_data_predictions_server <- function(input, output, session,updateData,up
   
   # When learning data is loaded
   observeEvent(input$loadButtonNPred,{
+    shinyjs::hide("btn_next1",anim = TRUE)
     codigo.carga <- code_load(row.names = input$rownameNPred,
                               path = input$file2$datapath,
                               sep = input$sepNPred,
@@ -301,6 +385,7 @@ mod_new_data_predictions_server <- function(input, output, session,updateData,up
       updateSelectInput(session, "sel.predic.var.nuevos", choices = rev(colnames_empty(var_numerical(datos.aprendizaje.completos))))
       updateNumericInput(session, "kmax.knn.pred", value = round(sqrt(nrow(datos.aprendizaje.completos))))
       updateNumericInput(session, "mtry.rf.pred", value = round(sqrt(ncol(datos.aprendizaje.completos) -1)))
+      shinyjs::show("btn_next1",anim = TRUE)
     },
     error = function(e) {
       showNotification(paste0("Error:", e), duration = 10, type = "error")

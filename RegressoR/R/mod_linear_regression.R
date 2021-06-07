@@ -10,9 +10,7 @@
 mod_linear_regression_ui <- function(id){
   ns <- NS(id)
   
-  rl.code  <- list(fluidRow(column(width = 9,h4(labelInput("codigo"))),
-                            column(width = 2,br(),actionButton(ns("runRl"), label = labelInput("ejecutar"), icon = icon("play")))),
-                   hr(),
+  rl.code  <- list(options.run(ns("runRl")), tags$hr(style = "margin-top: 0px;"),
                    conditionalPanel("input.BoxRl == 'tabRlModelo'",
                                     aceEditor(ns("fieldCodeRl"), mode = "r", theme = "monokai",
                                               value = "", height = "3vh", readOnly = F, autoComplete = "enabled"),ns = ns),
