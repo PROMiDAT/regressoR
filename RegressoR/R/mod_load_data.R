@@ -28,7 +28,7 @@ mod_load_data_ui <- function(id){
                                   br(),br(),
                                   actionButton(ns("transButton"), labelInput("aplicar"), width = "100%"),
                                   br(),br(),
-                                  aceEditor(ns("fieldCodeTrans"), mode = "r", theme = "monokai", value = "", height = "10vh",  readOnly = T))
+                                  aceEditor(ns("fieldCodeTrans"), mode = "r", theme = "monokai", value = "", height = "13vh",  readOnly = T))
   
   data.segment.panel <- tabPanel(title = labelInput("configuraciones"), width = 12, solidHeader = FALSE, collapsible = FALSE, collapsed = FALSE,
                                  fluidRow(column(id = ns("colSemilla"),width = 6, numericInput(ns("semilla"), labelInput("semilla"), "NULL", width = "100%")), br(),
@@ -42,7 +42,7 @@ mod_load_data_ui <- function(id){
                                              min = 5, max = 95, value = 30, step = 5),
                                  actionButton(ns("segmentButton"), labelInput("generar"), width = "100%"),
                                  br(),br(),
-                                 aceEditor(ns("fieldCodeSegment"), mode = "r", theme = "monokai", value = "", height = "8vh",  readOnly = T))
+                                 aceEditor(ns("fieldCodeSegment"), mode = "r", theme = "monokai", value = "", height = "13vh",  readOnly = T))
   
   show.data <- box(title = labelInput("data"), status = "primary", width = 12, solidHeader = TRUE, collapsible = TRUE, type = 7, color = "#CBB051",
                    DT::DTOutput(ns('contents')), hr(),

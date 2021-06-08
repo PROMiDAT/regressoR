@@ -11,9 +11,7 @@ mod_penalized_Regression_ui <- function(id){
   ns <- NS(id)
   
   
-  rlr.options <- list(fluidRow(column(width = 9,h4(labelInput("opciones"))),
-                               column(width = 2,br(),actionButton(ns("runRlr"), label = labelInput("ejecutar"), icon = icon("play")))),
-                      hr(),
+  rlr.options <- list(options.run(ns("runRlr")), tags$hr(style = "margin-top: 0px;"),
                       fluidRow(column(selectInput(inputId = ns("alpha.rlr"), label = labelInput("selectAlg"), selected = 1,
                                                   choices = list("Ridge" = 0, "Lasso" = 1)),width = 6),
                                column(br(), switchInput(inputId = ns("switch.scale.rlr"), onStatus = "success", offStatus = "danger", value = T,
@@ -23,11 +21,14 @@ mod_penalized_Regression_ui <- function(id){
                                                              label = "", onLabel = "Manual", offLabel = labelInput("automatico"), labelWidth = "100%"),
                                       style = "padding-top: 5px;")))
   
-  rlr.code  <- list(fluidRow(column(width = 9, h4(labelInput("codigo")))),
-                    hr(),
-                    conditionalPanel("input.BoxRlr == 'tabRlrModelo'",
-                                     aceEditor(ns("fieldCodeRlr"), mode = "r", theme = "monokai",
-                                               value = "", height = "8vh", readOnly = F, autoComplete = "enabled"),ns = ns),
+  
+  rlr.code.config <- list(h3(labelInput("codigo")), hr(style = "margin-top: 0px;"),
+                          aceEditor(ns("fieldCodeRlr"), mode = "r", theme = "monokai",
+                                    value = "", height = "8vh", readOnly = F, autoComplete = "enabled"))
+  
+  
+  rlr.code  <- list(fluidRow(column(width = 9, h3(labelInput("codigo")))),
+                    hr(style = "margin-top: 0px;"),
                     conditionalPanel("input.BoxRlr == 'tabRlrLanda'",
                                      aceEditor(ns("fieldCodeRlrLanda"), mode = "r", theme = "monokai",
                                                value = "", height = "8vh", readOnly = F, autoComplete = "enabled"),ns = ns),
@@ -39,7 +40,7 @@ mod_penalized_Regression_ui <- function(id){
                                                value = "", height = "8vh", readOnly = F, autoComplete = "enabled"),ns = ns),
                     conditionalPanel("input.BoxRlr == 'tabRlrPred'",
                                      aceEditor(ns("fieldCodeRlrPred"), mode = "r", theme = "monokai",
-                                               value = "", height = "10vh", readOnly = F, autoComplete = "enabled"),ns = ns),
+                                               value = "", height = "12vh", readOnly = F, autoComplete = "enabled"),ns = ns),
                     conditionalPanel("input.BoxRlr == 'tabRlrDisp'",
                                      aceEditor(ns("fieldCodeRlrDisp"), mode = "r", theme = "monokai",
                                                value = "", height = "3vh", readOnly = F, autoComplete = "enabled"),ns = ns),
@@ -47,8 +48,12 @@ mod_penalized_Regression_ui <- function(id){
                                      aceEditor(ns("fieldCodeRlrIG"), mode = "r", theme = "monokai",
                                                value = "", height = "22vh", readOnly = F, autoComplete = "enabled"),ns = ns))
   
-  tabs.rlr  <- tabsOptions(buttons = list(icon("gear"),icon("code")), widths = c(50,100), heights = c(80, 95),
-                           tabs.content = list(rlr.options, rlr.code))
+  tabs.options.generate <- tabsOptions(buttons = list(icon("gear"), icon("code")), widths = c(50,100), heights = c(80,95),
+                          tabs.content = list(rlr.options,rlr.code.config))
+  
+  tabs.options.Nogenerate <- tabsOptions(buttons = list(icon("code")), widths = c(100), heights = c(95),
+                               tabs.content = list(rlr.code))
+     
   
   generate.rlr.panel <- tabPanel(title = labelInput("generatem"),value = "tabRlrModelo",
                                  verbatimTextOutput(ns("txtRlr")))
@@ -86,7 +91,9 @@ mod_penalized_Regression_ui <- function(id){
                              prediccion.rlr.panel,
                              disp.rlr.panel,
                              rlr.general.index.panel,
-                             tabs.rlr))
+                             conditionalPanel("input.BoxRlr == 'tabRlrModelo'",tabs.options.generate,ns = ns),
+                             conditionalPanel("input.BoxRlr != 'tabRlrModelo'",tabs.options.Nogenerate,ns = ns)
+                             ))
   
   tagList(
     page.rlr

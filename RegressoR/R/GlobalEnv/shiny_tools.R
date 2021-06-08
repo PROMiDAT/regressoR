@@ -1,3 +1,15 @@
+#Boton para ejecutar los modelos
+options.run <- function(runid) {
+  tags$div(
+    style = "display: inline-block; width: 100%", 
+    shiny::h3(labelInput("opciones"), 
+              style = "float: left;margin-bottom: 0px;margin-top: 0px;"),
+    tags$button(
+      id = runid, type = "button", class = "run-button action-button", 
+      icon("play"), tags$a(labelInput("ejecutar"), style = "color:white;"), style = "font-size: 24px;"))
+}
+
+
 #' labelInput
 #' 
 #' @description label with identifier for language change 
@@ -12,18 +24,6 @@
 #' 
 labelInput <- function(inputId, value = ""){
   tags$span(`data-id` = inputId, value)
-}
-
-
-
-options.run <- function(runid) {
-  tags$div(
-    style = "display: inline-block; width: 100%", 
-    shiny::h2(labelInput("opciones"), 
-              style = "float: left;margin-bottom: 0px;margin-top: 0px;"),
-    tags$button(
-      id = runid, type = "button", class = "run-button action-button", 
-      icon("play"), tags$a(labelInput("ejecutar"), style = "color:white;"), style = "font-size: 30px;"))
 }
 
 

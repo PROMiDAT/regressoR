@@ -11,9 +11,7 @@ mod_neural_networks_ui <- function(id){
   
   ns <- NS(id)
   
-  nn.options <- list(fluidRow(column(width = 9,h4(labelInput("opciones"))),
-                              column(width = 2,br(),actionButton(ns("runNn"), label = labelInput("ejecutar"), icon = icon("play")))),
-                     hr(),
+  nn.options <- list(options.run(ns("runNn")), tags$hr(style = "margin-top: 0px;"),
                      fluidRow(column(numericInput(ns("threshold.nn"),labelInput("threshold"),
                                                   min = 0, step = 0.01, value = 0.05), width = 6),
                               column(numericInput(ns("stepmax.nn"),labelInput("stepmax"),
@@ -24,7 +22,7 @@ mod_neural_networks_ui <- function(id){
                                                                               min = 1, step = 1, value = 2),
                                                                  class = "mini-numeric-select"))))
   
-  nn.code <- list(h4(labelInput("codigo")), hr(),
+  nn.code <- list(h3(labelInput("codigo")), hr(style = "margin-top: 0px;"),
                   conditionalPanel("input.BoxNn == 'tabNnModelo'",
                                    aceEditor(ns("fieldCodeNn"), mode = "r", theme = "monokai", value = "", height = "22vh", readOnly = F),ns = ns),
                   conditionalPanel("input.BoxNn == 'tabNnPlot'",

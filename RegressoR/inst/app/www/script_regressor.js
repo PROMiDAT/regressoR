@@ -29,7 +29,7 @@ function promidat_model_firt(e, model, id){
   $("a[href$='#shiny-tab-rl']").on('click', function(e){promidat_model_firt(e,"rl","linear_regression_ui_1-runRl")});
   $("a[href^='#shiny-tab-rlr']").on('click', function(e){promidat_model_firt(e,"rlr","penalized_Regression_ui_1-runRlr")});
   $("a[href^='#shiny-tab-rd']").on('click', function(e){promidat_model_firt(e,"rd","dimension_reduction_ui_1-runRd")});
-  $("a[data-value='predicModelo']").on('click', function(e){ $("#new_data_predictions_ui_1-predecirPromidat").click()});
+  //$("a[data-value='predicModelo']").on('click', function(e){ $("#new_data_predictions_ui_1-predecirPromidat").click()});
   $($($($("#distribuciones_ui_1-tabDyA").next().children()[2]).children()[4]).children()[2]).on('click', nya_btn_fun)
   $("#load_data_ui_1-segmentButton").on('click',function(e){
     promidat_flat_models = {knn: true, dt: true, rf: true, boosting: true, svm: true, rl: true, nn: true, rlr: true, rd:true};
@@ -48,8 +48,8 @@ function eliminar_tabs_extras(){
   $("ul#boosting_ui_1-BoxB li").last().remove();
   $("ul#SVM_ui_1-BoxSvm li").last().remove();
   $("ul#model_comparison_ui_1-BoxCom li").last().remove();
-  $("ul#new_data_predictions_ui_1-BoxModelo li").last().remove();
-  $("ul#new_data_predictions_ui_1-BoxModelo li").last().remove();
+  //$("ul#new_data_predictions_ui_1-BoxModelo li").last().remove();
+  //$("ul#new_data_predictions_ui_1-BoxModelo li").last().remove();
   $("ul#Predictive_Power_ui_1-BoxPodPred li").last().remove();
   $("ul#Predictive_Power_ui_1-BoxPodPred li").last().remove();
   $("ul#neural_networks_ui_1-BoxNn li").last().remove();

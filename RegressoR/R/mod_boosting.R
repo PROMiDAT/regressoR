@@ -11,18 +11,18 @@ mod_boosting_ui <- function(id){
   
   ns <- NS(id)
   
-  b.options <- list(fluidRow(column(width = 9,h4(labelInput("opciones"))),
-                             column(width = 2,br(),actionButton(ns("runBoosting"), label = labelInput("ejecutar"), icon = icon("play")))),
-                    hr(),
+  b.options <- list(options.run(ns("runBoosting")), tags$hr(style = "margin-top: 0px;"),
                     fluidRow(column(numericInput(ns("iter.boosting"), labelInput("numTree"), 20, width = "100%",min = 1), width = 6),
                              column(numericInput(ns("shrinkage.boosting"), labelInput("shrinkage"), 0.1, width = "100%",min = 0.01, step = 0.01), width=6)),
                     fluidRow(column(selectInput(inputId = ns("tipo.boosting"), label = labelInput("selectAlg"),selected = "gaussian",
                                                 choices =  c("gaussian", "laplace", "tdist")), width = 6)))
   
-  b.code  <- list(h4(labelInput("codigo")), hr(),
-                  conditionalPanel("input.BoxB == 'tabBModelo'",
-                                   aceEditor(ns("fieldCodeBoosting"), mode = "r", theme = "monokai",
-                                             value = "", height = "5vh", readOnly = F, autoComplete = "enabled"),ns = ns),
+  b.code.config <- list(h3(labelInput("codigo")), hr(style = "margin-top: 0px;"),
+                        aceEditor(ns("fieldCodeBoosting"), mode = "r", theme = "monokai",
+                                  value = "", height = "5vh", readOnly = F, autoComplete = "enabled"))
+  
+  
+  b.code  <- list(h3(labelInput("codigo")), hr(style = "margin-top: 0px;"),
                   conditionalPanel("input.BoxB == 'tabBImp'",
                                    aceEditor(ns("fieldCodeBoostingPlotImport"), mode = "r", theme = "monokai",
                                              value = "", height = "10vh", readOnly = F, autoComplete = "enabled"),ns = ns),
@@ -36,8 +36,12 @@ mod_boosting_ui <- function(id){
                                    aceEditor(ns("fieldCodeBoostingIG"), mode = "r", theme = "monokai",
                                              value = "", height = "22vh", readOnly = F, autoComplete = "enabled"),ns = ns))
   
-  tabs.b  <- tabsOptions(buttons = list(icon("gear"),icon("code")), widths = c(50,100), heights = c(63, 95),
-                         tabs.content = list(b.options, b.code))
+  
+  tabs.options.generate <- tabsOptions(buttons = list(icon("gear"), icon("code")), widths = c(50,100), heights = c(80,95),
+                                       tabs.content = list(b.options,b.code.config))
+  
+  tabs.options.Nogenerate <- tabsOptions(buttons = list(icon("code")), widths = c(100), heights = c(95),
+                                         tabs.content = list(b.code))
   
   generate.b.panel <- tabPanel(title = labelInput("generatem"), value = "tabBModelo",
                                verbatimTextOutput(ns("txtBoosting")))
@@ -66,7 +70,8 @@ mod_boosting_ui <- function(id){
                                     prediction.b.panel,
                                     disp.boosting.panel,
                                     general.index.b.panel,
-                                    tabs.b))
+                                    conditionalPanel("input.BoxB == 'tabBModelo'",tabs.options.generate,ns = ns),
+                                    conditionalPanel("input.BoxB != 'tabBModelo'",tabs.options.Nogenerate,ns = ns)))
   
   tagList(
     pagina.boosting

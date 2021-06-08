@@ -11,9 +11,7 @@ mod_dimension_reduction_ui <- function(id){
   
   ns <- NS(id)
   
-  rd.options  <- list(fluidRow(column(width = 9,h4(labelInput("opciones"))),
-                               column(width = 2,br(),actionButton(ns("runRd"), label = labelInput("ejecutar"), icon = icon("play")))),
-                      hr(),
+  rd.options  <- list(options.run(ns("runRd")), tags$hr(style = "margin-top: 0px;"),
                       fluidRow(column(selectInput(inputId = ns("modo.rd"), label = labelInput("selectAlg"),selected = 0,
                                                   choices = list("ACP" = 0, "MCP" = 1)),width = 6),
                                column(br(), switchInput(inputId = ns("switch.scale.rd"), onStatus = "success", offStatus = "danger", value = T,
@@ -22,20 +20,23 @@ mod_dimension_reduction_ui <- function(id){
                                column(width = 6, switchInput(inputId = ns("permitir.ncomp"), onStatus = "success", offStatus = "danger", value = F, width = "100%",
                                                              label = "", onLabel = "Manual", offLabel = labelInput("automatico"), labelWidth = "100%"))))
   
-  rd.code   <- list(fluidRow(column(width = 9,h4(labelInput("codigo")))),
-                    hr(),
-                    conditionalPanel("input.BoxRd == 'tabRdModelo'",
-                                     aceEditor(ns("fieldCodeRd"), mode = "r", theme = "monokai",
-                                               value = "", height = "8vh", readOnly = F, autoComplete = "enabled"), ns = ns),
+  
+  rd.code.config <- list(h3(labelInput("codigo")), hr(style = "margin-top: 0px;"),
+                         aceEditor(ns("fieldCodeRd"), mode = "r", theme = "monokai",
+                                   value = "", height = "8vh", readOnly = F, autoComplete = "enabled"))
+  
+  
+  rd.code   <- list(fluidRow(column(width = 9,h3(labelInput("codigo")))),
+                    hr(style = "margin-top: 0px;"),
                     conditionalPanel("input.BoxRd == 'tabRdRMSE'",
                                      aceEditor(ns("fieldCodeRdRMSE"), mode = "r", theme = "monokai",
-                                               value = "", height = "14vh", readOnly = F, autoComplete = "enabled"), ns = ns),
+                                               value = "", height = "22vh", readOnly = F, autoComplete = "enabled"), ns = ns),
                     conditionalPanel("input.BoxRd == 'tabRdPlotPred'",
                                      aceEditor(ns("fieldCodeRdPlotPred"), mode = "r", theme = "monokai",
-                                               value = "", height = "14vh", readOnly = F, autoComplete = "enabled"), ns = ns),
+                                               value = "", height = "22vh", readOnly = F, autoComplete = "enabled"), ns = ns),
                     conditionalPanel("input.BoxRd == 'tabRdPlotVarPred'",
                                      aceEditor(ns("fieldCodeRdPlotVarPred"), mode = "r", theme = "monokai",
-                                               value = "", height = "14vh", readOnly = F, autoComplete = "enabled"), ns = ns),
+                                               value = "", height = "22vh", readOnly = F, autoComplete = "enabled"), ns = ns),
                     conditionalPanel("input.BoxRd == 'tabRdPred'",
                                      aceEditor(ns("fieldCodeRdPred"), mode = "r", theme = "monokai",
                                                value = "", height = "10vh", readOnly = F, autoComplete = "enabled"), ns = ns),
@@ -46,8 +47,14 @@ mod_dimension_reduction_ui <- function(id){
                                      aceEditor(ns("fieldCodeRdIG"), mode = "r", theme = "monokai",
                                                value = "", height = "22vh", readOnly = F, autoComplete = "enabled"), ns = ns))
   
-  tabs.rd  <- tabsOptions(buttons = list(icon("gear"),icon("code")), widths = c(50,100), heights = c(80, 95),
-                          tabs.content = list(rd.options, rd.code))
+
+  
+  tabs.options.generate <- tabsOptions(buttons = list(icon("gear"), icon("code")), widths = c(50,100), heights = c(80,95),
+                                       tabs.content = list(rd.options,rd.code.config))
+  
+  tabs.options.Nogenerate <- tabsOptions(buttons = list(icon("code")), widths = c(100), heights = c(95),
+                                         tabs.content = list(rd.code))
+  
   
   generate.rd.panel <- tabPanel(title = labelInput("generatem"),value = "tabRdModelo",
                                 verbatimTextOutput(ns("txtRd")))
@@ -84,7 +91,8 @@ mod_dimension_reduction_ui <- function(id){
                             prediction.rd.panel,
                             disp.rd.panel,
                             general.index.rd.panel,
-                            tabs.rd))
+                            conditionalPanel("input.BoxRd == 'tabRdModelo'",tabs.options.generate,ns = ns),
+                            conditionalPanel("input.BoxRd != 'tabRdModelo'",tabs.options.Nogenerate,ns = ns)))
   
   
   tagList(

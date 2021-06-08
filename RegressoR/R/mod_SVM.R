@@ -11,18 +11,18 @@ mod_SVM_ui <- function(id){
   
   ns <- NS(id)
   
-  svm.options <- list(fluidRow(column(width = 9,h4(labelInput("opciones"))),
-                               column(width = 2,br(),actionButton(ns("runSvm"), label = labelInput("ejecutar"), icon = icon("play")))),
-                      hr(),
+  svm.options <- list(options.run(ns("runSvm")), tags$hr(style = "margin-top: 0px;"),
                       conditionalPanel("input.BoxSvm != 'tabSvmPlot'",
                                        fluidRow(column(br(),switchInput(inputId = ns("switch.scale.svm"), onStatus = "success", offStatus = "danger", value = T,
                                                                         label = labelInput("escal"), onLabel = labelInput("si"), offLabel = labelInput("no"), labelWidth = "100%"), width = 6),
                                                 column(selectInput(inputId = ns("kernel.svm"), label = labelInput("selkernel"), selected = "radial",
                                                                    choices =  c("linear", "polynomial", "radial", "sigmoid")), width=6)), ns = ns))
   
-  svm.code <- list(h4(labelInput("codigo")), hr(),
-                   conditionalPanel("input.BoxSvm == 'tabSvmModelo'",
-                                    aceEditor(ns("fieldCodeSvm"), mode = "r", theme = "monokai", value = "", height = "3vh", readOnly = F, autoComplete = "enabled"), ns = ns),
+  svm.code.config <- list(h3(labelInput("codigo")), hr(style = "margin-top: 0px;"),
+                          aceEditor(ns("fieldCodeSvm"), mode = "r", theme = "monokai", value = "", height = "3vh", readOnly = F, autoComplete = "enabled"))
+  
+  
+  svm.code <- list(h3(labelInput("codigo")), hr(style = "margin-top: 0px;"),
                    conditionalPanel("input.BoxSvm == 'tabSvmDisp'",
                                     aceEditor(ns("fieldCodeSvmDisp"), mode = "r", theme = "monokai",
                                               value = "", height = "6vh", readOnly = F, autoComplete = "enabled"), ns = ns),
@@ -33,8 +33,12 @@ mod_SVM_ui <- function(id){
                                     aceEditor(ns("fieldCodeSvmIG"), mode = "r", theme = "monokai",
                                               value = "", height = "22vh", readOnly = F, autoComplete = "enabled"), ns = ns))
   
-  tabs.svm <- tabsOptions(buttons = list(icon("gear"),icon("code")), widths = c(50,100), heights = c(60, 95),
-                          tabs.content = list(svm.options, svm.code))
+  
+  tabs.options.generate <- tabsOptions(buttons = list(icon("gear"), icon("code")), widths = c(50,100), heights = c(80,95),
+                                       tabs.content = list(svm.options,svm.code.config))
+  
+  tabs.options.Nogenerate <- tabsOptions(buttons = list(icon("code")), widths = c(100), heights = c(95),
+                                         tabs.content = list(svm.code))
   
   generate.svm.panel <- tabPanel(title = labelInput("generatem"), value = "tabSvmModelo",
                                  verbatimTextOutput(ns("txtSvm")))
@@ -59,7 +63,8 @@ mod_SVM_ui <- function(id){
                              prediction.svm.panel,
                              disp.svm.panel,
                              general.index.svm.panel,
-                             tabs.svm))
+                             conditionalPanel("input.BoxSvm == 'tabSvmModelo'",tabs.options.generate,ns = ns),
+                             conditionalPanel("input.BoxSvm != 'tabSvmModelo'",tabs.options.Nogenerate,ns = ns)))
   
   
   tagList(

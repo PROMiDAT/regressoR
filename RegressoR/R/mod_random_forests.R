@@ -11,22 +11,24 @@ mod_random_forests_ui <- function(id){
   
   ns <- NS(id)
   
-  rf.options <- list(fluidRow(column(width = 9,h4(labelInput("opciones"))),
-                              column(width = 2,br(),actionButton(ns("runRf"), label = labelInput("ejecutar"), icon = icon("play")))),
-                     hr(),
-                     conditionalPanel("input.BoxRf != 'tabRfRules'",
+  rf.options <- list(conditionalPanel("input.BoxRf != 'tabRfRules'",
+                                      options.run(ns("runRf")), tags$hr(style = "margin-top: 0px;"),
                                       fluidRow(column(numericInput(ns("ntree.rf"), labelInput("numTree"), 20, width = "100%", min = 0), width = 6),
                                                column(numericInput(ns("mtry.rf"),labelInput("numVars"),1, width = "100%", min = 1), width=6)), ns = ns),
                      conditionalPanel("input.BoxRf == 'tabRfRules'",
                                       numericInput(ns("rules.rf.n"),labelInput("ruleNumTree"),1, width = "100%", min = 1),ns = ns))
   
-  rf.code  <- list(h4(labelInput("codigo")), hr(),
-                   conditionalPanel("input.BoxRf == 'tabRfModelo'",
-                                    aceEditor(ns("fieldCodeRf"), mode = "r", theme = "monokai",
-                                              value = "", height = "3vh", readOnly = F, autoComplete = "enabled"),ns = ns),
+  rf.code.config <- list(h3(labelInput("codigo")), hr(style = "margin-top: 0px;"),
+                         conditionalPanel("input.BoxRf == 'tabRfModelo'",aceEditor(ns("fieldCodeRf"), mode = "r", theme = "monokai",
+                                   value = "", height = "3vh", readOnly = F, autoComplete = "enabled"), ns = ns),
+                         conditionalPanel("input.BoxRf == 'tabRfRules'",aceEditor(ns("fieldCodeRfRules"), mode = "r", theme = "monokai",
+                                   value = "", height = "4vh", readOnly = F, autoComplete = "enabled"), ns = ns))
+    
+  
+  rf.code  <- list(h3(labelInput("codigo")), hr(style = "margin-top: 0px;"),
                    conditionalPanel("input.BoxRf == 'tabRfImp'",
                                     aceEditor(ns("fieldCodeRfPlot"), mode = "r", theme = "monokai",
-                                              value = "", height = "28vh", readOnly = F, autoComplete = "enabled"),ns = ns),
+                                              value = "", height = "40vh", readOnly = F, autoComplete = "enabled"),ns = ns),
                    conditionalPanel("input.BoxRf == 'tabRfPred'",
                                     aceEditor(ns("fieldCodeRfPred"), mode = "r", theme = "monokai",
                                               value = "", height = "3vh", readOnly = F, autoComplete = "enabled"),ns = ns),
@@ -35,13 +37,14 @@ mod_random_forests_ui <- function(id){
                                               value = "", height = "3vh", readOnly = F, autoComplete = "enabled"),ns = ns),
                    conditionalPanel("input.BoxRf == 'tabRfIndex'",
                                     aceEditor(ns("fieldCodeRfIG"), mode = "r", theme = "monokai",
-                                              value = "", height = "22vh", readOnly = F, autoComplete = "enabled"),ns = ns),
-                   conditionalPanel("input.BoxRf == 'tabRfRules'",
-                                    aceEditor(ns("fieldCodeRfRules"), mode = "r", theme = "monokai",
-                                              value = "", height = "4vh", readOnly = F, autoComplete = "enabled"),ns = ns))
+                                              value = "", height = "22vh", readOnly = F, autoComplete = "enabled"),ns = ns))
   
-  tabs.rf  <- tabsOptions(buttons = list(icon("gear"),icon("code")), widths = c(50,100), heights = c(65, 95),
-                          tabs.content = list(rf.options, rf.code))
+  
+  tabs.options.generate <- tabsOptions(buttons = list(icon("gear"), icon("code")), widths = c(50,100), heights = c(80,95),
+                                       tabs.content = list(rf.options,rf.code.config))
+  
+  tabs.options.Nogenerate <- tabsOptions(buttons = list(icon("code")), widths = c(100), heights = c(95),
+                                         tabs.content = list(rf.code))
   
   generate.rf.panel <- tabPanel(title = labelInput("generatem"),value = "tabRfModelo",
                                 verbatimTextOutput(ns("txtRf")))
@@ -74,7 +77,8 @@ mod_random_forests_ui <- function(id){
                             disp.rf.panel,
                             general.index.rf.panel,
                             rf.rules.panel,
-                            tabs.rf))
+                            conditionalPanel("input.BoxRf == 'tabRfModelo' || input.BoxRf == 'tabRfRules'",tabs.options.generate,ns = ns),
+                            conditionalPanel("input.BoxRf != 'tabRfModelo' && input.BoxRf != 'tabRfRules'",tabs.options.Nogenerate,ns = ns)))
   
   
   tagList(

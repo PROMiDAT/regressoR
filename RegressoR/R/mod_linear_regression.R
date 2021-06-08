@@ -10,13 +10,16 @@
 mod_linear_regression_ui <- function(id){
   ns <- NS(id)
   
-  rl.code  <- list(options.run(ns("runRl")), tags$hr(style = "margin-top: 0px;"),
+  rl.code  <- list(
                    conditionalPanel("input.BoxRl == 'tabRlModelo'",
+                                    options.run(ns("runRl")), tags$hr(style = "margin-top: 0px;"),
                                     aceEditor(ns("fieldCodeRl"), mode = "r", theme = "monokai",
                                               value = "", height = "3vh", readOnly = F, autoComplete = "enabled"),ns = ns),
+                   conditionalPanel("input.BoxRl != 'tabRlModelo'", 
+                                    h3(labelInput("codigo")), hr(style = "margin-top: 0px;"),ns = ns),
                    conditionalPanel("input.BoxRl == 'tabRlCoef'",
                                     aceEditor(ns("fieldCodeRlCoef"), mode = "r", theme = "monokai",
-                                              value = "", height = "10vh", readOnly = F, autoComplete = "enabled"),ns = ns),
+                                              value = "", height = "18vh", readOnly = F, autoComplete = "enabled"),ns = ns),
                    conditionalPanel("input.BoxRl == 'tabRlPred'",
                                     aceEditor(ns("fieldCodeRlPred"), mode = "r", theme = "monokai",
                                               value = "", height = "3vh", readOnly = F, autoComplete = "enabled"),ns = ns),

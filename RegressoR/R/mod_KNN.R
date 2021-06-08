@@ -10,9 +10,7 @@
 mod_KNN_ui <- function(id){
   ns <- NS(id)
   
-  knn.options <- list(fluidRow(column(width = 9,h4(labelInput("opciones"))),
-                               column(width = 2,br(),actionButton(ns("runKnn"), label = labelInput("ejecutar"), icon = icon("play")))),
-                      hr(),
+  knn.options <- list(options.run(ns("runKnn")), tags$hr(style = "margin-top: 0px;"),
                       fluidRow(column(numericInput(ns("kmax.knn"), labelInput("kmax"), min = 1,step = 1, value = 7), width = 6),
                                column(selectInput(inputId = ns("kernel.knn"), label = labelInput("selkernel"),selected = "optimal",
                                                   choices = c("optimal", "rectangular", "triangular", "epanechnikov", "biweight",
@@ -21,9 +19,10 @@ mod_KNN_ui <- function(id){
                                                        label = labelInput("escal"), onLabel = labelInput("si"), offLabel = labelInput("no"), labelWidth = "100%"), width=6),
                                column(width=6, numericInput(ns("distance.knn"), labelInput("distknn"), min = 1,step = 1, value = 2))) )
   
-  knn.code <- list(h4(labelInput("codigo")), hr(),
-                   conditionalPanel("input.BoxKnn == 'tabKknModelo'",
-                                    aceEditor(ns("fieldCodeKnn"), mode = "r", theme = "monokai", value = "", height = "4vh", readOnly = F),ns = ns),
+  knn.code.config <- list(h3(labelInput("codigo")), hr(style = "margin-top: 0px;"),
+                          aceEditor(ns("fieldCodeKnn"), mode = "r", theme = "monokai", value = "", height = "4vh", readOnly = F))
+  
+  knn.code <- list(h3(labelInput("codigo")), hr(style = "margin-top: 0px;"),
                    conditionalPanel("input.BoxKnn == 'tabKknPred'",
                                     aceEditor(ns("fieldCodeKnnPred"), mode = "r", theme = "monokai",
                                               value = "", height = "3vh", readOnly = F, autoComplete = "enabled"),ns = ns),
@@ -34,8 +33,12 @@ mod_KNN_ui <- function(id){
                                     aceEditor(ns("fieldCodeKnnIG"), mode = "r", theme = "monokai",
                                               value = "", height = "22vh", readOnly = F, autoComplete = "enabled"),ns = ns))
   
-  tabs.knn <- tabsOptions(buttons = list(icon("gear"),icon("code")), widths = c(50,100), heights = c(80, 95),
-                          tabs.content = list(knn.options, knn.code))
+
+  tabs.options.generate <- tabsOptions(buttons = list(icon("gear"), icon("code")), widths = c(50,100), heights = c(80,95),
+                                       tabs.content = list(knn.options,knn.code.config))
+  
+  tabs.options.Nogenerate <- tabsOptions(buttons = list(icon("code")), widths = c(100), heights = c(95),
+                                         tabs.content = list(knn.code))
   
   generate.knn.panel <- tabPanel(title = labelInput("generatem"), value = "tabKknModelo",
                                  verbatimTextOutput(ns("txtknn")))
@@ -60,7 +63,8 @@ mod_KNN_ui <- function(id){
                              prediccion.knn.panel,
                              disp.knn.panel,
                              general.index.knn.panel,
-                             tabs.knn))
+                             conditionalPanel("input.BoxKnn == 'tabKknModelo'",tabs.options.generate,ns = ns),
+                             conditionalPanel("input.BoxKnn != 'tabKknModelo'",tabs.options.Nogenerate,ns = ns)))
   
   tagList(
     page.knn

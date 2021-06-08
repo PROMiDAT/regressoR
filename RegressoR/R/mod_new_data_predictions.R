@@ -79,7 +79,7 @@ mod_new_data_predictions_ui <- function(id){
                                actionButton(ns("loadButtonNPred2"), labelInput("cargar"), width = "100%")),
                         column(width = 7, show.data.pred3))))),
     column(width = 1, actionButton(inputId = ns("btn_next3"),
-                                   label = NULL, icon = icon("forward"), style = btn_style) )))
+                                   label = NULL, icon = icon("forward"), style = btn_style_hidden) )))
   
   # Model Options
   
@@ -151,6 +151,10 @@ mod_new_data_predictions_ui <- function(id){
                                           checkIcon = list(yes = icon("ok", lib = "glyphicon"),
                                                            no = icon("remove", lib = "glyphicon"))))
   
+  tabs.models  <- tabsOptions(buttons = list(icon("code")), widths = c(100), heights = c(40),
+                              tabs.content = list(list(aceEditor(ns("fieldPredNuevos"), mode = "r", theme = "monokai", value = "", height = "20vh", readOnly = F))))
+  
+  
   create.pred.model.panel <- div(id = ns("seccion4"), style= "display:none;",fluidRow(
     column(width = 1, actionButton(inputId = ns("btn_prev3"),
                                    label = NULL, icon = icon("backward"), style = btn_style) ),
@@ -178,14 +182,14 @@ mod_new_data_predictions_ui <- function(id){
                                 options.rd.pred, ns = ns),
                verbatimTextOutput(ns("txtPredNuevos")),
                actionButton(ns("PredNuevosBttnModelo"), labelInput("generarM"), 
-                            width  = "100%", style = "background-color:#CBB051;color:#fff;margin-top:9px;")))),
+                            width  = "100%", style = "background-color:#CBB051;color:#fff;margin-top:9px;")),
+      tabs.models)),
     column(width = 1, actionButton(inputId = ns("btn_next4"),
-                                   label = NULL, icon = icon("forward"), style = btn_style) )
+                                   label = NULL, icon = icon("forward"), style = btn_style_hidden) )
   ))
   
   
-  tabs.models  <- tabsOptions(buttons = list(icon("code")), widths = c(100), heights = c(40),
-                              tabs.content = list(list(aceEditor(ns("fieldPredNuevos"), mode = "r", theme = "monokai", value = "", height = "20vh", readOnly = F))))
+
   
   tabs.models2  <- tabsOptions(buttons = list(icon("code")), widths = c(100), heights = c(40),
                                tabs.content = list(aceEditor(ns("fieldCodePredPN"), mode = "r", theme = "monokai",
@@ -200,17 +204,8 @@ mod_new_data_predictions_ui <- function(id){
                DT::dataTableOutput(ns("PrediTablePN")),
                hr(),
                downloadButton(ns("downloaDatosPred"), labelInput("descargar"), style = "width:100%"),
-               actionButton(ns("predecirPromidat"), "preditc",style="display:none;"))))))
-  
-  page.new.predictions <- tabItem(tabName = "predNuevos",
-                                  tabBox(id = ns("BoxModelo"), width = NULL, height ="80%",
-                                         data.upload.panel.pred,
-                                         tansform.data.panel,
-                                         create.pred.model.panel,
-                                         data.upload.panel.pred2,
-                                         prediccion.pred.panel,
-                                         conditionalPanel(condition =  "input.BoxModelo == 'crearModelo'", tabs.models, ns = ns),
-                                         conditionalPanel(condition =  "input.BoxModelo == 'predicModelo'", tabs.models2, ns = ns)))
+               actionButton(ns("predecirPromidat"), "preditc",style="display:none;")),
+      tabs.models2))))
   
   
   
@@ -220,7 +215,6 @@ mod_new_data_predictions_ui <- function(id){
     create.pred.model.panel,
     data.upload.panel.pred2,
     prediccion.pred.panel
-    #page.new.predictions
   )
 }
     
@@ -263,6 +257,8 @@ mod_new_data_predictions_server <- function(input, output, session,updateData,up
   observeEvent(input$btn_next4,{
     shinyjs::hide("seccion4",anim = T)
     shinyjs::show("seccion5",anim = T)
+    #Realozar prediccion
+    shinyjs::click("predecirPromidat")
   })
   
   observeEvent(input$btn_prev4,{
@@ -539,6 +535,7 @@ mod_new_data_predictions_server <- function(input, output, session,updateData,up
   
   # When the user presses the generate model button
   observeEvent(input$PredNuevosBttnModelo,{
+    shinyjs::hide(id = "btn_next4", anim = T)
     variable.predecir.pn <<- input$sel.predic.var.nuevos
     modelo.seleccionado.pn  <<- input$selectModelsPred
     
@@ -605,6 +602,7 @@ mod_new_data_predictions_server <- function(input, output, session,updateData,up
     update_pred_pn("")
     
     tryCatch({
+      
       if( (input$selectModelsPred == "boosting" &&
            !is.null(calibrate_boosting(datos.aprendizaje.completos)) ) ||
           input$selectModelsPred != "boosting" ){
@@ -613,6 +611,8 @@ mod_new_data_predictions_server <- function(input, output, session,updateData,up
       }else{
         showNotification(translate("ErrorBsize"), duration = 15, type = "error")
       }
+      
+      shinyjs::show(id = "btn_next4", anim = T)
     },
     error =  function(e){
       showNotification(paste0("Error: ", e), duration = 10, type = "error")
@@ -626,6 +626,7 @@ mod_new_data_predictions_server <- function(input, output, session,updateData,up
   
   # When the user loads the data
   observeEvent(input$loadButtonNPred2,{
+    shinyjs::hide("btn_next3",anim = TRUE)
     codigo.carga <- code_load(row.names = input$rownameNPred2,
                               path = input$file3$datapath,
                               sep = input$sep.nPred2,
@@ -651,6 +652,7 @@ mod_new_data_predictions_server <- function(input, output, session,updateData,up
         return(NULL)
       }
       update_table_pn("contentsPred3")
+      shinyjs::show("btn_next3",anim = TRUE)
     },
     error = function(e) {
       showNotification(paste0("Error: ", e), duration = 10, type = "error")

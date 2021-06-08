@@ -11,16 +11,15 @@ mod_regression_trees_ui <- function(id){
   
   ns <- NS(id)
   
-  dt.options <- list(fluidRow(column(width = 9, h4(labelInput("opciones"))),
-                              column(width = 2, br(),actionButton(ns("runDt"), label = labelInput("ejecutar"), icon = icon("play")))),
-                     hr(),
+  dt.options <- list(options.run(ns("runDt")), tags$hr(style = "margin-top: 0px;"),
                      fluidRow(column(numericInput(ns("minsplit.dt"), labelInput("minsplit"), 2, width = "100%",min = 1), width = 6),
                               column(numericInput(ns("maxdepth.dt"), labelInput("maxdepth"), 15, width = "100%",min = 0, max = 30, step = 1),width = 6)))
   
-  dt.code <- list(h4(labelInput("codigo")), hr(),
-                  conditionalPanel("input.BoxDt == 'tabDtModelo'",
-                                   aceEditor(ns("fieldCodeDt"), mode = "r", theme = "monokai",
-                                             value = "", height = "7vh", readOnly = F, autoComplete = "enabled"),ns = ns),
+  dt.code.config <- list(h3(labelInput("codigo")), hr(style = "margin-top: 0px;"),
+                         aceEditor(ns("fieldCodeDt"), mode = "r", theme = "monokai",
+                                   value = "", height = "7vh", readOnly = F, autoComplete = "enabled"))
+  
+  dt.code <- list(h3(labelInput("codigo")), hr(style = "margin-top: 0px;"),
                   conditionalPanel("input.BoxDt == 'tabDtPlot'",
                                    aceEditor(ns("fieldCodeDtPlot"), mode = "r", theme = "monokai",
                                              value = "", height = "7vh", readOnly = F, autoComplete = "enabled"),ns = ns),
@@ -37,8 +36,12 @@ mod_regression_trees_ui <- function(id){
                                    aceEditor(ns("fieldCodeDtRule"), mode = "r", theme = "monokai",
                                              value = "", height = "4vh", readOnly = F, autoComplete = "enabled"),ns = ns))
   
-  tabs.dt <- tabsOptions(buttons = list(icon("gear"),icon("code")), widths = c(50,100), heights = c(80, 95),
-                         tabs.content = list(dt.options, dt.code))
+  
+  tabs.options.generate <- tabsOptions(buttons = list(icon("gear"), icon("code")), widths = c(50,100), heights = c(80,95),
+                                       tabs.content = list(dt.options,dt.code.config))
+  
+  tabs.options.Nogenerate <- tabsOptions(buttons = list(icon("code")), widths = c(100), heights = c(95),
+                                         tabs.content = list(dt.code))
   
   generate.dt.panel <- tabPanel(title = labelInput("generatem"), value = "tabDtModelo",
                                 verbatimTextOutput(ns("txtDt")))
@@ -71,7 +74,8 @@ mod_regression_trees_ui <- function(id){
                             disp.dt.panel,
                             general.index.dt.panel,
                             rules.dt.panel,
-                            tabs.dt))
+                            conditionalPanel("input.BoxDt == 'tabDtModelo'",tabs.options.generate,ns = ns),
+                            conditionalPanel("input.BoxDt != 'tabDtModelo'",tabs.options.Nogenerate,ns = ns)))
   
   tagList(
     page.dt
