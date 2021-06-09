@@ -22,9 +22,11 @@ mod_neural_networks_ui <- function(id){
                                                                               min = 1, step = 1, value = 2),
                                                                  class = "mini-numeric-select"))))
   
+  nn.code.config <- list(h3(labelInput("codigo")), hr(style = "margin-top: 0px;"),
+                         aceEditor(ns("fieldCodeNn"), mode = "r", theme = "monokai", value = "", height = "22vh", readOnly = F))
+  
+  
   nn.code <- list(h3(labelInput("codigo")), hr(style = "margin-top: 0px;"),
-                  conditionalPanel("input.BoxNn == 'tabNnModelo'",
-                                   aceEditor(ns("fieldCodeNn"), mode = "r", theme = "monokai", value = "", height = "22vh", readOnly = F),ns = ns),
                   conditionalPanel("input.BoxNn == 'tabNnPlot'",
                                    aceEditor(ns("fieldCodeNnPlot"), mode = "r", theme = "monokai", value = "", height = "9vh", readOnly = F),ns = ns),
                   conditionalPanel("input.BoxNn == 'tabNnPred'",
@@ -39,6 +41,14 @@ mod_neural_networks_ui <- function(id){
   
   tabs.nn <- tabsOptions(buttons = list(icon("gear"),icon("code")), widths = c(75,100), heights = c(95, 95),
                          tabs.content = list(nn.options, nn.code))
+  
+  
+  tabs.options.generate <- tabsOptions(buttons = list(icon("gear"), icon("code")), widths = c(50,100), heights = c(80,95),
+                                       tabs.content = list(nn.options,nn.code.config))
+  
+  tabs.options.Nogenerate <- tabsOptions(buttons = list(icon("code")), widths = c(100), heights = c(95),
+                                         tabs.content = list(nn.code))
+  
   
   plot.nn <- tabPanel(title = labelInput("redPlot"), value = "tabNnPlot",
                       plotOutput(ns('plot.nn'), height = "55vh"))
@@ -67,7 +77,8 @@ mod_neural_networks_ui <- function(id){
                              prediction.nn.panel,
                              disp.nn.panel,
                              general.index.nn.panel,
-                             tabs.nn))
+                             conditionalPanel("input.BoxNn == 'tabNnModelo'",tabs.options.generate,ns = ns),
+                             conditionalPanel("input.BoxNn != 'tabNnModelo'",tabs.options.Nogenerate,ns = ns)))
   
   
   tagList(
