@@ -35,6 +35,10 @@ app_ui <- function(request) {
     library(dplyr)
     library(zip)
     library(pls)
+    library(stats)
+    library(graphics)
+    library(echarts4r)
+    library(shinycustomloader)
   }))
   
   # MENU --------------------------------------------------------------------------------------------------------------------

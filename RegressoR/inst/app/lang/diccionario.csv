@@ -99,6 +99,13 @@ selvars;Seleccionar Variables:;Select Variables:
 plotnormal;Gráfico Normalidad;Normal Plot
 titulonormal;Test de normalidad de;Normal Plot of
 curvanormal;Curva Normal;Normal Curve
+selcolbar;Seleccione color de las barras:;Select bar color:
+selcolline;Seleccione color de las líneas:;Select line color:
+selcolpoint;Seleccione color de los puntos:;Select point color:
+histograma;Histograma;Histogram
+sigue;¿Sigue la normal?;is normally distributed?
+pvalue;P-valor (Shapiro);P-value (Shapiro)
+tasim;Valor del test;Test value
 rocCurva;Curva ROC;ROC Curve
 selectMod;Seleccionar Modelo:;Select Model:
 selectCat;Seleccionar Categoría:;Select Category:

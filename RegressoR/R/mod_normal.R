@@ -10,30 +10,51 @@
 mod_normal_ui <- function(id){
   ns <- NS(id)
   
-  # NORMALITY TEST PAGE -----------------------------------------------------------------------------------------------------
+  normal.opc <- list(options.run(ns("run.normal")), tags$hr(style = "margin-top: 0px;"),
+                     conditionalPanel("input.BoxNormal == 'tabNormalPlot'",
+                                      colourpicker::colourInput(ns("col_hist_bar"), labelInput("selcolbar"),value = "steelblue", allowTransparent = T),
+                                      colourpicker::colourInput(ns("col_hist_line"), labelInput("selcolline"),value = "#555555", allowTransparent = T),
+                                      ns = ns
+                     ),
+                     conditionalPanel("input.BoxNormal == 'tabQPlot'",
+                                      colourpicker::colourInput(ns("col_qq_point"), labelInput("selcolpoint"),value = "steelblue", allowTransparent = T),
+                                      colourpicker::colourInput(ns("col_qq_line"), labelInput("selcolline"),value = "#555555", allowTransparent = T),
+                                      ns = ns
+                     ),
+                     conditionalPanel("input.BoxNormal == 'tabNormalCalc'",
+                                      sliderInput(ns("slide_inter"), labelInput("alfa"), min = 0, max = 0.2, step = 0.01, value = 0.05),
+                                      ns = ns
+                     ))
   
-  num.normal.plot.panel <- tabPanel(title = labelInput("plotnormal"), value = "tabNormalPlot", plotOutput(ns('plot.normal'), height = "65vh"))
+  normal.code <- list(h3(labelInput("codigo")), hr(style = "margin-top: 0px;"),
+                      conditionalPanel("input.BoxNormal == 'tabNormalPlot'",codigo.monokai(ns("fieldCodeNormal"), height = "10vh"),ns = ns),
+                      conditionalPanel("input.BoxNormal == 'tabQPlot'",codigo.monokai(ns("fieldCodeQplot"), height = "10vh"),ns = ns),
+                      conditionalPanel("input.BoxNormal == 'tabNormalCalc'",codigo.monokai(ns("fieldCalcNormal"), height = "10vh"),ns = ns))
   
-  cat.normal.plot.panel <- tabPanel(title = labelInput("normalidad"), value = "tabNormalCalc", DT::dataTableOutput(ns('calculo.normal')))
   
-  boton.colores <- list(h4(labelInput("opciones")), hr(),
-                        colourpicker::colourInput(ns("col.normal"), labelInput("selcolor"),value = "#00FF22AA", allowTransparent = T))
   
-  normality.code <- list(h4(labelInput("codigo")), hr(),
-                         conditionalPanel("input.BoxNormal == 'tabNormalCalc'",
-                                          code_field(ns("run.calc.normal"), ns("fieldCalcNormal"), height = "20vh"),ns = ns),
-                         conditionalPanel("input.BoxNormal == 'tabNormalPlot'",
-                                          code_field(ns("run.normal"), ns("fieldCodeNormal"), height = "25vh"),ns = ns))
+  num.normal.plot.panel <- tabPanel(title = labelInput("plotnormal"), value = "tabNormalPlot", echarts4rOutput(ns('plot.normal'), height = "70vh"))
   
-  tabs.normal <- tabsOptions(heights = c(33, 63), tabs.content = list(boton.colores, normality.code))
+  qplot <- tabPanel(title = "Qplot + Qline", value = "tabQPlot",echarts4rOutput(ns('plot_qq'), height = "70vh"))
   
-  normal.options <-  tags$div(class = "multiple-select-var", selectInput(inputId = ns("sel.normal"), label = NULL, choices =  ""))
+  resumen.test <- tabPanel(title = labelInput("normalidad"), value = "tabNormalCalc",
+           withLoader(DT::DTOutput(ns('calc_normal')),type = "html", loader = "loader4"))
+  
+
+  
+  tabs.normal <- tabsOptions(heights = c(40, 30), tabs.content = list(normal.opc, normal.code))
+  
+  normal.options <-  tags$div(class = "multiple-select-var", 
+                              conditionalPanel("input.BoxNormal == 'tabNormalPlot' || input.BoxNormal == 'tabQPlot'",
+                                               selectInput(inputId = ns("sel.normal"), label = NULL, choices =  ""),ns = ns))
   
   page.test.normality <- tabItem(tabName = "normalidad",
                                  tabBox(id = ns("BoxNormal"),
-                                        width = 12, title = normal.options,
+                                        width = 12, 
+                                        title = normal.options,
                                         num.normal.plot.panel,
-                                        cat.normal.plot.panel,
+                                        qplot,
+                                        resumen.test,
                                         tabs.normal))
   
   tagList(
@@ -53,61 +74,104 @@ mod_normal_server <- function(input, output, session, updateData,updatePlot, dis
   # Show the graph of the normality test page
   observeEvent(updateData$datos, {
     updateSelectizeInput(session, "sel.normal", choices = colnames_empty(var_numerical(updateData$datos)))
-    
-    output$plot.normal <- renderPlot({
-      tryCatch({
-        cod.normal <<- updatePlot$normal
-        res <- isolate(exe(cod.normal))
-        updateAceEditor(session, "fieldCodeNormal", value = cod.normal)
-        return(res)
-      }, error = function(e){
-        if(ncol(var_numerical(datos)) <= 0){
-          error_variables( T)
-        } else {
-          showNotification(paste0("ERROR: ", e), duration = 10, type = "error")
-          return(NULL)
-        }
-      })
-    })
   })
   
-  # Change the code in the code field
-  observeEvent(input$run.normal, {
-    updatePlot$normal <- input$fieldCodeNormal
-  })
-  
-  # Executes the code when parameters change
-  observeEvent(c(input$sel.normal, input$col.normal), {
-    updatePlot$normal <- normal_default(data = "datos", vars = input$sel.normal, color = input$col.normal, translate("curvanormal"))
-  })
-  
-  # Show the comparative table of the normality test page
-  observeEvent(updateData$datos, {
-    output$calculo.normal <- DT::renderDT({
-      tryCatch({
-        codigo <- updatePlot$calc.normal
-        res    <- isolate(exe(codigo))
-        updateAceEditor(session, "fieldCalcNormal", value = codigo)
-        fisher    <- translate("fisher")
-        asimetria <- translate("asimetria")
-        sketch = htmltools::withTags(table(tags$thead(tags$tr(tags$th(), tags$th(fisher), tags$th(asimetria)))))
-        DT::datatable(res, selection = 'none', container = sketch, options = list(dom = 'frtip', scrollY = "40vh"))
-      }, error = function(e) {
+  #' Grafico Test de normalidad
+  output$plot.normal <- renderEcharts4r({
+    tryCatch({
+      input$run.normal
+      var       <- input$sel.normal
+      datos     <- updateData$datos[, var]
+      colorBar  <- isolate(input$col_hist_bar)
+      colorLine <- isolate(input$col_hist_line)
+      nombres   <- c(tr("histograma", updateData$idioma), 
+                     tr("curvanormal", updateData$idioma))
+      
+      cod <- paste0("e_histnormal(datos[['", var, "']], '", colorBar,
+                    "', '", colorLine, "', c('", nombres[1], "', '", 
+                    nombres[2], "'))")
+      updateAceEditor(session, "fieldCodeNormal", value = cod)
+      return(e_histnormal(datos, colorBar, colorLine, nombres))
+    }, error = function(e){
+      if(ncol(var_numerical(datos)) <= 0){
+        error_variables( T)
+      } else {
         showNotification(paste0("ERROR: ", e), duration = 10, type = "error")
         return(NULL)
-      })
+      }
     })
   })
   
-  # Run the comparison table
-  observeEvent(input$run.calc.normal, {
-    updatePlot$calc.normal <- input$fieldCalcNormal
+  
+  #' Grafico qqplot + qqline
+  output$plot_qq <- renderEcharts4r({
+    input$run.normal
+    var        <- input$sel.normal
+    datos      <- updateData$datos[, var]
+    colorPoint <- isolate(input$col_qq_point)
+    colorLine  <- isolate(input$col_qq_line)
+    
+    tryCatch({
+      cod <- paste0("e_qq(datos[['", var, "']], '", colorPoint,
+                    "', '", colorLine, "')")
+      updateAceEditor(session, "fieldCodeQplot", value = cod)
+      return(e_qq(datos, colorPoint, colorLine))
+    }, error = function(e) {
+      showNotification(paste0("ERROR: ", e), duration = 10, type = "error")
+      return(NULL)
+    })
   })
   
   
-  observeEvent(updateData$idioma, {
-    updatePlot$normal <- normal_default(data = "datos", vars = input$sel.normal, color = input$col.normal, translate("curvanormal"))
-    updatePlot$calc.normal <- default_calc_normal(label.yes = translate("positivo"),label.no = translate("negativo"),label.without = translate("sinasimetria"))
+  #' Resumen Test de normalidad
+  output$calc_normal <- DT::renderDT({
+    input$run.normal
+    datos <- updateData$datos
+    alfa <- isolate(as.numeric(input$slide_inter))
+    noms  <- c(tr('asimetria', isolate(updateData$idioma)),
+               tr('normalidad', isolate(updateData$idioma)),
+               tr('sigue', isolate(updateData$idioma)),
+               tr('pvalue', isolate(updateData$idioma)),
+               tr('tasim', isolate(updateData$idioma)))
+    
+    tryCatch({
+      updateAceEditor(session, "fieldCalcNormal", value = "dfnormal(datos)")
+      res <- dfnormal(datos)
+      
+      res <- res[, c(1, 5)]
+      res <- round(res, 3)
+      res$asimetria <- res$fisher > 0
+      res$asimetria <- ifelse(res$asimetria, '<i class="fa fa-plus" style="color: green;"></i>', 
+                              '<i class="fa fa-minus" style="color: red;"></i>')
+      res$normal <- res$shapiro > alfa
+      res$normal <- ifelse(res$normal, '<i class="fa fa-check" style="color: green;"></i>', 
+                           '<i class="fa fa-times" style="color: red;"></i>')
+      res$shapiro <- paste0(res$shapiro, " > ", alfa)
+      res <- res[, c(1, 3, 2, 4)]
+      
+      sketch <- htmltools::withTags(table(
+        tags$thead(
+          tags$tr(
+            tags$th(rowspan = 2, 'Variables'), 
+            tags$th(colspan = 2, style = "text-align: center;", 
+                    labelInput('asimetria', noms[1])),
+            tags$th(colspan = 2, style = "text-align: center;", 
+                    labelInput('normalidad', noms[2]))
+          ),
+          tags$tr(
+            tags$th(labelInput('tasim', noms[5])), tags$th(labelInput('asimetria', noms[1])),
+            tags$th(labelInput('pvalue', noms[4])), tags$th(labelInput('sigue', noms[3]))
+          )
+        )
+      ))
+      DT::datatable(
+        res, selection = 'none', container = sketch, escape = F,
+        options = list(dom = 'frtip', scrollY = "50vh")
+      )
+    }, error = function(e) {
+      showNotification(paste0("ERROR: ", e), duration = 10, type = "error")
+      return(NULL)
+    })
   })
   
 }

@@ -21,7 +21,8 @@ cambiar.labels <- function(){
     "activa","nn","xgb","selbooster","selnrounds","selectCapas","threshold",
     "stepmax","redPlot","rll","rlr","posibLanda","coeff","gcoeff",
     "automatico","landa","shrinkage","resumenVarPre", "R2", "distknn",
-    "ncomp", "rd", "RdPred", "RdVarPred", "errRDnCom", "RMSE","eliminar", "imputar")
+    "ncomp", "rd", "RdPred", "RdVarPred", "errRDnCom", "RMSE","eliminar", "imputar",
+    "selcolbar","selcolline","selcolpoint","selcolline","tasim","pvalue","asimetria","sigue")
 }
 
 
@@ -57,10 +58,10 @@ updateLabelInput <- function (session, labelid, value = NULL) {
 }
 
 
-# crear.traslation <- function() {
-#   library(plyr)
-#   archivo <- read.table("diccionario.csv", header = TRUE, sep = ";", as.is = TRUE)
-#   translation <- dlply(archivo , .(key), function(s) key = as.list(s))
-# 
-#   save(translation, file = "translation.bin")
-# }
+crear.traslation <- function() {
+  library(plyr)
+  archivo <- read.table("diccionario.csv", header = TRUE, sep = ";", as.is = TRUE)
+  translation <- dlply(archivo , .(key), function(s) key = as.list(s))
+
+  save(translation, file = "translation.bin")
+}
