@@ -10,37 +10,30 @@
 mod_dispersion_ui <- function(id){
   ns <- NS(id)
   
-  # DISPERSION PAGE ---------------------------------------------------------------------------------------------------------
+  titulo_disp <- tags$div(class = "multiple-select-var",
+                          selectizeInput(ns("sel_disp"), NULL, multiple = T, choices = c(""),
+                                         options = list(maxItems = 3)))
   
-  tabs.dispersion  <-  tabsOptions(heights = c(30, 39),
-                                   tabs.content = list(list(h4(labelInput("opciones")), hr(),
-                                                            colourpicker::colourInput(ns("col.disp"), labelInput("selcolor"),
-                                                                                      value = "#FF0000AA",allowTransparent = T)),
-                                                       list(h4(labelInput("codigo")), hr(),
-                                                            column(width = 12, code_field(ns("run.disp"), ns("fieldCodeDisp"), height = "7vh")))))
+  dispersion.opc <- list(options.run(ns("run_disp")), tags$hr(style = "margin-top: 0px;"),
+                         colourpicker::colourInput(ns("col_disp"), labelInput("selcolor"), 
+                                                   value = "steelblue",allowTransparent = T))
   
-  #dispersion.code <- column(width = 12, code_field(runid = "run.disp", fieldid = "fieldCodeDisp", height = "8vh"))
+  dispersion.code <- list(h3(labelInput("codigo")), hr(style = "margin-top: 0px;"),
+                          col_12(codigo.monokai(ns("fieldCodeDisp"), height = "25vh")))
   
-  dispersion.data <- column(width = 4, DT::dataTableOutput(ns('mostrar.disp.zoom')), hr(), plotOutput(ns('plot.disp.zoom'), height = "41vh"))
-  
-  dispersion.options <- fluidRow(h4(style = "float:left;font-size: 20px;", labelInput("selvars")),
-                                 tags$div(class="multiple-select-var",
-                                          selectizeInput(ns("select.var"), NULL, multiple = T, choices = c(""),
-                                                         options = list(maxItems = 3))))
+  tabs.dispersion <- tabsOptions(heights = c(40, 50), tabs.content = list(dispersion.opc,dispersion.code))
   
   dispersion.plot <- tabPanel(title = labelInput("dispersion"), value = "tabDisp",
-                              fluidRow(column(width = 8, plotOutput(ns('plot.disp'), height = "65vh",
-                                                                    brush = brushOpts(id = ns("zoom.disp"), resetOnNew = TRUE))),
-                                       dispersion.data))
+                              echarts4rOutput(ns("plot_disp"), height = "75vh"))
   
-  page.dispersion<- tabItem(tabName = "dispersion",
-                            tabBox(id = ns("BoxDisp"), width = NULL, title = dispersion.options,
-                                   dispersion.plot,
-                                   tabs.dispersion))
   
+  dispersion.page <- tabItem(tabName = "dispersion",
+                             tabBox(id = ns("BoxDisp"), width = NULL, title = titulo_disp,
+                                    dispersion.plot,
+                                    tabs.dispersion))
   
   tagList(
-    page.dispersion
+    dispersion.page
   )
 }
     
@@ -50,76 +43,54 @@ mod_dispersion_ui <- function(id){
 mod_dispersion_server <- function(input, output, session, updateData, updatePlot, disp.ranges){
   ns <- session$ns
   
-  # DISPERSION PAGE -------------------------------------------------------------------------------------------------------
-  
-  # Show the scatter plot
+  #' Update on load data
   observeEvent(updateData$datos, {
-    updateSelectizeInput(session, "select.var", choices = colnames_empty(var_numerical(updateData$datos)))
+    datos <- var_numerical(updateData$datos)
+    updateSelectInput(session, "sel_disp", choices = colnames(datos))
+  })
+  
+  #' Scatter Plot
+  output$plot_disp <- renderEcharts4r({
+    input$run_disp
+    datos <- updateData$datos
+    vars  <- input$sel_disp
+    color <- isolate(input$col_disp)
     
-    output$plot.disp <- renderPlot({
-      tryCatch({
-        cod.disp <<- updatePlot$disp
-        updateAceEditor(session, "fieldCodeDisp", value = cod.disp)
-        return(isolate(exe(cod.disp)))
-      }, error = function(e) {
-        if(ncol(var_numerical(datos)) <= 1){
-          error_variables( T)
-        } else {
-          showNotification(paste0("ERROR: ", e), duration = 10, type = "error")
-          return(NULL)
-        }
-      })
-    })
-  })
-  
-  # Show the zoom graph
-  output$plot.disp.zoom <- renderPlot({
-    tryCatch({
-      cod.disp <<- updatePlot$disp
-      res <- isolate(exe(cod.disp))
-      res <- res + coord_cartesian(xlim = disp.ranges$x, ylim = disp.ranges$y, expand = FALSE)
-      return(res)
-    }, error = function(e) {
-      return(NULL)
-    })
-  })
-  
-  # Show the table with the dispersion values
-  output$mostrar.disp.zoom <- DT::renderDataTable({
-    tryCatch({
-      return(brushedPoints(datos[, input$select.var], input$zoom.disp))
-    }, error = function(e) {
-      return(NULL)
-    })
-  }, options = list(dom = 't', scrollX = TRUE, scrollY = "20vh", pageLength = nrow(datos)))
-  
-  # When a zoom area is selected
-  observe({
-    brush <- input$zoom.disp
-    if (!is.null(brush)) {
-      disp.ranges$x <- c(brush$xmin, brush$xmax)
-      disp.ranges$y <- c(brush$ymin, brush$ymax)
+    if(length(vars) == 2) {
+      cod <- code.disp.2d(vars, color)
+      updateAceEditor(session, "fieldCodeDisp", value = cod)
+      datos <- data.frame(x = datos[[vars[1]]], y = datos[[vars[2]]],
+                          id = row.names(datos))
       
-    } else {
-      disp.ranges$x <- NULL
-      disp.ranges$y <- NULL
+      datos %>% e_charts(x) %>% e_scatter(y, bind = id, symbol_size = 10) %>%
+        e_x_axis(x) %>% e_y_axis(y) %>% e_datazoom(show = F) %>%
+        e_color(color) %>% e_axis_labels(x = vars[1], y = vars[2]) %>%
+        e_tooltip(formatter = htmlwidgets::JS(paste0(
+          "function(params) {
+            return('<b>' + params.name + ' </b><br/>", vars[1], 
+          ": ' + params.value[0] + '<br />", vars[2], ": ' + params.value[1])
+          }"))
+        ) %>% e_legend(F) %>% e_show_loading()
+    } else if (length(vars) == 3) {
+      cod <- code.disp.3d(vars, color)
+      updateAceEditor(session, "fieldCodeDisp", value = cod)
+      datos <- data.frame(
+        x = datos[[vars[1]]], y = datos[[vars[2]]],
+        z = datos[[vars[3]]], id = row.names(datos)
+      )
+      
+      datos %>% e_charts(x) %>% e_scatter_3d(y, z, bind = id) %>% e_color(color) %>%
+        e_x_axis_3d(name = vars[1], axisLine = list(lineStyle = list(color = "white"))) %>%
+        e_y_axis_3d(name = vars[2], axisLine = list(lineStyle = list(color = "white"))) %>%
+        e_z_axis_3d(name = vars[3], axisLine = list(lineStyle = list(color = "white"))) %>%
+        e_tooltip(formatter = htmlwidgets::JS(paste0(
+          "function(params) {
+            return('<b>' + params.name + ' </b><br/>", vars[1], ": ' + params.value[0] + '<br/>", 
+          vars[2], ": ' + params.value[1] + '<br/>", vars[3], ": ' + params.value[2])
+          }"))
+        ) %>% e_theme("dark") %>% e_show_loading()
     }
   })
-  
-  # Change the graphic code
-  observeEvent(input$run.disp, {
-    updatePlot$disp <- input$fieldCodeDisp
-  })
-  
-  # Executes the code when parameters change
-  observeEvent(c(input$select.var, input$col.disp), {
-    if (length(input$select.var) < 2) {
-      updatePlot$disp <- ""
-    } else {
-      updatePlot$disp <<- default_disp(data = "datos", vars = input$select.var, color = input$col.disp)
-    }
-  })
-  
  
 }
     
