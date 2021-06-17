@@ -6,144 +6,137 @@
 #'
 #' @noRd 
 #'
-#' @importFrom shiny NS tagList 
+#' @importFrom shiny NS tagList
 mod_distribuciones_ui <- function(id){
   ns <- NS(id)
   
+  titulo_dist <- tags$div(class = "multiple-select-var", 
+                          conditionalPanel(condition = "input.tabDyA == 'numericas'",
+                                           selectInput(inputId = ns("sel_dya_num"),label = NULL, choices = ""),ns = ns),
+                          conditionalPanel(condition = "input.tabDyA == 'categoricas'",
+                                           selectInput(inputId = ns("sel_dya_cat"), label = NULL, choices = ""),ns = ns))
   
-  # DISTRIBUTIONS PAGE ------------------------------------------------------------------------------------------------------
+  distr.numericas.opc <- list(options.run(ns("run_dist")), tags$hr(style = "margin-top: 0px;"),
+                             colourpicker::colourInput(ns("col_dist_bar"),labelInput("selcolbar"),
+                                                       value = "steelblue",allowTransparent = T),
+                             colourpicker::colourInput(ns("col_dist_point"), labelInput("selcolline"),
+                                                       value = "red",allowTransparent = T))
   
-  distribution.options <- list(h4(labelInput("opciones")), hr(), colourpicker::colourInput(ns("col.dist"), labelInput("selcolor"), value = "#FF0000AA", allowTransparent = T))
+  distr.numericas.code <- list(h3(labelInput("codigo")), hr(style = "margin-top: 0px;"),
+                               codigo.monokai(ns("fieldCodeNum"), height = "10vh"))
   
-  distribution.codes.fields <- list(h4(labelInput("codigo")), hr(),
-                                    conditionalPanel(condition = "input.tabDyA == 'numericas'",
-                                                     code_field(ns("run.dya.num"),ns("fieldCodeNum"), height = "7vh"),ns = ns),
-                                    conditionalPanel(condition = "input.tabDyA == 'categoricas'",
-                                                     code_field(ns("run.dya.cat"),ns("fieldCodeCat"), height = "7vh"),ns = ns))
+  distr.numericas.atipicos <- list(h3(labelInput("atipicos")), hr(style = "margin-top: 0px;"),
+                                  DT::dataTableOutput(ns("mostrar.atipicos")))
   
-  code.distributions <- list(h4(labelInput("codigo")), hr(),
-                             tabBox(id = ns("tabCodeDyA"), width = NULL, title = labelInput("codedist"),
-                                    tabPanel(title = labelInput("numericas"),
-                                             aceEditor(ns("fieldFuncNum"),mode = "r",theme = "monokai",value = "",height = "285px",readOnly = T)),
-                                    tabPanel(title = labelInput("categoricas"),
-                                             aceEditor(ns("fieldFuncCat"),mode = "r",theme = "monokai",value = "",height = "165px",readOnly = T))))
   
-  distribution.tabs <- tabsOptions(buttons = list(icon("gear"), icon("terminal"), icon("info"), icon("code")),
-                                   widths = c(50, 100, 100, 100), heights = c(30, 35, 48, 80),
-                                   tabs.content = list(distribution.options,
-                                                       distribution.codes.fields,
-                                                       list(DT::dataTableOutput(ns("mostrarAtipicos"))),
-                                                       code.distributions))
+  distr.categoricas.code <- list(h3(labelInput("codigo")), hr(style = "margin-top: 0px;"),
+                              codigo.monokai(ns("fieldCodeCat"), height = "20vh"))
   
-  variable.selector.distribution <- tags$div(class = "multiple-select-var",
-                                             conditionalPanel(condition = "input.tabDyA == 'numericas'",
-                                                              selectInput(inputId = ns("sel.distribucion.num"),label = NULL,choices =  ""),ns = ns),
-                                             conditionalPanel(condition = "input.tabDyA == 'categoricas'",
-                                                              selectInput(inputId = ns("sel.distribucion.cat"),label = NULL,choices =  ""),ns = ns))
+
+  tabs_dist_numericas <- tabsOptions(buttons = list(icon("gear"), icon("info"), icon("code")),
+                           widths = c(50, 100, 100), heights = c(50, 50, 35),
+                           tabs.content = list(distr.numericas.opc,distr.numericas.atipicos,distr.numericas.code))
   
-  numerical.distribution.results <- tabPanel(title = labelInput("numericas"), value = "numericas", 
-                                             plotOutput(ns('plot.num'), height = "70vh"),
-                                             actionButton(inputId=ns("distribucion_numerica"),label = "",style="display:none;"))
+  tabs_dist_categoricas <- tabsOptions(buttons = list(icon("code")),widths = c(100), heights = c(35),
+                                       tabs.content = list(distr.categoricas.code))
   
-  categorical.distribution.results <- tabPanel(title = labelInput("categoricas"), value = "categoricas",plotOutput(ns('plot.cat'), height = "70vh"))
+  distribuciones.numericas <- tabPanel(title = labelInput("numericas"), value = "numericas",
+                                       echarts4rOutput(ns('plot_num'), height = "75vh"))
+  
+  distribuciones.categoricas <- tabPanel(title = labelInput("categoricas"), value = "categoricas",
+                                         echarts4rOutput(ns('plot_cat'), height = "75vh"))
+  
   
   page.distributions <- tabItem(tabName = "distribucion",
                                 tabBox(id = ns("tabDyA"), width = NULL,
-                                       title =  variable.selector.distribution,
-                                       numerical.distribution.results,
-                                       categorical.distribution.results,
-                                       distribution.tabs))
-  
+                                       title =  titulo_dist,
+                                       distribuciones.numericas,
+                                       distribuciones.categoricas,
+                                       conditionalPanel("input.tabDyA == 'numericas'",tabs_dist_numericas,ns = ns),
+                                       conditionalPanel("input.tabDyA == 'categoricas'",tabs_dist_categoricas,ns = ns)))
   
   tagList(
     page.distributions
   )
 }
     
+
 #' distribuciones Server Function
 #'
 #' @noRd 
 mod_distribuciones_server <- function(input, output, session, updateData, updatePlot, disp.ranges){
   ns <- session$ns
   
-  # DISTRIBUTION PAGE -----------------------------------------------------------------------------------------------------
-  
-  # Some code fields that are not parameter-dependent
-  updateAceEditor(session, "fieldFuncNum"  , extract_code("numerical_distribution"))
-  updateAceEditor(session, "fieldFuncCat"  , extract_code("categorical_distribution"))
-  
-  # Show the graph of numerical distribution
+  #' Update on load data
   observeEvent(updateData$datos, {
-    updateSelectInput(session, "sel.distribucion.num", choices = colnames_empty(var_numerical(updateData$datos)))
-    updateSelectInput(session, "sel.distribucion.cat", choices = colnames_empty(var_categorical(updateData$datos)))
+    datos       <- updateData$datos
+    numericos   <- var_numerical(datos)
+    categoricos <- var_categorical(datos)
     
-    output$plot.num <- renderPlot({
-      tryCatch({
-        cod.dya.num <<- updatePlot$dya.num
-        res <- isolate(exe(cod.dya.num))
-        updateAceEditor(session, "fieldCodeNum", value = cod.dya.num)
-
-        return(res)
-      }, error = function(e) {
-        if (ncol(var_numerical(datos)) == 0){
-          error_variables( T)
-        }else{
-          showNotification(paste0("ERROR: ", e), duration = 10, type = "error")
-          return(NULL)
-        }
-      })
+    updateSelectInput(session, "sel_dya_num", choices = colnames(numericos))
+    updateSelectInput(session, "sel_dya_cat", choices = colnames(categoricos))
+  })
+  
+  #' Gráfico de Distribuciones (Númericas)
+  output$plot_num <- renderEcharts4r({
+    input$run_dist
+    datos      <- updateData$datos
+    var        <- input$sel_dya_num
+    colorBar   <- isolate(input$col_dist_bar)
+    colorPoint <- isolate(input$col_dist_point)
+    titulos <- c(
+      tr("minimo", updateData$idioma),
+      tr("q1", updateData$idioma),
+      tr("mediana", updateData$idioma),
+      tr("q3", updateData$idioma),
+      tr("maximo", updateData$idioma)
+    )
+    
+    tryCatch({
+      cod <- paste0("e_histboxplot(datos[['", var, "']], '", var, "', '", 
+                    colorBar, "', '", colorPoint, "', c('", 
+                    paste(titulos, collapse = "', '"), "'))\n")
+      updateAceEditor(session, "fieldCodeNum", value = cod)
+      e_histboxplot(datos[[var]], var, colorBar, colorPoint, titulos)
+    }, error = function(e) {
+      showNotification(paste0("ERROR: ", e), duration = 10, type = "error")
+      return(NULL)
     })
   })
   
-  # Execute the code of the numerical chart
-  observeEvent(input$run.dya.num, {
-    updatePlot$dya.num <- input$fieldCodeNum
+  output$mostrar.atipicos <- DT::renderDataTable({
+    datos <- updateData$datos
+    var   <- input$sel_dya_num
+    atipicos <- boxplot.stats(datos[, var])
+    datos <- datos[datos[, var] %in% atipicos$out, var, drop = F]
+    datos <- datos[order(datos[, var]), , drop = F]
+    DT::datatable(datos, options = list(
+      dom = 't', scrollX = TRUE, scrollY = "28vh", pageLength = nrow(datos))) %>%
+      formatStyle(1, color = "white", backgroundColor = "#CBB051", target = "row")
   })
   
-  # Executes the code when parameters change
-  observeEvent(c(input$sel.distribucion.num, input$col.dist), {
-    updatePlot$dya.num <<- def_code_num(data = "datos", color = input$col.dist,
-                                        variable = input$sel.distribucion.num)
-  })
-  
-  # Creates the atypical table
-  observeEvent(c(input$distribucion_numerica), {
-    output$mostrarAtipicos <- DT::renderDataTable({
-      atipicos <- boxplot.stats(datos[, input$sel.distribucion.num])
-      datos <- datos[datos[, input$sel.distribucion.num] %in% atipicos$out, input$sel.distribucion.num, drop = F]
-      datos <- datos[order(datos[, input$sel.distribucion.num]), , drop = F]
-      datatable(datos, options = list(dom = 't', scrollX = TRUE, scrollY = "28vh",pageLength = nrow(datos))) %>%
-        formatStyle(1, color = "white", backgroundColor = "#CBB051", target = "row")
+  #' Gráfico de Distribuciones (Categóricas)
+  output$plot_cat <- renderEcharts4r({
+    var  <- input$sel_dya_cat
+    validate(need(var != "", tr("errorcat", isolate(updateData$idioma))))
+    
+    tryCatch({
+      datos.plot <- updateData$datos[, var]
+      
+      cod <- code.dist.cat(var)
+      updateAceEditor(session, "fieldCodeCat", value = cod)
+      
+      datos.plot <- data.frame (
+        label = levels(datos.plot),
+        value = summary(datos.plot, maxsum = length(levels(datos.plot)))
+      )
+      
+      datos.plot %>% e_charts(label) %>% e_bar(value, name = var) %>%
+        e_tooltip() %>% e_datazoom(show = F) %>% e_show_loading()
+    }, error = function(e) {
+      showNotification(paste0("ERROR: ", e), duration = 10, type = "error")
+      return(NULL)
     })
-  })
-  
-  # Show the graph of categorical distribution
-  observeEvent(updateData$datos, {
-    output$plot.cat <- renderPlot({
-      tryCatch({
-        cod.dya.cat <<- updatePlot$dya.cat
-        res <- isolate(exe(cod.dya.cat))
-        updateAceEditor(session, "fieldCodeCat", value = cod.dya.cat)
-        return(res)
-      }, error = function(e) {
-        if (ncol(var_categorical(datos)) == 0){
-          error_variables( T)
-        }else{
-          showNotification(paste0("ERROR: ", e), duration = 10, type = "error")
-          return(NULL)
-        }
-      })
-    })
-  })
-  
-  # Change the code of the categorical graphic
-  observeEvent(input$run.dya.cat, {
-    updatePlot$dya.cat <- input$fieldCodeCat
-  })
-  
-  # Executes the code when parameters change
-  observeEvent(c(input$sel.distribucion.cat, updateData$idioma), {
-    updatePlot$dya.cat <- def_code_cat(variable = input$sel.distribucion.cat)
   })
  
 }

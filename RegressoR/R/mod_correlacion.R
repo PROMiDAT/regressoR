@@ -10,30 +10,39 @@
 mod_correlacion_ui <- function(id){
   ns <- NS(id)
   
-  # CORRELATIONS PAGE -------------------------------------------------------------------------------------------------------
+  correlation.plot <- tabPanel(title = labelInput("correlacion"), value = "correlacion",
+                               echarts4rOutput(ns('plot_cor'), height = "70vh"))
   
-  cor.options <-list(h4(labelInput("opciones")), hr(),
-                     selectInput(inputId = ns("cor.metodo"), label = labelInput("selmetodo"),
-                                 choices =  c("circle", "square", "ellipse", "number", "shade", "color", "pie")),
-                     selectInput(inputId = ns("cor.tipo"), label = labelInput("seltipo"), choices =  c("lower", "upper", "full")))
+  results.table.correlations <- tabPanel(title = labelInput("resultados"), value = "cor.salida",
+                                         div(style = "height: 60vh;overflow-y: scroll;",
+                                             withLoader(verbatimTextOutput(ns("txt_cor")),
+                                                        type = "html", loader = "loader4")))
   
-  cor.code <- list(h4(labelInput("codigo")), hr(),
-                   aceEditor(ns("fieldModelCor"), height = "6vh", mode = "r", theme = "monokai", value = "", readOnly = T),
-                   code_field(ns("run.code.cor"),ns("fieldCodeCor"), height = "7vh"))
+  corr.plot.opc <- list(options.run(ns("run_cor")), tags$hr(style = "margin-top: 0px;"),
+                          colourpicker::colourInput(ns("col_min"), labelInput("selcolor"), "#FF5733",allowTransparent = T),
+                          colourpicker::colourInput(ns("col_med"), labelInput("selcolor"), "#F8F5F5",allowTransparent = T),
+                          colourpicker::colourInput(ns("col_max"), labelInput("selcolor"), "#2E86C1",allowTransparent = T))
   
-  cor.tabs <- tabsOptions(heights = c(48, 63),
-                          tabs.content = list(cor.options, cor.code))
+  corr.plot.code <- list(h3(labelInput("codigo")), hr(style = "margin-top: 0px;"),
+                           codigo.monokai(ns("fieldCodeCor"),  height = "24vh"))
   
-  correlation.plot <- tabPanel(title = labelInput("correlacion"), value = "correlacion", plotOutput(ns('plot.cor'), height = "70vh"))
+  corr.table.code <- list(h3(labelInput("codigo")), hr(style = "margin-top: 0px;"),
+                          codigo.monokai(ns("fieldCodeCor2"),  height = "10vh"))
   
-  results.table.correlations <- tabPanel(title = labelInput("resultados"), value = "cor.salida", verbatimTextOutput(ns("txtcor")))
+  tabs.plot <- tabsOptions(buttons = list(icon("gear"), icon("code")),heights = c(70, 50),
+                           tabs.content = list(corr.plot.opc,corr.plot.code))
+  
+  tabs.table <- tabsOptions(buttons = list(icon("code")), widths = c(100), heights = c(40),
+                            tabs.content = list(corr.table.code))
+
   
   page.correlations <- tabItem(tabName = "correlacion",
                                tabBox(id = ns("tabCor"), width = NULL,
                                       correlation.plot,
                                       results.table.correlations,
-                                      cor.tabs))
-  
+                                      conditionalPanel("input.tabCor == 'correlacion'",tabs.plot,ns = ns),
+                                      conditionalPanel("input.tabCor != 'correlacion'",tabs.table,ns = ns)
+                                      ))
   
   tagList(
     page.correlations
@@ -45,55 +54,44 @@ mod_correlacion_ui <- function(id){
 #' @noRd 
 mod_correlacion_server <- function(input, output, session, updateData, updatePlot, disp.ranges){
   ns <- session$ns
- 
-  # CORRELATION PAGE ------------------------------------------------------------------------------------------------------
   
-  # Some code fields that are not parameter-dependent
-  updateAceEditor(session, "fieldModelCor" , value = cor_model())
-  
-  # Executes the code of correlations
-  run_cor_model <- function() {
-    tryCatch({
-      isolate(exe(text = cor_model()))
-      output$txtcor <- renderPrint(print(correlacion))
-    }, error = function(e) {
-      return(datos <- NULL)
-    })
-  }
-  
-  # Show the correlation graph
-  observeEvent(c(updateData$datos, input$fieldModelCor), {
-    run_cor_model()
+  #' Gráfico de Correlaciones
+  output$plot_cor <- renderEcharts4r({
+    input$run_cor
+    datos <- var_numerical(updateData$datos)
+    col_min <- isolate(input$col_min)
+    col_med <- isolate(input$col_med)
+    col_max <- isolate(input$col_max)
+    colores <- list(list(0, col_min), list(0.5, col_med), list(1, col_max))
     
-    output$plot.cor <- renderPlot({
-      tryCatch({
-        cod.cor <<- updatePlot$cor
-        res <- isolate(exe(cod.cor))
-        updateAceEditor(session, "fieldCodeCor", value = cod.cor)
-        return(res)
-      }, error = function(e) {
-        if (ncol(var_numerical(datos)) == 0){
-          error_variables( T)
-        }else{
-          showNotification(paste0("ERROR EN Correlacion: ", e),
-                           duration = 10,
-                           type = "error")
-          return(NULL)
-        }
-      })
+    tryCatch({
+      cod <- code.cor(col_min, col_med, col_max)
+      updateAceEditor(session, "fieldCodeCor", value = cod)
+      
+      datos.plot <- round(cor(datos), 3)
+      datos.plot %>% e_charts() %>% 
+        e_correlations(
+          order = "hclust", label = list(show = T),
+          inRange = list(color = c(col_min, col_med, col_max)),
+          itemStyle = list(borderWidth = 2, borderColor = "#fff")
+        ) %>% e_datazoom(show = F) %>% e_show_loading() %>% e_tooltip(
+          formatter = htmlwidgets::JS(paste0(
+            "function(params) {\n",
+            "  return(params.value[1] + ' ~ ' + params.value[0] + ': ' + parseFloat(params.value[2]).toFixed(3))\n", 
+            "}"))
+        )
+    }, error = function(e) {
+      showNotification(paste0("ERROR: ", e), duration = 10, type = "error")
+      return(NULL)
     })
   })
   
-  # Change the graphic code
-  observeEvent(input$run.code.cor, {
-    updatePlot$cor <- input$fieldCodeCor
+  #' Resultados numéricos de Correlaciones
+  output$txt_cor <- renderPrint({
+    cod <- "cor(var_numerical(datos))"
+    updateAceEditor(session, "fieldCodeCor2", value = cod)
+    print(cor(var_numerical(updateData$datos)))
   })
-  
-  # Executes the code when parameters change
-  observeEvent(c(input$cor.metodo, input$cor.tipo), {
-    updatePlot$cor <- correlations_plot(method = input$cor.metodo, type = input$cor.tipo)
-  })
-  
 }
     
 ## To be copied in the UI

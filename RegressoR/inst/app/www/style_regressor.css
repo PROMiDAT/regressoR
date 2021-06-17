@@ -298,14 +298,20 @@ table.spacing-xs tr th{
   left: auto;
 }
 
+.disabled {
+  background: #eee;
+  cursor: default;
+  color: black;
+}
+
 .tab-content {
   position: relative;
-  overflow-y: visible;
+  overflow-y: hidden;
 }
 
 .nav-tabs-custom > .tab-content {
     background: #fff;
-    padding: 0px 0px 0px 0px;
+    padding: 0 0 0 0;
     border-bottom-right-radius: 3px;
     border-bottom-left-radius: 3px;
 }
@@ -320,11 +326,9 @@ table.spacing-xs tr th{
   padding: 10px 10px 10px 10px;
   background: #666666;
   position: absolute;
-  /*overflow: auto;*/
-  /*position: relative;*/
+  overflow: auto;
   transition: transform .5s ease-in-out;
   opacity: 0.98;
-  display: none;
 }
 
 .box-option-left {
@@ -345,37 +349,28 @@ table.spacing-xs tr th{
 }
 
 .box-option-open-left .box-option-left {
-  display: block;
-  transform: translateY(-99%);
+  transform: translateY(-94%);
 }
 
 .box-option-open-centerleft .box-option-centerleft {
-  display: block;
-  transform: translateY(-99%);
+  transform: translateY(-94%);
 }
 
 .box-option-open-center .box-option-center {
-  display: block;
-  transform: translateY(-99%);
+  transform: translateY(-94%);
 }
 
 .box-option-open-centeright .box-option-centeright {
-  display: block;
-  transform: translateY(-99%);
+  transform: translateY(-94%);
 }
 
 .box-option-open-right .box-option-right {
-  display: block;
-  transform: translateY(-99%);
-}
-
-.btn-options {
-    position: static !important;
+  transform: translateY(-94%);
 }
 
 .btn-options button {
     background-color: #777777;
-    border: 1px solid gray;
+    border: 1px solid gray; 
     color: white;
     padding: 10px 24px;
     cursor: pointer;
@@ -394,6 +389,11 @@ table.spacing-xs tr th{
 
 .btn-options button:hover {
     background-color: #666666;
+}
+
+.btn-options button:focus {
+    background-color: #666666;
+    outline: -webkit-focus-ring-color auto 0;
 }
 
 .row {

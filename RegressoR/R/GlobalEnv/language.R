@@ -22,7 +22,8 @@ cambiar.labels <- function(){
     "stepmax","redPlot","rll","rlr","posibLanda","coeff","gcoeff",
     "automatico","landa","shrinkage","resumenVarPre", "R2", "distknn",
     "ncomp", "rd", "RdPred", "RdVarPred", "errRDnCom", "RMSE","eliminar", "imputar",
-    "selcolbar","selcolline","selcolpoint","selcolline","tasim","pvalue","asimetria","sigue")
+    "selcolbar","selcolline","selcolpoint","selcolline","tasim","pvalue","asimetria","sigue",
+    "atipicos")
 }
 
 

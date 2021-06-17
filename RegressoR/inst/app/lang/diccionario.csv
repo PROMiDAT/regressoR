@@ -182,6 +182,7 @@ q1;Primer Cuartil;First Quartile
 mediana;Mediana;Median
 q3;Tercer Cuartil;Third Quartile
 minimo;Mínimo;Minimum
+atipicos;Datos Atípicos;Atypical Data
 minsplit;Mínimo para dividir un nodo:;Minimum to split a node:
 shrinkage;Ritmo de Aprendizaje;Learning Rate:
 maxdepth;Profundidad Máxima:;Max Depth:
