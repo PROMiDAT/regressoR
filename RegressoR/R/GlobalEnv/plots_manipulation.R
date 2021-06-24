@@ -25,7 +25,10 @@ gg_color_hue <- function(n) {
 #' @param real the real values in traning-testing.
 #' @param prediction the prediction values in traning-testing.
 #' @param model the name of the model of the scatter plot.
+#' @param titles Labels in the plot
 #'
+#' @return echarts4r plot
+#' @import echarts4r
 #' @export
 #'
 #' @examples
@@ -34,13 +37,53 @@ gg_color_hue <- function(n) {
 #' model <- "KNN"
 #' plot_real_prediction(real, prediction, model)
 #' 
-plot_real_prediction <- function(real, prediction, model = "") {
-  ggplot(data = data.frame(real = real, prediction = as.numeric(prediction)), mapping = aes(x = real, y = prediction)) +
-    geom_point(size = 2, col = "red") +
-    labs(title = paste0("Real vs Prediction", ifelse(model == "", "", paste(", con", model))), x = "Real", y = "Prediction") +
-    theme_minimal() +
-    theme(panel.background = element_blank(), axis.line = element_line(colour = "black")) +
-    geom_line(col = "black",  mapping = aes(x = real, y = real), alpha = 0.5)
+plot_real_prediction <- function(real, prediction, model = "", titles = c("Predicciones vs Valores Reales",
+                                                                          "Valor Real","Predicción")) {
+
+  print(titles)
+  prediction <- unname(prediction)
+  x_y.values <- list()
+  for (i in 1:dim(real)[1]) {
+    x_y.values[[i]] <- c(real[i,1],prediction[i])
+  }
+  
+  print("Hola")
+  
+  line.Values <- list()
+  for (i in floor(min(min(real),min(prediction))):floor(max(max(real),max(prediction)))) {
+    line.Values[[i]] <- c(i,i)
+  }
+  
+  opts <- list(
+    xAxis = list(
+      type = "value"
+    ),
+    yAxis = list(
+      type = "value"
+    ),
+    series = list(
+      list(
+        type = "scatter",
+        symbolSize = 10,
+        color = "red",
+        data = x_y.values),
+      list(
+        type = "line",
+        symbol = "none",
+        lineStyle = list(width = 2),
+        tooltip = list(show = F),
+        color = "black",
+        data = line.Values
+      )
+    )
+  )
+  
+  e_charts() %>%
+    e_list(opts) %>%
+    #e_title(text = titles[1], subtext = model) %>%
+    #e_axis_labels(x = titles[2], y = titles[3]) %>%
+    e_tooltip() %>%
+    e_datazoom(show = F)
 }
 
 

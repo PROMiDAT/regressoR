@@ -43,7 +43,7 @@ mod_linear_regression_ui <- function(id){
                                   DT::dataTableOutput(ns("rlPrediTable")))
   
   disp.rl.panel <- tabPanel(title = labelInput("dispersion"), value = "tabRlDisp",
-                            plotOutput(ns('plot.rl.disp'), height = "55vh"))
+                            echarts4rOutput(ns('plot.rl.disp'), height = "75vh"))
   
   rl.general.index.panel <- tabPanel(title = labelInput("indices"), value = "tabRlIndex",
                                      br(),
@@ -120,8 +120,8 @@ mod_linear_regression_server <- function(input, output, session, updateData, upd
     cod.rl.pred <<- codigo
     
     # Se genera el codigo de la dispersion
-    codigo <- disp_models("prediccion.rl", translate("rll"), variable.predecir)
-    updateAceEditor(session, "fieldCodeRlDisp", value = codigo)
+    #codigo <- disp_models("prediccion.rl", translate("rll"), variable.predecir)
+    #updateAceEditor(session, "fieldCodeRlDisp", value = codigo)
     
     # Se genera el codigo de la indices
     codigo <- extract_code("general_indices")
@@ -147,7 +147,17 @@ mod_linear_regression_server <- function(input, output, session, updateData, upd
   # Shows the graph the dispersion of the model with respect to the real values
   plot_disp_rl <- function(){
     tryCatch({ # Se corren los codigo
-      output$plot.rl.disp <- renderPlot(exe(input$fieldCodeRlDisp))
+      titulos <- c(
+        tr("predvsreal", updateData$idioma),
+        tr("realValue", updateData$idioma),
+        tr("pred", updateData$idioma)
+      )
+      
+      output$plot.rl.disp <- renderEcharts4r(plot_real_prediction(datos.prueba[variable.predecir],
+                                                                  prediccion.rl,tr("rll"),titulos))
+      
+      codigo <- disp_models("prediccion.rl", translate("rll"), variable.predecir,titles = titulos)
+      updateAceEditor(session, "fieldCodeRlDisp", value = codigo)
     },
     error = function(e) { # Regresamos al estado inicial y mostramos un error
       clean_rl(2)

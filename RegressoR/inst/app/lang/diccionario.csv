@@ -71,6 +71,8 @@ kmax;K Máximo:;K Max:
 selkernel;Seleccionar un Kernel:;Select kernel:
 escal;Escalar Datos;Scale Data
 reald;Datos Reales;Real Data
+realValue;Valor Real;Real Value
+predvsreal;Predicciones vs Valores Reales;Predictions vs Real Values
 variables;Variables;Variables
 semilla;Semilla Aleatoria:;Random Seed:
 habilitada;Habilitada;Enabled
