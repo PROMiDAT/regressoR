@@ -25,8 +25,9 @@ gg_color_hue <- function(n) {
 #' @param real the real values in traning-testing.
 #' @param prediction the prediction values in traning-testing.
 #' @param model the name of the model of the scatter plot.
-#' @param titles Labels in the plot
+#' @param titles Labels on the chart
 #'
+#' @author Ariel Arroyo <luis.ariel.arroyo@promidat.com>
 #' @return echarts4r plot
 #' @import echarts4r
 #' @export
@@ -40,20 +41,22 @@ gg_color_hue <- function(n) {
 plot_real_prediction <- function(real, prediction, model = "", titles = c("Predicciones vs Valores Reales",
                                                                           "Valor Real","Predicción")) {
 
-  print(titles)
+  #Coordenadas para los puntos
   prediction <- unname(prediction)
   x_y.values <- list()
   for (i in 1:dim(real)[1]) {
-    x_y.values[[i]] <- c(real[i,1],prediction[i])
+    x_y.values[[i]] <- list(name = as.character(rownames(real)[i]),value = c(real[i,1],prediction[i]))
   }
-  
-  print("Hola")
-  
+
+  #Coordenadas para la linea
   line.Values <- list()
-  for (i in floor(min(min(real),min(prediction))):floor(max(max(real),max(prediction)))) {
-    line.Values[[i]] <- c(i,i)
+  minimo <- floor(min(real))
+  maximo <- ceiling(max(real))
+  values <- minimo:maximo
+  for (i in 1:length(values)) {
+    line.Values[[i]] <- list(value = c(values[i],values[i]))
   }
-  
+
   opts <- list(
     xAxis = list(
       type = "value"
@@ -66,7 +69,13 @@ plot_real_prediction <- function(real, prediction, model = "", titles = c("Predi
         type = "scatter",
         symbolSize = 10,
         color = "red",
-        data = x_y.values),
+        data = x_y.values,
+        tooltip = list(formatter = htmlwidgets::JS(paste0(
+        "function(params){
+        return('<b> ID: </b>' + params.name + '<br /><b>",
+        titles[2],": </b>' + params.value[0].toFixed(4) + '<br /><b>",titles[3],": </b>' + params.value[1].toFixed(4))
+      }
+    ")))),
       list(
         type = "line",
         symbol = "none",
@@ -77,13 +86,14 @@ plot_real_prediction <- function(real, prediction, model = "", titles = c("Predi
       )
     )
   )
-  
+
   e_charts() %>%
     e_list(opts) %>%
-    #e_title(text = titles[1], subtext = model) %>%
-    #e_axis_labels(x = titles[2], y = titles[3]) %>%
+    e_title(text = paste0(titles[1],"  (",model,")")) %>%
+    e_axis_labels(x = titles[2], y = titles[3]) %>%
     e_tooltip() %>%
-    e_datazoom(show = F)
+    e_datazoom(show = F) %>%
+    e_show_loading()
 }
 
 

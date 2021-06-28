@@ -85,6 +85,7 @@ mod_linear_regression_server <- function(input, output, session, updateData, upd
   
   observeEvent(updateData$idioma,{
     execute_rl_ind()
+    plot_disp_rl()
   })
   
 
@@ -119,9 +120,6 @@ mod_linear_regression_server <- function(input, output, session, updateData, upd
     updateAceEditor(session, "fieldCodeRlPred", value = codigo)
     cod.rl.pred <<- codigo
     
-    # Se genera el codigo de la dispersion
-    #codigo <- disp_models("prediccion.rl", translate("rll"), variable.predecir)
-    #updateAceEditor(session, "fieldCodeRlDisp", value = codigo)
     
     # Se genera el codigo de la indices
     codigo <- extract_code("general_indices")
@@ -152,9 +150,9 @@ mod_linear_regression_server <- function(input, output, session, updateData, upd
         tr("realValue", updateData$idioma),
         tr("pred", updateData$idioma)
       )
-      
+      print("Hola")
       output$plot.rl.disp <- renderEcharts4r(plot_real_prediction(datos.prueba[variable.predecir],
-                                                                  prediccion.rl,tr("rll"),titulos))
+                                                                  prediccion.rl,translate("rll"),titulos))
       
       codigo <- disp_models("prediccion.rl", translate("rll"), variable.predecir,titles = titulos)
       updateAceEditor(session, "fieldCodeRlDisp", value = codigo)

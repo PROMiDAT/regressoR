@@ -1130,8 +1130,7 @@ nn_plot <- function(model.var = "modelo.nn"){
 #' @examples
 #' disp_models("prediction.knn", "KNN", "Species")
 #' 
-disp_models <- function(prediction, model_name, var_pred, data = "datos.prueba",titles = c("Predicciones vs Valores Reales",
-                                                                                           "Valor Real","Predicción")){
+disp_models <- function(prediction, model_name, var_pred, data = "datos.prueba"){
   
   paste0("plot_real_prediction(",data,"[,'",var_pred,"'], ", prediction,", '",model_name,"')")
 }

@@ -139,15 +139,7 @@ mod_penalized_Regression_server <- function(input, output, session, updateData, 
       rlr_full()
     }
   })
-  
-  # When the user changes the parameters
-  # observeEvent(c(input$alpha.rlr, input$switch.scale.rlr, input$landa, input$permitir.landa), {
-  #   if (validate_data(print = FALSE)) {
-  #     options_regressor(rlr.alpha = input$alpha.rlr)
-  #     deafult_codigo_rlr()
-  #   }
-  # })
-  
+
   # When user press enable or disable the lambda
   observeEvent(input$permitir.landa, {
     if (input$permitir.landa) {
