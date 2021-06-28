@@ -47,7 +47,7 @@ mod_KNN_ui <- function(id){
                                    DT::dataTableOutput(ns("knnPrediTable")))
   
   disp.knn.panel <- tabPanel(title = labelInput("dispersion"), value = "tabKknDisp",
-                             plotOutput(ns('plot.knn.disp'), height = "55vh"))
+                             echarts4rOutput(ns('plot.knn.disp'), height = "75vh"))
   
   general.index.knn.panel <- tabPanel(title = labelInput("indices"), value = "tabKknIndex",
                                       br(),
@@ -93,6 +93,7 @@ mod_KNN_server <- function(input, output, session,updateData, updatePlot){
   
   observeEvent(updateData$idioma,{
     execute_knn_ind()
+    plot_disp_knn()
   })
   
   
@@ -109,15 +110,7 @@ mod_KNN_server <- function(input, output, session,updateData, updatePlot){
       knn_full()
     }
   })
-  
-  # When the user changes the parameters
-  # observeEvent(c(input$switch.scale.knn, input$kmax.knn, input$kernel.knn, input$distance.knn), {
-  #   if (validate_data(print = FALSE) & knn.stop.excu) {
-  #     default_codigo_knn()
-  #   }else{
-  #     knn.stop.excu <<- TRUE
-  #   }
-  # })
+
   
   # Upgrade code fields to default version
   default_codigo_knn <- function() {
@@ -148,9 +141,6 @@ mod_KNN_server <- function(input, output, session,updateData, updatePlot){
     updateAceEditor(session, "fieldCodeKnnPred", value = codigo)
     cod.knn.pred <<- codigo
     
-    # Se genera el codigo de la dispersion
-    codigo <- disp_models(paste0("prediccion.knn.", input$kernel.knn), translate("knnl"), variable.predecir)
-    updateAceEditor(session, "fieldCodeKnnDisp", value = codigo)
     
     # Se genera el codigo de la indices
     codigo <- extract_code("general_indices")
@@ -176,8 +166,19 @@ mod_KNN_server <- function(input, output, session,updateData, updatePlot){
   # Shows the graph the dispersion of the model with respect to the real values
   plot_disp_knn <- function(){
     tryCatch({ # Se corren los codigo
-      isolate(kernel <- input$kernel.knn)
-      output$plot.knn.disp <- renderPlot(exe(input$fieldCodeKnnDisp))
+      
+      titulos <- c(
+        tr("predvsreal", updateData$idioma),
+        tr("realValue", updateData$idioma),
+        tr("pred", updateData$idioma)
+      )
+      
+      output$plot.knn.disp <- renderEcharts4r(plot_real_prediction(datos.prueba[variable.predecir],
+                                                                  exe(paste0("prediccion.knn.", input$kernel.knn)),
+                                                                  translate("knnl"),titulos))
+      
+      codigo <- disp_models(paste0("prediccion.knn.", input$kernel.knn), translate("knnl"), variable.predecir)
+      updateAceEditor(session, "fieldCodeKnnDisp", value = codigo)
     },
     error = function(e) { # Regresamos al estado inicial y mostramos un error
       clean_knn(2)

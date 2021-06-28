@@ -53,7 +53,7 @@ mod_boosting_ui <- function(id){
                                  DT::dataTableOutput(ns("boostingPrediTable")))
   
   disp.boosting.panel <- tabPanel(title = labelInput("dispersion"), value = "tabBDisp",
-                                  plotOutput(ns('plot.boosting.disp'), height = "55vh"))
+                                  echarts4rOutput(ns('plot.boosting.disp'), height = "75vh"))
   
   general.index.b.panel <- tabPanel(title = labelInput("indices"),value = "tabBIndex",
                                     br(),
@@ -101,6 +101,7 @@ mod_boosting_server <- function(input, output, session,updateData, updatePlot){
   
   observeEvent(updateData$idioma,{
     execute_boosting_ind()
+    plot_disp_boosting()
   })
 
   observeEvent(updateData$datos.aprendizaje,{
@@ -115,16 +116,7 @@ mod_boosting_server <- function(input, output, session,updateData, updatePlot){
       boosting_full()
     }
   })
-  
-  
-  # When the user changes the parameters
-  # observeEvent(c(input$iter.boosting, input$nu.boosting, input$tipo.boosting, input$shrinkage.boosting, input$maxdepth.boosting), {
-  #   if (validate_data(print = FALSE)){
-  #     deault_codigo_boosting()
-  #   }
-  # })
-  
-  
+
   
   # Upgrade code fields to default version
   deault_codigo_boosting <- function() {
@@ -146,10 +138,7 @@ mod_boosting_server <- function(input, output, session,updateData, updatePlot){
     
     updateAceEditor(session, "fieldCodeBoostingPred", value = codigo)
     cod.b.pred <<- codigo
-    
-    # Se genera el codigo de la dispersion
-    codigo <- disp_models(paste0("prediccion.boosting.",input$tipo.boosting), translate("bl"), variable.predecir)
-    updateAceEditor(session, "fieldCodeBoostingDisp", value = codigo)
+
     
     # Cambia el codigo del grafico de importancia
     updateAceEditor(session, "fieldCodeBoostingPlotImport", value = boosting_importance_plot(paste0("modelo.boosting.",input$tipo.boosting)))
@@ -188,7 +177,18 @@ mod_boosting_server <- function(input, output, session,updateData, updatePlot){
   # Shows the graph the dispersion of the model with respect to the real values
   plot_disp_boosting <- function(){
     tryCatch({ # Se corren los codigo
-      output$plot.boosting.disp <- renderPlot(exe(input$fieldCodeBoostingDisp))
+      titulos <- c(
+        tr("predvsreal", updateData$idioma),
+        tr("realValue", updateData$idioma),
+        tr("pred", updateData$idioma)
+      )
+      
+      output$plot.boosting.disp <- renderEcharts4r(plot_real_prediction(datos.prueba[variable.predecir],
+                                                                  exe(paste0("prediccion.boosting.",input$tipo.boosting)),
+                                                                  translate("bl"),titulos))
+      
+      codigo <- disp_models(paste0("prediccion.boosting.",input$tipo.boosting), translate("bl"), variable.predecir)
+      updateAceEditor(session, "fieldCodeBoostingDisp", value = codigo)
     },
     error = function(e) { # Regresamos al estado inicial y mostramos un error
       clean_boosting(2)

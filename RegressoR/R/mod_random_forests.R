@@ -56,7 +56,7 @@ mod_random_forests_ui <- function(id){
                                   DT::dataTableOutput(ns("rfPrediTable")))
   
   disp.rf.panel <- tabPanel(title = labelInput("dispersion"), value = "tabRfDisp",
-                            plotOutput(ns('plot.rf.disp'), height = "55vh"))
+                            echarts4rOutput(ns('plot.rf.disp'), height = "75vh"))
   
   general.index.rf.panel <- tabPanel(title = labelInput("indices"), value = "tabRfIndex",
                                      br(),
@@ -108,6 +108,7 @@ mod_random_forests_server <- function(input, output, session,updateData, updateP
   
   observeEvent(updateData$idioma,{
     execute_rf_ind()
+    plot_disp_rf()
   })
   
   # change model codes
@@ -123,15 +124,6 @@ mod_random_forests_server <- function(input, output, session,updateData, updateP
       rf_full()
     }
   })
-  
-  # When the user changes the parameters
-  # observeEvent(c(input$ntree.rf,input$mtry.rf), {
-  #   if (validate_data(print = FALSE) & rf.stop.excu) {
-  #     deafult_codigo_rf()
-  #   }else{
-  #     rf.stop.excu <<- TRUE
-  #   }
-  # })
   
   # When user change the rule selector
   observeEvent(input$rules.rf.n,{
@@ -162,10 +154,7 @@ mod_random_forests_server <- function(input, output, session,updateData, updateP
     codigo <- rf_prediction(variable.pred = variable.predecir)
     updateAceEditor(session, "fieldCodeRfPred", value = codigo)
     cod.rf.pred <<- codigo
-    
-    # Se genera el codigo de la dispersion
-    codigo <- disp_models("prediccion.rf", translate("rfl"), variable.predecir)
-    updateAceEditor(session, "fieldCodeRfDisp", value = codigo)
+
     
     # Cambia el codigo del grafico de rf
     updateAceEditor(session, "fieldCodeRfPlot", value = extract_code("importance_plot_rf"))
@@ -203,7 +192,17 @@ mod_random_forests_server <- function(input, output, session,updateData, updateP
   # Shows the graph the dispersion of the model with respect to the real values
   plot_disp_rf <- function(){
     tryCatch({ # Se corren los codigo
-      output$plot.rf.disp <- renderPlot(exe(input$fieldCodeRfDisp))
+      titulos <- c(
+        tr("predvsreal", updateData$idioma),
+        tr("realValue", updateData$idioma),
+        tr("pred", updateData$idioma)
+      )
+      
+      output$plot.rf.disp <- renderEcharts4r(plot_real_prediction(datos.prueba[variable.predecir],
+                                                                  prediccion.rf,translate("rfl"),titulos))
+      
+      codigo <- disp_models("prediccion.rf", translate("rfl"), variable.predecir)
+      updateAceEditor(session, "fieldCodeRfDisp", value = codigo)
     },
     error = function(e) { # Regresamos al estado inicial y mostramos un error
       clean_rf(2)

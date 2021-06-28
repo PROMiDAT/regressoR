@@ -53,7 +53,7 @@ mod_regression_trees_ui <- function(id){
                                   DT::dataTableOutput(ns("dtPrediTable")))
   
   disp.dt.panel <- tabPanel(title = labelInput("dispersion"), value = "tabDtDisp",
-                            plotOutput(ns('plot.dt.disp'), height = "55vh"))
+                            echarts4rOutput(ns('plot.dt.disp'), height = "75vh"))
   
   general.index.dt.panel <- tabPanel(title = labelInput("indices"),value = "tabDtIndex",
                                      br(),
@@ -102,6 +102,7 @@ mod_regression_trees_server <- function(input, output, session,updateData, updat
   
   observeEvent(updateData$idioma,{
     execute_dt_ind()
+    plot_disp_dt()
   })
   
 
@@ -117,13 +118,7 @@ mod_regression_trees_server <- function(input, output, session,updateData, updat
       dt_full()
     }
   })
-  
-  # When the user changes the parameters
-  # observeEvent(c(input$minsplit.dt, input$maxdepth.dt), {
-  #   if (validate_data(print = FALSE)){
-  #     default_codigo_dt()
-  #   }
-  # })
+
   
   # Upgrade code fields to default version
   default_codigo_dt <- function() {
@@ -145,8 +140,8 @@ mod_regression_trees_server <- function(input, output, session,updateData, updat
     cod.dt.pred <<- codigo
     
     # Se genera el codigo de la dispersion
-    codigo <- disp_models("prediccion.dt", translate("dtl"), variable.predecir)
-    updateAceEditor(session, "fieldCodeDtDisp", value = codigo)
+    #codigo <- disp_models("prediccion.dt", translate("dtl"), variable.predecir)
+    #updateAceEditor(session, "fieldCodeDtDisp", value = codigo)
     
     # Se genera el codigo de la indices
     codigo <- extract_code("general_indices")
@@ -167,7 +162,18 @@ mod_regression_trees_server <- function(input, output, session,updateData, updat
   # Shows the graph the dispersion of the model with respect to the real values
   plot_disp_dt <- function(){
     tryCatch({ # Se corren los codigo
-      output$plot.dt.disp <- renderPlot(exe(input$fieldCodeDtDisp))
+      
+      titulos <- c(
+        tr("predvsreal", updateData$idioma),
+        tr("realValue", updateData$idioma),
+        tr("pred", updateData$idioma)
+      )
+      
+      output$plot.dt.disp <- renderEcharts4r(plot_real_prediction(datos.prueba[variable.predecir],
+                                                                  prediccion.dt,translate("dtl"),titulos))
+      
+      codigo <- disp_models("prediccion.dt", translate("dtl"), variable.predecir)
+      updateAceEditor(session, "fieldCodeDtDisp", value = codigo)
     },
     error = function(e) { # Regresamos al estado inicial y mostramos un error
       clean_dt(2)

@@ -150,11 +150,11 @@ mod_linear_regression_server <- function(input, output, session, updateData, upd
         tr("realValue", updateData$idioma),
         tr("pred", updateData$idioma)
       )
-      print("Hola")
+
       output$plot.rl.disp <- renderEcharts4r(plot_real_prediction(datos.prueba[variable.predecir],
                                                                   prediccion.rl,translate("rll"),titulos))
       
-      codigo <- disp_models("prediccion.rl", translate("rll"), variable.predecir,titles = titulos)
+      codigo <- disp_models("prediccion.rl", translate("rll"), variable.predecir)
       updateAceEditor(session, "fieldCodeRlDisp", value = codigo)
     },
     error = function(e) { # Regresamos al estado inicial y mostramos un error

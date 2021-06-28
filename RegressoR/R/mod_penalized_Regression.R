@@ -71,7 +71,7 @@ mod_penalized_Regression_ui <- function(id){
                                    DT::dataTableOutput(ns("rlrPrediTable")))
   
   disp.rlr.panel <- tabPanel(title = labelInput("dispersion"), value = "tabRlrDisp",
-                             plotOutput(ns('plot.rlr.disp'), height = "55vh"))
+                             echarts4rOutput(ns('plot.rlr.disp'), height = "75vh"))
   
   rlr.general.index.panel <- tabPanel(title = labelInput("indices"), value = "tabRlrIndex",
                                       br(),
@@ -124,6 +124,7 @@ mod_penalized_Regression_server <- function(input, output, session, updateData, 
   
   observeEvent(updateData$idioma,{
     execute_rlr_ind()
+    plot_disp_rlr()
   })
   
 
@@ -198,10 +199,7 @@ mod_penalized_Regression_server <- function(input, output, session, updateData, 
     
     updateAceEditor(session, "fieldCodeRlrPred", value = codigo)
     cod.rlr.pred <<- codigo
-    
-    # The dispersion code is generated
-    codigo <- disp_models(paste0("prediccion.rlr.",rlr_type()), translate("rlr"), variable.predecir)
-    updateAceEditor(session, "fieldCodeRlrDisp", value = codigo)
+
     
     # The index code is generated
     codigo <- extract_code("general_indices")
@@ -227,7 +225,18 @@ mod_penalized_Regression_server <- function(input, output, session, updateData, 
   # Shows the graph the dispersion of the model with respect to the real values
   plot_disp_rlr <- function(){
     tryCatch({ # Se corren los codigo
-      output$plot.rlr.disp <- renderPlot(isolate(exe(input$fieldCodeRlrDisp)))
+      titulos <- c(
+        tr("predvsreal", updateData$idioma),
+        tr("realValue", updateData$idioma),
+        tr("pred", updateData$idioma)
+      )
+
+      output$plot.rlr.disp <- renderEcharts4r(plot_real_prediction(datos.prueba[variable.predecir],
+                                                                   exe(paste0("prediccion.rlr.",rlr_type()))
+                                                                   ,translate("rlr"),titulos))
+      
+      codigo <- disp_models(paste0("prediccion.rlr.",rlr_type()), translate("rlr"), variable.predecir)
+      updateAceEditor(session, "fieldCodeRlrDisp", value = codigo)
     },
     error = function(e) { # Regresamos al estado inicial y mostramos un error
       clean_rlr(2)
