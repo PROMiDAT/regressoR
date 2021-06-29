@@ -267,6 +267,8 @@ errorcat;Se necesitan variables categóricas  para esta parte;You need categoric
 distknn;Distancia q:;q Distance:
 rd;Reducción de Dimensión;Dimension Reduction
 ncomp;Cantidad de Componentes;Quantity of Components
+NumComp;Número de Componente;Component Number
+RMSEComp;RMSE Según Número de Componentes;RMSE According to Number of Components
 RdPred;Varianza Explicada en Predictores;Variance Explained in Predictors
 RdVarPred;Varianza Explicada en Variable a Predecir;Variance Explained in Variable to Predict
 errRDnCom;La cantidad de componentes excede la cantidad existente;The quantity of components exceeds the existing quantity

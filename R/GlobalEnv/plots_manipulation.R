@@ -247,6 +247,12 @@ importance_plot_rf <- function(model.rf, title.1, title.2){
 #' @param model a dimension reduction model.
 #' @param n.comp the name of the variable that stores the optimum number of components.
 #' 
+#' @param titles Labels on the chart
+#'
+#' @author Ariel Arroyo <luis.ariel.arroyo@promidat.com>
+#' @return echarts4r plot
+#' @import echarts4r
+#' 
 #' @export
 #'
 #' @examples
@@ -257,17 +263,65 @@ importance_plot_rf <- function(model.rf, title.1, title.2){
 #' 
 #' plot_RMSE(modelo.rd)
 #' 
-plot_RMSE <- function(model, n.comp = "n.comp.rd"){
+plot_RMSE <- function(model, n.comp = "n.comp.rd", titles = c("RMSE Según Número de Componentes",
+                                                              "Número de Componente","RMSE")){
+  
   RMSE.CV <- pls::RMSEP(model)$val[1, 1, ]
   df <- data.frame(Componentes = 0:(length(RMSE.CV) - 1), Error = RMSE.CV)
-  ggplot(data = df, mapping = aes(x = .data$Componentes, y = .data$Error)) +
-    geom_point(size = 1, col = "dodgerblue3") +
-    geom_line(size = 0.5, col = "dodgerblue3") +
-    labs(title = "RMSE seg\u00fan N\u00famero de Componentes",
-         x = "N\u00famero de Componentes",
-         y = "RMSE") +
-    geom_vline(xintercept = exe(n.comp), linetype="dashed", 
-               color = "blue", size=1)
+  n.comp <- exe(n.comp)
+  
+  #Coordenadas para los puntos
+  x_y.RMSE <- list()
+  for (i in 1:dim(df)[1]) {
+    x_y.RMSE[[i]] <- list(value = c(df[i,1],df[i,2]))
+  }
+  
+  #Coordenadas para la linea
+  line.Values <- list()
+  maximo <- ceiling(max(df[,2]))
+  values <- 0:maximo
+  for (i in 1:length(values)) {
+    line.Values[[i]] <- list(value = c(n.comp,values[i]))
+  }
+  
+  opts <- list(
+    xAxis = list(
+      type = "value"
+    ),
+    yAxis = list(
+      type = "value"
+    ),
+    series = list(
+      list(
+        type = "line",
+        symbolSize = 6,
+        lineStyle = list(width = 2,type = 'solid'),
+        color = "#4682B4",
+        data = x_y.RMSE,
+        tooltip = list(formatter = htmlwidgets::JS(paste0(
+          "function(params){
+          console.log(params)
+          return('<b>",titles[2],": </b>' + params.value[0] + '<br /><b>",titles[3],": </b>' + params.value[1].toFixed(4))
+      }
+    ")))),
+      list(
+        type = "line",
+        symbol = "none",
+        lineStyle = list(width = 2, type = 'dashed'),
+        tooltip = list(show = F),
+        color = "blue",
+        data = line.Values
+      )
+    )
+  )
+  
+  e_charts() %>%
+    e_list(opts) %>%
+    e_title(text = titles[1]) %>%
+    e_axis_labels(x = titles[2], y = titles[3]) %>%
+    e_tooltip() %>%
+    e_datazoom(show = F) %>%
+    e_show_loading()
 }
 
 #' plot_pred_rd

@@ -1,7 +1,3 @@
-
-load("inst/app/lang/translation.bin") # Load translation.bin (dictionary to change language)
-enc <- "utf8"
-
 # Updates the labelInputs that the language changes
 
 #' exe
@@ -70,29 +66,6 @@ as_string_c <- function(vect, quote = TRUE){
   }
 }
 
-#' translate
-#' 
-#' @description translates text id into current language.
-#' 
-#' @param text the id for the text.
-#' @param language the language to choose. It can be "es" or "en".
-#' 
-#' @export
-#' @examples
-#' translate("knnl")
-#' translate("knnl", "en")
-#' 
-translate <- function(text, language = options_regressor("language")) {
-  if(is.null(language) || !any(language %in% c("es", "en"))){
-    language <- "es"
-  }
-  language <- as.character(language)
-  sapply(text, function(s) {
-    elem <- ifelse(is.null(translation[[s]][[language]]), s, translation[[s]][[language]])
-    Encoding(elem) <- "utf8"
-    elem
-  }, USE.NAMES = F)
-}
 
 #' models_mode
 #' 

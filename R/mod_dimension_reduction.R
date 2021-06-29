@@ -30,7 +30,7 @@ mod_dimension_reduction_ui <- function(id){
                     hr(style = "margin-top: 0px;"),
                     conditionalPanel("input.BoxRd == 'tabRdRMSE'",
                                      aceEditor(ns("fieldCodeRdRMSE"), mode = "r", theme = "monokai",
-                                               value = "", height = "22vh", readOnly = F, autoComplete = "enabled"), ns = ns),
+                                               value = "", height = "7vh", readOnly = F, autoComplete = "enabled"), ns = ns),
                     conditionalPanel("input.BoxRd == 'tabRdPlotPred'",
                                      aceEditor(ns("fieldCodeRdPlotPred"), mode = "r", theme = "monokai",
                                                value = "", height = "22vh", readOnly = F, autoComplete = "enabled"), ns = ns),
@@ -39,20 +39,20 @@ mod_dimension_reduction_ui <- function(id){
                                                value = "", height = "22vh", readOnly = F, autoComplete = "enabled"), ns = ns),
                     conditionalPanel("input.BoxRd == 'tabRdPred'",
                                      aceEditor(ns("fieldCodeRdPred"), mode = "r", theme = "monokai",
-                                               value = "", height = "10vh", readOnly = F, autoComplete = "enabled"), ns = ns),
+                                               value = "", height = "7vh", readOnly = F, autoComplete = "enabled"), ns = ns),
                     conditionalPanel("input.BoxRd == 'tabRdDisp'",
                                      aceEditor(ns("fieldCodeRdDisp"), mode = "r", theme = "monokai",
-                                               value = "", height = "3vh", readOnly = F, autoComplete = "enabled"), ns = ns),
+                                               value = "", height = "7vh", readOnly = F, autoComplete = "enabled"), ns = ns),
                     conditionalPanel("input.BoxRd == 'tabRdIndex'",
                                      aceEditor(ns("fieldCodeRdIG"), mode = "r", theme = "monokai",
                                                value = "", height = "22vh", readOnly = F, autoComplete = "enabled"), ns = ns))
   
 
   
-  tabs.options.generate <- tabsOptions(buttons = list(icon("gear"), icon("code")), widths = c(50,100), heights = c(80,95),
+  tabs.options.generate <- tabsOptions(buttons = list(icon("gear"), icon("code")), widths = c(50,100), heights = c(80,80),
                                        tabs.content = list(rd.options,rd.code.config))
   
-  tabs.options.Nogenerate <- tabsOptions(buttons = list(icon("code")), widths = c(100), heights = c(95),
+  tabs.options.Nogenerate <- tabsOptions(buttons = list(icon("code")), widths = c(100), heights = c(70),
                                          tabs.content = list(rd.code))
   
   
@@ -60,7 +60,7 @@ mod_dimension_reduction_ui <- function(id){
                                 verbatimTextOutput(ns("txtRd")))
   
   rmse.rd.panel <- tabPanel(title = labelInput("RMSE"),value = "tabRdRMSE",
-                            plotOutput(ns('plot.rd.rmse'), height = "55vh"))
+                            echarts4rOutput(ns('plot.rd.rmse'), height = "75vh"))
   
   plot.pred.rd.panel <- tabPanel(title = labelInput("RdPred"), value = "tabRdPlotPred",
                                  plotOutput(ns('plot.rd.pred'), height = "55vh"))
@@ -113,7 +113,7 @@ mod_dimension_reduction_server <- function(input, output, session,updateData, up
     updateSwitchInput(session,"permitir.ncomp", value = F)
     
     output$txtRd <- renderText(NULL)
-    output$plot.rd.rmse <- renderPlot(NULL)
+    output$plot.rd.rmse <- renderEcharts4r(NULL)
     output$plot.rd.pred <- renderPlot(NULL)
     output$plot.rd.var.pred <- renderPlot(NULL)
     output$rdPrediTable <- DT::renderDataTable(NULL)
@@ -125,6 +125,7 @@ mod_dimension_reduction_server <- function(input, output, session,updateData, up
   observeEvent(updateData$idioma,{
     execute_rd_ind()
     plot_disp_rd()
+    plot_rmse_rd()
   })
   
   observeEvent(updateData$datos.aprendizaje,{
@@ -168,10 +169,6 @@ mod_dimension_reduction_server <- function(input, output, session,updateData, up
     
     updateAceEditor(session, "fieldCodeRd", value = codigo)
     cod.rd.modelo <<- codigo
-    
-    # Se genera el codigo del plot de RMSE
-    codigo <- extract_code("plot_RMSE")
-    updateAceEditor(session, "fieldCodeRdRMSE", value = codigo)
     
     # Se genera el codigo del plot de predictoras
     codigo <- extract_code("plot_pred_rd")
@@ -241,7 +238,19 @@ mod_dimension_reduction_server <- function(input, output, session,updateData, up
           ncomp <- input$ncomp.rd
         }
       }
-      output$plot.rd.rmse <- renderPlot(exe("plot_RMSE(modelo.rd.",tipo,",",ncomp,")"))
+      
+      titulos <- c(
+        tr("RMSEComp", updateData$idioma),
+        tr("NumComp", updateData$idioma),
+        tr("RMSE", updateData$idioma)
+      )
+
+      output$plot.rd.rmse <- renderEcharts4r(plot_RMSE(exe(paste0("modelo.rd.",tipo)), ncomp, titulos))
+      
+      # Actualizar el código en el AceEditor
+      codigo <- paste0("plot_RMSE(",paste0("modelo.rd.",tipo),", ",ncomp,")")
+      updateAceEditor(session, "fieldCodeRdRMSE", value = codigo)
+      
     },
     error = function(e) { # Regresamos al estado inicial y mostramos un error
       clean_rd(1)
