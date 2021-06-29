@@ -117,7 +117,7 @@ mod_penalized_Regression_server <- function(input, output, session, updateData, 
     output$rlCoefTable <- DT::renderDataTable(NULL)
     output$plot.rlr.landa <- renderPlot(NULL)
     output$rlrPrediTable <- DT::renderDataTable(NULL)
-    output$plot.rlr.disp <- renderPlot(NULL)
+    output$plot.rlr.disp <- renderEcharts4r(NULL)
     output$indexdfrlr <- render_index_table(NULL)
     output$indexdfrlr2 <- render_index_table(NULL)
   }

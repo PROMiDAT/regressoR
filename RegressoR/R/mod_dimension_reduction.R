@@ -72,7 +72,7 @@ mod_dimension_reduction_ui <- function(id){
                                   DT::dataTableOutput(ns("rdPrediTable")))
   
   disp.rd.panel <- tabPanel(title = labelInput("dispersion"), value = "tabRdDisp",
-                            plotOutput(ns('plot.rd.disp'), height = "55vh"))
+                            echarts4rOutput(ns('plot.rd.disp'), height = "75vh"))
   
   general.index.rd.panel <- tabPanel(title = labelInput("indices"), value = "tabRdIndex",
                                      br(),
@@ -117,13 +117,14 @@ mod_dimension_reduction_server <- function(input, output, session,updateData, up
     output$plot.rd.pred <- renderPlot(NULL)
     output$plot.rd.var.pred <- renderPlot(NULL)
     output$rdPrediTable <- DT::renderDataTable(NULL)
-    output$plot.rd.disp <- renderPlot(NULL)
+    output$plot.rd.disp <- renderEcharts4r(NULL)
     output$indexdfrd <- render_index_table(NULL)
     output$indexdfrd2 <- render_index_table(NULL)
   }
   
   observeEvent(updateData$idioma,{
     execute_rd_ind()
+    plot_disp_rd()
   })
   
   observeEvent(updateData$datos.aprendizaje,{
@@ -137,13 +138,7 @@ mod_dimension_reduction_server <- function(input, output, session,updateData, up
       rd_full()
     }
   })
-  
-  # When the user changes the parameters
-  # observeEvent(c(input$modo.rd, input$switch.scale.rd, input$ncomp.rd, input$permitir.ncomp), {
-  #   if (validate_data(print = FALSE)) {
-  #     deafult_codigo_rd()
-  #   }
-  # })
+
   
   # Habilitada o deshabilitada el número de componenetes 
   observeEvent(input$permitir.ncomp, {
@@ -194,10 +189,6 @@ mod_dimension_reduction_server <- function(input, output, session,updateData, up
     updateAceEditor(session, "fieldCodeRdPred", value = codigo)
     cod.rd.pred <<- codigo
     
-    # Se genera el codigo de la dispersion
-    codigo <- disp_models(paste0("prediccion.rd.",rd_type()), translate("rd"), variable.predecir)
-    updateAceEditor(session, "fieldCodeRdDisp", value = codigo)
-    
     # Se genera el codigo de la indices 
     codigo <- extract_code("general_indices")
     updateAceEditor(session, "fieldCodeRdIG", value = codigo)
@@ -222,7 +213,18 @@ mod_dimension_reduction_server <- function(input, output, session,updateData, up
   # Shows the graph the dispersion of the model with respect to the real values
   plot_disp_rd <- function(){
     tryCatch({ # Se corren los codigo
-      output$plot.rd.disp <- renderPlot(isolate(exe(input$fieldCodeRdDisp)))
+      titulos <- c(
+        tr("predvsreal", updateData$idioma),
+        tr("realValue", updateData$idioma),
+        tr("pred", updateData$idioma)
+      )
+      
+      output$plot.rd.disp <- renderEcharts4r(plot_real_prediction(datos.prueba[variable.predecir],
+                                                                  exe(paste0("prediccion.rd.",rd_type())),
+                                                                  translate("rd"),titulos))
+      
+      codigo <- disp_models(paste0("prediccion.rd.",rd_type()), translate("rd"), variable.predecir)
+      updateAceEditor(session, "fieldCodeRdDisp", value = codigo)
     },
     error = function(e) { # Regresamos al estado inicial y mostramos un error
       clean_rd(2)

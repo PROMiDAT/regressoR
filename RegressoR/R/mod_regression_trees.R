@@ -94,7 +94,7 @@ mod_regression_trees_server <- function(input, output, session,updateData, updat
     output$txtDt <- renderText(NULL)
     output$plot.dt <- renderPlot(NULL)
     output$dtPrediTable <- DT::renderDataTable(NULL)
-    output$plot.dt.disp <- renderPlot(NULL)
+    output$plot.dt.disp <- renderEcharts4r(NULL)
     output$indexdfdt <- render_index_table(NULL)
     output$indexdfdt2 <- render_index_table(NULL)
     output$rulesDt <- renderText(NULL)

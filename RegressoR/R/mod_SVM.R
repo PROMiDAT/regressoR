@@ -44,7 +44,7 @@ mod_SVM_ui <- function(id){
                                  verbatimTextOutput(ns("txtSvm")))
   
   disp.svm.panel <- tabPanel(title = labelInput("dispersion"), value = "tabSvmDisp",
-                             plotOutput(ns('plot.svm.disp'), height = "55vh"))
+                             echarts4rOutput(ns('plot.svm.disp'), height = "75vh"))
   
   prediction.svm.panel <- tabPanel(title = labelInput("predm"), value = "tabSvmPred",
                                    DT::dataTableOutput(ns("svmPrediTable")))
@@ -84,13 +84,14 @@ mod_SVM_server <- function(input, output, session,updateData, updatePlot){
     
     output$txtSvm <- renderText(NULL)
     output$svmPrediTable <- DT::renderDataTable(NULL)
-    output$plot.svm.disp <- renderPlot(NULL)
+    output$plot.svm.disp <- renderEcharts4r(NULL)
     output$indexdfsvm <- render_index_table(NULL)
     output$indexdfsvm2 <- render_index_table(NULL)
   }
   
   observeEvent(updateData$idioma,{
     execute_svm_ind()
+    plot_disp_svm()
   })
   
   
@@ -105,13 +106,7 @@ mod_SVM_server <- function(input, output, session,updateData, updatePlot){
       svm_full()
     }
   })
-  
-  # When the user changes the parameters
-  # observeEvent(c(input$switch.scale.svm, input$kernel.svm), {
-  #   if (validate_data(print = FALSE)){
-  #     default_codigo_svm()
-  #   }
-  # })
+
   
   # Upgrade code fields to default version
   default_codigo_svm <- function() {
@@ -130,10 +125,6 @@ mod_SVM_server <- function(input, output, session,updateData, updatePlot){
                              pred.var = paste0("prediccion.svm.",input$kernel.svm))
     updateAceEditor(session, "fieldCodeSvmPred", value = codigo)
     cod.svm.pred <<- codigo
-    
-    # Se genera el codigo de la dispersion
-    codigo <- disp_models(paste0("prediccion.svm.",input$kernel.svm), translate("svml"), variable.predecir)
-    updateAceEditor(session, "fieldCodeSvmDisp", value = codigo)
     
     # Se genera el codigo de la indices
     codigo <- extract_code("general_indices")
@@ -166,8 +157,19 @@ mod_SVM_server <- function(input, output, session,updateData, updatePlot){
   # Shows the graph the dispersion of the model with respect to the real values
   plot_disp_svm <- function(){
     tryCatch({ # Se corren los codigo
-      isolate(kernel <- input$kernel.svm)
-      output$plot.svm.disp <- renderPlot(exe(input$fieldCodeSvmDisp))
+      
+      titulos <- c(
+        tr("predvsreal", updateData$idioma),
+        tr("realValue", updateData$idioma),
+        tr("pred", updateData$idioma)
+      )
+      
+      output$plot.svm.disp <- renderEcharts4r(plot_real_prediction(datos.prueba[variable.predecir],
+                                                                  exe(paste0("prediccion.svm.",input$kernel.svm)),
+                                                                  translate("svml"),titulos))
+      
+      codigo <- disp_models(paste0("prediccion.svm.",input$kernel.svm), translate("svml"), variable.predecir)
+      updateAceEditor(session, "fieldCodeSvmDisp", value = codigo)
     },
     error = function(e) { # Regresamos al estado inicial y mostramos un error
       clean_svm(2)

@@ -60,7 +60,7 @@ mod_neural_networks_ui <- function(id){
                                   DT::dataTableOutput(ns("nnPrediTable")))
   
   disp.nn.panel <- tabPanel(title = labelInput("dispersion"), value = "tabNnDisp",
-                            plotOutput(ns('plot.nn.disp'), height = "55vh"))
+                            echarts4rOutput(ns('plot.nn.disp'), height = "75vh"))
   
   general.index.nn.panel <- tabPanel(title = labelInput("indices"), value = "tabNnIndex",
                                      br(),
@@ -110,7 +110,7 @@ mod_neural_networks_server <- function(input, output, session,updateData, update
     updateLayers()
     output$plot.nn <- renderPlot(NULL)
     output$nnPrediTable <- DT::renderDataTable(NULL)
-    output$plot.nn.disp <- renderPlot(NULL)
+    output$plot.nn.disp <- renderEcharts4r(NULL)
     output$indexdfnn <- render_index_table(NULL)
     output$indexdfnn2 <- render_index_table(NULL)
   }
@@ -118,6 +118,7 @@ mod_neural_networks_server <- function(input, output, session,updateData, update
   
   observeEvent(updateData$idioma,{
     execute_nn_ind()
+    plot_disp_nn()
   })
   
   
@@ -141,17 +142,6 @@ mod_neural_networks_server <- function(input, output, session,updateData, update
       nn_full()
     }
   })
-  
-  
-  # When the user changes the parameters
-  # observeEvent(c(input$cant.capas.nn,input$threshold.nn,input$stepmax.nn,
-  #                input$nn.cap.1,input$nn.cap.2,input$nn.cap.3,input$nn.cap.4,input$nn.cap.5,
-  #                input$nn.cap.6,input$nn.cap.7,input$nn.cap.8,input$nn.cap.9,input$nn.cap.10),{
-  #                  if(validate_data(print = FALSE)){
-  #                    default_codigo_nn()
-  #                  }
-  #                })
-  
   
   
   # Upgrade code fields to default version
@@ -183,10 +173,6 @@ mod_neural_networks_server <- function(input, output, session,updateData, update
     updateAceEditor(session, "fieldCodeNnPred", value = codigo)
     cod.nn.pred <<- codigo
     
-    # Se genera el codigo de la dispersion
-    codigo <- disp_models("prediccion.nn", translate("nn"), variable.predecir)
-    updateAceEditor(session, "fieldCodeNnDisp", value = codigo)
-    
     #Se genera el codigo de la indices
     codigo <- extract_code("general_indices")
     updateAceEditor(session, "fieldCodeNnIG", value = codigo)
@@ -214,7 +200,17 @@ mod_neural_networks_server <- function(input, output, session,updateData, update
   # Shows the graph the dispersion of the model with respect to the real values
   plot_disp_nn <- function(){
     tryCatch({ # Se corren los codigo
-      output$plot.nn.disp <- renderPlot(exe(input$fieldCodeNnDisp))
+      titulos <- c(
+        tr("predvsreal", updateData$idioma),
+        tr("realValue", updateData$idioma),
+        tr("pred", updateData$idioma)
+      )
+      
+      output$plot.nn.disp <- renderEcharts4r(plot_real_prediction(datos.prueba[variable.predecir],
+                                                                  prediccion.nn,translate("nn"),titulos))
+      
+      codigo <- disp_models("prediccion.nn", translate("nn"), variable.predecir)
+      updateAceEditor(session, "fieldCodeNnDisp", value = codigo)
     },
     error = function(e) { # Regresamos al estado inicial y mostramos un error
       clean_nn(2)
@@ -267,7 +263,7 @@ mod_neural_networks_server <- function(input, output, session,updateData, update
     },
     #Por si no converge
     finally = {
-      output$plot.nn.disp <- renderPlot(NULL)
+      output$plot.nn.disp <- renderEcharts4r(NULL)
       output$indexdfnn <- render_index_table(NULL)
       output$indexdfnn2 <- render_index_table(NULL)
     })

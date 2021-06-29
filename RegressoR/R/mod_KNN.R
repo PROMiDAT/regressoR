@@ -86,7 +86,7 @@ mod_KNN_server <- function(input, output, session,updateData, updatePlot){
     
     output$txtknn <- renderText(NULL)
     output$knnPrediTable <- DT::renderDataTable(NULL)
-    output$plot.knn.disp <- renderPlot(NULL)
+    output$plot.knn.disp <- renderEcharts4r(NULL)
     output$indexdfknn <- render_index_table(NULL)
     output$indexdfknn2 <- render_index_table(NULL)
   }

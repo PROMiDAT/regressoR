@@ -100,7 +100,7 @@ mod_random_forests_server <- function(input, output, session,updateData, updateP
     output$txtRf <- renderText(NULL)
     output$plot.rf <- renderPlot(NULL)
     output$rfPrediTable <- DT::renderDataTable(NULL)
-    output$plot.rf.disp <- renderPlot(NULL)
+    output$plot.rf.disp <- renderEcharts4r(NULL)
     output$indexdfrf <- render_index_table(NULL)
     output$indexdfrf2 <- render_index_table(NULL)
     output$rulesRf <- renderText(NULL)

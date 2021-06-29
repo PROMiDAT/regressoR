@@ -93,7 +93,7 @@ mod_boosting_server <- function(input, output, session,updateData, updatePlot){
     output$txtBoosting <- renderText(NULL)
     output$plot.boosting.import <- renderPlot(NULL)
     output$boostingPrediTable <- DT::renderDataTable(NULL)
-    output$plot.boosting.disp <- renderPlot(NULL)
+    output$plot.boosting.disp <- renderEcharts4r(NULL)
     output$indexdfb <- render_index_table(NULL)
     output$indexdfb2 <- render_index_table(NULL)
   }

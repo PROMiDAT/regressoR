@@ -78,7 +78,7 @@ mod_linear_regression_server <- function(input, output, session, updateData, upd
     output$txtRl <- renderText(NULL)
     output$rlCoefTable <- DT::renderDataTable(NULL)
     output$rlPrediTable <- DT::renderDataTable(NULL)
-    output$plot.rl.disp <- renderPlot(NULL)
+    output$plot.rl.disp <- renderEcharts4r(NULL)
     output$indexdfrl <- render_index_table(NULL)
     output$indexdfrl2 <- render_index_table(NULL)
   }
