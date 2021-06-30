@@ -33,10 +33,10 @@ mod_dimension_reduction_ui <- function(id){
                                                value = "", height = "7vh", readOnly = F, autoComplete = "enabled"), ns = ns),
                     conditionalPanel("input.BoxRd == 'tabRdPlotPred'",
                                      aceEditor(ns("fieldCodeRdPlotPred"), mode = "r", theme = "monokai",
-                                               value = "", height = "22vh", readOnly = F, autoComplete = "enabled"), ns = ns),
+                                               value = "", height = "7vh", readOnly = F, autoComplete = "enabled"), ns = ns),
                     conditionalPanel("input.BoxRd == 'tabRdPlotVarPred'",
                                      aceEditor(ns("fieldCodeRdPlotVarPred"), mode = "r", theme = "monokai",
-                                               value = "", height = "22vh", readOnly = F, autoComplete = "enabled"), ns = ns),
+                                               value = "", height = "7vh", readOnly = F, autoComplete = "enabled"), ns = ns),
                     conditionalPanel("input.BoxRd == 'tabRdPred'",
                                      aceEditor(ns("fieldCodeRdPred"), mode = "r", theme = "monokai",
                                                value = "", height = "7vh", readOnly = F, autoComplete = "enabled"), ns = ns),
@@ -63,10 +63,10 @@ mod_dimension_reduction_ui <- function(id){
                             echarts4rOutput(ns('plot.rd.rmse'), height = "75vh"))
   
   plot.pred.rd.panel <- tabPanel(title = labelInput("RdPred"), value = "tabRdPlotPred",
-                                 plotOutput(ns('plot.rd.pred'), height = "55vh"))
+                                 echarts4rOutput(ns('plot.rd.pred'), height = "75vh"))
   
   panel.plot.var.pred.rd <- tabPanel(title = labelInput("RdVarPred"), value = "tabRdPlotVarPred",
-                                     plotOutput(ns('plot.rd.var.pred'), height = "55vh"))
+                                     echarts4rOutput(ns('plot.rd.var.pred'), height = "75vh"))
   
   prediction.rd.panel <- tabPanel(title = labelInput("predm"), value = "tabRdPred",
                                   DT::dataTableOutput(ns("rdPrediTable")))
@@ -126,6 +126,8 @@ mod_dimension_reduction_server <- function(input, output, session,updateData, up
     execute_rd_ind()
     plot_disp_rd()
     plot_rmse_rd()
+    rd_plot_pred()
+    rd_plot_var_pred()
   })
   
   observeEvent(updateData$datos.aprendizaje,{
@@ -170,13 +172,6 @@ mod_dimension_reduction_server <- function(input, output, session,updateData, up
     updateAceEditor(session, "fieldCodeRd", value = codigo)
     cod.rd.modelo <<- codigo
     
-    # Se genera el codigo del plot de predictoras
-    codigo <- extract_code("plot_pred_rd")
-    updateAceEditor(session, "fieldCodeRdPlotPred", value = codigo)
-    
-    # Se genera el codigo del plot de predictoras
-    codigo <- extract_code("plot_var_pred_rd")
-    updateAceEditor(session, "fieldCodeRdPlotVarPred", value = codigo)
     
     # Se genera el codigo de la prediccion
     codigo <- rd_prediction(model.var = paste0("modelo.rd.",rd_type()),
@@ -245,10 +240,10 @@ mod_dimension_reduction_server <- function(input, output, session,updateData, up
         tr("RMSE", updateData$idioma)
       )
 
-      output$plot.rd.rmse <- renderEcharts4r(plot_RMSE(exe(paste0("modelo.rd.",tipo)), ncomp, titulos))
+      output$plot.rd.rmse <- renderEcharts4r(plot_RMSE(exe(paste0("modelo.rd.",tipo)), exe(ncomp), titulos))
       
       # Actualizar el código en el AceEditor
-      codigo <- paste0("plot_RMSE(",paste0("modelo.rd.",tipo),", ",ncomp,")")
+      codigo <- paste0("plot_RMSE(",paste0("modelo.rd.",tipo),", ",exe(ncomp),")")
       updateAceEditor(session, "fieldCodeRdRMSE", value = codigo)
       
     },
@@ -267,7 +262,18 @@ mod_dimension_reduction_server <- function(input, output, session,updateData, up
           ncomp <- input$ncomp.rd
         }
       }
-      output$plot.rd.pred <- renderPlot(exe("plot_pred_rd(modelo.rd.",tipo,",",ncomp,")"))
+      
+      titulos <- c(
+        tr("RdPred", updateData$idioma),
+        tr("NumComp", updateData$idioma),
+        tr("VarExp", updateData$idioma)
+      )
+
+      output$plot.rd.pred <- renderEcharts4r(plot_pred_rd(exe(paste0("modelo.rd.",tipo)), exe(ncomp),titulos))
+      
+      # Se actualiza el codigo
+      codigo <- paste0("plot_pred_rd(",paste0("modelo.rd.",tipo),", ",exe(ncomp),")")
+      updateAceEditor(session, "fieldCodeRdPlotPred", value = codigo)
     },
     error = function(e) { # Regresamos al estado inicial y mostramos un error
       clean_rd(1)
@@ -284,7 +290,19 @@ mod_dimension_reduction_server <- function(input, output, session,updateData, up
           ncomp <- input$ncomp.rd
         }
       }
-      output$plot.rd.var.pred <- renderPlot(exe("plot_var_pred_rd(modelo.rd.",tipo,",",ncomp,")"))
+      
+      titulos <- c(
+        tr("RdVarPred", updateData$idioma),
+        tr("NumComp", updateData$idioma),
+        tr("VarExp", updateData$idioma)
+      )
+
+      output$plot.rd.var.pred <- renderEcharts4r(plot_var_pred_rd(exe(paste0("modelo.rd.",tipo)), exe(ncomp),titulos))
+      
+      # Se actualiza el codigo del plot
+      codigo <- paste0("plot_var_pred_rd(",paste0("modelo.rd.",tipo),", ",exe(ncomp),")")
+      updateAceEditor(session, "fieldCodeRdPlotVarPred", value = codigo)
+      
     },
     error = function(e) { # Regresamos al estado inicial y mostramos un error
       clean_rd(1)

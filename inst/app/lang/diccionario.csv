@@ -271,4 +271,5 @@ NumComp;Número de Componente;Component Number
 RMSEComp;RMSE Según Número de Componentes;RMSE According to Number of Components
 RdPred;Varianza Explicada en Predictores;Variance Explained in Predictors
 RdVarPred;Varianza Explicada en Variable a Predecir;Variance Explained in Variable to Predict
+VarExp;Porcentaje de Varianza Explicada;Percentage of Explained Variance
 errRDnCom;La cantidad de componentes excede la cantidad existente;The quantity of components exceeds the existing quantity
