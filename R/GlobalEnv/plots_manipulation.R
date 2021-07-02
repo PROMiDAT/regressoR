@@ -198,44 +198,48 @@ categorical_distribution <- function(var) {
 
 #' importance_plot_rf
 #' 
-#' @description graphs the importance of variables for the random forest model.
+#' @description graphs the importance of variables for the random forest model according to the percentage increase in mean square error.
 #'
 #' @param model.rf a random forest model.
-#' @param title.1 the title of the first chart.
-#' @param title.2 the title of the second chart.
+#' @param titles labels on the chart
 #'
 #' @seealso \code{\link[randomForest]{randomForest}}
 #'
+#' @author Ariel Arroyo <luis.ariel.arroyo@promidat.com>
+#' @return echarts4r plot
+#' @import echarts4r
+#' 
 #' @export
+#'
 #'
 #' @examples
 #' library(randomForest)
 #' x <- rf_model('iris', 'Petal.Length')
 #' exe(x)
-#' importance_plot_rf(modelo.rf, translate('impVarA'), translate('impVarRSS'))
+#' importance_plot_rf(modelo.rf)
 #' 
-importance_plot_rf <- function(model.rf, title.1, title.2){
-  importancia <- randomForest::importance(model.rf) %>% as.data.frame() %>% tibble::rownames_to_column("Variable")
-  size.y <- ifelse(nrow(importancia) <= 25, 1.5, 1 - (nrow(importancia) - 25)/3 * 0.01 )
-  size.y <- ifelse(size.y <= 0, 0.1, size.y)
-  g1 <- ggplot(importancia, aes(x = forcats::fct_reorder(.data$Variable, .data$`%IncMSE`), y = .data$`%IncMSE`, 
-                                fill = forcats::fct_reorder(.data$Variable, .data$`%IncMSE`))) + 
-    geom_bar(stat = 'identity', position = 'identity', width = 0.1) +
-    labs(title = title.1,  y = "", x = "") +
-    scale_y_continuous(labels = scales::comma) + coord_flip() +
-    theme(axis.text.x = element_text(angle = 45, hjust = 1),
-          axis.text.y = element_text(size=rel(size.y)),
-          plot.title  = element_text(size = 10),legend.position = "none")
-  g2 <- ggplot(importancia, aes(x = forcats::fct_reorder(.data$Variable, .data$IncNodePurity), 
-                                y = .data$IncNodePurity, fill = forcats::fct_reorder(.data$Variable, .data$IncNodePurity))) + 
-    geom_bar(stat = 'identity', position = 'identity', width = 0.1) +
-    labs(title = title.2,  y = "", x = "") +
-    scale_y_continuous(labels = scales::comma) + coord_flip() +
-    theme(axis.text.x = element_text(angle = 45, hjust = 1), 
-          axis.text.y = element_text(size=rel(size.y)),
-          plot.title = element_text(size = 10), legend.position = 'none')
+importance_plot_rf <- function(model.rf, titles = c("Importancia de Variables Según el Porcentaje de Incremento del MSE",
+                               "Aumento porcentual del error cuadrático medio", "Variable")){
+  #https://www.displayr.com/how-is-variable-importance-calculated-for-a-random-forest/
+  df <- as.data.frame(model.rf$importance)
+  df$variables <- as.factor(rownames(df))
+  df <- df[order(df$`%IncMSE`, decreasing = T),]
   
-  gridExtra::grid.arrange(g1, g2, ncol = 2, nrow = 1)
+  e_charts(data = df, x = variables) %>%
+    e_bar(serie = `%IncMSE`,legend = NULL) %>%
+    echarts4r::e_flip_coords() %>%
+    e_title(text = titles[1]) %>%
+    e_x_axis(name = titles[2], nameLocation = "center", 
+             nameTextStyle = list(padding = c(10,0,0,0)),
+             interval = 10,
+             axisLabel = list(formatter = '{value} %')) %>%
+    e_y_axis(name = titles[3], nameLocation = "start", inverse = T) %>%
+    e_tooltip(formatter = htmlwidgets::JS("function(params){
+    console.log(params)
+    return('<b>' +  params.value[1] + ': </b>' + Number.parseFloat(params.value[0]).toFixed(4) + '%')
+    }
+    ")) %>%
+    e_show_loading()
 }
 
 

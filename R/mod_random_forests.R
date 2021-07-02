@@ -50,7 +50,7 @@ mod_random_forests_ui <- function(id){
                                 verbatimTextOutput(ns("txtRf")))
   
   plot.rf <- tabPanel(title = labelInput("varImp"), value = "tabRfImp",
-                      plotOutput(ns('plot.rf'), height = "70vh"))
+                      echarts4rOutput(ns('plot.rf'), height = "75vh"))
   
   prediction.rf.panel <- tabPanel(title = labelInput("predm"), value = "tabRfPred",
                                   DT::dataTableOutput(ns("rfPrediTable")))
@@ -98,7 +98,7 @@ mod_random_forests_server <- function(input, output, session,updateData, updateP
     rf.args.default <<- TRUE
     
     output$txtRf <- renderText(NULL)
-    output$plot.rf <- renderPlot(NULL)
+    output$plot.rf <- renderEcharts4r(NULL)
     output$rfPrediTable <- DT::renderDataTable(NULL)
     output$plot.rf.disp <- renderEcharts4r(NULL)
     output$indexdfrf <- render_index_table(NULL)
@@ -109,6 +109,7 @@ mod_random_forests_server <- function(input, output, session,updateData, updateP
   observeEvent(updateData$idioma,{
     execute_rf_ind()
     plot_disp_rf()
+    plotear_rf_imp()
   })
   
   # change model codes
@@ -154,10 +155,6 @@ mod_random_forests_server <- function(input, output, session,updateData, updateP
     codigo <- rf_prediction(variable.pred = variable.predecir)
     updateAceEditor(session, "fieldCodeRfPred", value = codigo)
     cod.rf.pred <<- codigo
-
-    
-    # Cambia el codigo del grafico de rf
-    updateAceEditor(session, "fieldCodeRfPlot", value = extract_code("importance_plot_rf"))
     
     # Se genera el codigo de la indices
     codigo <- extract_code("general_indices")
@@ -183,7 +180,18 @@ mod_random_forests_server <- function(input, output, session,updateData, updateP
   # Shows the chart of importance
   plotear_rf_imp <- function() {
     tryCatch({
-      output$plot.rf <- renderPlot(isolate(importance_plot_rf(modelo.rf,translate("impVarA"),translate("impVarRSS"))))
+      titulos <- c(
+        tr("impVarA", updateData$idioma),
+        tr("IncMSE", updateData$idioma),
+        tr("variable", updateData$idioma)
+      )
+      #output$plot.rf <- renderPlot(isolate(importance_plot_rf(modelo.rf,translate("impVarA"),translate("impVarRSS"))))
+      output$plot.rf <- renderEcharts4r(importance_plot_rf(modelo.rf,titulos))
+      
+      # Actualiza el codigo del grafico de rf
+      codigo <- "importance_plot_rf(modelo.rf)"
+      updateAceEditor(session, "fieldCodeRfPlot", value = codigo)
+      
     }, error = function(e) {
       output$plot.rf <- renderPlot(NULL)
     })
