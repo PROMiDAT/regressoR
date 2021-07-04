@@ -28,22 +28,22 @@ mod_random_forests_ui <- function(id){
   rf.code  <- list(h3(labelInput("codigo")), hr(style = "margin-top: 0px;"),
                    conditionalPanel("input.BoxRf == 'tabRfImp'",
                                     aceEditor(ns("fieldCodeRfPlot"), mode = "r", theme = "monokai",
-                                              value = "", height = "40vh", readOnly = F, autoComplete = "enabled"),ns = ns),
+                                              value = "", height = "7vh", readOnly = F, autoComplete = "enabled"),ns = ns),
                    conditionalPanel("input.BoxRf == 'tabRfPred'",
                                     aceEditor(ns("fieldCodeRfPred"), mode = "r", theme = "monokai",
-                                              value = "", height = "3vh", readOnly = F, autoComplete = "enabled"),ns = ns),
+                                              value = "", height = "7vh", readOnly = F, autoComplete = "enabled"),ns = ns),
                    conditionalPanel("input.BoxRf == 'tabRfDisp'",
                                     aceEditor(ns("fieldCodeRfDisp"), mode = "r", theme = "monokai",
-                                              value = "", height = "3vh", readOnly = F, autoComplete = "enabled"),ns = ns),
+                                              value = "", height = "7vh", readOnly = F, autoComplete = "enabled"),ns = ns),
                    conditionalPanel("input.BoxRf == 'tabRfIndex'",
                                     aceEditor(ns("fieldCodeRfIG"), mode = "r", theme = "monokai",
                                               value = "", height = "22vh", readOnly = F, autoComplete = "enabled"),ns = ns))
   
   
-  tabs.options.generate <- tabsOptions(buttons = list(icon("gear"), icon("code")), widths = c(50,100), heights = c(80,95),
+  tabs.options.generate <- tabsOptions(buttons = list(icon("gear"), icon("code")), widths = c(50,100), heights = c(80,70),
                                        tabs.content = list(rf.options,rf.code.config))
   
-  tabs.options.Nogenerate <- tabsOptions(buttons = list(icon("code")), widths = c(100), heights = c(95),
+  tabs.options.Nogenerate <- tabsOptions(buttons = list(icon("code")), widths = c(100), heights = c(70),
                                          tabs.content = list(rf.code))
   
   generate.rf.panel <- tabPanel(title = labelInput("generatem"),value = "tabRfModelo",

@@ -25,29 +25,29 @@ mod_boosting_ui <- function(id){
   b.code  <- list(h3(labelInput("codigo")), hr(style = "margin-top: 0px;"),
                   conditionalPanel("input.BoxB == 'tabBImp'",
                                    aceEditor(ns("fieldCodeBoostingPlotImport"), mode = "r", theme = "monokai",
-                                             value = "", height = "10vh", readOnly = F, autoComplete = "enabled"),ns = ns),
+                                             value = "", height = "7vh", readOnly = F, autoComplete = "enabled"),ns = ns),
                   conditionalPanel("input.BoxB == 'tabBPred'",
                                    aceEditor(ns("fieldCodeBoostingPred"), mode = "r", theme = "monokai",
-                                             value = "", height = "3vh", readOnly = F, autoComplete = "enabled"),ns = ns),
+                                             value = "", height = "7vh", readOnly = F, autoComplete = "enabled"),ns = ns),
                   conditionalPanel("input.BoxB == 'tabBDisp'",
                                    aceEditor(ns("fieldCodeBoostingDisp"), mode = "r", theme = "monokai",
-                                             value = "", height = "3vh", readOnly = F, autoComplete = "enabled"),ns = ns),
+                                             value = "", height = "7vh", readOnly = F, autoComplete = "enabled"),ns = ns),
                   conditionalPanel("input.BoxB == 'tabBIndex'",
                                    aceEditor(ns("fieldCodeBoostingIG"), mode = "r", theme = "monokai",
                                              value = "", height = "22vh", readOnly = F, autoComplete = "enabled"),ns = ns))
   
   
-  tabs.options.generate <- tabsOptions(buttons = list(icon("gear"), icon("code")), widths = c(50,100), heights = c(80,95),
+  tabs.options.generate <- tabsOptions(buttons = list(icon("gear"), icon("code")), widths = c(50,100), heights = c(80,70),
                                        tabs.content = list(b.options,b.code.config))
   
-  tabs.options.Nogenerate <- tabsOptions(buttons = list(icon("code")), widths = c(100), heights = c(95),
+  tabs.options.Nogenerate <- tabsOptions(buttons = list(icon("code")), widths = c(100), heights = c(70),
                                          tabs.content = list(b.code))
   
   generate.b.panel <- tabPanel(title = labelInput("generatem"), value = "tabBModelo",
                                verbatimTextOutput(ns("txtBoosting")))
   
   plot.boosting.import <- tabPanel(title = labelInput("varImp"), value = "tabBImp",
-                                   plotOutput(ns('plot.boosting.import'), height = "70vh"))
+                                   echarts4rOutput(ns('plot.boosting.import'), height = "75vh"))
   
   prediction.b.panel <- tabPanel(title = labelInput("predm"), value = "tabBPred",
                                  DT::dataTableOutput(ns("boostingPrediTable")))
@@ -91,7 +91,7 @@ mod_boosting_server <- function(input, output, session,updateData, updatePlot){
     
     
     output$txtBoosting <- renderText(NULL)
-    output$plot.boosting.import <- renderPlot(NULL)
+    output$plot.boosting.import <- renderEcharts4r(NULL)
     output$boostingPrediTable <- DT::renderDataTable(NULL)
     output$plot.boosting.disp <- renderEcharts4r(NULL)
     output$indexdfb <- render_index_table(NULL)
@@ -102,6 +102,7 @@ mod_boosting_server <- function(input, output, session,updateData, updatePlot){
   observeEvent(updateData$idioma,{
     execute_boosting_ind()
     plot_disp_boosting()
+    plotear_boosting_imp()
   })
 
   observeEvent(updateData$datos.aprendizaje,{
@@ -138,10 +139,6 @@ mod_boosting_server <- function(input, output, session,updateData, updatePlot){
     
     updateAceEditor(session, "fieldCodeBoostingPred", value = codigo)
     cod.b.pred <<- codigo
-
-    
-    # Cambia el codigo del grafico de importancia
-    updateAceEditor(session, "fieldCodeBoostingPlotImport", value = boosting_importance_plot(paste0("modelo.boosting.",input$tipo.boosting)))
     
     # Se genera el codigo de la indices
     codigo <- extract_code("general_indices")
@@ -168,7 +165,19 @@ mod_boosting_server <- function(input, output, session,updateData, updatePlot){
   # Shows the chart of importance
   plotear_boosting_imp <- function() {
     tryCatch({
-      output$plot.boosting.import <- renderPlot(isolate(exe(boosting_importance_plot(paste0("modelo.boosting.",input$tipo.boosting)))))
+      
+      titulos <- c(
+        tr("impVarRI", updateData$idioma),
+        tr("RI", updateData$idioma),
+        tr("variable", updateData$idioma)
+      )
+      
+      modelo <- exe(paste0("modelo.boosting.",input$tipo.boosting))
+      output$plot.boosting.import <- renderEcharts4r(boosting_importance_plot(modelo,titulos))
+      
+      # Cambia el codigo del grafico de importancia
+      codigo <- paste0("boosting_importance_plot(modelo.boosting.",input$tipo.boosting,")")
+      updateAceEditor(session, "fieldCodeBoostingPlotImport", value = codigo)
     }, error = function(e) {
       clean_boosting(1)
     })

@@ -250,8 +250,8 @@ redPlot;Red Neuronal;Neural Network
 RMSE;Raíz Error Cuadrático Medio;Root Mean Squared Error
 MAE;Error Absoluto Medio;Mean Absolute Error
 ER;Error Relativo;Relative Error
-impVarA;Importancia de Variables Según el Porcentaje de Incremento del MSE;Importance of Variables According to the Percentage of Increase of the MSE
-IncMSE;Aumento porcentual del error cuadrático medio;Percentage increase in mean square error
+impVarA;Importancia de Variables Según el Porcentaje de Incremento del MSE;Importance of Variables According to Percentage Increase in Mean Square Error
+IncMSE;Aumento Porcentual del Error Cuadrático Medio;Percentage Increase in Mean Square Error
 impVarRSS;Importancia Variables según Reducción del RSS;Importance Variables according to RSS reduction
 impVarRI;Importancia de Variables según Influencia Relativa;Importance of Variables by Relative Influence
 RI;Influencia Relativa;Relative Influence
