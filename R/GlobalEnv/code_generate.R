@@ -459,7 +459,7 @@ rlr_model <- function(data = "datos.aprendizaje", variable.pred = NULL, model.va
   return(paste0("x <- model.matrix(`",variable.pred,"`~., ",data,")[, -1]\n",
                 "y <- ",data,"[, '",variable.pred,"']\n",
                 cv.var," <- cv.glmnet(x, y, standardize = ",standardize,", alpha = ",alpha,")\n",
-                model.var," <- glmnet(x, y, standardize = ",standardize,", alpha = ",alpha,")"))
+                model.var," <- cv.glmnet(x, y, standardize = ",standardize,", alpha = ",alpha,")"))
 }
 
 #' coef_lambda
@@ -509,7 +509,9 @@ coef_lambda <- function(data = "datos.aprendizaje", variable.pred = NULL, model.
 #' 
 plot_coef_lambda <- function(model.var = "modelo.rlr", lambda = NULL,  cv.var = "cv.glm"){
   lambda <- ifelse(is.null(lambda), paste0("log(",cv.var,"$lambda.min)"), lambda)
-  paste0("plot(",model.var,", 'lambda', label = TRUE)\n",
+  # paste0("plot(",model.var,", 'lambda', label = TRUE)\n",
+  #        "abline(v = ",lambda,", col = 'blue', lwd = 2, lty = 3)")
+  paste0("plot(",model.var,",label = TRUE, se.bands = TRUE)\n",
          "abline(v = ",lambda,", col = 'blue', lwd = 2, lty = 3)")
 }
 

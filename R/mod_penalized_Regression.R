@@ -188,6 +188,7 @@ mod_penalized_Regression_server <- function(input, output, session, updateData, 
                                lambda = landa,
                                cv.var = paste0("cv.glm.", rlr_type()))
     
+    
     updateAceEditor(session, "fieldCodeRlrLanda", value = codigo)
     
     # The prediction code is generated
@@ -269,6 +270,8 @@ mod_penalized_Regression_server <- function(input, output, session, updateData, 
   # Show the graph of the coefficients
   plot_coeff <- function(){
     tryCatch({ # Se corren los codigo
+      exe(paste0("print(","modelo.rlr.", rlr_type(),")"))
+      exe(paste0("print(","cv.glm.", rlr_type(),")"))
       output$plot.rlr.landa <- renderPlot(isolate(exe(input$fieldCodeRlrLanda)))
     },
     error = function(e){ # Regresamos al estado inicial y mostramos un error
