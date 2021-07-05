@@ -59,7 +59,7 @@ mod_penalized_Regression_ui <- function(id){
                                  verbatimTextOutput(ns("txtRlr")))
   
   posib.landa.rlr.panel <- tabPanel(title = labelInput("posibLanda"),value = "tabRlrPosibLanda",
-                                    plotOutput(ns('plot.rlr.posiblanda'), height = "55vh"))
+                                    echarts4rOutput(ns('plot.rlr.posiblanda'), height = "75vh"))
   
   coeff.rlr.panel <- tabPanel(title = labelInput("coeff"),value = "tabRlrCoeff",
                               verbatimTextOutput(ns("txtRlrCoeff")))
@@ -248,7 +248,15 @@ mod_penalized_Regression_server <- function(input, output, session, updateData, 
   # Show the graph of the possible lambda
   plot_posib_landa_rlr <- function(){
     tryCatch({ # Se corren los codigo
-      output$plot.rlr.posiblanda <- renderPlot(exe("plot(cv.glm.",rlr_type(),")"))
+      #output$plot.rlr.posiblanda <- renderPlot(exe("plot(cv.glm.",rlr_type(),")"))
+      landa <- NULL
+      
+      if (input$permitir.landa) {
+        if (!is.na(input$landa)) {
+          landa <- input$landa
+        }
+      }
+      output$plot.rlr.posiblanda <- renderEcharts4r(e_posib_lambda(exe("cv.glm.",rlr_type()), landa))
     },
     error = function(e) { # Regresamos al estado inicial y mostramos un error
       clean_rlr(2)

@@ -196,6 +196,64 @@ categorical_distribution <- function(var) {
     theme_minimal() + ggplot2::labs(x = "label", y = "value")
 }
 
+
+
+
+e_posib_lambda <- function(cv.glm, log.lambda = NULL){
+  x  <- log(cv.glm$lambda)
+  y  <- cv.glm$cvm
+  x1 <- x[cv.glm$index[[1]]]
+  x2 <- x[cv.glm$index[[2]]]
+  upper <- cv.glm$cvup
+  lower <- cv.glm$cvlo
+  name  <- cv.glm$name[[1]]
+  data.lambda <- data.frame(x, y, upper, lower, name)
+  #print(data.lambda)
+  plot  <- data.lambda %>%
+    e_charts(x) %>%
+    e_scatter(y, symbol_size = 11, color = "red", 
+              tooltip = list(formatter = htmlwidgets::JS(paste0("function(params){",
+                                                                "return('<b> Log(lambda): </b>' + ",
+                                                                "Number.parseFloat(params.value[0]).toFixed(3) + ",
+                                                                "'<br/><b> MSE: </b>' + ",
+                                                                "Number.parseFloat(params.value[1]).toFixed(3))}")))) %>%
+    e_error_bar(lower, upper,
+                tooltip = list(formatter = htmlwidgets::JS(paste0("function(params){",
+                                                                  "return('<b> Upper Curve: </b>' + ",
+                                                                  "Number.parseFloat(params.value[1]).toFixed(3) + ",
+                                                                  "'<br/><b> Lower Curve: </b>' + ",
+                                                                  "Number.parseFloat(params.value[2]).toFixed(3))}")))) %>%
+    e_mark_line(title = "Log(lambda.min)", 
+                data = list(xAxis = x1, 
+                            tooltip = list(formatter = htmlwidgets::JS(paste0("function(params){",
+                                                                              "return('<b>Log(lambda.min): </b>' + ",
+                                                                              "Number.parseFloat(params.value).toFixed(4))}"))))) %>%
+    e_mark_line(title = "Log(lambda.1se)", 
+                data = list(xAxis = x2,
+                            tooltip = list(formatter = htmlwidgets::JS(paste0("function(params){",
+                                                                              "return('<b>Log(lambda.1se): </b>' + ",
+                                                                              "Number.parseFloat(params.value).toFixed(4))}"))))) %>%
+    e_x_axis(type = 'value', minInterval = 1, min = floor(min(data.lambda$x))) %>%
+    e_y_axis(type = 'value', axisLine = list(onZero = F)) %>%
+    e_axis_labels(x = "Log(lambda)",y = "Mean Square Error") %>%
+    e_legend(FALSE) %>% 
+    e_tooltip(trigger = "item") %>% e_datazoom(show = F) %>% e_show_loading()
+  
+  #Si se eligió manualmente un lambda
+  if(!is.null(log.lambda)){
+    plot <- plot %>% e_mark_line(title = "Selected", 
+                                 data = list(xAxis = log.lambda,
+                                             lineStyle = list(color = "blue"),
+                                             tooltip = list(formatter = htmlwidgets::JS(paste0("function(params){",
+                                                                                               "return('<b>Log(lambda) Selected: </b>' + ",
+                                                                                               "Number.parseFloat(params.value).toFixed(4))}")))))
+  }
+  
+  return(plot)
+}
+
+
+
 #' importance_plot_rf
 #' 
 #' @description graphs the importance of variables for the random forest model according to the percentage increase in mean square error.
