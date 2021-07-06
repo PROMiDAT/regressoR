@@ -199,29 +199,31 @@ categorical_distribution <- function(var) {
 
 
 
-e_posib_lambda <- function(cv.glm, log.lambda = NULL){
+e_posib_lambda <- function(cv.glm, log.lambda = NULL, titles = c("Error Cuadrático Medio","Curva Inferior",
+                                                                 "Curva Superior","Seleccionado",
+                                                                 "Coeficientes Distintos de Cero")){
   x  <- log(cv.glm$lambda)
   y  <- cv.glm$cvm
   x1 <- x[cv.glm$index[[1]]]
   x2 <- x[cv.glm$index[[2]]]
   upper <- cv.glm$cvup
   lower <- cv.glm$cvlo
-  name  <- cv.glm$name[[1]]
-  data.lambda <- data.frame(x, y, upper, lower, name)
-  #print(data.lambda)
-  plot  <- data.lambda %>%
+  nzero  <- cv.glm$nzero
+  data.lambda <- data.frame(x, y, upper, lower, nzero)
+
+  grafico  <- data.lambda %>%
     e_charts(x) %>%
     e_scatter(y, symbol_size = 11, color = "red", 
               tooltip = list(formatter = htmlwidgets::JS(paste0("function(params){",
-                                                                "return('<b> Log(lambda): </b>' + ",
+                                                                "return('<b>Log(lambda): </b>' + ",
                                                                 "Number.parseFloat(params.value[0]).toFixed(3) + ",
-                                                                "'<br/><b> MSE: </b>' + ",
+                                                                "'<br/><b>", titles[1], ": </b>' + ",
                                                                 "Number.parseFloat(params.value[1]).toFixed(3))}")))) %>%
     e_error_bar(lower, upper,
                 tooltip = list(formatter = htmlwidgets::JS(paste0("function(params){",
-                                                                  "return('<b> Upper Curve: </b>' + ",
+                                                                  "return('<b>", titles[2], ": </b>' + ",
                                                                   "Number.parseFloat(params.value[1]).toFixed(3) + ",
-                                                                  "'<br/><b> Lower Curve: </b>' + ",
+                                                                  "'<br/><b>", titles[3], ": </b>' + ",
                                                                   "Number.parseFloat(params.value[2]).toFixed(3))}")))) %>%
     e_mark_line(title = "Log(lambda.min)", 
                 data = list(xAxis = x1, 
@@ -232,26 +234,38 @@ e_posib_lambda <- function(cv.glm, log.lambda = NULL){
                 data = list(xAxis = x2,
                             tooltip = list(formatter = htmlwidgets::JS(paste0("function(params){",
                                                                               "return('<b>Log(lambda.1se): </b>' + ",
-                                                                              "Number.parseFloat(params.value).toFixed(4))}"))))) %>%
-    e_x_axis(type = 'value', minInterval = 1, min = floor(min(data.lambda$x))) %>%
-    e_y_axis(type = 'value', axisLine = list(onZero = F)) %>%
-    e_axis_labels(x = "Log(lambda)",y = "Mean Square Error") %>%
-    e_legend(FALSE) %>% 
-    e_tooltip(trigger = "item") %>% e_datazoom(show = F) %>% e_show_loading()
+                                                                              "Number.parseFloat(params.value).toFixed(4))}")))))
   
   #Si se eligió manualmente un lambda
   if(!is.null(log.lambda)){
-    plot <- plot %>% e_mark_line(title = "Selected", 
-                                 data = list(xAxis = log.lambda,
-                                             lineStyle = list(color = "blue"),
-                                             tooltip = list(formatter = htmlwidgets::JS(paste0("function(params){",
-                                                                                               "return('<b>Log(lambda) Selected: </b>' + ",
-                                                                                               "Number.parseFloat(params.value).toFixed(4))}")))))
+    grafico <- grafico %>% 
+      e_mark_line(title = "Selected", 
+                  data = list(xAxis = log.lambda,
+                              lineStyle = list(color = "blue"),
+                              tooltip = list(formatter = htmlwidgets::JS(paste0("function(params){",
+                                                                                "return('<b>Log(lambda) ",titles[4], ": </b>' + ",
+                                                                                "Number.parseFloat(params.value).toFixed(4))}")))))
   }
   
-  return(plot)
-}
+  # number of non-zero coefficients at each lambda
+  grafico <- grafico %>%
+    e_line(nzero, x_index = 1, y_index = 1, tooltip = list(formatter = htmlwidgets::JS(paste0("function(params){",
+                                                                                              "return('<b>Log(lambda): </b>' + ",
+                                                                                              "Number.parseFloat(params.value[0]).toFixed(3) + ",
+                                                                                              "'<br/><b>", titles[5],": </b>' + ",
+                                                                                              "params.value[1])}")))) %>%
+    e_grid(height = "40%") %>%
+    e_grid(height = "30%", top = "65%") %>%
+    e_x_axis(type = 'value', minInterval = 1, min = floor(min(data.lambda$x)), gridIndex = 0, index = 0, name = "Log(lambda)") %>%
+    e_y_axis(type = 'value', axisLine = list(onZero = F), gridIndex = 0, index = 0, name = titles[1]) %>%
+    e_x_axis(type = 'value', minInterval = 1, min = floor(min(data.lambda$x)), gridIndex = 1, index = 1, name = "Log(lambda)") %>%
+    e_y_axis(type = 'value', axisLine = list(onZero = F), gridIndex = 1, index = 1, axisLine = list(onZero = F), name = titles[5]) %>%
+    e_legend(FALSE) %>% 
+    e_tooltip(trigger = "item") %>% e_datazoom(show = F) %>% e_show_loading()
 
+  
+  return(grafico)
+}
 
 
 #' importance_plot_rf

@@ -59,7 +59,7 @@ mod_penalized_Regression_ui <- function(id){
                                  verbatimTextOutput(ns("txtRlr")))
   
   posib.landa.rlr.panel <- tabPanel(title = labelInput("posibLanda"),value = "tabRlrPosibLanda",
-                                    echarts4rOutput(ns('plot.rlr.posiblanda'), height = "75vh"))
+                                    echarts4rOutput(ns('plot.rlr.posiblanda'), height = "80vh"))
   
   coeff.rlr.panel <- tabPanel(title = labelInput("coeff"),value = "tabRlrCoeff",
                               verbatimTextOutput(ns("txtRlrCoeff")))
@@ -125,6 +125,7 @@ mod_penalized_Regression_server <- function(input, output, session, updateData, 
   observeEvent(updateData$idioma,{
     execute_rlr_ind()
     plot_disp_rlr()
+    plot_posib_landa_rlr()
   })
   
 
@@ -248,7 +249,6 @@ mod_penalized_Regression_server <- function(input, output, session, updateData, 
   # Show the graph of the possible lambda
   plot_posib_landa_rlr <- function(){
     tryCatch({ # Se corren los codigo
-      #output$plot.rlr.posiblanda <- renderPlot(exe("plot(cv.glm.",rlr_type(),")"))
       landa <- NULL
       
       if (input$permitir.landa) {
@@ -256,7 +256,15 @@ mod_penalized_Regression_server <- function(input, output, session, updateData, 
           landa <- input$landa
         }
       }
-      output$plot.rlr.posiblanda <- renderEcharts4r(e_posib_lambda(exe("cv.glm.",rlr_type()), landa))
+      
+      titulos <- c(
+        tr("MSE", updateData$idioma),
+        tr("lowCurve", updateData$idioma),
+        tr("uppCurve", updateData$idioma),
+        tr("selected", updateData$idioma),
+        tr("nonZeroCoeff", updateData$idioma)
+      )
+      output$plot.rlr.posiblanda <- renderEcharts4r(e_posib_lambda(exe("cv.glm.",rlr_type()), landa, titulos))
     },
     error = function(e) { # Regresamos al estado inicial y mostramos un error
       clean_rlr(2)

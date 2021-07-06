@@ -247,6 +247,7 @@ threshold;Criterios de detención:;Detention criteria:
 stepmax;Pasos máximos para el entrenamiento:;Maximum steps for the training:
 nnWar;El modelo no converge con los parámetros actuales, intente modificarlos;The model does not converge with the current parameters, try to modify them
 redPlot;Red Neuronal;Neural Network
+MSE;Error Cuadrático Medio;Mean Squared Error
 RMSE;Raíz Error Cuadrático Medio;Root Mean Squared Error
 MAE;Error Absoluto Medio;Mean Absolute Error
 ER;Error Relativo;Relative Error
@@ -257,9 +258,13 @@ impVarRI;Importancia de Variables según Influencia Relativa;Importance of Varia
 RI;Influencia Relativa;Relative Influence
 posibLanda;Posibles lambda;Possible lambda
 coeff;Coeficientes;Coefficients
+nonZeroCoeff;Coeficientes Distintos de Cero;Non-Zero Coefficients
 gcoeff;Coeficientes y lambda;Coefficients and lambda
 automatico;Automatico;Automatic
 landa;Mejor Lambda Log(x) = ;Better Lambda Log(x) =
+selected;Seleccionado;Selected
+uppCurve;Curva Superior;Upper Curve
+lowCurve;Curva Inferior;Lower Curve
 bigPlot;El gráfico es demasiado grande para desplegarse;The graph is too large to display
 ErrorModelo;Aún no genera el modelo;The model has not yet been generated
 ErrorDatosPN;Aún no carga los datos a predecir;"It still doesn't load the data to predict"
