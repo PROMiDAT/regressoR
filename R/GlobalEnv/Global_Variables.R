@@ -29,7 +29,6 @@ cod.rl.ind    <- NULL
 cod.rlr.modelo   <- NULL
 cod.rlr.pred     <- NULL
 cod.rlr.ind      <- NULL
-cod.select.landa <- NULL
 # -- KNN
 cod.knn.modelo <- NULL
 cod.knn.pred   <- NULL

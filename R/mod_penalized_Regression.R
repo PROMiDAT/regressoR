@@ -24,34 +24,34 @@ mod_penalized_Regression_ui <- function(id){
   
   rlr.code.config <- list(h3(labelInput("codigo")), hr(style = "margin-top: 0px;"),
                           aceEditor(ns("fieldCodeRlr"), mode = "r", theme = "monokai",
-                                    value = "", height = "8vh", readOnly = F, autoComplete = "enabled"))
+                                    value = "", height = "12vh", readOnly = F, autoComplete = "enabled"))
   
   
   rlr.code  <- list(fluidRow(column(width = 9, h3(labelInput("codigo")))),
                     hr(style = "margin-top: 0px;"),
-                    conditionalPanel("input.BoxRlr == 'tabRlrLanda'",
-                                     aceEditor(ns("fieldCodeRlrLanda"), mode = "r", theme = "monokai",
-                                               value = "", height = "8vh", readOnly = F, autoComplete = "enabled"),ns = ns),
                     conditionalPanel("input.BoxRlr == 'tabRlrPosibLanda'",
                                      aceEditor(ns("fieldCodeRlrPosibLanda"), mode = "r", theme = "monokai",
-                                               value = "", height = "8vh", readOnly = F, autoComplete = "enabled"),ns = ns),
+                                               value = "", height = "7vh", readOnly = F, autoComplete = "enabled"),ns = ns),
+                    conditionalPanel("input.BoxRlr == 'tabRlrCoeff_landa'",
+                                     aceEditor(ns("fieldCodeRlrCoeff_landa"), mode = "r", theme = "monokai",
+                                               value = "", height = "7vh", readOnly = F, autoComplete = "enabled"),ns = ns),
                     conditionalPanel("input.BoxRlr == 'tabRlrCoeff'",
                                      aceEditor(ns("fieldCodeRlrCoeff"), mode = "r", theme = "monokai",
-                                               value = "", height = "8vh", readOnly = F, autoComplete = "enabled"),ns = ns),
+                                               value = "", height = "12vh", readOnly = F, autoComplete = "enabled"),ns = ns),
                     conditionalPanel("input.BoxRlr == 'tabRlrPred'",
                                      aceEditor(ns("fieldCodeRlrPred"), mode = "r", theme = "monokai",
-                                               value = "", height = "12vh", readOnly = F, autoComplete = "enabled"),ns = ns),
+                                               value = "", height = "18vh", readOnly = F, autoComplete = "enabled"),ns = ns),
                     conditionalPanel("input.BoxRlr == 'tabRlrDisp'",
                                      aceEditor(ns("fieldCodeRlrDisp"), mode = "r", theme = "monokai",
-                                               value = "", height = "3vh", readOnly = F, autoComplete = "enabled"),ns = ns),
+                                               value = "", height = "7vh", readOnly = F, autoComplete = "enabled"),ns = ns),
                     conditionalPanel("input.BoxRlr == 'tabRlrIndex'",
                                      aceEditor(ns("fieldCodeRlrIG"), mode = "r", theme = "monokai",
                                                value = "", height = "22vh", readOnly = F, autoComplete = "enabled"),ns = ns))
   
-  tabs.options.generate <- tabsOptions(buttons = list(icon("gear"), icon("code")), widths = c(50,100), heights = c(80,95),
+  tabs.options.generate <- tabsOptions(buttons = list(icon("gear"), icon("code")), widths = c(50,100), heights = c(80,70),
                           tabs.content = list(rlr.options,rlr.code.config))
   
-  tabs.options.Nogenerate <- tabsOptions(buttons = list(icon("code")), widths = c(100), heights = c(95),
+  tabs.options.Nogenerate <- tabsOptions(buttons = list(icon("code")), widths = c(100), heights = c(70),
                                tabs.content = list(rlr.code))
      
   
@@ -64,8 +64,8 @@ mod_penalized_Regression_ui <- function(id){
   coeff.rlr.panel <- tabPanel(title = labelInput("coeff"),value = "tabRlrCoeff",
                               verbatimTextOutput(ns("txtRlrCoeff")))
   
-  landa.rlr.panel <- tabPanel(title = labelInput("gcoeff"),value = "tabRlrLanda",
-                              plotOutput(ns('plot.rlr.landa'), height = "55vh"))
+  landa.rlr.panel <- tabPanel(title = labelInput("gcoeff"),value = "tabRlrCoeff_landa",
+                              echarts4rOutput(ns('plot.rlr.Coeff_landa'), height = "75vh"))
   
   prediccion.rlr.panel <- tabPanel(title = labelInput("predm"), value = "tabRlrPred",
                                    DT::dataTableOutput(ns("rlrPrediTable")))
@@ -128,6 +128,7 @@ mod_penalized_Regression_server <- function(input, output, session, updateData, 
       execute_rlr_ind()
       plot_disp_rlr()
       plot_posib_landa_rlr()
+      plot_coeff()
     }
   })
   
@@ -167,40 +168,25 @@ mod_penalized_Regression_server <- function(input, output, session, updateData, 
     # The model code is updated
     codigo <- rlr_model(variable.pred = variable.predecir,
                         model.var = paste0("modelo.rlr.", rlr_type()),
-                        cv.var = paste0("cv.glm.", rlr_type()),
                         alpha = input$alpha.rlr,
                         standardize = input$switch.scale.rlr)
     
     updateAceEditor(session, "fieldCodeRlr", value = codigo)
     cod.rlr.modelo <<- codigo
     
-    # The code of the possible landa is generated
-    codigo <- paste0("plot(cv.glm.", rlr_type(),")")
-    updateAceEditor(session, "fieldCodeRlrPosibLanda", value = codigo)
-    cod.select.landa <<- codigo
-    
     # The code that prints the coefficients is generated
     codigo <- coef_lambda(variable.pred = variable.predecir,
                           model.var = paste0("modelo.rlr.", rlr_type()),
-                          lambda = landa,
-                          cv.var = paste0("cv.glm.", rlr_type()))
+                          lambda = landa)
     
     updateAceEditor(session, "fieldCodeRlrCoeff", value = codigo)
     
-    # The code of the coefficients is generated with the best lambda
-    codigo <- plot_coef_lambda(model.var = paste0("modelo.rlr.", rlr_type()),
-                               lambda = landa,
-                               cv.var = paste0("cv.glm.", rlr_type()))
-    
-    
-    updateAceEditor(session, "fieldCodeRlrLanda", value = codigo)
     
     # The prediction code is generated
     codigo <- rlr_prediction(variable.pred = variable.predecir,
                              model.var = paste0("modelo.rlr.", rlr_type()),
                              pred.var = paste0("prediccion.rlr.", rlr_type()),
-                             lambda = landa,
-                             cv.var =  paste0("cv.glm.", rlr_type()))
+                             lambda = landa)
     
     updateAceEditor(session, "fieldCodeRlrPred", value = codigo)
     cod.rlr.pred <<- codigo
@@ -267,7 +253,12 @@ mod_penalized_Regression_server <- function(input, output, session, updateData, 
         tr("selected", updateData$idioma),
         tr("nonZeroCoeff", updateData$idioma)
       )
-      output$plot.rlr.posiblanda <- renderEcharts4r(e_posib_lambda(exe("cv.glm.",rlr_type()), landa, titulos))
+      output$plot.rlr.posiblanda <- renderEcharts4r(e_posib_lambda(exe("modelo.rlr.", rlr_type()), landa, titulos))
+      
+      # The code of the possible landa is generated
+      param.lambda <- ifelse(is.null(landa),"",paste0(",",landa))
+      codigo <- paste0("e_posib_lambda(modelo.rlr.",rlr_type(), param.lambda, ")")
+      updateAceEditor(session, "fieldCodeRlrPosibLanda", value = codigo)
     },
     error = function(e) { # Regresamos al estado inicial y mostramos un error
       clean_rlr(2)
@@ -289,9 +280,25 @@ mod_penalized_Regression_server <- function(input, output, session, updateData, 
   # Show the graph of the coefficients
   plot_coeff <- function(){
     tryCatch({ # Se corren los codigo
-      exe(paste0("print(","modelo.rlr.", rlr_type(),")"))
-      exe(paste0("print(","cv.glm.", rlr_type(),")"))
-      output$plot.rlr.landa <- renderPlot(isolate(exe(input$fieldCodeRlrLanda)))
+      landa <- NULL
+      
+      if (input$permitir.landa) {
+        if (!is.na(input$landa)) {
+          landa <- input$landa
+        }
+      }
+      
+      titulos <- c(
+        tr("coeff", updateData$idioma),
+        tr("selected", updateData$idioma)
+      )
+      
+      output$plot.rlr.Coeff_landa <- renderEcharts4r(e_coeff_landa(exe("modelo.rlr.",rlr_type()), landa, titulos))
+      
+      # The code of the coefficients is generated with the best lambda
+      param.lambda <- ifelse(is.null(landa),"",paste0(",",landa))
+      codigo <- paste0("e_coeff_landa(modelo.rlr.",rlr_type(), param.lambda, ")")
+      updateAceEditor(session, "fieldCodeRlrCoeff_landa", value = codigo)
     },
     error = function(e){ # Regresamos al estado inicial y mostramos un error
       clean_rlr(2)

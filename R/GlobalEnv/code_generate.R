@@ -441,7 +441,6 @@ rl_coeff <- function(model.var = "modelo.rl"){
 #' @param data the name of the learning data.
 #' @param variable.pred the name of the variable to be predicted.
 #' @param model.var the name of the variable that stores the resulting model.
-#' @param cv.var the variable that stores the optimal lambda.
 #' @param alpha the alpha parameter of the model.
 #' @param standardize the standardize parameter of the model.
 #'
@@ -455,10 +454,9 @@ rl_coeff <- function(model.var = "modelo.rl"){
 #' exe(x)
 #' print(modelo.rlr)
 #' 
-rlr_model <- function(data = "datos.aprendizaje", variable.pred = NULL, model.var = "modelo.rlr", cv.var = "cv.glm", alpha = 0, standardize = TRUE){
+rlr_model <- function(data = "datos.aprendizaje", variable.pred = NULL, model.var = "modelo.rlr",alpha = 0, standardize = TRUE){
   return(paste0("x <- model.matrix(`",variable.pred,"`~., ",data,")[, -1]\n",
                 "y <- ",data,"[, '",variable.pred,"']\n",
-                cv.var," <- cv.glmnet(x, y, standardize = ",standardize,", alpha = ",alpha,")\n",
                 model.var," <- cv.glmnet(x, y, standardize = ",standardize,", alpha = ",alpha,")"))
 }
 
@@ -470,7 +468,6 @@ rlr_model <- function(data = "datos.aprendizaje", variable.pred = NULL, model.va
 #' @param variable.pred the name of the variable to be predicted.
 #' @param model.var the name of the variable that stores the resulting model.
 #' @param lambda a numerical value in case you don't want to use the optimal lambda.
-#' @param cv.var the variable that stores the optimal lambda.
 #'
 #' @export
 #'
@@ -482,38 +479,13 @@ rlr_model <- function(data = "datos.aprendizaje", variable.pred = NULL, model.va
 #' x <- coef_lambda('iris','Petal.Length', 'modelo.rlr')
 #' exe(x)
 #' 
-coef_lambda <- function(data = "datos.aprendizaje", variable.pred = NULL, model.var = "modelo.rlr", lambda = NULL,  cv.var = "cv.glm"){
-  lambda <- ifelse(is.null(lambda), paste0(cv.var,"$lambda.min"), paste0("exp(",lambda,")"))
+coef_lambda <- function(data = "datos.aprendizaje", variable.pred = NULL, model.var = "modelo.rlr", lambda = NULL){
+  lambda <- ifelse(is.null(lambda), paste0(model.var,"$lambda.min"), paste0("exp(",lambda,")"))
   paste0("x <- model.matrix(`",variable.pred,"`~., ",data,")[, -1]\n",
          "y <- ",data,"[, '",variable.pred,"']\n",
          "predict(",model.var,", s = ",lambda,", type = 'coefficients', exact = TRUE, x = x, y = y)")
 }
 
-#' plot_coef_lambda
-#' 
-#' @description generates the code to plot the penalized regression coefficients.
-#'
-#' @param model.var the name of the variable that stores the resulting model.
-#' @param lambda a numerical value in case you don't want to use the optimal lambda.
-#' @param cv.var the variable that stores the optimal lambda.
-#'
-#' @export
-#'
-#' @examples
-#' library(glmnet)
-#' x <- rlr_model('iris', 'Petal.Length')
-#' exe(x)
-#' 
-#' x <- plot_coef_lambda('modelo.rlr')
-#' exe(x)
-#' 
-plot_coef_lambda <- function(model.var = "modelo.rlr", lambda = NULL,  cv.var = "cv.glm"){
-  lambda <- ifelse(is.null(lambda), paste0("log(",cv.var,"$lambda.min)"), lambda)
-  # paste0("plot(",model.var,", 'lambda', label = TRUE)\n",
-  #        "abline(v = ",lambda,", col = 'blue', lwd = 2, lty = 3)")
-  paste0("plot(",model.var,",label = TRUE, se.bands = TRUE)\n",
-         "abline(v = ",lambda,", col = 'blue', lwd = 2, lty = 3)")
-}
 
 #' rlr_prediction
 #' 
@@ -525,7 +497,6 @@ plot_coef_lambda <- function(model.var = "modelo.rlr", lambda = NULL,  cv.var = 
 #' @param model.var the name of the variable that stores the resulting model.
 #' @param pred.var the name of the variable that stores the resulting prediction.
 #' @param lambda a numerical value in case you don't want to use the optimal lambda.
-#' @param cv.var the variable that stores the optimal lambda.
 #'
 #' @export
 #'
@@ -540,8 +511,8 @@ plot_coef_lambda <- function(model.var = "modelo.rlr", lambda = NULL,  cv.var = 
 #' print(my_prediction)
 #' 
 rlr_prediction <- function(data.a = "datos.aprendizaje", data.p = "datos.prueba",variable.pred = NULL, model.var = "modelo.rlr", 
-                           pred.var = "prediccion.rlr", lambda = NULL,  cv.var = "cv.glm") {
-  lambda <- ifelse(is.null(lambda),paste0(cv.var,"$lambda.min"), paste0("exp(",lambda,")") )
+                           pred.var = "prediccion.rlr", lambda = NULL) {
+  lambda <- ifelse(is.null(lambda),paste0(model.var,"$lambda.min"), paste0("exp(",lambda,")") )
   paste0("x <- model.matrix(`",variable.pred,"`~., ",data.a,")[, -1]\n",
          "y <- ",data.a,"[, '",variable.pred,"']\n",
          "prueba <- ",data.p,"\n",
