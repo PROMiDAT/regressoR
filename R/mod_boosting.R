@@ -100,9 +100,12 @@ mod_boosting_server <- function(input, output, session,updateData, updatePlot){
   
   
   observeEvent(updateData$idioma,{
-    execute_boosting_ind()
-    plot_disp_boosting()
-    plotear_boosting_imp()
+    model.var = paste0("modelo.boosting.",input$tipo.boosting)
+    if(exists(model.var)){
+      execute_boosting_ind()
+      plot_disp_boosting()
+      plotear_boosting_imp()
+    }
   })
 
   observeEvent(updateData$datos.aprendizaje,{
@@ -257,6 +260,7 @@ mod_boosting_server <- function(input, output, session,updateData, updatePlot){
     var.prediction.name <- paste0("prediccion.boosting.",input$tipo.boosting)
     if(exists(var.prediction.name)){
       tryCatch({ # Se corren los codigo
+        print(var.prediction.name)
         isolate(exe(cod.b.ind))
         isolate(tipo <- input$tipo.boosting)
         

@@ -107,9 +107,11 @@ mod_random_forests_server <- function(input, output, session,updateData, updateP
   }
   
   observeEvent(updateData$idioma,{
-    execute_rf_ind()
-    plot_disp_rf()
-    plotear_rf_imp()
+    if(exists("modelo.rf")){
+      execute_rf_ind()
+      plot_disp_rf()
+      plotear_rf_imp()
+    }
   })
   
   # change model codes

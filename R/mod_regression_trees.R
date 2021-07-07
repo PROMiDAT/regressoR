@@ -101,8 +101,10 @@ mod_regression_trees_server <- function(input, output, session,updateData, updat
   }
   
   observeEvent(updateData$idioma,{
-    execute_dt_ind()
-    plot_disp_dt()
+    if(exists("modelo.dt")){
+      execute_dt_ind()
+      plot_disp_dt()
+    }
   })
   
 

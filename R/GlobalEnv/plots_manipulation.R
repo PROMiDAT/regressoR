@@ -449,7 +449,7 @@ plot_RMSE <- function(model, n.comp, titles = c("RMSE Según Número de Componen
 #' plot_pred_rd(modelo.rd,1)
 #' 
 plot_pred_rd <- function(model, n.comp, titles = c("Varianza Explicada en Predictores",
-                                                   "Número de Componente","Porcentaje de Varianza Explicada")){
+                                                   "Número de Componentes","Porcentaje de Varianza Explicada")){
 
   
   var.explicada <- cumsum(pls::explvar(model)) / 100

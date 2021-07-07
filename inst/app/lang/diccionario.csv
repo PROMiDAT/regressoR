@@ -273,8 +273,7 @@ errornum;Se necesitan variables numéricas  para esta parte;You need numerical v
 errorcat;Se necesitan variables categóricas  para esta parte;You need categorical variables for this part
 distknn;Distancia q:;q Distance:
 rd;Reducción de Dimensión;Dimension Reduction
-ncomp;Cantidad de Componentes;Quantity of Components
-NumComp;Número de Componente;Component Number
+ncomp;Número de Componentes;Number of components
 RMSEComp;RMSE Según Número de Componentes;RMSE According to Number of Components
 RdPred;Varianza Explicada en Predictores;Variance Explained in Predictors
 RdVarPred;Varianza Explicada en Variable a Predecir;Variance Explained in Variable to Predict

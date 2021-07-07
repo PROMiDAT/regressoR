@@ -117,8 +117,11 @@ mod_neural_networks_server <- function(input, output, session,updateData, update
   
   
   observeEvent(updateData$idioma,{
-    execute_nn_ind()
-    plot_disp_nn()
+    model.var = "modelo.nn"
+    if(exists(model.var)){
+      execute_nn_ind()
+      plot_disp_nn()
+    }
   })
   
   

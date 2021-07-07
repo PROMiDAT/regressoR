@@ -84,8 +84,10 @@ mod_linear_regression_server <- function(input, output, session, updateData, upd
   }
   
   observeEvent(updateData$idioma,{
-    execute_rl_ind()
-    plot_disp_rl()
+    if(exists("modelo.rl")){
+      execute_rl_ind()
+      plot_disp_rl()
+    }
   })
   
 

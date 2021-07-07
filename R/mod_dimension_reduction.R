@@ -123,11 +123,14 @@ mod_dimension_reduction_server <- function(input, output, session,updateData, up
   }
   
   observeEvent(updateData$idioma,{
-    execute_rd_ind()
-    plot_disp_rd()
-    plot_rmse_rd()
-    rd_plot_pred()
-    rd_plot_var_pred()
+    model.var = paste0("modelo.rd.",rd_type())
+    if(exists(model.var)){
+      execute_rd_ind()
+      plot_disp_rd()
+      plot_rmse_rd()
+      rd_plot_pred()
+      rd_plot_var_pred()
+    }
   })
   
   observeEvent(updateData$datos.aprendizaje,{
@@ -236,7 +239,7 @@ mod_dimension_reduction_server <- function(input, output, session,updateData, up
       
       titulos <- c(
         tr("RMSEComp", updateData$idioma),
-        tr("NumComp", updateData$idioma),
+        tr("ncomp", updateData$idioma),
         tr("RMSE", updateData$idioma)
       )
 
@@ -265,7 +268,7 @@ mod_dimension_reduction_server <- function(input, output, session,updateData, up
       
       titulos <- c(
         tr("RdPred", updateData$idioma),
-        tr("NumComp", updateData$idioma),
+        tr("ncomp", updateData$idioma),
         tr("VarExp", updateData$idioma)
       )
 
@@ -293,7 +296,7 @@ mod_dimension_reduction_server <- function(input, output, session,updateData, up
       
       titulos <- c(
         tr("RdVarPred", updateData$idioma),
-        tr("NumComp", updateData$idioma),
+        tr("ncomp", updateData$idioma),
         tr("VarExp", updateData$idioma)
       )
 

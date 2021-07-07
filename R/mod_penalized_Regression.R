@@ -123,9 +123,12 @@ mod_penalized_Regression_server <- function(input, output, session, updateData, 
   }
   
   observeEvent(updateData$idioma,{
-    execute_rlr_ind()
-    plot_disp_rlr()
-    plot_posib_landa_rlr()
+    model.var = paste0("modelo.rlr.", rlr_type())
+    if(exists(model.var)){
+      execute_rlr_ind()
+      plot_disp_rlr()
+      plot_posib_landa_rlr()
+    }
   })
   
 

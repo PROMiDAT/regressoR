@@ -90,8 +90,11 @@ mod_SVM_server <- function(input, output, session,updateData, updatePlot){
   }
   
   observeEvent(updateData$idioma,{
-    execute_svm_ind()
-    plot_disp_svm()
+    model.var = paste0("modelo.svm.",input$kernel.svm)
+    if(exists(model.var)){
+      execute_svm_ind()
+      plot_disp_svm()
+    }
   })
   
   

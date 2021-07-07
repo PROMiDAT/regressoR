@@ -92,8 +92,11 @@ mod_KNN_server <- function(input, output, session,updateData, updatePlot){
   }
   
   observeEvent(updateData$idioma,{
-    execute_knn_ind()
-    plot_disp_knn()
+    model.var = paste0("modelo.knn.", input$kernel.knn)
+    if(exists(model.var)){
+      execute_knn_ind()
+      plot_disp_knn()
+    }
   })
   
   
