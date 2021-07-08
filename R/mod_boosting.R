@@ -260,7 +260,6 @@ mod_boosting_server <- function(input, output, session,updateData, updatePlot){
     var.prediction.name <- paste0("prediccion.boosting.",input$tipo.boosting)
     if(exists(var.prediction.name)){
       tryCatch({ # Se corren los codigo
-        print(var.prediction.name)
         isolate(exe(cod.b.ind))
         isolate(tipo <- input$tipo.boosting)
         

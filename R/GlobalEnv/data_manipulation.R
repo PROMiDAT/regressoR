@@ -18,7 +18,8 @@ general_indices <- function(real, prediccion) {
   RMSE <- sqrt(sum((real - prediccion) ^ 2) / length(prediccion))
   MAE  <- sum(abs(real - prediccion)) / length(prediccion)
   RE   <- sum(abs(real - prediccion)) / sum(abs(real))
-  COR  <- as.numeric(cor(real, prediccion))
+  desvStand <- sd(prediccion)
+  COR  <- ifelse(dplyr::near(desvStand,0), 0, as.numeric(cor(real, prediccion)))
   COR  <- ifelse(is.na(COR), 0 , COR)
   return(list(Raiz.Error.Cuadratico = RMSE,
               Error.Absoluto = MAE,

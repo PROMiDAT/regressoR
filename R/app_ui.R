@@ -1,45 +1,41 @@
 #' The application User-Interface
 #' 
 #' @param request Internal parameter for `{shiny}`. 
-#'     DO NOT REMOVE.
+#' DO NOT REMOVE.
 #' @import shiny
+#' @import gbm
+#' @import kknn
+#' @import e1071
+#' @import rpart
+#' @import knitr
+#' @import glmnet
+#' @import rattle
+#' @import xtable
+#' @import xgboost
+#' @import shinyjs
+#' @import ggplot2
+#' @import stringr
+#' @import forcats
+#' @import shinyAce
+#' @import corrplot
+#' @import neuralnet
+#' @import rpart.plot
+#' @import randomForest
+#' @import colourpicker
+#' @import shinyWidgets
+#' @import flexdashboard
+#' @import shinydashboard
+#' @import shinydashboardPlus
+#' @import dplyr
+#' @import zip
+#' @import pls
+#' @import stats
+#' @import graphics
+#' @import echarts4r
+#' @import shinycustomloader
+#' @keywords internal
 #' @noRd
 app_ui <- function(request) {
-  
-  suppressMessages(suppressWarnings({
-    library(DT)
-    library(gbm)
-    library(kknn)
-    library(shiny)
-    library(e1071)
-    library(rpart)
-    library(knitr)
-    library(glmnet)
-    library(rattle)
-    library(xtable)
-    library(xgboost)
-    library(shinyjs)
-    library(ggplot2)
-    library(stringr)
-    library(forcats)
-    library(shinyAce)
-    library(corrplot)
-    library(neuralnet)
-    library(rpart.plot)
-    library(randomForest)
-    library(colourpicker)
-    library(shinyWidgets)
-    library(flexdashboard)
-    library(shinydashboard)
-    library(shinydashboardPlus)
-    library(dplyr)
-    library(zip)
-    library(pls)
-    library(stats)
-    library(graphics)
-    library(echarts4r)
-    library(shinycustomloader)
-  }))
   
   # MENU --------------------------------------------------------------------------------------------------------------------
   load.menu <- menuItem(labelInput("data"), tabName = "cargar", icon = icon("dashboard"))
