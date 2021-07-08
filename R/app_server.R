@@ -44,7 +44,14 @@ app_server <- function( input, output, session ) {
   
   # REACTIVE VALUES -------------------------------------------------------------------------------------------------------
   #updateData always has the same values of the global variables(datos, datos.prueba, datos.aprendizaje).
-  updateData <- reactiveValues(datos = NULL, datos.prueba = NULL, datos.aprendizaje = NULL, IndicesM = list(), idioma = "es")
+  updateData <- reactiveValues(datos = NULL, datos.prueba = NULL, datos.aprendizaje = NULL, 
+                               IndicesM = list(), idioma = "es")
+  
+  modelos    <-  reactiveValues(mdls = list(rl = NULL, rlr= NULL,
+                                            dt = NULL, rf = NULL,
+                                            boosting = NULL, xgb = NULL,
+                                            knn      = NULL, svm = NULL, nn = NULL),
+                                metricas = list())
   
   updatePlot <- reactiveValues(calc.normal = default_calc_normal(), 
                                normal      = NULL, 

@@ -11,8 +11,6 @@ semilla           <- FALSE
 nombres.modelos   <- c()
 # -- Basic Statistics
 correlacion   <- NULL
-cod.poder.cat <- NULL
-cod.poder.num <- NULL
 
 cod.cor       <- NULL
 cod.disp      <- NULL

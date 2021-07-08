@@ -12,15 +12,16 @@ mod_Predictive_Power_ui <- function(id){
   
   # PREDICTIVE POWER PAGE ---------------------------------------------------------------------------------------------------
   
-  code.power.num <- list(h4(labelInput("codigo")), hr(),
-                         code_field(runid = ns("run.code.poder.num"), fieldid = ns("fieldCodePoderNum"), height = "16vh"))
+  code.power.num <- list(h3(labelInput("codigo")), hr(),
+                         aceEditor(ns("fieldCodePoderNum"), mode = "r", theme = "monokai",
+                                   value = "", height = "7vh", readOnly = F, autoComplete = "enabled"))
   
   
   tabs.power.num <- tabsOptions(buttons = list(icon("terminal")), widths = 100, heights = 55,
                                 tabs.content = list(code.power.num))
   
   power.plot.pairs <- tabPanel(title = labelInput('pares'), value = "predpares",
-                               plotOutput(ns('plot.pairs.poder'), height = "55vh"))
+                               plotOutput(ns('plot.pairs.poder'), height = "75vh"))
   
   pagina.poder <- tabItem(tabName = "poderPred",
                           tabBox(id = ns("BoxPodPred"), width = NULL,
@@ -46,11 +47,10 @@ mod_Predictive_Power_server <- function(input, output, session, updateData, upda
   observeEvent(updateData$datos.aprendizaje,{
     output$plot.pairs.poder <- renderPlot({
       tryCatch({
-        cod.poder.num <<- updatePlot$poder.num
-        updateAceEditor(session, "fieldCodePoderNum", value = cod.poder.num)
+        updateAceEditor(session, "fieldCodePoderNum", value = "pairs_power(datos)")
         if (ncol(var_numerical(datos)) >= 2) {
           if(ncol(var_numerical(datos)) <= 25){
-            res <- isolate(exe(cod.poder.num))
+            res <- pairs_power(datos)
             return(res)
           }else{
             showNotification(translate("bigPlot"), duration = 10, type = "message")
@@ -67,21 +67,6 @@ mod_Predictive_Power_server <- function(input, output, session, updateData, upda
       })
     })
   })
-  
-  # Execute the graphic code
-  observeEvent(input$run.code.poder.num, {
-    if(input$fieldCodePoderNum != "") {
-      updatePlot$poder.num <- input$fieldCodePoderNum
-    } else {
-      updatePlot$poder.num <- pairs_power()
-    }
-  })
-  
-  # Change the graphic code
-  observeEvent(updateData$datos.aprendizaje,{
-    updatePlot$poder.num <- pairs_power()
-  }, priority = 3)
-  
   
 }
     

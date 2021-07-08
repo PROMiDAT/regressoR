@@ -336,23 +336,20 @@ correlations_plot <- function(method = 'circle', type = "lower"){
 
 #' pairs_power
 #' 
-#' @param data the name of the current data.
+#' @param data A DataFrame
 #'
 #' @seealso \code{\link[psych]{pairs.panels}}
 #'
 #' @export
 #'
-#' @examples
-#' \dontrun{
-#' library(psych)
-#' x <- pairs_power('iris')
-#' exe(x)
-#' }
-#' 
-pairs_power <- function(data = "datos"){ 
-  paste0("pairs.panels(var_numerical(",data,"), bg='black', ellipses=FALSE, smooth=FALSE,",
-         "lm=TRUE, cex=0.5, cex.main=0.1, pch=20, main='',",
-         "hist.col = gg_color_hue(3)[3], oma=c(1,1,1,1) )")
+pairs_power <- function(data){
+  pairs.panels(var_numerical(data), bg='black', ellipses=FALSE, smooth=FALSE,
+               lm=TRUE, cex=0.5, cex.main=0.1, pch=20, main='',
+               hist.col = gg_color_hue(3)[3], oma=c(1,1,1,1))
+  
+  # paste0("pairs.panels(var_numerical(",data,"), bg='black', ellipses=FALSE, smooth=FALSE,",
+  #        "lm=TRUE, cex=0.5, cex.main=0.1, pch=20, main='',",
+  #        "hist.col = gg_color_hue(3)[3], oma=c(1,1,1,1) )")
 }
 
 # RL PAGE -----------------------------------------------------------------------------------------------------------------
@@ -998,32 +995,34 @@ boosting_prediction <- function(data = "datos.prueba", variable.pred = NULL, mod
 #'
 #' @export
 #'
-#' @examples
-#' \dontrun{
-#' library(neuralnet)
-#' library(dummies)
-#' 
-#' x <- nn_model('iris', 'Petal.Length','modelo.nn', 'mean.nn', 'sd.nn', 0.05, 2000, 3, 30, 50, 80)
-#' exe(x)
-#' 
-#' print(modelo.nn)
-#' print(mean.nn)
-#' print(sd.nn)
-#' }
 nn_model <- function(data = "datos.aprendizaje", variable.pred = NULL, model.var = "modelo.nn", mean.var = "mean.nn",
                      sd.var = "sd.nn", threshold = 0.01, stepmax = 1000, cant.hidden = 2, ...){
+  
+  #Falta terminar
+  
   threshold <- ifelse(threshold == 0, 0.01, threshold)
   stepmax <- ifelse(stepmax < 100, 100, stepmax)
   capas <- as_string_c(as.numeric(list(...)[1:cant.hidden]), quote = FALSE)
   
-  paste0("datos.dummies.apren <- dummy.data.frame(",data,")\n",
-         mean.var," <- sapply(datos.dummies.apren, mean)\n",
-         sd.var," <- sapply(datos.dummies.apren, sd)\n",
-         "datos.dummies.apren <- as.data.frame(scale(datos.dummies.apren, center = ",mean.var,", scale = ",sd.var,"))\n",
-         "nombres <- colnames(datos.dummies.apren)\n",
-         "formula.nn <- as.formula(paste('",variable.pred,"~', paste0(nombres[!nombres %in% '",variable.pred,"'], collapse = '+')))\n",
-         model.var," <- neuralnet(formula.nn, data = datos.dummies.apren, hidden = ",capas,",\n\t\t\tlinear.output = TRUE,",
-         "threshold = ",threshold,", stepmax = ",stepmax,")\n")
+  datos.dummies.apren <- dummy.data.frame(data)
+  mean.var <- sapply(datos.dummies.apren, mean)
+  sd.var <- sapply(datos.dummies.apren, sd)
+  datos.dummies.apren <- as.data.frame(scale(datos.dummies.apren, center = mean.var, scale = sd.var))
+  nombres <- colnames(datos.dummies.apren)
+  formula.nn <- as.formula(paste(variable.pred,"~", paste0(nombres[!nombres %in% variable.pred], collapse = '+')))
+  model.var <- neuralnet(formula.nn, data = datos.dummies.apren, hidden = capas, 
+                         linear.output = TRUE, threshold = threshold, stepmax = stepmax)
+  
+  return(model.var)
+  
+  # paste0("datos.dummies.apren <- dummy.data.frame(",data,")\n",
+  #        mean.var," <- sapply(datos.dummies.apren, mean)\n",
+  #        sd.var," <- sapply(datos.dummies.apren, sd)\n",
+  #        "datos.dummies.apren <- as.data.frame(scale(datos.dummies.apren, center = ",mean.var,", scale = ",sd.var,"))\n",
+  #        "nombres <- colnames(datos.dummies.apren)\n",
+  #        "formula.nn <- as.formula(paste('",variable.pred,"~', paste0(nombres[!nombres %in% '",variable.pred,"'], collapse = '+')))\n",
+  #        model.var," <- neuralnet(formula.nn, data = datos.dummies.apren, hidden = ",capas,",\n\t\t\tlinear.output = TRUE,",
+  #        "threshold = ",threshold,", stepmax = ",stepmax,")\n")
 }
 
 #' nn_prediction

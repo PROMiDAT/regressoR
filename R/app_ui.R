@@ -9,7 +9,7 @@
 #' @import rpart
 #' @import knitr
 #' @import glmnet
-#' @import rattle
+#' @importFrom rattle asRules
 #' @import xtable
 #' @import xgboost
 #' @import shinyjs

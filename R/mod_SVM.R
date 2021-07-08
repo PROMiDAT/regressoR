@@ -203,7 +203,7 @@ mod_SVM_server <- function(input, output, session,updateData, updatePlot){
       isolate(kernel <- input$kernel.svm)
       
       # Cambia la tabla con la prediccion de knn
-      output$svmPrediTable <- DT::renderDataTable(exe("tb_predic(real.val, prediccion.svm.",kernel,")"),server = FALSE)
+      output$svmPrediTable <- DT::renderDataTable(tb_predic(real.val,exe(paste0("prediccion.svm.",kernel))), server = FALSE)
       
       #nombres.modelos <<- c(nombres.modelos, paste0("prediccion.svm.",kernel))
       
