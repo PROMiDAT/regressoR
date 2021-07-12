@@ -33,6 +33,8 @@
 #' @import graphics
 #' @import echarts4r
 #' @import shinycustomloader
+#' @import htmlwidgets
+#' @importFrom DT tableHeader
 #' @keywords internal
 #' @noRd
 app_ui <- function(request) {
@@ -124,7 +126,7 @@ app_ui <- function(request) {
       dashboardBody(mi.head,
                     load.page,
                     tabItems(
-                      tabItem(tabName = "cargar",  mod_load_data_ui("load_data_ui_1")),
+                      tabItem(tabName = "cargar",  mod_carga_datos_ui("carga_datos_ui_1")),
                       tabItem(tabName = "resumen",  mod_r_numerico_ui("r_numerico_ui_1")),
                       tabItem(tabName = "normalidad",  mod_normal_ui("normal_ui_1")),
                       tabItem(tabName = "dispersion",  mod_dispersion_ui("dispersion_ui_1")),

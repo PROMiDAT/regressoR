@@ -26,7 +26,7 @@ function promidat_model_firt(e, model, id){
   $("a[href$='#shiny-tab-rl']").on('click', function(e){promidat_model_firt(e,"rl","linear_regression_ui_1-runRl")});
   $("a[href^='#shiny-tab-rlr']").on('click', function(e){promidat_model_firt(e,"rlr","penalized_Regression_ui_1-runRlr")});
   $("a[href^='#shiny-tab-rd']").on('click', function(e){promidat_model_firt(e,"rd","dimension_reduction_ui_1-runRd")});
-  $("#load_data_ui_1-segmentButton").on('click',function(e){
+  $("#carga_datos_ui_1-segmentButton").on('click',function(e){
     promidat_flat_models = {knn: true, dt: true, rf: true, boosting: true, svm: true, rl: true, nn: true, rlr: true, rd:true};
   });
 });

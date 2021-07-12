@@ -55,17 +55,6 @@ exe(x)
 }
 nn_model
 
-\dontrun{
-library(neuralnet)
-library(dummies)
-
-x <- nn_model('iris', 'Petal.Length','modelo.nn', 'mean.nn', 'sd.nn', 0.05, 2000, 3, 30, 50, 80)
-exe(x)
-
-print(modelo.nn)
-print(mean.nn)
-print(sd.nn)
-}
 }
 \seealso{
 \code{\link[neuralnet]{neuralnet}}

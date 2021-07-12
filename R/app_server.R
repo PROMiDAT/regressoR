@@ -5,17 +5,6 @@
 #' @import shiny
 #' @noRd
 app_server <- function( input, output, session ) {
-  # List the first level callModules here
-  
-  # The following variables belong to the server environment,
-  # mean the following:
-  # variable.predecir = The name of the variable to predict
-  # datos = The full dataset
-  # datos.prueba = The test dataset partition
-  # datos.aprendizaje = The learning dataset partition
-  # real.val = The values of the variable to predict (test data)
-  
-  # there are more variables in the "Global_Variables.R" file but these are the most important ones.
   
   # INITIAL SETTINGS ------------------------------------------------------------------------------------------------------
   #Loads all variables that the whole application needs
@@ -34,24 +23,19 @@ app_server <- function( input, output, session ) {
                                                             "first" =HTML('<i class="fa fa-fast-backward"></i>'),
                                                             "last" = HTML('<i class="fa fa-fast-forward"></i>')) )))
   
-  # The initial menu form
-  shinyjs::disable(selector = 'a[href^="#shiny-tab-parte1"]')
-  shinyjs::disable(selector = 'a[href^="#shiny-tab-parte2"]')
-  shinyjs::disable(selector = 'a[href^="#shiny-tab-comparar"]')
-  shinyjs::disable(selector = 'a[href^="#shiny-tab-poderPred"]')
-  shinyjs::disable(selector = 'a[href^="#shiny-tab-parte1"]')
-  
   
   # REACTIVE VALUES -------------------------------------------------------------------------------------------------------
   #updateData always has the same values of the global variables(datos, datos.prueba, datos.aprendizaje).
-  updateData <- reactiveValues(datos = NULL, datos.prueba = NULL, datos.aprendizaje = NULL, 
+  updateData <- reactiveValues(originales = NULL, datos = NULL, 
+                               datos.prueba = NULL, datos.aprendizaje = NULL, 
+                               variable.predecir = NULL,
                                IndicesM = list(), idioma = "es")
   
   modelos    <-  reactiveValues(mdls = list(rl = NULL, rlr= NULL,
                                             dt = NULL, rf = NULL,
                                             boosting = NULL, xgb = NULL,
                                             knn      = NULL, svm = NULL, nn = NULL),
-                                metricas = list())
+                                metrics = list())
   
   updatePlot <- reactiveValues(calc.normal = default_calc_normal(), 
                                normal      = NULL, 
@@ -66,6 +50,34 @@ app_server <- function( input, output, session ) {
                                tablaCom    = FALSE)
   
   disp.ranges <- reactiveValues(x = NULL, y = NULL)
+  
+  
+  
+  #' Enable/disable on load data
+  observe({
+    if(is.null(updateData$datos) || ncol(updateData$datos) < 1) {
+      addClass(class = "disabled", selector = 'a[href^="#shiny-tab-parte1"]')
+      shinyjs::disable(selector = 'a[href^="#shiny-tab-parte1"]')
+    }
+    else{
+      removeClass(class = "disabled", selector = 'a[href^="#shiny-tab-parte1"]')
+      shinyjs::enable(selector = 'a[href^="#shiny-tab-parte1"]')
+    }
+    
+    menu.selectors <- c('a[href^="#shiny-tab-parte2"]','a[href^="#shiny-tab-comparar"]',
+                        'a[href^="#shiny-tab-poderPred"]')
+    
+    lapply(menu.selectors, function(i){
+      if(is.null(updateData$datos.prueba) || ncol(updateData$datos.prueba) < 1) {
+        addClass(class = "disabled", selector = i)
+        shinyjs::disable(selector = i)
+      } else {
+        removeClass(class = "disabled", selector = i)
+        shinyjs::enable(selector = i)
+      }
+    })
+  })
+  
   
   # CHANGE LANGUAGE -------------------------------------------------------------------------------------------------------
   
@@ -94,7 +106,7 @@ app_server <- function( input, output, session ) {
     
     
   ###################################  Modules  ###############################
-  callModule(mod_load_data_server,"load_data_ui_1",updateData)
+  callModule(mod_carga_datos_server,"carga_datos_ui_1",updateData, modelos)
   callModule(mod_r_numerico_server, "r_numerico_ui_1",updateData)
   callModule(mod_normal_server, "normal_ui_1",updateData, updatePlot,disp.ranges)
   callModule(mod_dispersion_server, "dispersion_ui_1", updateData, updatePlot,disp.ranges)
