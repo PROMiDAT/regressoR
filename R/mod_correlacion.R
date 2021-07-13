@@ -52,7 +52,7 @@ mod_correlacion_ui <- function(id){
 #' correlacion Server Function
 #'
 #' @noRd 
-mod_correlacion_server <- function(input, output, session, updateData, updatePlot, disp.ranges){
+mod_correlacion_server <- function(input, output, session, updateData){
   ns <- session$ns
   
   #' Gráfico de Correlaciones

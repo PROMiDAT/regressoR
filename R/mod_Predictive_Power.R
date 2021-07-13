@@ -20,7 +20,7 @@ mod_Predictive_Power_ui <- function(id){
   tabs.power.num <- tabsOptions(buttons = list(icon("terminal")), widths = 100, heights = 55,
                                 tabs.content = list(code.power.num))
   
-  power.plot.pairs <- tabPanel(title = labelInput('pares'), value = "predpares",
+  power.plot.pairs <- tabPanel(title = labelInput("pares"), value = "predpares",
                                plotOutput(ns('plot.pairs.poder'), height = "75vh"))
   
   pagina.poder <- tabItem(tabName = "poderPred",
@@ -38,31 +38,26 @@ mod_Predictive_Power_ui <- function(id){
 #' Predictive_Power Server Function
 #'
 #' @noRd 
-mod_Predictive_Power_server <- function(input, output, session, updateData, updatePlot, disp.ranges){
+mod_Predictive_Power_server <- function(input, output, session, updateData){
   ns <- session$ns
- 
-  # PREDICTIVE POWER PAGE -------------------------------------------------------------------------------------------------
   
   # Show the graph of numerical predictive power
   observeEvent(updateData$datos.aprendizaje,{
     output$plot.pairs.poder <- renderPlot({
       tryCatch({
         updateAceEditor(session, "fieldCodePoderNum", value = "pairs_power(datos)")
-        if (ncol(var_numerical(datos)) >= 2) {
-          if(ncol(var_numerical(datos)) <= 25){
-            res <- pairs_power(datos)
-            return(res)
+        if (ncol(var_numerical(updateData$datos)) >= 2) {
+          if(ncol(var_numerical(updateData$datos)) <= 25){
+            return(pairs_power(updateData$datos))
           }else{
-            showNotification(translate("bigPlot"), duration = 10, type = "message")
+            showNotification(translate("bigPlot",updateData$idioma), duration = 10, type = "message")
             return(NULL)
           }
         }else{
-          error_variables( T)
+          return(NULL)
         }
       }, error = function(e) {
-        showNotification(paste0("Error en Poder Predictivo: ", e),
-                         duration = 10,
-                         type = "error")
+        showNotification(paste0("ERROR: ", e),duration = 10,type = "error")
         return(NULL)
       })
     })

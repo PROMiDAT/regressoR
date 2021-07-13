@@ -1,4 +1,3 @@
-
 #' gg_color_hue
 #' 
 #' @description create colors.

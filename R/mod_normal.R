@@ -65,7 +65,7 @@ mod_normal_ui <- function(id){
 #' normal Server Function
 #'
 #' @noRd 
-mod_normal_server <- function(input, output, session, updateData,updatePlot, disp.ranges){
+mod_normal_server <- function(input, output, session, updateData){
   ns <- session$ns
  
   
@@ -93,12 +93,8 @@ mod_normal_server <- function(input, output, session, updateData,updatePlot, dis
       updateAceEditor(session, "fieldCodeNormal", value = cod)
       return(e_histnormal(datos, colorBar, colorLine, nombres))
     }, error = function(e){
-      if(ncol(var_numerical(datos)) <= 0){
-        error_variables( T)
-      } else {
-        showNotification(paste0("ERROR: ", e), duration = 10, type = "error")
-        return(NULL)
-      }
+      showNotification(paste0("ERROR: ", e), duration = 10, type = "error")
+      return(NULL)
     })
   })
   

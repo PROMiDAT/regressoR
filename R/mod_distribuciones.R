@@ -64,7 +64,7 @@ mod_distribuciones_ui <- function(id){
 #' distribuciones Server Function
 #'
 #' @noRd 
-mod_distribuciones_server <- function(input, output, session, updateData, updatePlot, disp.ranges){
+mod_distribuciones_server <- function(input, output, session, updateData){
   ns <- session$ns
   
   #' Update on load data

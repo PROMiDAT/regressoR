@@ -39,8 +39,6 @@ app_server <- function( input, output, session ) {
                                poder.dens  = NULL, 
                                tablaCom    = FALSE)
   
-  disp.ranges <- reactiveValues(x = NULL, y = NULL)
-  
   
   
   #' Enable/disable on load data
@@ -98,11 +96,11 @@ app_server <- function( input, output, session ) {
   ###################################  Modules  ###############################
   callModule(mod_carga_datos_server,"carga_datos_ui_1",updateData, modelos)
   callModule(mod_r_numerico_server, "r_numerico_ui_1",updateData)
-  callModule(mod_normal_server, "normal_ui_1",updateData, updatePlot,disp.ranges)
-  callModule(mod_dispersion_server, "dispersion_ui_1", updateData, updatePlot,disp.ranges)
-  callModule(mod_distribuciones_server, "distribuciones_ui_1", updateData, updatePlot,disp.ranges)
-  callModule(mod_correlacion_server, "correlacion_ui_1", updateData, updatePlot,disp.ranges)
-  callModule(mod_Predictive_Power_server, "Predictive_Power_ui_1", updateData, updatePlot,disp.ranges)
+  callModule(mod_normal_server, "normal_ui_1",updateData)
+  callModule(mod_dispersion_server, "dispersion_ui_1", updateData)
+  callModule(mod_distribuciones_server, "distribuciones_ui_1", updateData)
+  callModule(mod_correlacion_server, "correlacion_ui_1", updateData)
+  callModule(mod_Predictive_Power_server, "Predictive_Power_ui_1", updateData)
   callModule(mod_linear_regression_server, "linear_regression_ui_1",updateData, updatePlot)
   callModule(mod_penalized_Regression_server, "penalized_Regression_ui_1",updateData, updatePlot)
   callModule(mod_regression_trees_server, "regression_trees_ui_1",updateData, updatePlot)

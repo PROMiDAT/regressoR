@@ -40,7 +40,7 @@ mod_dispersion_ui <- function(id){
 #' dispersion Server Function
 #'
 #' @noRd 
-mod_dispersion_server <- function(input, output, session, updateData, updatePlot, disp.ranges){
+mod_dispersion_server <- function(input, output, session, updateData){
   ns <- session$ns
   
   #' Update on load data
