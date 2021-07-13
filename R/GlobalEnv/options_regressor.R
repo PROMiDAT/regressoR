@@ -30,3 +30,5 @@ options_regressor <- function(...){
     }
   }
 }
+
+options_regressor(language = "es")

@@ -1,4 +1,3 @@
-options_regressor(language = "es")
 load("inst/app/lang/translation.bin") # Load translation.bin (dictionary to change language)
 enc <- "utf8"
 
@@ -52,7 +51,7 @@ tr <- function(text, idioma = "es") {
 #' translate("knnl")
 #' translate("knnl", "en")
 #' 
-translate <- function(text, language = options_regressor("language")) {
+translate <- function(text, language = "es") {
   if(is.null(language) || !any(language %in% c("es", "en"))){
     language <- "es"
   }

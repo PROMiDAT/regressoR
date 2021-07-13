@@ -6,13 +6,7 @@
 #' @noRd
 app_server <- function( input, output, session ) {
   
-  # INITIAL SETTINGS ------------------------------------------------------------------------------------------------------
-  #Loads all variables that the whole application needs
   load_global_variables()
-  
-  #Set the environment where the code will be executed. (.GlobalEnv recommended)
-  options_regressor(exe.envir = .GlobalEnv)
-  
   
   options(shiny.maxRequestSize = 209715200, width = 200, # 209715200 = 200 * 1024^2
           DT.options = list(aLengthMenu = c(10, 30, 50), iDisplayLength = 10, scrollX = TRUE, 
@@ -37,11 +31,7 @@ app_server <- function( input, output, session ) {
                                             knn      = NULL, svm = NULL, nn = NULL),
                                 metrics = list())
   
-  updatePlot <- reactiveValues(calc.normal = default_calc_normal(), 
-                               normal      = NULL, 
-                               disp        = NULL,
-                               cor         = NULL, 
-                               dya.num     = NULL, 
+  updatePlot <- reactiveValues(dya.num     = NULL, 
                                dya.cat     = NULL, 
                                poder.pred  = NULL,
                                poder.cat   = NULL,

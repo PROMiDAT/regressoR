@@ -15,7 +15,7 @@
 #' exe("5","+","5")
 #' exe("plot(iris$Species)")
 #' 
-exe <- function(..., envir = options_regressor()$exe.envir){
+exe <- function(..., envir = parent.frame()){
   environ <- envir
   envir <- if(is.null(environ) || !is.environment(environ)) parent.frame() else environ
   eval(parse(text = paste0(...)), envir = environ)
