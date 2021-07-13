@@ -18,7 +18,7 @@ creates the comparison table.
 models <- list('knnl-mode1' = list(0.11,0.22,0.33,0.44),
                'dtl-mode2'  = list(0.12,0.23,0.34,0.45),
                'rfl-mode1'  = list(0.51,0.42,0.13,0.24))
-sel <- c("K Vecinos Mæ”¼ã¸±s Cercanos-mode1", "Bosques Aleatorios-mode1")
+sel <- c("K Vecinos Más Cercanos-mode1", "Bosques Aleatorios-mode1")
 comparative_table(sel, models)
 
 }

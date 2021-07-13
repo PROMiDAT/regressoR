@@ -4,14 +4,7 @@
 \alias{mod_correlacion_server}
 \title{correlacion Server Function}
 \usage{
-mod_correlacion_server(
-  input,
-  output,
-  session,
-  updateData,
-  updatePlot,
-  disp.ranges
-)
+mod_correlacion_server(input, output, session, updateData)
 }
 \description{
 correlacion Server Function

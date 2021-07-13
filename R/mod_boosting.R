@@ -114,7 +114,7 @@ mod_boosting_server <- function(input, output, session,updateData, updatePlot){
  
   # When the boosting model is generated
   observeEvent(input$runBoosting, {
-    if (validate_data()){ # Si se tiene los datos entonces :
+    if (validate_data(isolate(updateData), idioma = isolate(updateData$idioma))){ # Si se tiene los datos entonces :
       # change model codes
       deault_codigo_boosting()
       boosting_full()

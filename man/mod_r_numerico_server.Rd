@@ -14,5 +14,5 @@ r_numerico Server Function
 \keyword{data}
 \keyword{internal}
 \keyword{load}
-\keyword{num攼㸹rico}
+\keyword{numérico}
 \keyword{on}

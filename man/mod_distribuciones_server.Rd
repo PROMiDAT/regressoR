@@ -4,14 +4,7 @@
 \alias{mod_distribuciones_server}
 \title{distribuciones Server Function}
 \usage{
-mod_distribuciones_server(
-  input,
-  output,
-  session,
-  updateData,
-  updatePlot,
-  disp.ranges
-)
+mod_distribuciones_server(input, output, session, updateData)
 }
 \description{
 distribuciones Server Function

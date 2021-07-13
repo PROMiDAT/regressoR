@@ -71,8 +71,14 @@ mod_linear_regression_ui <- function(id){
 #' linear_regression Server Function
 #'
 #' @noRd 
-mod_linear_regression_server <- function(input, output, session, updateData, updatePlot){
+mod_linear_regression_server <- function(input, output, session, updateData, modelos){
   ns <- session$ns
+  
+  nombreModelo <- "modelo.rl"
+  modelo.rl <- NULL
+  prediccion.rl <- NULL
+  df.rl <- NULL
+  r2 <- NULL
   
   return.rl.default.values <- function(){
     output$txtRl <- renderText(NULL)
@@ -85,7 +91,7 @@ mod_linear_regression_server <- function(input, output, session, updateData, upd
   
   observeEvent(updateData$idioma,{
     if(exists("modelo.rl")){
-      execute_rl_ind()
+      #execute_rl_ind()
       plot_disp_rl()
     }
   })
@@ -98,29 +104,23 @@ mod_linear_regression_server <- function(input, output, session, updateData, upd
   
   # When the rl model is generated
   observeEvent(input$runRl, {
-    if (validate_data()) { # Si se tiene los datos entonces :
-      deafult_codigo_rl()
+    if (validate_data(isolate(updateData), idioma = isolate(updateData$idioma))) { # Si se tiene los datos entonces :
+      #deafult_codigo_rl()
       rl_full()
     }
   })
   
+  # Execute model, prediction and indices
+  rl_full <- function(){
+    execute_rl()
+    coefficients_rl()
+    execute_rl_pred()
+    plot_disp_rl()
+    #execute_rl_ind()
+  }
+  
   # Upgrade code fields to default version
   deafult_codigo_rl <- function(){
-    # Se acualiza el codigo del modelo
-    codigo <- rl_model(variable.pred = variable.predecir)
-    
-    updateAceEditor(session, "fieldCodeRl", value = codigo)
-    cod.rl.modelo <<- codigo
-    
-    #Se genera el codigo de los coeficientes
-    codigo <- rl_coeff()
-    updateAceEditor(session, "fieldCodeRlCoef", value = codigo)
-    
-    
-    # Se genera el codigo de la prediccion
-    codigo <- rl_prediction()
-    updateAceEditor(session, "fieldCodeRlPred", value = codigo)
-    cod.rl.pred <<- codigo
     
     
     # Se genera el codigo de la indices
@@ -143,18 +143,70 @@ mod_linear_regression_server <- function(input, output, session, updateData, upd
       })
     }
   }
+
+  
+  # Generates the model
+  execute_rl <- function() {
+    tryCatch({ # Se corren los codigo
+      datos.aprendizaje <- isolate(updateData$datos.aprendizaje)
+      variable.predecir <- isolate(updateData$variable.predecir)
+      modelo.rl <- rl_model(datos.aprendizaje,variable.predecir)
+      updateAceEditor(session, "fieldCodeRl", value = codeRl(variable.predecir))
+      
+      output$txtRl <- renderPrint(print(summary(modelo.rl)))
+    },
+    error = function(e) { # Regresamos al estado inicial y mostramos un error
+      clean_rl(1)
+      showNotification(paste0("Error (RL-01) : ",e), duration = 10, type = "error")
+    })
+  }
+  
+  
+  # Displays model coefficients
+  coefficients_rl <- function(){
+    tryCatch({
+      model.information <- rl_coeff(modelo.rl)
+      df.rl <- model.information$df.rl
+      r2 <- model.information$r2
+      updateAceEditor(session, "fieldCodeRlCoef", value = codeRlCoef())
+      output$rlCoefTable <- render_table_data(df.rl[,c(1,4)], server = FALSE)
+    },
+    error = function(e) { # Regresamos al estado inicial y mostramos un error
+      clean_rl(1)
+      showNotification(paste0("Error (RL-01) : ", e), duration = 10, type = "error")
+    })
+  }
+  
+  
+  # Generate the prediction
+  execute_rl_pred <- function() {
+    tryCatch({
+      datos.prueba <- isolate(updateData$datos.prueba)
+      real.val <- isolate(datos.prueba[,updateData$variable.predecir])
+      prediccion.rl <- rl_prediction(modelo.rl, datos.prueba)
+      updateAceEditor(session, "fieldCodeRlPred", value = codeRlPred())
+      output$rlPrediTable <- DT::renderDataTable(tb_predic(real.val, prediccion.rl), server = FALSE)
+    },
+    error = function(e) { # Regresamos al estado inicial y mostramos un error
+      clean_rl(2)
+      showNotification(paste0("Error (RL-02) : ", e), duration = 10, type = "error")
+    })
+  }
+  
   
   # Shows the graph the dispersion of the model with respect to the real values
   plot_disp_rl <- function(){
-    tryCatch({ # Se corren los codigo
+    tryCatch({
+      datos.prueba <- isolate(updateData$datos.prueba)
+      variable.predecir <- isolate(updateData$variable.predecir)
       titulos <- c(
         tr("predvsreal", updateData$idioma),
         tr("realValue", updateData$idioma),
         tr("pred", updateData$idioma)
       )
-
+      
       output$plot.rl.disp <- renderEcharts4r(plot_real_prediction(datos.prueba[variable.predecir],
-                                                                  prediccion.rl,translate("rll"),titulos))
+                                                                  prediccion.rl,translate("rll",updateData$idioma),titulos))
       
       codigo <- disp_models("prediccion.rl", translate("rll"), variable.predecir)
       updateAceEditor(session, "fieldCodeRlDisp", value = codigo)
@@ -165,87 +217,34 @@ mod_linear_regression_server <- function(input, output, session, updateData, upd
     })
   }
   
-  # Displays model coefficients
-  coefficients_rl <- function(){
-    tryCatch({ # Se corren los codigo
-      isolate(exe(rl_coeff()))
-      
-      output$rlCoefTable <- render_table_data(df.rl[,c(1,4)], server = FALSE)
-    },
-    error = function(e) { # Regresamos al estado inicial y mostramos un error
-      clean_rl(1)
-      showNotification(paste0("Error (RL-01) : ", e), duration = 15, type = "error")
-    })
-  }
-  
-  # Execute model, prediction and indices
-  rl_full <- function(){
-    execute_rl()
-    execute_rl_pred()
-    execute_rl_ind()
-  }
-  
-  # Generates the model
-  execute_rl <- function() {
-    tryCatch({ # Se corren los codigo
-      isolate(exe(cod.rl.modelo))
-      output$txtRl <- renderPrint(print(summary(modelo.rl)))
-      
-      coefficients_rl()
-      
-      #nombres.modelos <<- c(nombres.modelos, "modelo.rl")
-    },
-    error = function(e) { # Regresamos al estado inicial y mostramos un error
-      clean_rl(1)
-      showNotification(paste0("Error (RL-01) : ",e), duration = 15, type = "error")
-    })
-  }
-  
-  # Generate the prediction
-  execute_rl_pred <- function() {
-    tryCatch({ # Se corren los codigo
-      isolate(exe(cod.rl.pred))
-      
-      output$rlPrediTable <- DT::renderDataTable(tb_predic(real.val, prediccion.rl), server = FALSE)
-      
-      plot_disp_rl()
-      
-      #nombres.modelos <<- c(nombres.modelos, "prediccion.rl")
-      updatePlot$tablaCom <- !updatePlot$tablaCom #graficar otra vez la tabla comprativa
-    },
-    error = function(e) { # Regresamos al estado inicial y mostramos un error
-      clean_rl(2)
-      showNotification(paste0("Error (RL-02) : ", e), duration = 15, type = "error")
-    })
-  }
   
   # Generates the indices
-  execute_rl_ind <- function() {
-    if(exists("prediccion.rl") && !is.null(prediccion.rl)){
-      tryCatch({ # Se corren los codigo
-        isolate(exe(input$fieldCodeRlCoef))
-        isolate(exe(cod.rl.ind))
-        
-        indices.rl <- general_indices(datos.prueba[,variable.predecir], prediccion.rl)
-        
-        df <- cbind(as.data.frame(indices.rl), r2)
-        df <- df[,c(1,2,3,5,4)]
-        colnames(df) <- c(translate("RMSE"), translate("MAE"), translate("ER"), translate("R2"), translate("correlacion"))
-        output$indexdfrl <- render_index_table(df)
-        
-        df2 <- as.data.frame(summary_indices(datos.aprendizaje[,variable.predecir]))
-        colnames(df2) <- c(translate("minimo"),translate("q1"),translate("q3"),translate("maximo"))
-        output$indexdfrl2 <- render_index_table(df2)
-        
-        #nombres.modelos <<- c(nombres.modelos, "indices.rl")
-        updateData$IndicesM[["rll"]] <<- indices.rl
-      },
-      error = function(e) { # Regresamos al estado inicial y mostramos un error
-        clean_rl(3)
-        showNotification(paste0("Error (RL-03) : ",e), duration = 15, type = "error")
-      })
-    }
-  }
+  # execute_rl_ind <- function() {
+  #   if(exists("prediccion.rl") && !is.null(prediccion.rl)){
+  #     tryCatch({ # Se corren los codigo
+  #       isolate(exe(input$fieldCodeRlCoef))
+  #       isolate(exe(cod.rl.ind))
+  #       
+  #       indices.rl <- general_indices(datos.prueba[,variable.predecir], prediccion.rl)
+  #       
+  #       df <- cbind(as.data.frame(indices.rl), r2)
+  #       df <- df[,c(1,2,3,5,4)]
+  #       colnames(df) <- c(translate("RMSE"), translate("MAE"), translate("ER"), translate("R2"), translate("correlacion"))
+  #       output$indexdfrl <- render_index_table(df)
+  #       
+  #       df2 <- as.data.frame(summary_indices(datos.aprendizaje[,variable.predecir]))
+  #       colnames(df2) <- c(translate("minimo"),translate("q1"),translate("q3"),translate("maximo"))
+  #       output$indexdfrl2 <- render_index_table(df2)
+  #       
+  #       #nombres.modelos <<- c(nombres.modelos, "indices.rl")
+  #       updateData$IndicesM[["rll"]] <<- indices.rl
+  #     },
+  #     error = function(e) { # Regresamos al estado inicial y mostramos un error
+  #       clean_rl(3)
+  #       showNotification(paste0("Error (RL-03) : ",e), duration = 10, type = "error")
+  #     })
+  #   }
+  # }
  
 }
     

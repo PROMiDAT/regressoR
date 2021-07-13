@@ -139,7 +139,7 @@ mod_dimension_reduction_server <- function(input, output, session,updateData, up
   
   #  When the dt model is generated
   observeEvent(input$runRd, {
-    if (validate_data()) { # Si se tiene los datos entonces :
+    if (validate_data(isolate(updateData), idioma = isolate(updateData$idioma))) { # Si se tiene los datos entonces :
       deafult_codigo_rd()
       rd_full()
     }

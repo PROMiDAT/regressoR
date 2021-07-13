@@ -108,7 +108,7 @@ mod_KNN_server <- function(input, output, session,updateData, updatePlot){
  
   # When the knn model is generated
   observeEvent(input$runKnn, {
-    if (validate_data()) { # Si se tiene los datos entonces :
+    if (validate_data(isolate(updateData), idioma = isolate(updateData$idioma))) { # Si se tiene los datos entonces :
       default_codigo_knn()
       knn_full()
     }

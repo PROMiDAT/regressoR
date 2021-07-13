@@ -101,7 +101,7 @@ app_server <- function( input, output, session ) {
   callModule(mod_distribuciones_server, "distribuciones_ui_1", updateData)
   callModule(mod_correlacion_server, "correlacion_ui_1", updateData)
   callModule(mod_Predictive_Power_server, "Predictive_Power_ui_1", updateData)
-  callModule(mod_linear_regression_server, "linear_regression_ui_1",updateData, updatePlot)
+  callModule(mod_linear_regression_server, "linear_regression_ui_1",updateData, modelos)
   callModule(mod_penalized_Regression_server, "penalized_Regression_ui_1",updateData, updatePlot)
   callModule(mod_regression_trees_server, "regression_trees_ui_1",updateData, updatePlot)
   callModule(mod_random_forests_server, "random_forests_ui_1",updateData, updatePlot)

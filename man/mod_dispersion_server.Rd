@@ -4,14 +4,7 @@
 \alias{mod_dispersion_server}
 \title{dispersion Server Function}
 \usage{
-mod_dispersion_server(
-  input,
-  output,
-  session,
-  updateData,
-  updatePlot,
-  disp.ranges
-)
+mod_dispersion_server(input, output, session, updateData)
 }
 \description{
 dispersion Server Function

@@ -4,7 +4,7 @@
 \alias{mod_normal_server}
 \title{normal Server Function}
 \usage{
-mod_normal_server(input, output, session, updateData, updatePlot, disp.ranges)
+mod_normal_server(input, output, session, updateData)
 }
 \description{
 normal Server Function

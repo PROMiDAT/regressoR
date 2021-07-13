@@ -115,7 +115,7 @@ mod_regression_trees_server <- function(input, output, session,updateData, updat
   
   #  When the dt model is generated
   observeEvent(input$runDt, {
-    if (validate_data()) { # Si se tiene los datos entonces :
+    if (validate_data(isolate(updateData), idioma = isolate(updateData$idioma))) { # Si se tiene los datos entonces :
       default_codigo_dt()
       dt_full()
     }

@@ -139,7 +139,7 @@ mod_penalized_Regression_server <- function(input, output, session, updateData, 
  
   # When the rlr model is generated
   observeEvent(input$runRlr, {
-    if (validate_data()) { # If you have the data then :
+    if (validate_data(isolate(updateData), idioma = isolate(updateData$idioma))) { # If you have the data then :
       options_regressor(rlr.alpha = input$alpha.rlr)
       deafult_codigo_rlr()
       rlr_full()

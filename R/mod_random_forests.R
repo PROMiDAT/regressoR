@@ -122,7 +122,7 @@ mod_random_forests_server <- function(input, output, session,updateData, updateP
   
   # When the rf model is generated
   observeEvent(input$runRf, {
-    if (validate_data()) { # Si se tiene los datos entonces :
+    if (validate_data(isolate(updateData), idioma = isolate(updateData$idioma))) { # Si se tiene los datos entonces :
       deafult_codigo_rf()
       rf_full()
     }

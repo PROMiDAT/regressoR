@@ -23,16 +23,16 @@ close_menu <- function(tabname = NA, valor = T) {
 }
 
 # Common validation for all models
-validate_data <- function(print = TRUE) {
-  if (is.null(variable.predecir) & print) {
-    showNotification(translate("tieneVP"), duration = 10, type = "error")
+validate_data <- function(updateData, print = TRUE, idioma = "es") {
+  if (is.null(updateData$variable.predecir) & print) {
+    showNotification(translate("tieneVP",idioma), duration = 10, type = "error")
   }
-  if (is.null(datos) & print) {
-    showNotification(translate("tieneD"), duration = 10, type = "error")
+  if (is.null(updateData$datos) & print) {
+    showNotification(translate("tieneD",idioma), duration = 10, type = "error")
   }
-  if (is.null(datos.aprendizaje) & print) {
-    showNotification(translate("tieneDAP"), duration = 10, type = "error")
+  if (is.null(updateData$datos.aprendizaje) & print) {
+    showNotification(translate("tieneDAP",idioma), duration = 10, type = "error")
   }
-  return(!is.null(datos) & !is.null(variable.predecir) & !is.null(datos.aprendizaje))
+  return(!is.null(updateData$datos) & !is.null(updateData$variable.predecir) & !is.null(updateData$datos.aprendizaje))
 }
  

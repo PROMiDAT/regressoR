@@ -104,7 +104,7 @@ mod_SVM_server <- function(input, output, session,updateData, updatePlot){
   
   # When the knn model is generated
   observeEvent(input$runSvm, {
-    if (validate_data()) { # Si se tiene los datos entonces :
+    if (validate_data(isolate(updateData), idioma = isolate(updateData$idioma))) { # Si se tiene los datos entonces :
       default_codigo_svm()
       svm_full()
     }
