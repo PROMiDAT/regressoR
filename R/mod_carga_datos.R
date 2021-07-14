@@ -162,15 +162,15 @@ mod_carga_datos_server <- function(input, output, session,  updateData, modelos)
           "ERROR: Check Separators", duration = 10, type = "error")
         updateData$originales <- NULL
         updateData$datos      <- NULL
-        #datos                 <<- NULL
+        datos                 <<- NULL
       } else {
         updateData$datos <- updateData$originales
-        #datos <- updateData$originales
+        datos <- updateData$originales
       }
     }, error = function(e) {
       updateData$datos      <- NULL
       updateData$originales <- NULL
-      #datos                 <- NULL
+      datos                 <- NULL
       showNotification(paste0("ERROR al cargar datos: ", e), type = "error")
     })
     

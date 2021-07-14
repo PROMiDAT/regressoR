@@ -173,6 +173,7 @@ render_index_table <- function(table){
 #' @param pageLength the number of rows to show. The default value is 10.
 #' @param scrollY the heigth of the table.
 #' @param server whether to use server-side processing. If TRUE, then the data is kept on the server and the browser requests a page at a time; if FALSE, then the entire data frame is sent to the browser at once.
+#' @param languaje string. ("es" for Spanish, "en" for English)
 #'
 #' @seealso  \code{\link[DT]{datatable}}, \code{\link[DT]{renderDT}}
 #'
@@ -191,8 +192,7 @@ render_index_table <- function(table){
 #'    )
 #' }
 #'
-render_table_data <- function(data, editable = TRUE, dom = "frtip", pageLength = 10, scrollY = "27vh", server = T) {
-  language <- ifelse(!is.null(options_regressor("language")), options_regressor("language"), "es")
+render_table_data <- function(data, editable = TRUE, dom = "frtip", pageLength = 10, scrollY = "27vh", server = T, language = "es") {
   labelsNC <- ifelse(language == c("es", "es"), c("Num\u00E9rico","Categ\u00F3rico"), c("Numerical","Categorical"))
   data <- head(data, n = 100)
   nombre.columnas <- c("ID", colnames(data))
@@ -213,6 +213,7 @@ render_table_data <- function(data, editable = TRUE, dom = "frtip", pageLength =
 #' 
 #' @param real a data.frame with the real values.
 #' @param predic.var a vector with the prediction value.
+#' @param languaje string. ("es" for Spanish, "en" for English)
 #'
 #' @export
 #'
@@ -229,9 +230,9 @@ render_table_data <- function(data, editable = TRUE, dom = "frtip", pageLength =
 #'    })
 #' }
 #' 
-tb_predic <- function(real, predic.var){
+tb_predic <- function(real, predic.var, languaje = "es"){
   df   <- cbind(real, predic.var,  abs(real - predic.var))
-  colns <- c(translate("reald"), translate("pred"), translate("dif"))
+  colns <- c(tr("reald",languaje), tr("pred",languaje), tr("dif",languaje))
   colnames(df) <- colns
   sketch <- htmltools::withTags(table(DT::tableHeader(c("ID",colns))))
   return(DT::datatable(df,
