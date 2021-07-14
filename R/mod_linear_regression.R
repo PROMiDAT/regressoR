@@ -74,6 +74,8 @@ mod_linear_regression_ui <- function(id){
 mod_linear_regression_server <- function(input, output, session, updateData, modelos){
   ns <- session$ns
   
+  actualizar.rl <- reactiveVal(F)
+  
   nombreModelo <- "modelo.rl"
   modelo.rl <- NULL
   prediccion.rl <- NULL
@@ -111,21 +113,62 @@ mod_linear_regression_server <- function(input, output, session, updateData, mod
   
   # Execute model, prediction and indices
   rl_full <- function(){
+    
+    isolate(datos.prueba <- updateData$datos.prueba)
+    isolate(datos.aprendizaje <- updateData$datos.aprendizaje)
+    isolate(variable.predecir <- updateData$variable.predecir)
+    
+    #Genera Modelo
+    modelo.rl <<- rl_model(datos.aprendizaje,variable.predecir)
+    updateAceEditor(session, "fieldCodeRl", value = codeRl(variable.predecir))
+    
+    #Coeficientes
+    model.information <- rl_coeff(modelo.rl)
+    df.rl <<- model.information$df.rl
+    r2 <<- model.information$r2
+    updateAceEditor(session, "fieldCodeRlCoef", value = codeRlCoef())
+    
+    
+    #Genera prediccion
+    isolate(real.val <- datos.prueba[updateData$variable.predecir])
+    prediccion.rl <<- rl_prediction(modelo.rl, datos.prueba)
+    updateAceEditor(session, "fieldCodeRlPred", value = codeRlPred())
+    
+    #Obtiene los índices
+    indices.rl <<- general_indices(datos.prueba[,variable.predecir], prediccion.rl)
+    updateAceEditor(session, "fieldCodeRlIG", value = codeRlIG(variable.predecir))
+    
+    #Actualizamos todos los Outputs
+    actualizar.rl(!actualizar.rl())
+  }
+  
+  observeEvent(actualizar.rl(),{
+    output$txtRl <- renderPrint({
+      tryCatch({
+        print(summary(modelo.rl))
+      },error = function(e) { # Regresamos al estado inicial y mostramos un error
+        showNotification(paste0("Error (RL-01) : ",e), duration = 10, type = "error")
+        NULL
+      })
+    })
+    
+  }, priority = 5)
+  
+  
+  observeEvent(c(actualizar.rl(),updateData$idioma),{
     execute_rl()
     coefficients_rl()
     execute_rl_pred()
     plot_disp_rl()
     execute_rl_ind()
-  }
+  })
+  
+  
+  
   
   # Generates the model
   execute_rl <- function() {
     tryCatch({ # Se corren los codigo
-      isolate(datos.aprendizaje <- updateData$datos.aprendizaje)
-      isolate(variable.predecir <- updateData$variable.predecir)
-      modelo.rl <<- rl_model(datos.aprendizaje,variable.predecir)
-      updateAceEditor(session, "fieldCodeRl", value = codeRl(variable.predecir))
-      
       output$txtRl <- renderPrint(print(summary(modelo.rl)))
     },
     error = function(e) { # Regresamos al estado inicial y mostramos un error
@@ -137,14 +180,7 @@ mod_linear_regression_server <- function(input, output, session, updateData, mod
   # Displays model coefficients
   coefficients_rl <- function(){
     tryCatch({
-      model.information <- rl_coeff(modelo.rl)
-      df.rl <<- model.information$df.rl
-      r2 <<- model.information$r2
-      updateAceEditor(session, "fieldCodeRlCoef", value = codeRlCoef())
-      
-      observeEvent(updateData$idioma,{
-        output$rlCoefTable <- render_table_data(df.rl[,c(1,4)], server = FALSE, language = updateData$idioma)
-      })
+      output$rlCoefTable <- render_table_data(df.rl[,c(1,4)], server = FALSE, language = updateData$idioma)
     },
     error = function(e) { # Regresamos al estado inicial y mostramos un error
       showNotification(paste0("Error (RL-02) : ", e), duration = 10, type = "error")
@@ -156,10 +192,8 @@ mod_linear_regression_server <- function(input, output, session, updateData, mod
   execute_rl_pred <- function() {
     tryCatch({
       isolate(datos.prueba <- updateData$datos.prueba)
+      isolate(variable.predecir <- updateData$variable.predecir)
       isolate(real.val <- datos.prueba[updateData$variable.predecir])
-      prediccion.rl <<- rl_prediction(modelo.rl, datos.prueba)
-      updateAceEditor(session, "fieldCodeRlPred", value = codeRlPred())
-      
       output$rlPrediTable <- DT::renderDataTable({
         tb_predic(real.val, prediccion.rl, updateData$idioma)
       },server = FALSE)
@@ -198,44 +232,34 @@ mod_linear_regression_server <- function(input, output, session, updateData, mod
   #Generates the indices
   execute_rl_ind <- function() {
     tryCatch({
-      
-      isolate(datos.aprendizaje <- updateData$datos.aprendizaje)
-      isolate(datos.prueba <- updateData$datos.prueba)
-      isolate(variable.predecir <- updateData$variable.predecir)
-      
-      indices.rl <<- general_indices(datos.prueba[,variable.predecir], prediccion.rl)
-      
-      updateAceEditor(session, "fieldCodeRlIG", value = codeRlIG(variable.predecir))
-      
-      #observeEvent siempre se ejecuta la primera vez
-      observeEvent(updateData$idioma,{
-        idioma <- updateData$idioma
-        output$indexdfrl <- render_index_table({
-          if(!is.null(indices.rl)){
-            df <- cbind(as.data.frame(indices.rl), r2)
-            df <- df[,c(1,2,3,5,4)]
-            colnames(df) <- c(tr("RMSE",idioma), tr("MAE",idioma),
-                              tr("ER",idioma), tr("R2",idioma),
-                              tr("correlacion", idioma))
-            df
-          }
-          else{NULL}
-        })
+      idioma <- updateData$idioma
+      output$indexdfrl <- render_index_table({
+        if(!is.null(indices.rl)){
+          df <- cbind(as.data.frame(indices.rl), r2)
+          df <- df[,c(1,2,3,5,4)]
+          colnames(df) <- c(tr("RMSE",idioma), tr("MAE",idioma),
+                            tr("ER",idioma), tr("R2",idioma),
+                            tr("correlacion", idioma))
+          df
+        }
+        else{NULL}
       })
       
-      observeEvent(updateData$idioma,{
-        idioma <- updateData$idioma
-        output$indexdfrl2 <- render_index_table({
-          if(!is.null(indices.rl)){
-            df2 <- as.data.frame(summary_indices(datos.aprendizaje[,variable.predecir]))
-            colnames(df2) <- c(tr("minimo",idioma),tr("q1",idioma),
-                               tr("q3",idioma),tr("maximo",idioma))
-            df2
-          }
-          else{NULL}
-        })
+      
+      idioma <- updateData$idioma
+      output$indexdfrl2 <- render_index_table({
+        if(!is.null(indices.rl)){
+          isolate(datos.aprendizaje <- updateData$datos.aprendizaje)
+          isolate(variable.predecir <- updateData$variable.predecir)
+          df2 <- as.data.frame(summary_indices(datos.aprendizaje[,variable.predecir]))
+          colnames(df2) <- c(tr("minimo",idioma),tr("q1",idioma),
+                             tr("q3",idioma),tr("maximo",idioma))
+          df2
+        }
+        else{NULL}
       })
-
+      
+      
       updateData$IndicesM[["rll"]] <- indices.rl
     },
     error = function(e) {
