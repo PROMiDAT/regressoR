@@ -107,8 +107,8 @@ app_ui <- function(request) {
     useShinyjs())
   
   #The loading page
-  load.page <- conditionalPanel(condition="($('html').hasClass('shiny-busy'))",
-                                div(id = "loaderWrapper", div(id="loader")))
+  # load.page <- conditionalPanel(condition="($('html').hasClass('shiny-busy'))",
+  #                               div(id = "loaderWrapper", div(id="loader")))
   
   
   
@@ -130,7 +130,7 @@ app_ui <- function(request) {
       ),
       dashboardSidebar(mi.menu),
       dashboardBody(mi.head,
-                    load.page,
+                    #load.page,
                     tabItems(
                       tabItem(tabName = "cargar",  mod_carga_datos_ui("carga_datos_ui_1")),
                       tabItem(tabName = "resumen",  mod_r_numerico_ui("r_numerico_ui_1")),

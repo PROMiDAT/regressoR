@@ -155,6 +155,32 @@ mod_penalized_Regression_server <- function(input, output, session, updateData, 
     }
   })
   
+  # Execute model, prediction and indices
+  rlr_full <- function(){
+    execute_rlr()
+    execute_rlr_pred()
+    execute_rlr_ind()
+  }
+  
+  # Generates the model
+  execute_rlr <- function() {
+    tryCatch({ # Se corren los codigo
+      isolate(exe(cod.rlr.modelo))
+      isolate(tipo <- rlr_type())
+      output$txtRlr <- renderPrint(print(exe("modelo.rlr.",tipo)))
+      
+      plot_posib_landa_rlr()
+      print_coeff()
+      plot_coeff()
+      
+      #nombres.modelos <<- c(nombres.modelos, paste0("modelo.rlr.",tipo))
+    },
+    error = function(e) { # Regresamos al estado inicial y mostramos un error
+      clean_rlr(1)
+      showNotification(paste0("Error (R/L-01) : ",e), duration = 15, type = "error")
+    })
+  }
+  
   # Upgrade code fields to default version
   deafult_codigo_rlr <- function(){
     landa <- NULL
@@ -306,31 +332,9 @@ mod_penalized_Regression_server <- function(input, output, session, updateData, 
     })
   }
   
-  # Execute model, prediction and indices
-  rlr_full <- function(){
-    execute_rlr()
-    execute_rlr_pred()
-    execute_rlr_ind()
-  }
+
   
-  # Generates the model
-  execute_rlr <- function() {
-    tryCatch({ # Se corren los codigo
-      isolate(exe(cod.rlr.modelo))
-      isolate(tipo <- rlr_type())
-      output$txtRlr <- renderPrint(print(exe("modelo.rlr.",tipo)))
-      
-      plot_posib_landa_rlr()
-      print_coeff()
-      plot_coeff()
-      
-      #nombres.modelos <<- c(nombres.modelos, paste0("modelo.rlr.",tipo))
-    },
-    error = function(e) { # Regresamos al estado inicial y mostramos un error
-      clean_rlr(1)
-      showNotification(paste0("Error (R/L-01) : ",e), duration = 15, type = "error")
-    })
-  }
+
   
   # Generate the prediction
   execute_rlr_pred <- function() {

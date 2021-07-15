@@ -21,7 +21,8 @@ mod_Predictive_Power_ui <- function(id){
                                 tabs.content = list(code.power.num))
   
   power.plot.pairs <- tabPanel(title = labelInput("pares"), value = "predpares",
-                               plotOutput(ns('plot.pairs.poder'), height = "75vh"))
+                               withLoader(plotOutput(ns('plot_pairs_poder'), height = "75vh"),
+                                          type = "html", loader = "loader4"))
   
   pagina.poder <- tabItem(tabName = "poderPred",
                           tabBox(id = ns("BoxPodPred"), width = NULL,
@@ -40,29 +41,26 @@ mod_Predictive_Power_ui <- function(id){
 #' @noRd 
 mod_Predictive_Power_server <- function(input, output, session, updateData){
   ns <- session$ns
-  
   # Show the graph of numerical predictive power
-  observeEvent(updateData$datos.aprendizaje,{
-    output$plot.pairs.poder <- renderPlot({
-      tryCatch({
-        updateAceEditor(session, "fieldCodePoderNum", value = "pairs_power(datos)")
-        if (ncol(var_numerical(updateData$datos)) >= 2) {
-          if(ncol(var_numerical(updateData$datos)) <= 25){
-            return(pairs_power(updateData$datos))
-          }else{
-            showNotification(translate("bigPlot",updateData$idioma), duration = 10, type = "message")
-            return(NULL)
-          }
+  output$plot_pairs_poder <- renderPlot({
+    tryCatch({
+      updateData$datos.aprendizaje
+      updateAceEditor(session, "fieldCodePoderNum", value = "pairs_power(datos)")
+      if (ncol(var_numerical(updateData$datos)) >= 2) {
+        if(ncol(var_numerical(updateData$datos)) <= 25){
+          pairs_power(updateData$datos)
         }else{
-          return(NULL)
+          showNotification(tr("bigPlot",updateData$idioma), duration = 10, type = "message")
+          NULL
         }
-      }, error = function(e) {
-        showNotification(paste0("ERROR: ", e),duration = 10,type = "error")
-        return(NULL)
-      })
+      }else{
+        NULL
+      }
+    }, error = function(e) {
+      showNotification(paste0("ERROR: ", e),duration = 10,type = "error")
+      NULL
     })
   })
-  
 }
     
 ## To be copied in the UI

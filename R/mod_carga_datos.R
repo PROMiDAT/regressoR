@@ -136,11 +136,6 @@ mod_carga_datos_server <- function(input, output, session,  updateData, modelos)
   
   #' Load Button Function
   observeEvent(input$loadButton, {
-    modelos$mdls <- list(rl = NULL, rlr= NULL,
-                         dt = NULL, rf = NULL,
-                         boosting = NULL, xgb = NULL,
-                         knn      = NULL, svm = NULL, nn = NULL)
-    modelos$metrics <- list()
     rowname    <- isolate(input$rowname)
     ruta       <- isolate(input$archivo)
     sep        <- isolate(input$sep)
@@ -180,12 +175,6 @@ mod_carga_datos_server <- function(input, output, session,  updateData, modelos)
   
   #' Transform Button Function
   observeEvent(input$transButton, {
-    modelos$mdls <- list(rl = NULL, rlr= NULL,
-                         dt = NULL, rf = NULL,
-                         boosting = NULL, xgb = NULL,
-                         knn      = NULL, svm = NULL, nn = NULL)
-    modelos$metrics = list()
-    
     datos <- updateData$originales
     cod = ""
     borrar.modelos(updateData)
@@ -222,11 +211,10 @@ mod_carga_datos_server <- function(input, output, session,  updateData, modelos)
   
   #' Segment Button Function
   observeEvent(input$segmentButton, {
-    modelos$mdls <- list(rl = NULL, rlr= NULL,
-                         dt = NULL, rf = NULL,
-                         boosting = NULL, xgb = NULL,
-                         knn      = NULL, svm = NULL, nn = NULL)
-    modelos$metrics = list()
+    
+    for(modelName in names(modelos)){
+      modelos[[modelName]] <- NULL
+    }
     porcentaje       <- isolate(input$segmentacionDatosA)
     variable         <- isolate(input$sel.predic.var)
     semilla          <- isolate(input$semilla)
