@@ -12,14 +12,22 @@ mod_penalized_Regression_ui <- function(id){
   
   
   rlr.options <- list(options.run(ns("runRlr")), tags$hr(style = "margin-top: 0px;"),
-                      fluidRow(column(selectInput(inputId = ns("alpha.rlr"), label = labelInput("selectAlg"), selected = 1,
-                                                  choices = list("Ridge" = 0, "Lasso" = 1)),width = 6),
-                               column(br(), switchInput(inputId = ns("switch.scale.rlr"), onStatus = "success", offStatus = "danger", value = T,
-                                                        label = labelInput("escal"), onLabel = labelInput("si"), offLabel = labelInput("no"), labelWidth = "100%"), width=6)),
-                      fluidRow(column(id = ns("colManualLanda"),width = 5, numericInput(ns("landa"), labelInput("landa"),value = 2, "NULL", width = "100%")), br(),
-                               column(width = 6, switchInput(inputId = ns("permitir.landa"), onStatus = "success", offStatus = "danger", value = F, width = "100%",
-                                                             label = "", onLabel = "Manual", offLabel = labelInput("automatico"), labelWidth = "100%"),
-                                      style = "padding-top: 5px;")))
+                      fluidRow(
+                        column(selectInput(inputId = ns("alpha.rlr"), label = labelInput("selectAlg"), selected = 1,
+                                           choices = list("Ridge" = 0, "Lasso" = 1)),width = 6),
+                        column(br(), switchInput(inputId = ns("switch.scale.rlr"), 
+                                                 onStatus = "success", offStatus = "danger", value = T,
+                                                 label = labelInput("escal"), onLabel = labelInput("si"), 
+                                                 offLabel = labelInput("no"), labelWidth = "100%"), width=6)),
+                      fluidRow(column(id = ns("colManualLanda"),width = 5, 
+                                      numericInput(ns("landa"), labelInput("landa"),value = 2, "NULL", width = "100%")),
+                               br(),
+                               column(width = 6, 
+                                      switchInput(inputId = ns("permitir.landa"), onStatus = "success", 
+                                                  offStatus = "danger", value = F, width = "100%",
+                                                  label = "", onLabel = "Manual", 
+                                                  offLabel = labelInput("automatico"), 
+                                                  labelWidth = "100%"), style = "padding-top: 5px;")))
   
   
   rlr.code.config <- list(h3(labelInput("codigo")), hr(style = "margin-top: 0px;"),
@@ -33,27 +41,22 @@ mod_penalized_Regression_ui <- function(id){
                                      aceEditor(ns("fieldCodeRlrPosibLanda"), mode = "r", theme = "monokai",
                                                value = "", height = "7vh", readOnly = F, autoComplete = "enabled"),ns = ns),
                     conditionalPanel("input.BoxRlr == 'tabRlrCoeff_landa'",
-                                     aceEditor(ns("fieldCodeRlrCoeff_landa"), mode = "r", theme = "monokai",
-                                               value = "", height = "7vh", readOnly = F, autoComplete = "enabled"),ns = ns),
+                                     codigo.monokai(ns("fieldCodeRlrCoeff_landa"), height = "7vh"),ns = ns),
                     conditionalPanel("input.BoxRlr == 'tabRlrCoeff'",
-                                     aceEditor(ns("fieldCodeRlrCoeff"), mode = "r", theme = "monokai",
-                                               value = "", height = "12vh", readOnly = F, autoComplete = "enabled"),ns = ns),
+                                     codigo.monokai(ns("fieldCodeRlrCoeff"), height = "12vh"),ns = ns),
                     conditionalPanel("input.BoxRlr == 'tabRlrPred'",
-                                     aceEditor(ns("fieldCodeRlrPred"), mode = "r", theme = "monokai",
-                                               value = "", height = "18vh", readOnly = F, autoComplete = "enabled"),ns = ns),
+                                     codigo.monokai(ns("fieldCodeRlrPred"), height = "18vh"),ns = ns),
                     conditionalPanel("input.BoxRlr == 'tabRlrDisp'",
-                                     aceEditor(ns("fieldCodeRlrDisp"), mode = "r", theme = "monokai",
-                                               value = "", height = "7vh", readOnly = F, autoComplete = "enabled"),ns = ns),
+                                     codigo.monokai(ns("fieldCodeRlrDisp"), height = "7vh"),ns = ns),
                     conditionalPanel("input.BoxRlr == 'tabRlrIndex'",
-                                     aceEditor(ns("fieldCodeRlrIG"), mode = "r", theme = "monokai",
-                                               value = "", height = "22vh", readOnly = F, autoComplete = "enabled"),ns = ns))
+                                     codigo.monokai(ns("fieldCodeRlrIG"),height = "22vh"),ns = ns))
   
   tabs.options.generate <- tabsOptions(buttons = list(icon("gear"), icon("code")), widths = c(50,100), heights = c(80,70),
-                          tabs.content = list(rlr.options,rlr.code.config))
+                                       tabs.content = list(rlr.options,rlr.code.config))
   
   tabs.options.Nogenerate <- tabsOptions(buttons = list(icon("code")), widths = c(100), heights = c(70),
-                               tabs.content = list(rlr.code))
-     
+                                         tabs.content = list(rlr.code))
+  
   
   generate.rlr.panel <- tabPanel(title = labelInput("generatem"),value = "tabRlrModelo",
                                  verbatimTextOutput(ns("txtRlr")))
@@ -93,7 +96,7 @@ mod_penalized_Regression_ui <- function(id){
                              rlr.general.index.panel,
                              conditionalPanel("input.BoxRlr == 'tabRlrModelo'",tabs.options.generate,ns = ns),
                              conditionalPanel("input.BoxRlr != 'tabRlrModelo'",tabs.options.Nogenerate,ns = ns)
-                             ))
+                      ))
   
   tagList(
     page.rlr
@@ -111,26 +114,26 @@ mod_penalized_Regression_server <- function(input, output, session, updateData, 
     updateSwitchInput(session, "switch.scale.rlr", value = T)
     updateNumericInput(session,"landa",value = 2)
     updateSwitchInput(session, "permitir.landa", value = F)
-    output$txtRlr <- renderText(NULL)
-    output$plot.rlr.posiblanda <- renderPlot(NULL)
-    output$txtRlrCoeff <- renderText(NULL)
-    output$rlCoefTable <- DT::renderDataTable(NULL)
-    output$plot.rlr.landa <- renderPlot(NULL)
-    output$rlrPrediTable <- DT::renderDataTable(NULL)
-    output$plot.rlr.disp <- renderEcharts4r(NULL)
-    output$indexdfrlr <- render_index_table(NULL)
-    output$indexdfrlr2 <- render_index_table(NULL)
+    # output$txtRlr <- renderText(NULL)
+    # output$plot.rlr.posiblanda <- renderPlot(NULL)
+    # output$txtRlrCoeff <- renderText(NULL)
+    # output$rlCoefTable <- DT::renderDataTable(NULL)
+    # output$plot.rlr.landa <- renderPlot(NULL)
+    # output$rlrPrediTable <- DT::renderDataTable(NULL)
+    # output$plot.rlr.disp <- renderEcharts4r(NULL)
+    # output$indexdfrlr <- render_index_table(NULL)
+    # output$indexdfrlr2 <- render_index_table(NULL)
   }
   
-  observeEvent(updateData$idioma,{
-    model.var = paste0("modelo.rlr.", rlr_type())
-    if(exists(model.var)){
-      execute_rlr_ind()
-      plot_disp_rlr()
-      plot_posib_landa_rlr()
-      plot_coeff()
-    }
-  })
+  # observeEvent(updateData$idioma,{
+  #   model.var = paste0("modelo.rlr.", rlr_type())
+  #   if(exists(model.var)){
+  #     execute_rlr_ind()
+  #     plot_disp_rlr()
+  #     plot_posib_landa_rlr()
+  #     plot_coeff()
+  #   }
+  # })
   
 
   observeEvent(updateData$datos.aprendizaje,{
@@ -139,7 +142,7 @@ mod_penalized_Regression_server <- function(input, output, session, updateData, 
  
   # When the rlr model is generated
   observeEvent(input$runRlr, {
-    if (validate_data(isolate(updateData), idioma = isolate(updateData$idioma))) { # If you have the data then :
+    if (validate_data(updateData, idioma = updateData$idioma)) { # If you have the data then :
       options_regressor(rlr.alpha = input$alpha.rlr)
       deafult_codigo_rlr()
       rlr_full()
@@ -157,6 +160,9 @@ mod_penalized_Regression_server <- function(input, output, session, updateData, 
   
   # Execute model, prediction and indices
   rlr_full <- function(){
+    
+    
+    
     execute_rlr()
     execute_rlr_pred()
     execute_rlr_ind()

@@ -2,9 +2,6 @@ var promidat_flat_models = {knn: true, dt: true, rf: true,
                             boosting: true, svm: true, rl: true, 
                             nn: true, rlr: true, rd: true};
 
-nya_btn = true;
-
-
 function promidat_model_firt(e, model, id){
   if(promidat_flat_models[model]){
     promidat_flat_models[model] = false;
@@ -23,7 +20,7 @@ function promidat_model_firt(e, model, id){
   $("a[href^='#shiny-tab-boosting']").on('click', function(e){promidat_model_firt(e,"boosting","boosting_ui_1-runBoosting")});
   $("a[href^='#shiny-tab-svm']").on('click', function(e){promidat_model_firt(e,"svm","SVM_ui_1-runSvm")});
   $("a[href^='#shiny-tab-nn']").on('click', function(e){promidat_model_firt(e,"nn","neural_networks_ui_1-runNn")});
-  $("a[href$='#shiny-tab-rl']").on('click', function(e){promidat_model_firt(e,"rl","linear_regression_ui_1-runRl")});
+  $("a[href^='#shiny-tab-rl']").on('click', function(e){promidat_model_firt(e,"rl","linear_regression_ui_1-runRl")});
   $("a[href^='#shiny-tab-rlr']").on('click', function(e){promidat_model_firt(e,"rlr","penalized_Regression_ui_1-runRlr")});
   $("a[href^='#shiny-tab-rd']").on('click', function(e){promidat_model_firt(e,"rd","dimension_reduction_ui_1-runRd")});
   $("#carga_datos_ui_1-segmentButton").on('click',function(e){

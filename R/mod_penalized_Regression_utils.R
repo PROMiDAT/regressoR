@@ -1,5 +1,3 @@
-# RLR PAGE ----------------------------------------------------------------------------------------------------------------
-
 #' rlr_model
 #' 
 #' @description generates the code to create the penalized regression model.

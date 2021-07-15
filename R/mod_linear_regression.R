@@ -9,26 +9,21 @@
 #' @importFrom shiny NS tagList 
 mod_linear_regression_ui <- function(id){
   ns <- NS(id)
-  
+
   rl.code  <- list(
                    conditionalPanel("input.BoxRl == 'tabRlModelo'",
                                     options.run(ns("runRl")), tags$hr(style = "margin-top: 0px;"),
-                                    aceEditor(ns("fieldCodeRl"), mode = "r", theme = "monokai",
-                                              value = "", height = "7vh", readOnly = F, autoComplete = "enabled"),ns = ns),
+                                    codigo.monokai(ns("fieldCodeRl"),height = "7vh"),ns = ns),
                    conditionalPanel("input.BoxRl != 'tabRlModelo'", 
                                     h3(labelInput("codigo")), hr(style = "margin-top: 0px;"),ns = ns),
                    conditionalPanel("input.BoxRl == 'tabRlCoef'",
-                                    aceEditor(ns("fieldCodeRlCoef"), mode = "r", theme = "monokai",
-                                              value = "", height = "10vh", readOnly = F, autoComplete = "enabled"),ns = ns),
+                                    codigo.monokai(ns("fieldCodeRlCoef"),height = "10vh"),ns = ns),
                    conditionalPanel("input.BoxRl == 'tabRlPred'",
-                                    aceEditor(ns("fieldCodeRlPred"), mode = "r", theme = "monokai",
-                                              value = "", height = "7vh", readOnly = F, autoComplete = "enabled"),ns = ns),
+                                    codigo.monokai(ns("fieldCodeRlPred"),height = "7vh"),ns = ns),
                    conditionalPanel("input.BoxRl == 'tabRlDisp'",
-                                    aceEditor(ns("fieldCodeRlDisp"), mode = "r", theme = "monokai",
-                                              value = "", height = "7vh", readOnly = F, autoComplete = "enabled"),ns = ns),
+                                    codigo.monokai(ns("fieldCodeRlDisp"),height = "7vh"),ns = ns),
                    conditionalPanel("input.BoxRl == 'tabRlIndex'",
-                                    aceEditor(ns("fieldCodeRlIG"), mode = "r", theme = "monokai",
-                                              value = "", height = "7vh", readOnly = F, autoComplete = "enabled"),ns = ns))
+                                    codigo.monokai(ns("fieldCodeRlIG"),height = "7vh"),ns = ns))
   
   tabs.rl  <- tabsOptions(buttons = list(icon("code")), widths = c(100), heights = c(70),
                           tabs.content = list(rl.code))
@@ -94,40 +89,16 @@ mod_linear_regression_server <- function(input, output, session, updateData, mod
     #Change to default values
     return.rl.default.values()
   })
-
-  # observeEvent(input$runRl, {
-  #   print("Hello")
-  #   isolate(lenguage <- updateData$idioma)
-  #   if (validate_data(isolate(updateData), idioma = lenguage)) { # Si se tiene los datos entonces :
-  #     rl_full()
-  #   }
-  # })
+  
+  observeEvent(input$runRl,{
+    #No hace falta isolate. observeEvent evalua la expresión en un isolate
+    if(validate_data(updateData,idioma = updateData$idioma)){
+      rl_full()
+    }
+  })
   
   # Execute model, prediction and indices
   rl_full <- function(){
-    isolate(datos.aprendizaje <- updateData$datos.aprendizaje)
-    isolate(datos.prueba <- updateData$datos.prueba)
-    isolate(variable.predecir <- updateData$variable.predecir)
-    
-    #Model generate
-    modelo.rl <- rl_model(datos.aprendizaje,variable.predecir)
-    
-    #Coefficients
-    model.information <- rl_coeff(modelo.rl)
-    df.rl <<- model.information$df.rl
-    r2 <<- model.information$r2
-    #Prediccion
-    prediccion.rl <- rl_prediction(modelo.rl, datos.prueba)
-    #Indices
-    indices.rl <- general_indices(datos.prueba[,variable.predecir], prediccion.rl)
-    
-    modelos$rl[[nombreModelo]] <- list(modelo = modelo.rl, prediccion = prediccion.rl, indices = indices.rl)
-  }
-  
-  
-  #Update model tab
-  output$txtRl <- renderPrint({
-    input$runRl
     tryCatch({
       isolate(datos.aprendizaje <- updateData$datos.aprendizaje)
       isolate(datos.prueba <- updateData$datos.prueba)
@@ -145,17 +116,25 @@ mod_linear_regression_server <- function(input, output, session, updateData, mod
       #Indices
       indices.rl <- general_indices(datos.prueba[,variable.predecir], prediccion.rl)
       
-      modelos$rl[[nombreModelo]] <- list(modelo = modelo.rl, prediccion = prediccion.rl, indices = indices.rl)
-      
-      #rl_full()
-      #modelo.rl <- modelos$rl[[nombreModelo]]$modelo
-      if(!is.null(modelo.rl)){
+      #isolamos para que no entre en un ciclo en el primer renderPrint
+      isolate(modelos$rl[[nombreModelo]] <- list(modelo = modelo.rl, prediccion = prediccion.rl, indices = indices.rl))
+    }, error = function(e){
+      showNotification(paste0("Error (RL-00) : ",e), duration = 10, type = "error")
+    })
+    
+  }
+  
+  
+  #Update model tab
+  output$txtRl <- renderPrint({
+    tryCatch({
+      if(!is.null(modelos$rl)){
         isolate(variable.predecir <- updateData$variable.predecir)
-        #updateAceEditor(session, "fieldCodeRl", value = codeRl(variable.predecir))
-        #return(summary(modelo.rl))
+        modelo.rl <- modelos$rl[[nombreModelo]]$modelo
+        updateAceEditor(session, "fieldCodeRl", value = codeRl(variable.predecir))
+        print(summary(modelo.rl))
       }
-      # else{NULL}
-      return("Hola-B")
+      else{NULL}
     }, error = function(e){
       showNotification(paste0("Error (RL-01) : ",e), duration = 10, type = "error")
       NULL
@@ -166,25 +145,31 @@ mod_linear_regression_server <- function(input, output, session, updateData, mod
   #Necesita observeEvent porque render_table_data no es reactivo
   observeEvent(c(modelos$rl,updateData$idioma),{
     tryCatch({
-      if(!is.null(df.rl)){
-        updateAceEditor(session, "fieldCodeRlCoef", value = codeRlCoef())
-        output$rlCoefTable <- render_table_data(df.rl[,c(1,4)], server = FALSE, language = updateData$idioma)
-      }else{NULL}
+      output$rlCoefTable <- render_table_data({
+        tryCatch({
+          if(!is.null(df.rl) && !is.null(modelos$rl)){
+            updateAceEditor(session, "fieldCodeRlCoef", value = codeRlCoef())
+            df.rl[,c(1,4)]
+          }else{NULL}
+        }, error = function(e){
+          showNotification(paste0("Error (RL-02) : ", e), duration = 10, type = "error")
+          NULL
+        })
+      }, server = FALSE, language = updateData$idioma)
+      
     },
     error = function(e) {
       showNotification(paste0("Error (RL-02) : ", e), duration = 10, type = "error")
     })
-  },ignoreInit = T)
+  },ignoreInit = TRUE)
 
   
   
   # Update prediction tab
   output$rlPrediTable <- DT::renderDataTable({
-    input$runRl
-    print("LSACD")
     tryCatch({
-      prediccion.rl <- modelos$rl[[nombreModelo]]$prediccion
-      if(!is.null(prediccion.rl)){
+      if(!is.null(modelos$rl)){
+        prediccion.rl <- modelos$rl[[nombreModelo]]$prediccion
         isolate(datos.prueba <- updateData$datos.prueba)
         isolate(real.val <- datos.prueba[updateData$variable.predecir])
         
@@ -203,8 +188,9 @@ mod_linear_regression_server <- function(input, output, session, updateData, mod
   # Update dispersion tab
   output$plot.rl.disp <- renderEcharts4r({
     tryCatch({
-      prediccion.rl <- modelos$rl[[nombreModelo]]$prediccion
-      if(!is.null(prediccion.rl)){
+      
+      if(!is.null(modelos$rl)){
+        prediccion.rl <- modelos$rl[[nombreModelo]]$prediccion
         isolate(datos.prueba <- updateData$datos.prueba)
         isolate(variable.predecir <- updateData$variable.predecir)
         codigo <- disp_models("prediccion.rl", tr("rll",updateData$idioma), variable.predecir)
@@ -228,46 +214,47 @@ mod_linear_regression_server <- function(input, output, session, updateData, mod
   
   
   #Update Indices tab
-  observeEvent(c(modelos$rl,updateData$idioma),{
-    
-    idioma <- updateData$idioma
-    
-    output$indexdfrl <- render_index_table({
-      tryCatch({
+  output$indexdfrl <- renderTable({
+    tryCatch({
+      if(!is.null(modelos$rl)){
+        idioma <- updateData$idioma
         indices.rl <- modelos$rl[[nombreModelo]]$indices
-        if(!is.null(indices.rl)){
-          updateAceEditor(session, "fieldCodeRlIG", value = codeRlIG(variable.predecir))
-          df <- cbind(as.data.frame(indices.rl), r2)
-          df <- df[,c(1,2,3,5,4)]
-          colnames(df) <- c(tr("RMSE",idioma), tr("MAE",idioma),
-                            tr("ER",idioma), tr("R2",idioma),
-                            tr("correlacion", idioma))
-          df
-        }
-        else{NULL}
-      }, error = function(e){
-        showNotification(paste0("Error (RL-05) : ",e), duration = 10, type = "error")
-        NULL
-      })
+        df <- cbind(as.data.frame(indices.rl), r2)
+        df <- df[,c(1,2,3,5,4)]
+        colnames(df) <- c(tr("RMSE",idioma), tr("MAE",idioma),
+                          tr("ER",idioma), tr("R2",idioma),
+                          tr("correlacion", idioma))
+        df
+      }
+      else{NULL}
+    }, error = function(e){
+      showNotification(paste0("Error (RL-05) : ",e), duration = 10, type = "error")
+      NULL
     })
-    
-    output$indexdfrl2 <- render_index_table({
-      tryCatch({
+  },striped = TRUE, bordered = TRUE, spacing = 'l', 
+  width = '100%',  digits = 5,align = 'c')
+  
+  
+  output$indexdfrl2 <- renderTable({
+    tryCatch({
+      if(!is.null(modelos$rl)){
+        idioma <- updateData$idioma
         isolate(datos.aprendizaje <- updateData$datos.aprendizaje)
         isolate(variable.predecir <- updateData$variable.predecir)
+        updateAceEditor(session, "fieldCodeRlIG", value = codeRlIG(variable.predecir))
         df2 <- as.data.frame(summary_indices(datos.aprendizaje[,variable.predecir]))
         colnames(df2) <- c(tr("minimo",idioma),tr("q1",idioma),
                            tr("q3",idioma),tr("maximo",idioma))
         df2
       }
-      , error = function(e){
-        showNotification(paste0("Error (RL-06) : ",e), duration = 10, type = "error")
-        NULL
-      })
-      
+      else{NULL}
+    }
+    , error = function(e){
+      showNotification(paste0("Error (RL-06) : ",e), duration = 10, type = "error")
+      NULL
     })
-    
-  },ignoreInit = T)
+  },striped = TRUE, bordered = TRUE, spacing = 'l', 
+  width = '100%',  digits = 5,align = 'c')
   
 }
     
