@@ -100,8 +100,7 @@ mod_linear_regression_server <- function(input, output, session, updateData, mod
     #Change to default values
     return.rl.default.values()
   })
-  
-  # When the rl model is generated
+
   observeEvent(input$runRl, {
     isolate(lenguage <- updateData$idioma)
     if (validate_data(isolate(updateData), idioma = lenguage)) { # Si se tiene los datos entonces :
@@ -128,7 +127,7 @@ mod_linear_regression_server <- function(input, output, session, updateData, mod
       
       output$txtRl <- renderPrint(print(summary(modelo.rl)))
     },
-    error = function(e) { # Regresamos al estado inicial y mostramos un error
+    error = function(e) {
       showNotification(paste0("Error (RL-01) : ",e), duration = 10, type = "error")
     })
   }
@@ -146,7 +145,7 @@ mod_linear_regression_server <- function(input, output, session, updateData, mod
         output$rlCoefTable <- render_table_data(df.rl[,c(1,4)], server = FALSE, language = updateData$idioma)
       })
     },
-    error = function(e) { # Regresamos al estado inicial y mostramos un error
+    error = function(e) {
       showNotification(paste0("Error (RL-02) : ", e), duration = 10, type = "error")
     })
   }
@@ -189,7 +188,7 @@ mod_linear_regression_server <- function(input, output, session, updateData, mod
         else{NULL}
       })
     },
-    error = function(e) { # Regresamos al estado inicial y mostramos un error
+    error = function(e) {
       showNotification(paste0("Error (RL-04): ", e), duration = 10, type = "error")
     })
   }
