@@ -80,8 +80,8 @@ mod_linear_regression_server <- function(input, output, session, updateData, mod
     # output$plot.rl.disp <- renderEcharts4r(NULL)
     # output$indexdfrl <- renderTable(NULL)
     # output$indexdfrl2 <- renderTable(NULL)
-    df.rl <- NULL
-    r2 <- NULL
+    df.rl <<- NULL
+    r2 <<- NULL
   }
   
 
@@ -106,15 +106,19 @@ mod_linear_regression_server <- function(input, output, session, updateData, mod
       
       #Model generate
       modelo.rl <- rl_model(datos.aprendizaje,variable.predecir)
+      updateAceEditor(session, "fieldCodeRl", value = codeRl(variable.predecir))
       
       #Coefficients
       model.information <- rl_coeff(modelo.rl)
       df.rl <<- model.information$df.rl
       r2 <<- model.information$r2
+      updateAceEditor(session, "fieldCodeRlCoef", value = codeRlCoef())
       #Prediccion
       prediccion.rl <- rl_prediction(modelo.rl, datos.prueba)
+      updateAceEditor(session, "fieldCodeRlPred", value = codeRlPred())
       #Indices
       indices.rl <- general_indices(datos.prueba[,variable.predecir], prediccion.rl)
+      updateAceEditor(session, "fieldCodeRlIG", value = codeRlIG(variable.predecir))
       
       #isolamos para que no entre en un ciclo en el primer renderPrint
       isolate(modelos$rl[[nombreModelo]] <- list(modelo = modelo.rl, prediccion = prediccion.rl, indices = indices.rl))
@@ -129,9 +133,7 @@ mod_linear_regression_server <- function(input, output, session, updateData, mod
   output$txtRl <- renderPrint({
     tryCatch({
       if(!is.null(modelos$rl)){
-        isolate(variable.predecir <- updateData$variable.predecir)
         modelo.rl <- modelos$rl[[nombreModelo]]$modelo
-        updateAceEditor(session, "fieldCodeRl", value = codeRl(variable.predecir))
         print(summary(modelo.rl))
       }
       else{NULL}
@@ -148,7 +150,6 @@ mod_linear_regression_server <- function(input, output, session, updateData, mod
       output$rlCoefTable <- render_table_data({
         tryCatch({
           if(!is.null(df.rl) && !is.null(modelos$rl)){
-            updateAceEditor(session, "fieldCodeRlCoef", value = codeRlCoef())
             df.rl[,c(1,4)]
           }else{NULL}
         }, error = function(e){
@@ -172,8 +173,6 @@ mod_linear_regression_server <- function(input, output, session, updateData, mod
         prediccion.rl <- modelos$rl[[nombreModelo]]$prediccion
         isolate(datos.prueba <- updateData$datos.prueba)
         isolate(real.val <- datos.prueba[updateData$variable.predecir])
-        
-        updateAceEditor(session, "fieldCodeRlPred", value = codeRlPred())
         tb_predic(real.val, prediccion.rl, updateData$idioma)
       }
       else{NULL}
@@ -241,7 +240,6 @@ mod_linear_regression_server <- function(input, output, session, updateData, mod
         idioma <- updateData$idioma
         isolate(datos.aprendizaje <- updateData$datos.aprendizaje)
         isolate(variable.predecir <- updateData$variable.predecir)
-        updateAceEditor(session, "fieldCodeRlIG", value = codeRlIG(variable.predecir))
         df2 <- as.data.frame(summary_indices(datos.aprendizaje[,variable.predecir]))
         colnames(df2) <- c(tr("minimo",idioma),tr("q1",idioma),
                            tr("q3",idioma),tr("maximo",idioma))

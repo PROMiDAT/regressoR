@@ -31,8 +31,7 @@ mod_penalized_Regression_ui <- function(id){
   
   
   rlr.code.config <- list(h3(labelInput("codigo")), hr(style = "margin-top: 0px;"),
-                          aceEditor(ns("fieldCodeRlr"), mode = "r", theme = "monokai",
-                                    value = "", height = "12vh", readOnly = F, autoComplete = "enabled"))
+                          codigo.monokai(ns("fieldCodeRlr"), height = "12vh"))
   
   
   rlr.code  <- list(fluidRow(column(width = 9, h3(labelInput("codigo")))),
@@ -102,12 +101,16 @@ mod_penalized_Regression_ui <- function(id){
     page.rlr
   )
 }
-    
+
 #' penalized_Regression Server Function
 #'
 #' @noRd 
-mod_penalized_Regression_server <- function(input, output, session, updateData, updatePlot){
+mod_penalized_Regression_server <- function(input, output, session, updateData, modelos){
   ns <- session$ns
+  
+  nombreModelo <- "modelo.rlr."
+  landa <- NULL
+  coefficients <- NULL
   
   return.rlr.default.values <- function(){
     updateSelectInput(session, "alpha.rlr",selected = 1)
@@ -123,32 +126,22 @@ mod_penalized_Regression_server <- function(input, output, session, updateData, 
     # output$plot.rlr.disp <- renderEcharts4r(NULL)
     # output$indexdfrlr <- render_index_table(NULL)
     # output$indexdfrlr2 <- render_index_table(NULL)
+    landa <<- NULL
+    coefficients <<- NULL
   }
   
-  # observeEvent(updateData$idioma,{
-  #   model.var = paste0("modelo.rlr.", rlr_type())
-  #   if(exists(model.var)){
-  #     execute_rlr_ind()
-  #     plot_disp_rlr()
-  #     plot_posib_landa_rlr()
-  #     plot_coeff()
-  #   }
-  # })
   
-
   observeEvent(updateData$datos.aprendizaje,{
     return.rlr.default.values()
   })
- 
+  
   # When the rlr model is generated
   observeEvent(input$runRlr, {
     if (validate_data(updateData, idioma = updateData$idioma)) { # If you have the data then :
-      options_regressor(rlr.alpha = input$alpha.rlr)
-      deafult_codigo_rlr()
       rlr_full()
     }
   })
-
+  
   # When user press enable or disable the lambda
   observeEvent(input$permitir.landa, {
     if (input$permitir.landa) {
@@ -160,235 +153,221 @@ mod_penalized_Regression_server <- function(input, output, session, updateData, 
   
   # Execute model, prediction and indices
   rlr_full <- function(){
-    
-    
-    
-    execute_rlr()
-    execute_rlr_pred()
-    execute_rlr_ind()
-  }
-  
-  # Generates the model
-  execute_rlr <- function() {
-    tryCatch({ # Se corren los codigo
-      isolate(exe(cod.rlr.modelo))
-      isolate(tipo <- rlr_type())
-      output$txtRlr <- renderPrint(print(exe("modelo.rlr.",tipo)))
+    tryCatch({
       
-      plot_posib_landa_rlr()
-      print_coeff()
-      plot_coeff()
+      isolate(datos.aprendizaje <- updateData$datos.aprendizaje)
+      isolate(datos.prueba <- updateData$datos.prueba)
+      isolate(variable.predecir <- updateData$variable.predecir)
+      isolate(alpha <- input$alpha.rlr)
+      isolate(standardize <- input$switch.scale.rlr)
       
-      #nombres.modelos <<- c(nombres.modelos, paste0("modelo.rlr.",tipo))
-    },
-    error = function(e) { # Regresamos al estado inicial y mostramos un error
-      clean_rlr(1)
-      showNotification(paste0("Error (R/L-01) : ",e), duration = 15, type = "error")
-    })
-  }
-  
-  # Upgrade code fields to default version
-  deafult_codigo_rlr <- function(){
-    landa <- NULL
-    
-    if (input$permitir.landa) {
-      if (!is.na(input$landa)) {
-        landa <- input$landa
-      }
-    }
-    
-    # The model code is updated
-    codigo <- rlr_model(variable.pred = variable.predecir,
-                        model.var = paste0("modelo.rlr.", rlr_type()),
-                        alpha = input$alpha.rlr,
-                        standardize = input$switch.scale.rlr)
-    
-    updateAceEditor(session, "fieldCodeRlr", value = codigo)
-    cod.rlr.modelo <<- codigo
-    
-    # The code that prints the coefficients is generated
-    codigo <- coef_lambda(variable.pred = variable.predecir,
-                          model.var = paste0("modelo.rlr.", rlr_type()),
-                          lambda = landa)
-    
-    updateAceEditor(session, "fieldCodeRlrCoeff", value = codigo)
-    
-    
-    # The prediction code is generated
-    codigo <- rlr_prediction(variable.pred = variable.predecir,
-                             model.var = paste0("modelo.rlr.", rlr_type()),
-                             pred.var = paste0("prediccion.rlr.", rlr_type()),
-                             lambda = landa)
-    
-    updateAceEditor(session, "fieldCodeRlrPred", value = codigo)
-    cod.rlr.pred <<- codigo
-
-    
-    # The index code is generated
-    codigo <- extract_code("general_indices")
-    updateAceEditor(session, "fieldCodeRlrIG", value = codigo)
-    cod.rlr.ind <<- codigo
-  }
-  
-  # Cleans the data according to the process where the error is generated
-  clean_rlr <- function(capa = NULL){
-    for(i in capa:3){
-      switch(i, {
-        modelo.rlr <<- NULL
-        output$txtRlr <- renderPrint(invisible(""))
-      }, {
-        prediccion.rlr <<- NULL
-        output$rlrPrediTable <- DT::renderDataTable(NULL)
-      },{
-        indices.rlr <<- rep(0, 10)
-      })
-    }
-  }
-  
-  # Shows the graph the dispersion of the model with respect to the real values
-  plot_disp_rlr <- function(){
-    tryCatch({ # Se corren los codigo
-      titulos <- c(
-        tr("predvsreal", updateData$idioma),
-        tr("realValue", updateData$idioma),
-        tr("pred", updateData$idioma)
-      )
-
-      output$plot.rlr.disp <- renderEcharts4r(plot_real_prediction(datos.prueba[variable.predecir],
-                                                                   exe(paste0("prediccion.rlr.",rlr_type()))
-                                                                   ,translate("rlr"),titulos))
-      
-      codigo <- disp_models(paste0("prediccion.rlr.",rlr_type()), translate("rlr"), variable.predecir)
-      updateAceEditor(session, "fieldCodeRlrDisp", value = codigo)
-    },
-    error = function(e) { # Regresamos al estado inicial y mostramos un error
-      clean_rlr(2)
-      showNotification(paste0("Error (R/L-02) : ", e), duration = 15, type = "error")
-    })
-  }
-  
-  # Show the graph of the possible lambda
-  plot_posib_landa_rlr <- function(){
-    tryCatch({ # Se corren los codigo
-      landa <- NULL
-      
-      if (input$permitir.landa) {
-        if (!is.na(input$landa)) {
-          landa <- input$landa
+      if (isolate(input$permitir.landa)) {
+        inp.landa <- isolate(input$landa)
+        if (!is.na(inp.landa)) {
+          landa <<- inp.landa
         }
       }
       
-      titulos <- c(
-        tr("MSE", updateData$idioma),
-        tr("lowCurve", updateData$idioma),
-        tr("uppCurve", updateData$idioma),
-        tr("selected", updateData$idioma),
-        tr("nonZeroCoeff", updateData$idioma)
-      )
-      output$plot.rlr.posiblanda <- renderEcharts4r(e_posib_lambda(exe("modelo.rlr.", rlr_type()), landa, titulos))
+      nombreModelo <<- paste0(nombreModelo, rlr_type(alpha))
       
-      # The code of the possible landa is generated
-      param.lambda <- ifelse(is.null(landa),"",paste0(",",landa))
-      codigo <- paste0("e_posib_lambda(modelo.rlr.",rlr_type(), param.lambda, ")")
-      updateAceEditor(session, "fieldCodeRlrPosibLanda", value = codigo)
-    },
-    error = function(e) { # Regresamos al estado inicial y mostramos un error
-      clean_rlr(2)
-      showNotification(paste0("Error (R/L-01) : ", e), duration = 15, type = "error")
+      #Model generate
+      modelo.rlr <- rlr_model(data = datos.aprendizaje, variable.pred = variable.predecir,
+                              alpha = alpha, standardize = standardize)
+      updateAceEditor(session, "fieldCodeRlr", value = codeRlr(variable.predecir,alpha,standardize))
+      print("Hola")
+      
+      # Coefficients
+      coefficients <<- coef_lambda(data = datos.aprendizaje, variable.pred = variable.predecir,
+                                   model = modelo.rlr, log.lambda = landa)
+      updateAceEditor(session, "fieldCodeRlrCoeff", value = codeRlrCoeff(variable.predecir,
+                                                                         nombreModelo,landa))
+      
+      
+      print("Hello")
+      # Prediction
+      prediccion.rlr <- rlr_prediction(datos.aprendizaje, datos.prueba, variable.predecir, 
+                                       modelo.rlr, log.lambda = landa)
+      updateAceEditor(session, "fieldCodeRlrPred", value = codeRlrPred(variable.predecir,
+                                                                       nombreModelo,landa))
+      
+      print("HI")
+      #Indices
+      indices.rlr <- general_indices(datos.prueba[,variable.predecir], prediccion.rlr)
+      updateAceEditor(session, "fieldCodeRlrIG", value = codeRlrIG(variable.predecir))
+      
+      #isolamos para que no entre en un ciclo en el primer renderPrint
+      isolate(modelos$rlr[[nombreModelo]] <- list(modelo = modelo.rlr, prediccion = prediccion.rlr, indices = indices.rlr))
+    }, error = function(e){
+      showNotification(paste0("Error (RLR-00) : ",e), duration = 10, type = "error")
     })
   }
   
-  # Displays coefficients as text
-  print_coeff <- function(){
-    tryCatch({ # Se corren los codigo
-      output$txtRlrCoeff <- renderPrint(print(isolate(exe(input$fieldCodeRlrCoeff))))
-    },
-    error = function(e) { # Regresamos al estado inicial y mostramos un error
-      clean_rlr(2)
-      showNotification(paste0("Error (R/L-01) : ", e), duration = 15, type = "error")
-    })
-  }
   
-  # Show the graph of the coefficients
-  plot_coeff <- function(){
-    tryCatch({ # Se corren los codigo
-      landa <- NULL
-      
-      if (input$permitir.landa) {
-        if (!is.na(input$landa)) {
-          landa <- input$landa
-        }
+  #Update model tab
+  output$txtRlr <- renderPrint({
+    tryCatch({
+      if(!is.null(modelos$rlr)){
+        modelos.rlr <- modelos$rlr[[nombreModelo]]$modelo
+        print(modelos.rlr)
       }
-      
-      titulos <- c(
-        tr("coeff", updateData$idioma),
-        tr("selected", updateData$idioma)
-      )
-      
-      output$plot.rlr.Coeff_landa <- renderEcharts4r(e_coeff_landa(exe("modelo.rlr.",rlr_type()), landa, titulos))
-      
-      # The code of the coefficients is generated with the best lambda
-      param.lambda <- ifelse(is.null(landa),"",paste0(",",landa))
-      codigo <- paste0("e_coeff_landa(modelo.rlr.",rlr_type(), param.lambda, ")")
-      updateAceEditor(session, "fieldCodeRlrCoeff_landa", value = codigo)
-    },
-    error = function(e){ # Regresamos al estado inicial y mostramos un error
-      clean_rlr(2)
-      showNotification(paste0("Error (R/L-01) : ", e), duration = 15, type = "error")
+      else{NULL}
+    }, error = function(e){
+      showNotification(paste0("Error (RLR-01) : ",e), duration = 10, type = "error")
+      NULL
     })
-  }
+  })
   
-
   
-
-  
-  # Generate the prediction
-  execute_rlr_pred <- function() {
-    tryCatch({ # Se corren los codigo
-      isolate(exe(cod.rlr.pred))
-      isolate(tipo <- rlr_type())
-      output$rlrPrediTable <- DT::renderDataTable(tb_predic(real.val, exe("prediccion.rlr.",tipo)), server = FALSE)
-      
-      plot_disp_rlr()
-      #nombres.modelos <<- c(nombres.modelos, "prediccion.rlr")
-      updatePlot$tablaCom <- !updatePlot$tablaCom #graficar otra vez la tabla comprativa
-    },
-    error = function(e) { # Regresamos al estado inicial y mostramos un error
-      clean_rlr(2)
-      showNotification(paste0("Error (R/L-02) : ", e), duration = 15, type = "error")
+  #Update coefficients tab
+  output$txtRlrCoeff <- renderPrint({
+    tryCatch({
+      ifelse(!is.null(modelos$rlr), print(coefficients), NULL)
+    }, error = {
+      showNotification(paste0("Error (RLR-02) : ", e), duration = 10, type = "error")
+      NULL
     })
-  }
+  })
   
-  # Generates the indices
-  execute_rlr_ind <- function() {
-    var.prediction.name <- paste0("prediccion.rlr.",rlr_type())
-    if(exists(var.prediction.name)){
-      tryCatch({ # Se corren los codigo
-        isolate(exe(cod.rlr.ind))
+  
+  # Update prediction tab
+  output$rlrPrediTable <- DT::renderDataTable({
+    tryCatch({
+      if(!is.null(modelos$rlr)){
+        prediccion.rlr <- modelos$rlr[[nombreModelo]]$prediccion
+        isolate(datos.prueba <- updateData$datos.prueba)
+        isolate(real.val <- datos.prueba[updateData$variable.predecir])
+        tb_predic(real.val, prediccion.rlr, updateData$idioma)
+      }
+      else{NULL}
+      
+    }, error = function(e){
+      showNotification(paste0("Error (RLR-03) : ", e), duration = 10, type = "error")
+      NULL
+    })
+  }, server = F)
+  
+  
+  # Update dispersion tab
+  output$plot.rlr.disp <- renderEcharts4r({
+    tryCatch({
+      if(!is.null(modelos$rlr)){
+        prediccion.rlr <- modelos$rlr[[nombreModelo]]$prediccion
+        isolate(datos.prueba <- updateData$datos.prueba)
+        isolate(variable.predecir <- updateData$variable.predecir)
         
-        indices.rlr <- general_indices(datos.prueba[,variable.predecir], exe("prediccion.rlr.",rlr_type()))
+        codigo <- disp_models(nombreModelo, tr("rlr", updateData$idioma), variable.predecir)
+        updateAceEditor(session, "fieldCodeRlrDisp", value = codigo)
         
+        titulos <- c(
+          tr("predvsreal", updateData$idioma),
+          tr("realValue", updateData$idioma),
+          tr("pred", updateData$idioma)
+        )
+        
+        output$plot.rlr.disp <- renderEcharts4r(plot_real_prediction(datos.prueba[variable.predecir],
+                                                                     prediccion.rlr,
+                                                                     tr("rlr", updateData$idioma),titulos))
+      }
+      else{NULL}
+    }, error = function(e){
+      showNotification(paste0("Error (RLR-04) : ", e), duration = 10, type = "error")
+      NULL
+    })
+  })
+  
+  
+  output$plot.rlr.posiblanda <- renderEcharts4r({
+    tryCatch({
+      if(!is.null(modelos$rlr)){
+        titulos <- c(
+          tr("MSE", updateData$idioma),
+          tr("lowCurve", updateData$idioma),
+          tr("uppCurve", updateData$idioma),
+          tr("selected", updateData$idioma),
+          tr("nonZeroCoeff", updateData$idioma)
+        )
+        
+        param.lambda <- ifelse(is.null(landa),"",paste0(",",landa))
+        codigo <- paste0("e_posib_lambda(", nombreModelo, param.lambda, ")")
+        updateAceEditor(session, "fieldCodeRlrPosibLanda", value = codigo)
+        
+        e_posib_lambda(modelos$rlr[[nombreModelo]]$modelo, landa, titulos)
+      }
+      else{NULL}
+      
+    }, error = function(e){
+      showNotification(paste0("Error (RLR-04) : ", e), duration = 10, type = "error")
+      NULL
+    })
+  })
+  
+  
+  
+  output$plot.rlr.Coeff_landa <- renderEcharts4r({
+    tryCatch({
+      if(!is.null(modelos$rlr)){
+        param.lambda <- ifelse(is.null(landa),"",paste0(",",landa))
+        codigo <- paste0("e_coeff_landa(", nombreModelo, param.lambda, ")")
+        updateAceEditor(session, "fieldCodeRlrCoeff_landa", value = codigo)
+        
+        titulos <- c(
+          tr("coeff", updateData$idioma),
+          tr("selected", updateData$idioma)
+        )
+        
+        e_coeff_landa(modelos$rlr[[nombreModelo]]$modelo, landa, titulos)
+      }
+      else{NULL}
+    }, error = function(e){
+      showNotification(paste0("Error (RLR-04) : ", e), duration = 10, type = "error")
+      NULL
+    })
+  })
+  
+  
+  #Update Indices tab
+  output$indexdfrlr <- renderTable({
+    tryCatch({
+      if(!is.null(modelos$rlr)){
+        idioma <- updateData$idioma
+        indices.rlr <- modelos$rlr[[nombreModelo]]$indices
         df <- as.data.frame(indices.rlr)
-        colnames(df) <- c(translate("RMSE"), translate("MAE"), translate("ER"), translate("correlacion"))
-        output$indexdfrlr <- render_index_table(df)
-        
+        colnames(df) <- c(tr("RMSE", idioma), tr("MAE", idioma), tr("ER", idioma), tr("correlacion", idioma))
+        df
+      }
+      else{NULL}
+    }, error = function(e){
+      showNotification(paste0("Error (RL-05) : ",e), duration = 10, type = "error")
+      NULL
+    })
+  },striped = TRUE, bordered = TRUE, spacing = 'l', 
+  width = '100%',  digits = 5,align = 'c')
+  
+  
+  
+  output$indexdfrlr2 <- renderTable({
+    tryCatch({
+      if(!is.null(modelos$rlr)){
+        idioma <- updateData$idioma
+        isolate(datos.aprendizaje <- updateData$datos.aprendizaje)
+        isolate(variable.predecir <- updateData$variable.predecir)
         df2 <- as.data.frame(summary_indices(datos.aprendizaje[,variable.predecir]))
-        colnames(df2) <- c(translate("minimo"),translate("q1"),translate("q3"),translate("maximo"))
-        output$indexdfrlr2 <- render_index_table(df2)
-        
-        updateData$IndicesM[[paste0("rlr-",rlr_type())]] <<-  indices.rlr
-      },
-      error = function(e) { # Regresamos al estado inicial y mostramos un error
-        clean_rlr(3)
-        showNotification(paste0("Error (R/L-03) : ",e), duration = 15, type = "error")
-      })
+        colnames(df2) <- c(tr("minimo",idioma),tr("q1",idioma),
+                           tr("q3",idioma),tr("maximo",idioma))
+        df2
+      }
+      else{NULL}
     }
-  }
+    , error = function(e){
+      showNotification(paste0("Error (RL-06) : ",e), duration = 10, type = "error")
+      NULL
+    })
+  },striped = TRUE, bordered = TRUE, spacing = 'l', 
+  width = '100%',  digits = 5,align = 'c')
 }
-    
+
 ## To be copied in the UI
 # mod_penalized_Regression_ui("penalized_Regression_ui_1")
-    
+
 ## To be copied in the server
 # callModule(mod_penalized_Regression_server, "penalized_Regression_ui_1")
- 

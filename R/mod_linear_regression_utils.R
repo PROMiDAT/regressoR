@@ -8,7 +8,7 @@
 #' @seealso \code{\link[stats]{lm}}
 #'
 #' @export
-rl_model <- function(data, variable.pred = NULL){
+rl_model <- function(data, variable.pred){
   if(!is.null(variable.pred) && !is.null(data)){
     return(lm(formula = paste0(variable.pred,"~."), data = data))
   }
@@ -66,7 +66,7 @@ rl_coeff <- function(modelo){
 #------------------------------------CODE---------------------------------------
 
 codeRl <- function(variable.predecir){
-  return(paste0("rl_model(datos, '",variable.predecir,"')"))
+  return(paste0("rl_model(data, '",variable.predecir,"')"))
 }
 
 codeRlCoef <- function(nombreModelo = "modelo.rl"){
@@ -79,5 +79,5 @@ codeRlPred <- function(){
 }
 
 codeRlIG <- function(variable.predecir){
-  return(paste0("general_indices(datos.prueba[,'",variable.predecir,"'], prediccion.rl)"))
+  return(paste0("general_indices(test.data[,'",variable.predecir,"'], prediccion.rl)"))
 }

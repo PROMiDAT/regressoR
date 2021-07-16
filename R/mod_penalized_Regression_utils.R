@@ -1,6 +1,6 @@
 #' rlr_model
 #' 
-#' @description generates the code to create the penalized regression model.
+#' @description generates a penalized regression model.
 #'
 #' @param data dataframe
 #' @param variable.pred the name of the variable to be predicted.
@@ -11,12 +11,16 @@
 #' @seealso \code{\link[glmnet]{glmnet}}, \code{\link[glmnet]{cv.glmnet}}
 #'
 #' @export
-rlr_model <- function(data, variable.pred = NULL ,alpha = 0, standardize = TRUE){
-  x <- model.matrix(paste0("`",variable.pred,"`~."),data)[, -1]
-  y <- data[,variable.pred]
-  modelo.rlr <- cv.glmnet(x, y, standardize = standardize, alpha = alpha)
-  
-  return(modelo.rlr)
+rlr_model <- function(data, variable.pred,alpha = 0, standardize = TRUE){
+  if(!is.null(variable.pred) && !is.null(data)){
+    form <- formula(paste0(variable.pred,"~."))
+    x <- model.matrix(form,data)[, -1]
+    y <- data[,variable.pred]
+    modelo.rlr <- cv.glmnet(x, y, standardize = standardize, alpha = alpha)
+    
+    return(modelo.rlr)
+  }
+  return(NULL)
   
   # return(paste0("x <- model.matrix(`",variable.pred,"`~., ",data,")[, -1]\n",
   #               "y <- ",data,"[, '",variable.pred,"']\n",
@@ -27,26 +31,26 @@ rlr_model <- function(data, variable.pred = NULL ,alpha = 0, standardize = TRUE)
 #' 
 #' @description generates the code to print the penalized regression coefficients.
 #'
-#' @param data the name of the learning data.
+#' @param data dataframe
 #' @param variable.pred the name of the variable to be predicted.
-#' @param model.var the name of the variable that stores the resulting model.
-#' @param lambda a numerical value in case you don't want to use the optimal lambda.
+#' @param model a penalized regression model(cv.glmnet).
+#' @param log.lambda numerical. Logarithm of lambda in case you don't want to use the optimal lambda.
 #'
 #' @export
-#'
-#' @examples
-#' library(glmnet)
-#' x <- rlr_model('iris', 'Petal.Length')
-#' exe(x)
 #' 
-#' x <- coef_lambda('iris','Petal.Length', 'modelo.rlr')
-#' exe(x)
-#' 
-coef_lambda <- function(data = "datos.aprendizaje", variable.pred = NULL, model.var = "modelo.rlr", lambda = NULL){
-  lambda <- ifelse(is.null(lambda), paste0(model.var,"$lambda.min"), paste0("exp(",lambda,")"))
-  paste0("x <- model.matrix(`",variable.pred,"`~., ",data,")[, -1]\n",
-         "y <- ",data,"[, '",variable.pred,"']\n",
-         "predict(",model.var,", s = ",lambda,", type = 'coefficients', exact = TRUE, x = x, y = y)")
+coef_lambda <- function(data , variable.pred, model, log.lambda = NULL){
+  if(!is.null(variable.pred) && !is.null(data) && !is.null(model)){
+    form <- formula(paste0(variable.pred,"~."))
+    x <- model.matrix(form,data)[, -1]
+    y <- data[,variable.pred]
+    lambda <- ifelse(is.null(log.lambda), model$lambda.min, exp(log.lambda))
+    return(predict(model, x = x, y = y, s = lambda, type = 'coefficients', exact = TRUE))
+  }
+  return(NULL)
+
+  # paste0("x <- model.matrix(`",variable.pred,"`~., ",data,")[, -1]\n",
+  #        "y <- ",data,"[, '",variable.pred,"']\n",
+  #        "predict(",model.var,", s = ",lambda,", type = 'coefficients', exact = TRUE, x = x, y = y)")
 }
 
 
@@ -54,35 +58,36 @@ coef_lambda <- function(data = "datos.aprendizaje", variable.pred = NULL, model.
 #' 
 #' @description generates the code to create the prediction of the penalized regression model.
 #'
-#' @param data.a the name of the learning data.
-#' @param data.p the name of the test data.
+#' @param learning.data dataframe.
+#' @param test.data dataframe.
 #' @param variable.pred the name of the variable to be predicted.
-#' @param model.var the name of the variable that stores the resulting model.
-#' @param pred.var the name of the variable that stores the resulting prediction.
-#' @param lambda a numerical value in case you don't want to use the optimal lambda.
+#' @param model a penalized regression model(cv.glmnet).
+#' @param log.lambda numerical. Logarithm of lambda in case you don't want to use the optimal lambda.
 #'
 #' @export
 #'
-#' @examples
-#' library(glmnet)
-#' x <- rlr_model('iris', 'Petal.Length')
-#' exe(x)
-#' print(modelo.rlr)
-#' 
-#' x <- rlr_prediction('iris', 'iris', 'Petal.Length', pred.var = 'my_prediction')
-#' exe(x)
-#' print(my_prediction)
-#' 
-rlr_prediction <- function(data.a = "datos.aprendizaje", data.p = "datos.prueba",variable.pred = NULL, model.var = "modelo.rlr", 
-                           pred.var = "prediccion.rlr", lambda = NULL) {
-  lambda <- ifelse(is.null(lambda),paste0(model.var,"$lambda.min"), paste0("exp(",lambda,")") )
-  paste0("x <- model.matrix(`",variable.pred,"`~., ",data.a,")[, -1]\n",
-         "y <- ",data.a,"[, '",variable.pred,"']\n",
-         "prueba <- ",data.p,"\n",
-         "prueba[, '",variable.pred,"'] <- 0\n",
-         "prueba <- model.matrix(`",variable.pred,"`~., prueba)[, -1]\n",
-         pred.var," <- predict(",model.var,",newx = prueba,",
-         "s = ",lambda,", exact = TRUE, x = x, y = y)")
+rlr_prediction <- function(learning.data, test.data, variable.pred, model, log.lambda = NULL) {
+  print("RA")
+  if(!is.null(learning.data) && !is.null(test.data) && !is.null(variable.pred) && !is.null(model)){
+    print("rlr_prediction")
+    lambda <- ifelse(is.null(log.lambda), model$lambda.min, exp(log.lambda))
+    form <- formula(paste0(variable.pred,"~."))
+    x <- model.matrix(form,learning.data)[, -1]
+    y <- learning.data[,variable.pred]
+    prueba <- test.data
+    prueba[, variable.pred] <- 0
+    prueba <- model.matrix(form, prueba)[, -1]
+    predict(model,newx = prueba, s = lambda, exact = TRUE, x = x, y = y)
+  }
+  return(NULL)
+  
+  # paste0("x <- model.matrix(`",variable.pred,"`~., ",data.a,")[, -1]\n",
+  #        "y <- ",data.a,"[, '",variable.pred,"']\n",
+  #        "prueba <- ",data.p,"\n",
+  #        "prueba[, '",variable.pred,"'] <- 0\n",
+  #        "prueba <- model.matrix(`",variable.pred,"`~., prueba)[, -1]\n",
+  #        pred.var," <- predict(",model.var,",newx = prueba,",
+  #        "s = ",lambda,", exact = TRUE, x = x, y = y)")
 }
 
 #' rlr_type
@@ -99,8 +104,8 @@ rlr_prediction <- function(data.a = "datos.aprendizaje", data.p = "datos.prueba"
 #' rlr_type(1)
 #' rlr_type(0)
 #' 
-rlr_type <- function(alpha_rlr = options_regressor("rlr.alpha")){
-  alpha_rlr <- ifelse(is.null(unlist(alpha_rlr)), 0, alpha_rlr)
+rlr_type <- function(alpha_rlr = 0){
+  alpha_rlr <- ifelse(is.null(alpha_rlr), 0, alpha_rlr)
   ifelse(alpha_rlr == 0, "ridge", "lasso")
 }
 
@@ -264,4 +269,27 @@ e_coeff_landa <- function(cv.glm, log.lambda = NULL, titles = c("Coeficientes","
   }
   
   return(grafico)
+}
+
+
+
+#------------------------------------CODE---------------------------------------
+codeRlr <- function(variable.predecir, alpha, standardize){
+  return(paste0("rlr_model(data, '",variable.predecir,"', alpha = ",alpha, "standardize = ",standardize,"')"))
+}
+
+codeRlrCoeff <- function(variable.predecir, nombreModelo, log.lambda){
+  return(paste0("coef_lambda(data, '", variable.predecir,"', modelo = ",nombreModelo,", ",
+                "log.lambda = ",log.lambda, ")"))
+}
+
+
+codeRlrPred <- function(variable.predecir, nombreModelo, log.lambda){
+  return(paste0("rlr_prediction(learning.data, test.data, '", variable.predecir,", modelo = ",nombreModelo,", ",
+                "log.lambda = ",log.lambda, ")"))
+}
+
+
+codeRlrIG <- function(variable.predecir){
+  return(paste0("general_indices(test.data[,'",variable.predecir,"'], prediccion.rlr)"))
 }
