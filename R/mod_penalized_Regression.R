@@ -31,7 +31,7 @@ mod_penalized_Regression_ui <- function(id){
   
   
   rlr.code.config <- list(h3(labelInput("codigo")), hr(style = "margin-top: 0px;"),
-                          codigo.monokai(ns("fieldCodeRlr"), height = "12vh"))
+                          codigo.monokai(ns("fieldCodeRlr"), height = "7vh"))
   
   
   rlr.code  <- list(fluidRow(column(width = 9, h3(labelInput("codigo")))),
@@ -42,13 +42,13 @@ mod_penalized_Regression_ui <- function(id){
                     conditionalPanel("input.BoxRlr == 'tabRlrCoeff_landa'",
                                      codigo.monokai(ns("fieldCodeRlrCoeff_landa"), height = "7vh"),ns = ns),
                     conditionalPanel("input.BoxRlr == 'tabRlrCoeff'",
-                                     codigo.monokai(ns("fieldCodeRlrCoeff"), height = "12vh"),ns = ns),
+                                     codigo.monokai(ns("fieldCodeRlrCoeff"), height = "7vh"),ns = ns),
                     conditionalPanel("input.BoxRlr == 'tabRlrPred'",
-                                     codigo.monokai(ns("fieldCodeRlrPred"), height = "18vh"),ns = ns),
+                                     codigo.monokai(ns("fieldCodeRlrPred"), height = "7vh"),ns = ns),
                     conditionalPanel("input.BoxRlr == 'tabRlrDisp'",
                                      codigo.monokai(ns("fieldCodeRlrDisp"), height = "7vh"),ns = ns),
                     conditionalPanel("input.BoxRlr == 'tabRlrIndex'",
-                                     codigo.monokai(ns("fieldCodeRlrIG"),height = "22vh"),ns = ns))
+                                     codigo.monokai(ns("fieldCodeRlrIG"),height = "7vh"),ns = ns))
   
   tabs.options.generate <- tabsOptions(buttons = list(icon("gear"), icon("code")), widths = c(50,100), heights = c(80,70),
                                        tabs.content = list(rlr.options,rlr.code.config))
@@ -174,26 +174,29 @@ mod_penalized_Regression_server <- function(input, output, session, updateData, 
       modelo.rlr <- rlr_model(data = datos.aprendizaje, variable.pred = variable.predecir,
                               alpha = alpha, standardize = standardize)
       updateAceEditor(session, "fieldCodeRlr", value = codeRlr(variable.predecir,alpha,standardize))
-      print("Hola")
+      print("Model generate")
       
       # Coefficients
       coefficients <<- coef_lambda(data = datos.aprendizaje, variable.pred = variable.predecir,
                                    model = modelo.rlr, log.lambda = landa)
+      print("Ws")
+      log.lambda <- ifelse(is.null(landa), modelo.rlr$lambda.min, landa)
       updateAceEditor(session, "fieldCodeRlrCoeff", value = codeRlrCoeff(variable.predecir,
-                                                                         nombreModelo,landa))
-      
-      
-      print("Hello")
+                                                                         nombreModelo,log.lambda))
+      print("Coefficients")
+
       # Prediction
       prediccion.rlr <- rlr_prediction(datos.aprendizaje, datos.prueba, variable.predecir, 
                                        modelo.rlr, log.lambda = landa)
       updateAceEditor(session, "fieldCodeRlrPred", value = codeRlrPred(variable.predecir,
-                                                                       nombreModelo,landa))
+                                                                       nombreModelo,log.lambda))
+      print("Prediction")
       
-      print("HI")
+      
       #Indices
       indices.rlr <- general_indices(datos.prueba[,variable.predecir], prediccion.rlr)
       updateAceEditor(session, "fieldCodeRlrIG", value = codeRlrIG(variable.predecir))
+      print("Indices")
       
       #isolamos para que no entre en un ciclo en el primer renderPrint
       isolate(modelos$rlr[[nombreModelo]] <- list(modelo = modelo.rlr, prediccion = prediccion.rlr, indices = indices.rlr))
@@ -222,7 +225,7 @@ mod_penalized_Regression_server <- function(input, output, session, updateData, 
   output$txtRlrCoeff <- renderPrint({
     tryCatch({
       ifelse(!is.null(modelos$rlr), print(coefficients), NULL)
-    }, error = {
+    }, error = function(e){
       showNotification(paste0("Error (RLR-02) : ", e), duration = 10, type = "error")
       NULL
     })
