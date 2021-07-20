@@ -260,8 +260,9 @@ posibLanda;Posibles lambda;Possible lambda
 coeff;Coeficientes;Coefficients
 nonZeroCoeff;Coeficientes Distintos de Cero;Non-Zero Coefficients
 gcoeff;Coeficientes y lambda;Coefficients and lambda
-automatico;Automatico;Automatic
-landa;Lambda Log(x) = ;Lambda Log(x) =
+manual;Manual;Manual
+automatico;Automático;Automatic
+log_landa;Lambda Log(x) = ;Lambda Log(x) =
 selected;Seleccionado;Selected
 uppCurve;Curva Superior;Upper Curve
 lowCurve;Curva Inferior;Lower Curve

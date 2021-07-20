@@ -38,18 +38,10 @@ rlr_model <- function(data, variable.pred,alpha = 0, standardize = TRUE){
 #'
 #' @export
 #' 
-coef_lambda <- function(data , variable.pred, model, log.lambda = NULL){
+coef_lambda <- function(data, variable.pred, model, log.lambda = NULL){
   if(!is.null(variable.pred) && !is.null(data) && !is.null(model)){
-    
-    form <- formula(paste0(variable.pred,"~."))
-    x <- model.matrix(form,data)[, -1]
-    y <- data[,variable.pred]
-    print(log.lambda)
     lambda <- ifelse(is.null(log.lambda), model$lambda.min, exp(log.lambda))
-    print(coefficients(model, s = lambda))
-    p <- predict(model, s = lambda, type = 'coefficients', exact = TRUE, x = x, y = y)
-    print("PP")
-    return(predict(model, s = lambda, type = 'coefficients', exact = TRUE, x = x, y = y))
+    return(predict(model, s = lambda, type = 'coefficients', exact = FALSE))
   }
   return(NULL)
 
@@ -73,14 +65,14 @@ coef_lambda <- function(data , variable.pred, model, log.lambda = NULL){
 #'
 rlr_prediction <- function(learning.data, test.data, variable.pred, model, log.lambda = NULL) {
   if(!is.null(learning.data) && !is.null(test.data) && !is.null(variable.pred) && !is.null(model)){
-    lambda <- ifelse(is.null(log.lambda), model$lambda.min, exp(log.lambda))
     form <- formula(paste0(variable.pred,"~."))
     x <- model.matrix(form,learning.data)[, -1]
     y <- learning.data[,variable.pred]
     prueba <- test.data
     prueba[, variable.pred] <- 0
     prueba <- model.matrix(form, prueba)[, -1]
-    return(predict(model,newx = prueba, s = lambda, exact = TRUE, x = x, y = y))
+    lambda <- ifelse(is.null(log.lambda), model$lambda.min, exp(log.lambda))
+    return(predict(model,newx = prueba, s = lambda, exact = FALSE))
   }
   return(NULL)
   
@@ -281,15 +273,17 @@ codeRlr <- function(variable.predecir, alpha, standardize){
   return(paste0("rlr_model(data, '",variable.predecir,"', alpha = ",alpha, ", standardize = ",standardize,")"))
 }
 
-codeRlrCoeff <- function(variable.predecir, nombreModelo, log.lambda){
-  return(paste0("coef_lambda(data, '", variable.predecir,"', model = ",nombreModelo,", ",
-                "log.lambda = ",log.lambda, ")"))
+codeRlrCoeff <- function(variable.predecir, nombreModelo, log.lambda = NULL){
+  param.lambda <- ifelse(is.null(log.lambda),"",paste0(", log.lambda = ",log.lambda))
+  return(paste0("coef_lambda(data, '", variable.predecir,"', model = ",nombreModelo,
+                param.lambda, ")"))
 }
 
 
-codeRlrPred <- function(variable.predecir, nombreModelo, log.lambda){
-  return(paste0("rlr_prediction(learning.data, test.data, '", variable.predecir,"', model = ",nombreModelo,", ",
-                "log.lambda = ",log.lambda, ")"))
+codeRlrPred <- function(variable.predecir, nombreModelo, log.lambda = NULL){
+  param.lambda <- ifelse(is.null(log.lambda),"",paste0(", log.lambda = ",log.lambda))
+  return(paste0("rlr_prediction(learning.data, test.data, '", variable.predecir,"', model = ",nombreModelo,
+                param.lambda, ")"))
 }
 
 

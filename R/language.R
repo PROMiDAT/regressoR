@@ -20,8 +20,8 @@ cambiar.labels <- function(){
     "nombre","codreporte","salida","copyright","info","version","cargarNuev",
     "cargarDatos","transDatos","seleParModel","generarM","variables","tipo",
     "activa","nn","xgb","selbooster","selnrounds","selectCapas","threshold",
-    "stepmax","redPlot","rll","rlr","posibLanda","coeff","gcoeff",
-    "automatico","landa","shrinkage","resumenVarPre", "R2", "distknn",
+    "stepmax","redPlot","rll","rlr","posibLanda","coeff","gcoeff","manual",
+    "automatico","log_landa","shrinkage","resumenVarPre", "R2", "distknn",
     "ncomp", "rd", "RdPred", "RdVarPred", "errRDnCom", "RMSE","eliminar", "imputar",
     "selcolbar","selcolline","selcolpoint","selcolline","tasim","pvalue","asimetria","sigue",
     "atipicos")

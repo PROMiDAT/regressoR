@@ -107,6 +107,8 @@ mod_linear_regression_server <- function(input, output, session, updateData, mod
       #Model generate
       modelo.rl <- rl_model(datos.aprendizaje,variable.predecir)
       updateAceEditor(session, "fieldCodeRl", value = codeRl(variable.predecir))
+      #Cambiamos la forma en que va aparecer el call
+      modelo.rl$call$formula <- paste0(variable.predecir,"~.")
       
       #Coefficients
       model.information <- rl_coeff(modelo.rl)
@@ -238,9 +240,9 @@ mod_linear_regression_server <- function(input, output, session, updateData, mod
     tryCatch({
       if(!is.null(modelos$rl)){
         idioma <- updateData$idioma
-        isolate(datos.aprendizaje <- updateData$datos.aprendizaje)
+        isolate(datos.prueba <- updateData$datos.prueba)
         isolate(variable.predecir <- updateData$variable.predecir)
-        df2 <- as.data.frame(summary_indices(datos.aprendizaje[,variable.predecir]))
+        df2 <- as.data.frame(summary_indices(datos.prueba[,variable.predecir]))
         colnames(df2) <- c(tr("minimo",idioma),tr("q1",idioma),
                            tr("q3",idioma),tr("maximo",idioma))
         df2
