@@ -65,30 +65,3 @@ as_string_c <- function(vect, quote = TRUE){
     return(paste0("c(",paste0(vect, collapse = ","),")"))
   }
 }
-
-
-#' models_mode
-#' 
-#' @description transforms the names of a list from key-mode form to value-mode form.
-#'
-#' @param list.names a list whose names function as keys for \code{\link[regressoR]{translate}}. The names have to have the key-mode form.
-#' 
-#' @export
-#'
-#' @examples
-#' x <- list('knnl-mode1' = 1, 'knnl-mode2' = 2, 'knnl-mode2' = 5)
-#' models_mode(x)
-#' 
-models_mode <- function(list.names = list()){
-  if(length(list.names) == 0) {
-    return("---X---")
-  }
-  nombres <- c()
-  for (nom in names(list.names)){
-    nom.aux <- unlist(strsplit(nom, "-"))
-    nombres <- c(nombres,ifelse(length(nom.aux) == 1,
-                                translate(nom.aux),
-                                paste0(translate(nom.aux[1]),"-",nom.aux[2])))
-  }
-  return(nombres)
-}

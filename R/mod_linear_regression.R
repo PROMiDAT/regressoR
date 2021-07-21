@@ -123,8 +123,10 @@ mod_linear_regression_server <- function(input, output, session, updateData, mod
       updateAceEditor(session, "fieldCodeRlIG", value = codeRlIG(variable.predecir))
       
       #isolamos para que no entre en un ciclo en el primer renderPrint
-      isolate(modelos$rl[[nombreModelo]] <- list(modelo = modelo.rl, prediccion = prediccion.rl, indices = indices.rl))
+      isolate(modelos$rl[[nombreModelo]] <- list(modelo = modelo.rl, prediccion = prediccion.rl, indices = indices.rl, 
+                                                 id = NULL, label = "rll"))
     }, error = function(e){
+      isolate(modelos$rl[[nombreModelo]] <- NULL)
       showNotification(paste0("Error (RL-00) : ",e), duration = 10, type = "error")
     })
     

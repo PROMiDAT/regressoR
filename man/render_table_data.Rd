@@ -10,7 +10,8 @@ render_table_data(
   dom = "frtip",
   pageLength = 10,
   scrollY = "27vh",
-  server = T
+  server = T,
+  language = "es"
 )
 }
 \arguments{
@@ -25,6 +26,8 @@ render_table_data(
 \item{scrollY}{the heigth of the table.}
 
 \item{server}{whether to use server-side processing. If TRUE, then the data is kept on the server and the browser requests a page at a time; if FALSE, then the entire data frame is sent to the browser at once.}
+
+\item{languaje}{string. ("es" for Spanish, "en" for English)}
 }
 \value{
 a shiny.render.function

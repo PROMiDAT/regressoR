@@ -191,7 +191,8 @@ mod_penalized_Regression_server <- function(input, output, session, updateData, 
 
       
       #isolamos para que no entre en un ciclo en el primer renderPrint
-      isolate(modelos$rlr[[nombreModelo]] <- list(modelo = modelo.rlr, prediccion = prediccion.rlr, indices = indices.rlr))
+      isolate(modelos$rlr[[nombreModelo]] <- list(modelo = modelo.rlr, prediccion = prediccion.rlr, indices = indices.rlr,
+                                                  id = rlr_type(alpha), label = "rlr"))
     }, error = function(e){
       isolate(modelos$rlr[[nombreModelo]] <- NULL)
       showNotification(paste0("Error (RLR-00) : ",e), duration = 10, type = "error")

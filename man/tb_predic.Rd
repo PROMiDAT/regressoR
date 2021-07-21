@@ -4,12 +4,14 @@
 \alias{tb_predic}
 \title{tb_predic}
 \usage{
-tb_predic(real, predic.var)
+tb_predic(real, predic.var, languaje = "es")
 }
 \arguments{
 \item{real}{a data.frame with the real values.}
 
 \item{predic.var}{a vector with the prediction value.}
+
+\item{languaje}{string. ("es" for Spanish, "en" for English)}
 }
 \description{
 creates comparison table between prediction and real data (test data).
