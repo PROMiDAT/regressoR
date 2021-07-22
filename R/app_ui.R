@@ -52,13 +52,13 @@ app_ui <- function(request) {
                               menuItem(labelInput("poderpred"), tabName = "poderPred", icon = icon("rocket")))
   
   supervised.learning.menu    <- menuItem(labelInput("aprendizaje"), tabName = "parte2", icon = icon("th-list"),
-                                          menuSubItem(labelInput("rll"),tabName = "rl",icon = icon("line-chart")),
+                                          menuSubItem(labelInput("rl"),tabName = "rl",icon = icon("line-chart")),
                                           menuSubItem(labelInput("rlr"),tabName = "rlr",icon = icon("line-chart")),
-                                          menuSubItem(labelInput("dtl"),tabName = "dt",icon = icon("tree")),
-                                          menuSubItem(labelInput("rfl"),tabName = "rf",icon = icon("sitemap")),
-                                          menuSubItem(labelInput("bl"),tabName = "boosting",icon = icon("superscript")),
-                                          menuSubItem(labelInput("knnl"),tabName = "knn",icon = icon("dot-circle-o")),
-                                          menuSubItem(labelInput("svml"),tabName = "svm",icon = icon("line-chart")),
+                                          menuSubItem(labelInput("dt"),tabName = "dt",icon = icon("tree")),
+                                          menuSubItem(labelInput("rf"),tabName = "rf",icon = icon("sitemap")),
+                                          menuSubItem(labelInput("boost"),tabName = "boosting",icon = icon("superscript")),
+                                          menuSubItem(labelInput("knn"),tabName = "knn",icon = icon("dot-circle-o")),
+                                          menuSubItem(labelInput("svm"),tabName = "svm",icon = icon("line-chart")),
                                           menuSubItem(labelInput("rd"), tabName = "rd",icon = icon("chart-pie")),
                                           menuSubItem(labelInput("nn"),tabName = "nn",icon = icon("brain")))
   

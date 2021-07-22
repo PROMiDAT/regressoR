@@ -209,9 +209,9 @@ mod_random_forests_server <- function(input, output, session,updateData, updateP
       )
       
       output$plot.rf.disp <- renderEcharts4r(plot_real_prediction(datos.prueba[variable.predecir],
-                                                                  prediccion.rf,translate("rfl"),titulos))
+                                                                  prediccion.rf,translate("rf"),titulos))
       
-      codigo <- disp_models("prediccion.rf", translate("rfl"), variable.predecir)
+      codigo <- disp_models("prediccion.rf", translate("rf"), variable.predecir)
       updateAceEditor(session, "fieldCodeRfDisp", value = codigo)
     },
     error = function(e) { # Regresamos al estado inicial y mostramos un error
@@ -289,7 +289,7 @@ mod_random_forests_server <- function(input, output, session,updateData, updateP
         output$indexdfrf2 <- render_index_table(df2)
         
         #nombres.modelos <<- c(nombres.modelos, "indices.rf")
-        updateData$IndicesM[["rfl"]] <<- indices.rf
+        updateData$IndicesM[["rf"]] <<- indices.rf
       },
       error = function(e) { # Regresamos al estado inicial y mostramos un error
         clean_rf(3)

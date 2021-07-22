@@ -16,13 +16,13 @@ eliminar;Eliminar;Delete
 imputar;Imputar;Impute
 acerto;Acertó;Matched
 fallo;Falló;Failed
-rll;Regresión Lineal;Linear Regression
+rl;Regresión Lineal;Linear Regression
 rlr;Regresión Penalizada;Penalized Regression
-knnl;K Vecinos Más Cercanos;K Nearest Neighbors
-dtl;Árboles de Regresión;Regression Trees
-rfl;Bosques Aleatorios;Random Forests
-bl;Potenciación;Boosting
-svml;Soporte Vectorial;Support Vector Machines
+knn;K Vecinos Más Cercanos;K Nearest Neighbors
+dt;Árboles de Regresión;Regression Trees
+rf;Bosques Aleatorios;Random Forests
+boost;Potenciación;Boosting
+svm;Soporte Vectorial;Support Vector Machines
 nn;Redes Neuronales;Neural Networks
 xgb;XGPotenciación;XGBoosting
 reporte;Generar Reporte;Generate Report

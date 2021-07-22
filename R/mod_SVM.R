@@ -169,9 +169,9 @@ mod_SVM_server <- function(input, output, session,updateData, updatePlot){
       
       output$plot.svm.disp <- renderEcharts4r(plot_real_prediction(datos.prueba[variable.predecir],
                                                                   exe(paste0("prediccion.svm.",input$kernel.svm)),
-                                                                  translate("svml"),titulos))
+                                                                  translate("svm"),titulos))
       
-      codigo <- disp_models(paste0("prediccion.svm.",input$kernel.svm), translate("svml"), variable.predecir)
+      codigo <- disp_models(paste0("prediccion.svm.",input$kernel.svm), translate("svm"), variable.predecir)
       updateAceEditor(session, "fieldCodeSvmDisp", value = codigo)
     },
     error = function(e) { # Regresamos al estado inicial y mostramos un error
@@ -237,7 +237,7 @@ mod_SVM_server <- function(input, output, session,updateData, updatePlot){
         plot_disp_svm()
         
         #nombres.modelos <<- c(nombres.modelos, paste0("indices.svm.",kernel))
-        updateData$IndicesM[[paste0("svml-",kernel)]] <<- indices.svm
+        updateData$IndicesM[[paste0("svm-",kernel)]] <<- indices.svm
       },
       error = function(e) { # Regresamos al estado inicial y mostramos un error
         clean_svm(3)

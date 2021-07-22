@@ -178,9 +178,9 @@ mod_KNN_server <- function(input, output, session,updateData, updatePlot){
       
       output$plot.knn.disp <- renderEcharts4r(plot_real_prediction(datos.prueba[variable.predecir],
                                                                   exe(paste0("prediccion.knn.", input$kernel.knn)),
-                                                                  translate("knnl"),titulos))
+                                                                  translate("knn"),titulos))
       
-      codigo <- disp_models(paste0("prediccion.knn.", input$kernel.knn), translate("knnl"), variable.predecir)
+      codigo <- disp_models(paste0("prediccion.knn.", input$kernel.knn), translate("knn"), variable.predecir)
       updateAceEditor(session, "fieldCodeKnnDisp", value = codigo)
     },
     error = function(e) { # Regresamos al estado inicial y mostramos un error
@@ -252,7 +252,7 @@ mod_KNN_server <- function(input, output, session,updateData, updatePlot){
         output$indexdfknn2 <- render_index_table(df2)
         
         #nombres.modelos <<- c(nombres.modelos, paste0("indices.knn.",kernel))
-        updateData$IndicesM[[paste0("knnl-",kernel)]] <<- indices.knn
+        updateData$IndicesM[[paste0("knn-",kernel)]] <<- indices.knn
       },
       error = function(e) { # Regresamos al estado inicial y mostramos un error
         clean_knn(3)

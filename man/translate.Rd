@@ -15,7 +15,7 @@ translate(text, language = "es")
 translates text id into current language.
 }
 \examples{
-translate("knnl")
-translate("knnl", "en")
+translate("knn")
+translate("knn", "en")
 
 }

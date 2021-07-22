@@ -146,44 +146,6 @@ disjunctive_data <- function(data, vars){
   return(data)
 }
 
-#' comparative_table
-#'
-#' @description creates the comparison table.
-#'
-#' @param sel the selection of the models to be shown.
-#' @param indices the values to be shown.
-#' 
-#' @export
-#'
-#' @examples
-#' models <- list('knnl-mode1' = list(0.11,0.22,0.33,0.44),
-#'                'dtl-mode2'  = list(0.12,0.23,0.34,0.45),
-#'                'rfl-mode1'  = list(0.51,0.42,0.13,0.24))
-#' sel <- c("K Vecinos Más Cercanos-mode1", "Bosques Aleatorios-mode1")
-#' comparative_table(sel, models)
-#' 
-comparative_table <- function(sel, indices) {
-  tryCatch({
-    nombres <- models_mode(indices)
-    
-    if(nombres[1] == "---X---") {
-      return(data.frame())
-    }
-    resp <- do.call(rbind, indices)
-    rownames(resp) <- nombres
-    colnames(resp) <- c(translate("RMSE"), translate("MAE"),
-                        translate("ER")  , translate("correlacion"))
-    resp <- as.data.frame(resp)
-    resp[] <- lapply(resp, as.numeric)
-    resp <- round(resp, 4)
-    resp <- resp[nombres %in% sel,]
-    resp <- resp[ order(row.names(resp)), ]
-    return(resp)
-    
-  }, error = function(e){
-    return(data.frame())
-  })
-}
 
 #' validate_pn_data
 #' 

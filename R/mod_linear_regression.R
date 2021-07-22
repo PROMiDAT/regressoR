@@ -124,7 +124,7 @@ mod_linear_regression_server <- function(input, output, session, updateData, mod
       
       #isolamos para que no entre en un ciclo en el primer renderPrint
       isolate(modelos$rl[[nombreModelo]] <- list(modelo = modelo.rl, prediccion = prediccion.rl, indices = indices.rl, 
-                                                 id = NULL, label = "rll"))
+                                                 id = NULL))
     }, error = function(e){
       isolate(modelos$rl[[nombreModelo]] <- NULL)
       showNotification(paste0("Error (RL-00) : ",e), duration = 10, type = "error")
@@ -196,7 +196,7 @@ mod_linear_regression_server <- function(input, output, session, updateData, mod
         prediccion.rl <- modelos$rl[[nombreModelo]]$prediccion
         isolate(datos.prueba <- updateData$datos.prueba)
         isolate(variable.predecir <- updateData$variable.predecir)
-        codigo <- disp_models("prediccion.rl", tr("rll",updateData$idioma), variable.predecir)
+        codigo <- disp_models("prediccion.rl", tr("rl",updateData$idioma), variable.predecir)
         updateAceEditor(session, "fieldCodeRlDisp", value = codigo)
         
         titulos <- c(
@@ -205,7 +205,7 @@ mod_linear_regression_server <- function(input, output, session, updateData, mod
           tr("pred", updateData$idioma)
         )
         
-        plot_real_prediction(datos.prueba[variable.predecir],prediccion.rl,tr("rll",updateData$idioma),titulos)
+        plot_real_prediction(datos.prueba[variable.predecir],prediccion.rl,tr("rl",updateData$idioma),titulos)
       }
       else{NULL}
     },

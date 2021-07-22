@@ -4,8 +4,8 @@ enc <- "utf8"
 cambiar.labels <- function(){
   c("idioma","selidioma","data","basico","resumen","normalidad",
     "dispersion","distribucion","correlacion","poderpred","reporte",
-    "aprendizaje","acercade","comparacion","predicnuevos","knnl","dtl",
-    "rfl","bl","svml","cargar","header","Rownames","eliminana","si","no",
+    "aprendizaje","acercade","comparacion","predicnuevos","knn","dt",
+    "rf","boost","svm","cargar","header","Rownames","eliminana","si","no",
     "cargarchivo","subir","trans","aplicar","separador","coma","puntocoma",
     "tab","separadordec","punto","subir","configuraciones","semilla",
     "habilitada","deshabilitada","seleccionarPredecir","propA","propP",
@@ -20,7 +20,7 @@ cambiar.labels <- function(){
     "nombre","codreporte","salida","copyright","info","version","cargarNuev",
     "cargarDatos","transDatos","seleParModel","generarM","variables","tipo",
     "activa","nn","xgb","selbooster","selnrounds","selectCapas","threshold",
-    "stepmax","redPlot","rll","rlr","posibLanda","coeff","gcoeff","manual",
+    "stepmax","redPlot","rl","rlr","posibLanda","coeff","gcoeff","manual",
     "automatico","log_landa","shrinkage","resumenVarPre", "R2", "distknn",
     "ncomp", "rd", "RdPred", "RdVarPred", "errRDnCom", "RMSE","eliminar", "imputar",
     "selcolbar","selcolline","selcolpoint","selcolline","tasim","pvalue","asimetria","sigue",
@@ -48,8 +48,8 @@ tr <- function(text, idioma = "es") {
 #' 
 #' @export
 #' @examples
-#' translate("knnl")
-#' translate("knnl", "en")
+#' translate("knn")
+#' translate("knn", "en")
 #' 
 translate <- function(text, language = "es") {
   if(is.null(language) || !any(language %in% c("es", "en"))){

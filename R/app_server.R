@@ -25,7 +25,7 @@ app_server <- function( input, output, session ) {
                                variable.predecir = NULL, idioma = "es")
   
   modelos    <-  reactiveValues(rl = NULL, rlr= NULL, dt = NULL, 
-                                rf = NULL, boosting = NULL, xgb = NULL,
+                                rf = NULL, boost = NULL, xgb = NULL,
                                 knn = NULL, svm = NULL, nn = NULL)
   
   updatePlot <- reactiveValues(dya.num     = NULL, 

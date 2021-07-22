@@ -197,9 +197,9 @@ mod_boosting_server <- function(input, output, session,updateData, updatePlot){
       
       output$plot.boosting.disp <- renderEcharts4r(plot_real_prediction(datos.prueba[variable.predecir],
                                                                   exe(paste0("prediccion.boosting.",input$tipo.boosting)),
-                                                                  translate("bl"),titulos))
+                                                                  translate("boost"),titulos))
       
-      codigo <- disp_models(paste0("prediccion.boosting.",input$tipo.boosting), translate("bl"), variable.predecir)
+      codigo <- disp_models(paste0("prediccion.boosting.",input$tipo.boosting), translate("boost"), variable.predecir)
       updateAceEditor(session, "fieldCodeBoostingDisp", value = codigo)
     },
     error = function(e) { # Regresamos al estado inicial y mostramos un error
@@ -274,7 +274,7 @@ mod_boosting_server <- function(input, output, session,updateData, updatePlot){
         output$indexdfb2 <- render_index_table(df2)
         
         #nombres.modelos <<- c(nombres.modelos, paste0("indices.boosting.",tipo))
-        updateData$IndicesM[[paste0("bl-",tipo)]] <<- indices.boosting
+        updateData$IndicesM[[paste0("boost-",tipo)]] <<- indices.boosting
       },
       error = function(e) { # Regresamos al estado inicial y mostramos un error
         clean_boosting(3)

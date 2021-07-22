@@ -142,7 +142,7 @@ mod_regression_trees_server <- function(input, output, session,updateData, updat
     cod.dt.pred <<- codigo
     
     # Se genera el codigo de la dispersion
-    #codigo <- disp_models("prediccion.dt", translate("dtl"), variable.predecir)
+    #codigo <- disp_models("prediccion.dt", translate("dt"), variable.predecir)
     #updateAceEditor(session, "fieldCodeDtDisp", value = codigo)
     
     # Se genera el codigo de la indices
@@ -172,9 +172,9 @@ mod_regression_trees_server <- function(input, output, session,updateData, updat
       )
       
       output$plot.dt.disp <- renderEcharts4r(plot_real_prediction(datos.prueba[variable.predecir],
-                                                                  prediccion.dt,translate("dtl"),titulos))
+                                                                  prediccion.dt,translate("dt"),titulos))
       
-      codigo <- disp_models("prediccion.dt", translate("dtl"), variable.predecir)
+      codigo <- disp_models("prediccion.dt", translate("dt"), variable.predecir)
       updateAceEditor(session, "fieldCodeDtDisp", value = codigo)
     },
     error = function(e) { # Regresamos al estado inicial y mostramos un error
@@ -261,7 +261,7 @@ mod_regression_trees_server <- function(input, output, session,updateData, updat
         colnames(df2) <- c(translate("minimo"),translate("q1"),translate("q3"),translate("maximo"))
         output$indexdfdt2 <- render_index_table(df2)
         
-        updateData$IndicesM[["dtl"]] <<- indices.dt
+        updateData$IndicesM[["dt"]] <<- indices.dt
       },
       error = function(e) { # Regresamos al estado inicial y mostramos un error
         clean_dt(3)
