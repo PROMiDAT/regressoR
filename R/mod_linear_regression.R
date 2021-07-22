@@ -117,7 +117,7 @@ mod_linear_regression_server <- function(input, output, session, updateData, mod
       updateAceEditor(session, "fieldCodeRlCoef", value = codeRlCoef())
       #Prediccion
       prediccion.rl <- rl_prediction(modelo.rl, datos.prueba)
-      updateAceEditor(session, "fieldCodeRlPred", value = codeRlPred())
+      updateAceEditor(session, "fieldCodeRlPred", value = codeRlPred(nombreModelo))
       #Indices
       indices.rl <- general_indices(datos.prueba[,variable.predecir], prediccion.rl)
       updateAceEditor(session, "fieldCodeRlIG", value = codeRlIG(variable.predecir))

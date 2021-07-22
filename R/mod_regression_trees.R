@@ -16,38 +16,32 @@ mod_regression_trees_ui <- function(id){
                               column(numericInput(ns("maxdepth.dt"), labelInput("maxdepth"), 15, width = "100%",min = 0, max = 30, step = 1),width = 6)))
   
   dt.code.config <- list(h3(labelInput("codigo")), hr(style = "margin-top: 0px;"),
-                         aceEditor(ns("fieldCodeDt"), mode = "r", theme = "monokai",
-                                   value = "", height = "7vh", readOnly = F, autoComplete = "enabled"))
+                         codigo.monokai(ns("fieldCodeDt"), height = "7vh"))
   
   dt.code <- list(h3(labelInput("codigo")), hr(style = "margin-top: 0px;"),
                   conditionalPanel("input.BoxDt == 'tabDtPlot'",
-                                   aceEditor(ns("fieldCodeDtPlot"), mode = "r", theme = "monokai",
-                                             value = "", height = "7vh", readOnly = F, autoComplete = "enabled"),ns = ns),
+                                   codigo.monokai(ns("fieldCodeDtPlot"), height = "7vh"),ns = ns),
                   conditionalPanel("input.BoxDt == 'tabDtPred'",
-                                   aceEditor(ns("fieldCodeDtPred"), mode = "r", theme = "monokai",
-                                             value = "", height = "3vh", readOnly = F, autoComplete = "enabled"),ns = ns),
+                                   codigo.monokai(ns("fieldCodeDtPred"), height = "7vh"),ns = ns),
                   conditionalPanel("input.BoxDt == 'tabDtDisp'",
-                                   aceEditor(ns("fieldCodeDtDisp"), mode = "r", theme = "monokai",
-                                             value = "", height = "7vh", readOnly = F, autoComplete = "enabled"),ns = ns),
+                                   codigo.monokai(ns("fieldCodeDtDisp"), height = "7vh"),ns = ns),
                   conditionalPanel("input.BoxDt == 'tabDtIndex'",
-                                   aceEditor(ns("fieldCodeDtIG"), mode = "r", theme = "monokai",
-                                             value = "", height = "22vh", readOnly = F, autoComplete = "enabled"),ns = ns),
+                                   codigo.monokai(ns("fieldCodeDtIG"), height = "7vh"),ns = ns),
                   conditionalPanel("input.BoxDt == 'tabDtReglas'",
-                                   aceEditor(ns("fieldCodeDtRule"), mode = "r", theme = "monokai",
-                                             value = "", height = "4vh", readOnly = F, autoComplete = "enabled"),ns = ns))
+                                   codigo.monokai(ns("fieldCodeDtRule"), height = "7vh"),ns = ns))
   
   
-  tabs.options.generate <- tabsOptions(buttons = list(icon("gear"), icon("code")), widths = c(50,100), heights = c(80,95),
+  tabs.options.generate <- tabsOptions(buttons = list(icon("gear"), icon("code")), widths = c(50,100), heights = c(80,70),
                                        tabs.content = list(dt.options,dt.code.config))
   
-  tabs.options.Nogenerate <- tabsOptions(buttons = list(icon("code")), widths = c(100), heights = c(95),
+  tabs.options.Nogenerate <- tabsOptions(buttons = list(icon("code")), widths = c(100), heights = c(70),
                                          tabs.content = list(dt.code))
   
   generate.dt.panel <- tabPanel(title = labelInput("generatem"), value = "tabDtModelo",
                                 verbatimTextOutput(ns("txtDt")))
   
   plot.dt <- tabPanel(title = labelInput("garbol"), value = "tabDtPlot",
-                      plotOutput(ns('plot.dt'), height = "55vh"))
+                      plotOutput(ns('plot.dt'), height = "75vh"))
   
   prediction.dt.panel <- tabPanel(title = labelInput("predm"), value = "tabDtPred",
                                   DT::dataTableOutput(ns("dtPrediTable")))
@@ -81,33 +75,27 @@ mod_regression_trees_ui <- function(id){
     page.dt
   )
 }
-    
+
 #' regression_trees Server Function
 #'
 #' @noRd 
-mod_regression_trees_server <- function(input, output, session,updateData, updatePlot){
+mod_regression_trees_server <- function(input, output, session,updateData, modelos){
   ns <- session$ns
+  
+  nombreModelo <- "modelo.dt"
   
   return.dt.default.values <- function(){
     updateNumericInput(session,inputId = "minsplit.dt", value = 2)
     updateNumericInput(session,inputId = "maxdepth.dt", value = 15)
-    output$txtDt <- renderText(NULL)
-    output$plot.dt <- renderPlot(NULL)
-    output$dtPrediTable <- DT::renderDataTable(NULL)
-    output$plot.dt.disp <- renderEcharts4r(NULL)
-    output$indexdfdt <- render_index_table(NULL)
-    output$indexdfdt2 <- render_index_table(NULL)
-    output$rulesDt <- renderText(NULL)
+    # output$txtDt <- renderText(NULL)
+    # output$plot.dt <- renderPlot(NULL)
+    # output$dtPrediTable <- DT::renderDataTable(NULL)
+    # output$plot.dt.disp <- renderEcharts4r(NULL)
+    # output$indexdfdt <- render_index_table(NULL)
+    # output$indexdfdt2 <- render_index_table(NULL)
+    # output$rulesDt <- renderText(NULL)
   }
   
-  observeEvent(updateData$idioma,{
-    if(exists("modelo.dt")){
-      execute_dt_ind()
-      plot_disp_dt()
-    }
-  })
-  
-
   observeEvent(updateData$datos.aprendizaje,{
     return.dt.default.values()
   })
@@ -115,165 +103,186 @@ mod_regression_trees_server <- function(input, output, session,updateData, updat
   
   #  When the dt model is generated
   observeEvent(input$runDt, {
-    if (validate_data(isolate(updateData), idioma = isolate(updateData$idioma))) { # Si se tiene los datos entonces :
-      default_codigo_dt()
+    if (validate_data(updateData, idioma = updateData$idioma)) { # Si se tiene los datos entonces :
       dt_full()
     }
   })
-
-  
-  # Upgrade code fields to default version
-  default_codigo_dt <- function() {
-    
-    # Se acualiza el codigo del modelo
-    codigo <- dt_model(variable.pred =  variable.predecir,
-                       minsplit = input$minsplit.dt,
-                       maxdepth = input$maxdepth.dt)
-    
-    updateAceEditor(session, "fieldCodeDt", value = codigo)
-    cod.dt.modelo <<- codigo
-    
-    # Cambia el codigo del grafico del árbol
-    updateAceEditor(session, "fieldCodeDtPlot", value = dt_plot())
-    
-    # Se genera el codigo de la prediccion
-    codigo <- dt_prediction()
-    updateAceEditor(session, "fieldCodeDtPred", value = codigo)
-    cod.dt.pred <<- codigo
-    
-    # Se genera el codigo de la dispersion
-    #codigo <- disp_models("prediccion.dt", translate("dt"), variable.predecir)
-    #updateAceEditor(session, "fieldCodeDtDisp", value = codigo)
-    
-    # Se genera el codigo de la indices
-    codigo <- extract_code("general_indices")
-    updateAceEditor(session, "fieldCodeDtIG", value = codigo)
-    cod.dt.ind <<- codigo
-  }
-  
-  # Shows the graph of the tree
-  plot_tree <- function(){
-    tryCatch({
-      output$plot.dt <- renderPlot(exe(input$fieldCodeDtPlot))
-    },
-    error = function(e){
-      output$plot.dt <- renderPlot(NULL)
-    })
-  }
-  
-  # Shows the graph the dispersion of the model with respect to the real values
-  plot_disp_dt <- function(){
-    tryCatch({ # Se corren los codigo
-      
-      titulos <- c(
-        tr("predvsreal", updateData$idioma),
-        tr("realValue", updateData$idioma),
-        tr("pred", updateData$idioma)
-      )
-      
-      output$plot.dt.disp <- renderEcharts4r(plot_real_prediction(datos.prueba[variable.predecir],
-                                                                  prediccion.dt,translate("dt"),titulos))
-      
-      codigo <- disp_models("prediccion.dt", translate("dt"), variable.predecir)
-      updateAceEditor(session, "fieldCodeDtDisp", value = codigo)
-    },
-    error = function(e) { # Regresamos al estado inicial y mostramos un error
-      clean_dt(2)
-      showNotification(paste0("Error (DT-02) : ", e), duration = 15, type = "error")
-    })
-  }
-  
-  # Shows the rules of the tree
-  show_dt_rules <- function(){
-    output$rulesDt <- renderPrint(rattle::asRules(modelo.dt))
-    updateAceEditor(session, "fieldCodeDtRule", paste0("asRules(modelo.dt)"))
-  }
-  
-  # Cleans the data according to the process where the error is generated
-  clean_dt <- function(capa = NULL) {
-    for (i in capa:3) {
-      switch(i, {
-        modelo.dt <<- NULL
-        output$txtDt <- renderPrint(invisible(""))
-        output$plot.dt <- renderPlot(NULL)
-      }, {
-        prediccion.dt <<- NULL
-        output$dtPrediTable <- DT::renderDataTable(NULL)
-      }, {
-        indices.dt <<- rep(0, 10)
-      })
-    }
-  }
   
   # Execute model, prediction and indices
   dt_full <- function() {
-    execute_dt()
-    execute_dt_pred()
-    execute_dt_ind()
-  }
-  
-  # Generates the model
-  execute_dt <- function() {
-    tryCatch({ # Se corren los codigo
-      isolate(exe(cod.dt.modelo))
-      output$txtDt <- renderPrint(print(modelo.dt))
-
-      plot_tree()
-      show_dt_rules()
-      #nombres.modelos <<- c(nombres.modelos, "modelo.dt")
-    },
-    error = function(e) { # Regresamos al estado inicial y mostramos un error
-      clean_dt(1)
-      showNotification(paste0("Error (DT-01) : ",e), duration = 15, type = "error")
-    })
-  }
-  
-  # Generate the prediction
-  execute_dt_pred <- function() {
-    tryCatch({ # Se corren los codigo
-      isolate(exe(cod.dt.pred))
-      # Cambia la tabla con la prediccion de dt
-      output$dtPrediTable <- DT::renderDataTable(tb_predic(real.val, prediccion.dt),server = FALSE)
+    tryCatch({
+      isolate(datos.aprendizaje <- updateData$datos.aprendizaje)
+      isolate(datos.prueba <- updateData$datos.prueba)
+      isolate(variable.predecir <- updateData$variable.predecir)
       
-      plot_disp_dt()
-      #nombres.modelos <<- c(nombres.modelos, "prediccion.dt")
-      updatePlot$tablaCom <- !updatePlot$tablaCom #graficar otra vez la tabla comprativa
-    },
-    error = function(e) { # Regresamos al estado inicial y mostramos un error
-      clean_dt(2)
-      showNotification(paste0("Error (DT-02) : ",e), duration = 15, type = "error")
+      ms <- isolate(input$minsplit.dt)
+      md <- isolate(input$maxdepth.dt)
+      minsplit <- ifelse(!is.numeric(ms), 20, ms)
+      maxdepth <- ifelse(!is.numeric(md), 15, md)
+      
+      # Model Generate
+      modelo.dt <- dt_model(datos.aprendizaje, variable.predecir,
+                            minsplit = minsplit,
+                            maxdepth = maxdepth)
+      updateAceEditor(session, "fieldCodeDt", value = codeDt(variable.predecir,minsplit,maxdepth))
+      
+      #Prediccion
+      prediccion.dt <- dt_prediction(modelo.dt,datos.prueba)
+      updateAceEditor(session, "fieldCodeDtPred", value = codeDtPred(nombreModelo))
+      
+      #Indices
+      indices.dt <- general_indices(datos.prueba[,variable.predecir], prediccion.dt)
+      updateAceEditor(session, "fieldCodeDtIG", value = codeDtIG(variable.predecir))
+      
+      #isolamos para que no entre en un ciclo en el primer renderPrint
+      isolate(modelos$dt[[nombreModelo]] <- list(modelo = modelo.dt, prediccion = prediccion.dt, indices = indices.dt, 
+                                                 id = NULL))
+      
+    }, error = function(e){
+      isolate(modelos$dt[[nombreModelo]] <- NULL)
+      showNotification(paste0("Error (DT-00) : ",e), duration = 10, type = "error")
     })
   }
   
-  # Generates the indices
-  execute_dt_ind <- function() {
-    if(exists("prediccion.dt") && !is.null(prediccion.dt)){
-      tryCatch({ # Se corren los codigo
-        isolate(exe(cod.dt.ind))
+  
+  #Update model tab
+  output$txtDt <- renderPrint({
+    tryCatch({
+      if(!is.null(modelos$dt[[nombreModelo]])){
+        modelo.dt <- modelos$dt[[nombreModelo]]$modelo
+        print(modelo.dt)
+      }
+      else{NULL}
+    }, error = function(e){
+      showNotification(paste0("Error (DT-01) : ",e), duration = 10, type = "error")
+      NULL
+    })
+  })
+  
+  
+  # Shows the graph of the tree
+  output$plot.dt <- renderPlot({
+    tryCatch({
+      if(!is.null(modelos$dt[[nombreModelo]])){
+        updateAceEditor(session, "fieldCodeDtPlot", value = codeDtPlot(nombreModelo))
+        modelo.dt <- modelos$dt[[nombreModelo]]$modelo
+        dt_plot(modelo.dt)
+      }
+      else{NULL}
+    }, error = function(e){
+      showNotification(paste0("Error (DT-02) : ",e), duration = 10, type = "error")
+      NULL
+    })
+  })
+  
+  
+  # Update prediction tab
+  output$dtPrediTable <- DT::renderDataTable({
+    tryCatch({
+      if(!is.null(modelos$dt[[nombreModelo]])){
+        prediccion.dt <- modelos$dt[[nombreModelo]]$prediccion
+        isolate(datos.prueba <- updateData$datos.prueba)
+        isolate(real.val <- datos.prueba[updateData$variable.predecir])
+        tb_predic(real.val, prediccion.dt, updateData$idioma)
+      }
+      else{NULL}
+      
+    }, error = function(e){
+      showNotification(paste0("Error (DT-03) : ", e), duration = 10, type = "error")
+      NULL
+    })
+  }, server = F)
+
+  
+  # Update dispersion tab
+  output$plot.dt.disp <- renderEcharts4r({
+    tryCatch({
+      if(!is.null(modelos$dt[[nombreModelo]])){
+        prediccion.dt <- modelos$dt[[nombreModelo]]$prediccion
+        isolate(datos.prueba <- updateData$datos.prueba)
+        isolate(variable.predecir <- updateData$variable.predecir)
         
-        indices.dt <- general_indices(datos.prueba[,variable.predecir], prediccion.dt)
+        codigo <- disp_models("prediccion.dt", tr("dt",updateData$idioma), variable.predecir)
+        updateAceEditor(session, "fieldCodeDtDisp", value = codigo)
         
+        titulos <- c(
+          tr("predvsreal", updateData$idioma),
+          tr("realValue", updateData$idioma),
+          tr("pred", updateData$idioma)
+        )
+        
+        plot_real_prediction(datos.prueba[variable.predecir],prediccion.dt,tr("dt", updateData$idioma),titulos)
+      }
+      else{NULL}
+    },
+    error = function(e) {
+      showNotification(paste0("Error (DT-04) : ", e), duration = 15, type = "error")
+      NULL
+    })
+  })
+  
+  
+  # Update Rules tab
+  output$rulesDt <- renderPrint({
+    tryCatch({
+      if(!is.null(modelos$dt[[nombreModelo]])){
+        updateAceEditor(session, "fieldCodeDtRule", codeDtRule(nombreModelo))
+        modelo.dt <- modelos$dt[[nombreModelo]]$modelo
+        rattle::asRules(modelo.dt)
+      }
+      else{NULL}
+    }, error = function(e){
+      showNotification(paste0("Error (DT-05) : ", e), duration = 15, type = "error")
+      NULL
+    })
+  })
+  
+  
+  #Update Indices tab
+  output$indexdfdt <- renderTable({
+    tryCatch({
+      if(!is.null(modelos$dt[[nombreModelo]])){
+        idioma <- updateData$idioma
+        indices.dt <- modelos$dt[[nombreModelo]]$indices
         df <- as.data.frame(indices.dt)
-        colnames(df) <- c(translate("RMSE"), translate("MAE"), translate("ER"), translate("correlacion"))
-        output$indexdfdt <- render_index_table(df)
-        
-        df2 <- as.data.frame(summary_indices(datos.aprendizaje[,variable.predecir]))
-        colnames(df2) <- c(translate("minimo"),translate("q1"),translate("q3"),translate("maximo"))
-        output$indexdfdt2 <- render_index_table(df2)
-        
-        updateData$IndicesM[["dt"]] <<- indices.dt
-      },
-      error = function(e) { # Regresamos al estado inicial y mostramos un error
-        clean_dt(3)
-        showNotification(paste0("Error (DT-03) : ",e), duration = 15, type = "error")
-      })
+        colnames(df) <- c(tr("RMSE", idioma), tr("MAE", idioma), tr("ER", idioma), tr("correlacion", idioma))
+        df
+      }
+      else{NULL}
+    }, error = function(e){
+      showNotification(paste0("Error (DT-06) : ",e), duration = 10, type = "error")
+      NULL
+    })
+  },striped = TRUE, bordered = TRUE, spacing = 'l', 
+  width = '100%',  digits = 5,align = 'c')
+  
+  
+  
+  output$indexdfdt2 <- renderTable({
+    tryCatch({
+      if(!is.null(modelos$dt[[nombreModelo]])){
+        idioma <- updateData$idioma
+        isolate(datos.prueba <- updateData$datos.prueba)
+        isolate(variable.predecir <- updateData$variable.predecir)
+        df2 <- as.data.frame(summary_indices(datos.prueba[,variable.predecir]))
+        colnames(df2) <- c(tr("minimo",idioma),tr("q1",idioma),
+                           tr("q3",idioma),tr("maximo",idioma))
+        df2
+      }
+      else{NULL}
     }
-  }
+    , error = function(e){
+      showNotification(paste0("Error (DT-07) : ",e), duration = 10, type = "error")
+      NULL
+    })
+  },striped = TRUE, bordered = TRUE, spacing = 'l', 
+  width = '100%',  digits = 5,align = 'c')
+  
 }
-    
+
 ## To be copied in the UI
 # mod_regression_trees_ui("regression_trees_ui_1")
-    
+
 ## To be copied in the server
 # callModule(mod_regression_trees_server, "regression_trees_ui_1")
- 
+

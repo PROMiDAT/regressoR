@@ -179,10 +179,10 @@ mod_penalized_Regression_server <- function(input, output, session, updateData, 
                                                                          nombreModelo,log.landa))
 
       # Prediction
-      prediccion.rlr <- rlr_prediction(datos.aprendizaje, datos.prueba, variable.predecir, 
-                                       modelo.rlr, log.lambda = log.landa)
-      updateAceEditor(session, "fieldCodeRlrPred", value = codeRlrPred(variable.predecir,
-                                                                       nombreModelo,log.landa))
+      prediccion.rlr <- rlr_prediction(modelo.rlr, datos.prueba, variable.predecir,
+                                       log.lambda = log.landa)
+      updateAceEditor(session, "fieldCodeRlrPred", value = codeRlrPred(nombreModelo,variable.predecir,
+                                                                       log.landa))
       
       
       #Indices

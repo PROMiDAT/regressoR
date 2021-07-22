@@ -17,19 +17,18 @@ rl_model <- function(data, variable.pred){
 
 #' rl_prediction
 #' 
-#' @description generates the code to create the prediction of the linear regression model.
+#' @description generates the prediction of the linear regression model.
 #'
-#' @param data the name of the test data.
-#' @param model.var the name of the variable that stores the resulting model.
-#' @param pred.var the name of the variable that stores the resulting prediction.
+#' @param model a linear regression model(lm).
+#' @param test.data dataframe.
 #'
 #' @seealso \code{\link[stats]{predict}}
 #'
 #' @export
 #' 
-rl_prediction <- function(modelo, test.data) {
-  return(predict(modelo,test.data))
-  return(paste0(pred.var, " <- predict(",model.var,", ",data,")"))
+rl_prediction <- function(model, test.data) {
+  return(predict(model,test.data))
+  #return(paste0(pred.var, " <- predict(",model.var,", ",data,")"))
 }
 
 #' rl_coeff
@@ -74,8 +73,8 @@ codeRlCoef <- function(nombreModelo = "modelo.rl"){
                 "information$df.rl[,c(1,4)]"))
 }
 
-codeRlPred <- function(){
-  return(paste0("tb_predic(real.val, prediccion.rl)"))
+codeRlPred <- function(nombreModelo){
+  return(paste0("rl_prediction(model = ", nombreModelo, " test.data"))
 }
 
 codeRlIG <- function(variable.predecir){
