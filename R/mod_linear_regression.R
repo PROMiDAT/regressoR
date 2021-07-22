@@ -136,7 +136,7 @@ mod_linear_regression_server <- function(input, output, session, updateData, mod
   #Update model tab
   output$txtRl <- renderPrint({
     tryCatch({
-      if(!is.null(modelos$rl)){
+      if(!is.null(modelos$rl[[nombreModelo]])){
         modelo.rl <- modelos$rl[[nombreModelo]]$modelo
         print(summary(modelo.rl))
       }
@@ -153,7 +153,7 @@ mod_linear_regression_server <- function(input, output, session, updateData, mod
     tryCatch({
       output$rlCoefTable <- render_table_data({
         tryCatch({
-          if(!is.null(df.rl) && !is.null(modelos$rl)){
+          if(!is.null(df.rl) && !is.null(modelos$rl[[nombreModelo]])){
             df.rl[,c(1,4)]
           }else{NULL}
         }, error = function(e){
@@ -173,7 +173,7 @@ mod_linear_regression_server <- function(input, output, session, updateData, mod
   # Update prediction tab
   output$rlPrediTable <- DT::renderDataTable({
     tryCatch({
-      if(!is.null(modelos$rl)){
+      if(!is.null(modelos$rl[[nombreModelo]])){
         prediccion.rl <- modelos$rl[[nombreModelo]]$prediccion
         isolate(datos.prueba <- updateData$datos.prueba)
         isolate(real.val <- datos.prueba[updateData$variable.predecir])
@@ -192,7 +192,7 @@ mod_linear_regression_server <- function(input, output, session, updateData, mod
   output$plot.rl.disp <- renderEcharts4r({
     tryCatch({
       
-      if(!is.null(modelos$rl)){
+      if(!is.null(modelos$rl[[nombreModelo]])){
         prediccion.rl <- modelos$rl[[nombreModelo]]$prediccion
         isolate(datos.prueba <- updateData$datos.prueba)
         isolate(variable.predecir <- updateData$variable.predecir)
@@ -219,7 +219,7 @@ mod_linear_regression_server <- function(input, output, session, updateData, mod
   #Update Indices tab
   output$indexdfrl <- renderTable({
     tryCatch({
-      if(!is.null(modelos$rl)){
+      if(!is.null(modelos$rl[[nombreModelo]])){
         idioma <- updateData$idioma
         indices.rl <- modelos$rl[[nombreModelo]]$indices
         df <- cbind(as.data.frame(indices.rl), r2)
@@ -240,7 +240,7 @@ mod_linear_regression_server <- function(input, output, session, updateData, mod
   
   output$indexdfrl2 <- renderTable({
     tryCatch({
-      if(!is.null(modelos$rl)){
+      if(!is.null(modelos$rl[[nombreModelo]])){
         idioma <- updateData$idioma
         isolate(datos.prueba <- updateData$datos.prueba)
         isolate(variable.predecir <- updateData$variable.predecir)

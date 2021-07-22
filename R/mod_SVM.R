@@ -19,25 +19,22 @@ mod_SVM_ui <- function(id){
                                                                    choices =  c("linear", "polynomial", "radial", "sigmoid")), width=6)), ns = ns))
   
   svm.code.config <- list(h3(labelInput("codigo")), hr(style = "margin-top: 0px;"),
-                          aceEditor(ns("fieldCodeSvm"), mode = "r", theme = "monokai", value = "", height = "3vh", readOnly = F, autoComplete = "enabled"))
+                          codigo.monokai(ns("fieldCodeSvm"), height = "7vh"))
   
   
   svm.code <- list(h3(labelInput("codigo")), hr(style = "margin-top: 0px;"),
                    conditionalPanel("input.BoxSvm == 'tabSvmDisp'",
-                                    aceEditor(ns("fieldCodeSvmDisp"), mode = "r", theme = "monokai",
-                                              value = "", height = "6vh", readOnly = F, autoComplete = "enabled"), ns = ns),
+                                    codigo.monokai(ns("fieldCodeSvmDisp"), height = "7vh"), ns = ns),
                    conditionalPanel("input.BoxSvm == 'tabSvmPred'",
-                                    aceEditor(ns("fieldCodeSvmPred"), mode = "r", theme = "monokai",
-                                              value = "", height = "3vh", readOnly = F, autoComplete = "enabled"), ns = ns),
+                                    codigo.monokai(ns("fieldCodeSvmPred"), height = "7vh"), ns = ns),
                    conditionalPanel("input.BoxSvm == 'tabSvmIndex'",
-                                    aceEditor(ns("fieldCodeSvmIG"), mode = "r", theme = "monokai",
-                                              value = "", height = "22vh", readOnly = F, autoComplete = "enabled"), ns = ns))
+                                    codigo.monokai(ns("fieldCodeSvmIG"), height = "7vh"), ns = ns))
   
   
-  tabs.options.generate <- tabsOptions(buttons = list(icon("gear"), icon("code")), widths = c(50,100), heights = c(80,95),
+  tabs.options.generate <- tabsOptions(buttons = list(icon("gear"), icon("code")), widths = c(50,100), heights = c(80,70),
                                        tabs.content = list(svm.options,svm.code.config))
   
-  tabs.options.Nogenerate <- tabsOptions(buttons = list(icon("code")), widths = c(100), heights = c(95),
+  tabs.options.Nogenerate <- tabsOptions(buttons = list(icon("code")), widths = c(100), heights = c(70),
                                          tabs.content = list(svm.code))
   
   generate.svm.panel <- tabPanel(title = labelInput("generatem"), value = "tabSvmModelo",
@@ -71,31 +68,34 @@ mod_SVM_ui <- function(id){
     page.svm
   )
 }
-    
+
 #' SVM Server Function
 #'
 #' @noRd 
-mod_SVM_server <- function(input, output, session,updateData, updatePlot){
+mod_SVM_server <- function(input, output, session,updateData, modelos){
   ns <- session$ns
+  
+  nombreBase <- "modelo.svm."
+  nombreModelo <- "modelo.svm."
   
   return.svm.default.values <- function(){
     updateSwitchInput(session,"switch.scale.svm",value = T)
     updateSelectInput(session,"kernel.svm",selected = "radial")
     
-    output$txtSvm <- renderText(NULL)
-    output$svmPrediTable <- DT::renderDataTable(NULL)
-    output$plot.svm.disp <- renderEcharts4r(NULL)
-    output$indexdfsvm <- render_index_table(NULL)
-    output$indexdfsvm2 <- render_index_table(NULL)
+    # output$txtSvm <- renderText(NULL)
+    # output$svmPrediTable <- DT::renderDataTable(NULL)
+    # output$plot.svm.disp <- renderEcharts4r(NULL)
+    # output$indexdfsvm <- render_index_table(NULL)
+    # output$indexdfsvm2 <- render_index_table(NULL)
   }
   
-  observeEvent(updateData$idioma,{
-    model.var = paste0("modelo.svm.",input$kernel.svm)
-    if(exists(model.var)){
-      execute_svm_ind()
-      plot_disp_svm()
-    }
-  })
+  # observeEvent(updateData$idioma,{
+  #   model.var = paste0("modelo.svm.",input$kernel.svm)
+  #   if(exists(model.var)){
+  #     execute_svm_ind()
+  #     plot_disp_svm()
+  #   }
+  # })
   
   
   observeEvent(updateData$datos.aprendizaje,{
@@ -104,154 +104,152 @@ mod_SVM_server <- function(input, output, session,updateData, updatePlot){
   
   # When the knn model is generated
   observeEvent(input$runSvm, {
-    if (validate_data(isolate(updateData), idioma = isolate(updateData$idioma))) { # Si se tiene los datos entonces :
-      default_codigo_svm()
+    if (validate_data(updateData, idioma = updateData$idioma)) { # Si se tiene los datos entonces :
       svm_full()
     }
   })
-
-  
-  # Upgrade code fields to default version
-  default_codigo_svm <- function() {
-    # Se acualiza el codigo del modelo
-    codigo <- svm_model(variable.pred = variable.predecir,
-                        model.var = paste0("modelo.svm.",input$kernel.svm),
-                        scale = input$switch.scale.svm,
-                        kernel = input$kernel.svm)
-    
-    updateAceEditor(session, "fieldCodeSvm", value = codigo)
-    cod.svm.modelo <<- codigo
-    
-    # Se genera el codigo de la prediccion
-    codigo <- svm_prediction(variable.pred = variable.predecir,
-                             model.var = paste0("modelo.svm.",input$kernel.svm),
-                             pred.var = paste0("prediccion.svm.",input$kernel.svm))
-    updateAceEditor(session, "fieldCodeSvmPred", value = codigo)
-    cod.svm.pred <<- codigo
-    
-    # Se genera el codigo de la indices
-    codigo <- extract_code("general_indices")
-    updateAceEditor(session, "fieldCodeSvmIG", value = codigo)
-    cod.svm.ind <<- codigo
-  }
-  
-  # Cleans the data according to the process where the error is generated
-  clean_svm <- function(capa = NULL){
-    for(i in capa:3){
-      switch(i, {
-        exe("modelo.svm.",input$kernel.svm,"<<- NULL")
-        output$txtSvm <- renderPrint(invisible(""))
-      }, {
-        exe("prediccion.svm.",input$kernel.svm,"<<- NULL")
-        output$svmPrediTable <- DT::renderDataTable(NULL)
-      }, {
-        exe("indices.svm.",input$kernel.svm,"<<- NULL")
-      })
-    }
-  }
   
   # Execute model, prediction and indices
   svm_full <- function() {
-    execute_svm()
-    execute_svm_pred()
-    execute_svm_ind()
-  }
-  
-  # Shows the graph the dispersion of the model with respect to the real values
-  plot_disp_svm <- function(){
-    tryCatch({ # Se corren los codigo
-      
-      titulos <- c(
-        tr("predvsreal", updateData$idioma),
-        tr("realValue", updateData$idioma),
-        tr("pred", updateData$idioma)
-      )
-      
-      output$plot.svm.disp <- renderEcharts4r(plot_real_prediction(datos.prueba[variable.predecir],
-                                                                  exe(paste0("prediccion.svm.",input$kernel.svm)),
-                                                                  translate("svm"),titulos))
-      
-      codigo <- disp_models(paste0("prediccion.svm.",input$kernel.svm), translate("svm"), variable.predecir)
-      updateAceEditor(session, "fieldCodeSvmDisp", value = codigo)
-    },
-    error = function(e) { # Regresamos al estado inicial y mostramos un error
-      clean_svm(2)
-      showNotification(paste0("Error (SVM-02) : ", e), duration = 15, type = "error")
-    })
-  }
-  
-  # Generates the model
-  execute_svm <- function() {
-    tryCatch({ # Se corren los codigo
-      isolate(exe(cod.svm.modelo))
-      isolate(kernel <- input$kernel.svm)
-      output$txtSvm <- renderPrint(exe("print(modelo.svm.",kernel,")"))
-      updateAceEditor(session, "fieldCodeSvm", value = cod.svm.modelo)
-      
-      #nombres.modelos <<- c(nombres.modelos, paste0("modelo.svm.", kernel))
-    },
-    error = function(e) { # Regresamos al estado inicial y mostramos un error
-      clean_svm(1)
-      showNotification(paste0("Error (SVM-01) : ",e), duration = 15, type = "error")
-    })
-  }
-  
-  # Generate the prediction
-  execute_svm_pred <- function() {
-    tryCatch({ # Se corren los codigo
-      isolate(exe(cod.svm.pred))
+    tryCatch({
+      isolate(datos.aprendizaje <- updateData$datos.aprendizaje)
+      isolate(datos.prueba <- updateData$datos.prueba)
+      isolate(variable.predecir <- updateData$variable.predecir)
+      isolate(scale <- as.logical(input$switch.scale.svm))
       isolate(kernel <- input$kernel.svm)
       
-      # Cambia la tabla con la prediccion de knn
-      output$svmPrediTable <- DT::renderDataTable(tb_predic(real.val,exe(paste0("prediccion.svm.",kernel))), server = FALSE)
+      nombreModelo <<- paste0(nombreBase, kernel)
       
-      #nombres.modelos <<- c(nombres.modelos, paste0("prediccion.svm.",kernel))
+      #Model generate
+      modelo.svm <- svm_model(datos.aprendizaje,variable.predecir, scale, kernel)
+      updateAceEditor(session, "fieldCodeSvm", value = codeSvm(variable.predecir,scale, kernel))
+      #Cambiamos la forma en que va aparecer el call
+      modelo.svm$call$formula <- paste0(variable.predecir,"~.")
       
-      updatePlot$tablaCom <- !updatePlot$tablaCom #graficar otra vez la tabla comprativa
-    },
-    error = function(e) { # Regresamos al estado inicial y mostramos un error
-      clean_svm(2)
-      showNotification(paste0("Error (SVM-02) : ",e), duration = 15, type = "error")
+      #Prediccion
+      prediccion.svm <- svm_prediction(modelo.svm, datos.prueba)
+      updateAceEditor(session, "fieldCodeSvmPred", value = codeSvmPred(nombreModelo))
+      #Indices
+      indices.svm <- general_indices(datos.prueba[,variable.predecir], prediccion.svm)
+      updateAceEditor(session, "fieldCodeSvmIG", value = codeSvmIG(variable.predecir))
+      
+      #isolamos para que no entre en un ciclo en el primer renderPrint
+      isolate(modelos$svm[[nombreModelo]] <- list(modelo = modelo.svm, prediccion = prediccion.svm, indices = indices.svm, 
+                                                  id = kernel))
+    }, error = function(e){
+      isolate(modelos$svm[[nombreModelo]] <- NULL)
+      showNotification(paste0("Error (SVM-00) : ",e), duration = 10, type = "error")
     })
   }
   
-  # Generates the indices
-  execute_svm_ind <- function(){
-    var.prediction.name <- paste0("prediccion.svm.",input$kernel.svm)
-    if(exists(var.prediction.name)){
-      tryCatch({ # Se corren los codigo
-        isolate(exe(cod.svm.ind))
-        isolate(kernel <- input$kernel.svm)
-        
-        indices.svm <- general_indices(datos.prueba[,variable.predecir], exe("prediccion.svm.",kernel))
-        #eval(parse(text =paste0("indices.svm.",kernel, "<<- indices.svm")))
-        
-        df <- as.data.frame(indices.svm)
-        colnames(df) <- c(translate("RMSE"), translate("MAE"), translate("ER"), translate("correlacion"))
-        output$indexdfsvm <- render_index_table(df)
-        
-        df2 <- as.data.frame(summary_indices(datos.aprendizaje[,variable.predecir]))
-        colnames(df2) <- c(translate("minimo"),translate("q1"),translate("q3"),translate("maximo"))
-        output$indexdfsvm2 <- render_index_table(df2)
-        
-        plot_disp_svm()
-        
-        #nombres.modelos <<- c(nombres.modelos, paste0("indices.svm.",kernel))
-        updateData$IndicesM[[paste0("svm-",kernel)]] <<- indices.svm
-      },
-      error = function(e) { # Regresamos al estado inicial y mostramos un error
-        clean_svm(3)
-        showNotification(paste0("Error (SVM-03) : ",e), duration = 15, type = "error")
-      })
+  
+  #Update model tab
+  output$txtSvm <- renderPrint({
+    tryCatch({
+      if(!is.null(modelos$svm[[nombreModelo]])){
+        modelo.svm <- modelos$svm[[nombreModelo]]$modelo
+        print(modelo.svm)
+      }
+      else{NULL}
+    }, error = function(e){
+      showNotification(paste0("Error (SVM-01) : ",e), duration = 10, type = "error")
+      NULL
+    })
+  })
+  
+  
+  # Update prediction tab
+  output$svmPrediTable <- DT::renderDataTable({
+    tryCatch({
+      if(!is.null(modelos$svm[[nombreModelo]])){
+        prediccion.svm <- modelos$svm[[nombreModelo]]$prediccion
+        isolate(datos.prueba <- updateData$datos.prueba)
+        isolate(real.val <- datos.prueba[updateData$variable.predecir])
+        tb_predic(real.val, prediccion.svm, updateData$idioma)
+      }
+      else{NULL}
       
-    }
-  }
- 
-}
+    }, error = function(e){
+      showNotification(paste0("Error (SVM-03) : ", e), duration = 10, type = "error")
+      NULL
+    })
+  }, server = F)
+  
+  
+  # Update Dispersion Tab
+  output$plot.svm.disp <- renderEcharts4r({
     
+    tryCatch({
+      if(!is.null(modelos$svm[[nombreModelo]])){
+        prediccion.svm <- modelos$svm[[nombreModelo]]$prediccion
+        isolate(datos.prueba <- updateData$datos.prueba)
+        isolate(variable.predecir <- updateData$variable.predecir)
+        idioma <- updateData$idioma
+        
+        codigo <- disp_models(nombreModelo, tr("svm", idioma), variable.predecir)
+        updateAceEditor(session, "fieldCodeSvmDisp", value = codigo)
+        
+        titulos <- c(
+          tr("predvsreal", idioma),
+          tr("realValue", idioma),
+          tr("pred", idioma)
+        )
+        
+        plot_real_prediction(datos.prueba[variable.predecir],prediccion.svm,tr("svm",idioma),titulos)
+      }
+      else{NULL}
+    }, error = function(e){
+      showNotification(paste0("Error (SVM-04) : ", e), duration = 10, type = "error")
+      NULL
+    })
+  })
+  
+  
+  #Update Indices tab
+  output$indexdfsvm <- renderTable({
+    tryCatch({
+      if(!is.null(modelos$svm[[nombreModelo]])){
+        idioma <- updateData$idioma
+        indices.svm <- modelos$svm[[nombreModelo]]$indices
+        df <- as.data.frame(indices.svm)
+        colnames(df) <- c(tr("RMSE", idioma), tr("MAE", idioma), tr("ER", idioma), tr("correlacion", idioma))
+        df
+      }
+      else{NULL}
+    }, error = function(e){
+      showNotification(paste0("Error (SVM-07) : ",e), duration = 10, type = "error")
+      NULL
+    })
+  },striped = TRUE, bordered = TRUE, spacing = 'l', 
+  width = '100%',  digits = 5,align = 'c')
+  
+  
+  
+  output$indexdfsvm2 <- renderTable({
+    tryCatch({
+      if(!is.null(modelos$svm[[nombreModelo]])){
+        idioma <- updateData$idioma
+        isolate(datos.prueba <- updateData$datos.prueba)
+        isolate(variable.predecir <- updateData$variable.predecir)
+        df2 <- as.data.frame(summary_indices(datos.prueba[,variable.predecir]))
+        colnames(df2) <- c(tr("minimo",idioma),tr("q1",idioma),
+                           tr("q3",idioma),tr("maximo",idioma))
+        df2
+      }
+      else{NULL}
+    }
+    , error = function(e){
+      showNotification(paste0("Error (SVM-08) : ",e), duration = 10, type = "error")
+      NULL
+    })
+  },striped = TRUE, bordered = TRUE, spacing = 'l', 
+  width = '100%',  digits = 5,align = 'c')
+  
+}
+
 ## To be copied in the UI
 # mod_SVM_ui("SVM_ui_1")
-    
+
 ## To be copied in the server
 # callModule(mod_SVM_server, "SVM_ui_1")
- 
+
