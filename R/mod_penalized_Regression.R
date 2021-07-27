@@ -15,13 +15,13 @@ mod_penalized_Regression_ui <- function(id){
                       fluidRow(
                         column(selectInput(inputId = ns("alpha.rlr"), label = labelInput("selectAlg"), selected = 1,
                                            choices = list("Ridge" = 0, "Lasso" = 1)),width = 5),
-                        column(width = 5,br(), radioSwitch(id = ns("switch.scale.rlr"), label = "escal", 
+                        column(width = 5,br(), radioSwitch(id = ns("switch_scale_rlr"), label = "escal", 
                                                  names = c("si", "no")), style = "margin-top: -20px;")),
                       fluidRow(column(id = ns("colManualLanda"),width = 5, 
                                       numericInput(ns("log_landa"), labelInput("log_landa"),value = 2, "NULL", width = "100%")),
                                br(),
                                column(width = 5, 
-                                      radioSwitch(id = ns("permitir.landa"), label = "",
+                                      radioSwitch(id = ns("permitir_landa"), label = "",
                                                   names = c("manual", "automatico"), val.def = FALSE), style = "margin-top: -15px;")))
   
   
@@ -110,18 +110,13 @@ mod_penalized_Regression_server <- function(input, output, session, updateData, 
   
   return.rlr.default.values <- function(){
     updateSelectInput(session, "alpha.rlr",selected = 1)
-    updateSwitchInput(session, "switch.scale.rlr", value = T)
+    #https://stackoverflow.com/questions/63817417/custom-shiny-input-update-reactives
+    #message <- list(selected = T)
+    #session$sendInputMessage("switch_scale_rlr", message)
+    #updateSwitchInput(session, "switch_scale_rlr", value = T)
     updateNumericInput(session,"log_landa",value = 2)
-    updateSwitchInput(session, "permitir.landa", value = F)
-    # output$txtRlr <- renderText(NULL)
-    # output$plot.rlr.posiblanda <- renderPlot(NULL)
-    # output$txtRlrCoeff <- renderText(NULL)
-    # output$rlCoefTable <- DT::renderDataTable(NULL)
-    # output$plot.rlr.landa <- renderPlot(NULL)
-    # output$rlrPrediTable <- DT::renderDataTable(NULL)
-    # output$plot.rlr.disp <- renderEcharts4r(NULL)
-    # output$indexdfrlr <- render_index_table(NULL)
-    # output$indexdfrlr2 <- render_index_table(NULL)
+    updateSwitchInput(session, "permitir_landa", value = F)
+
     log.landa <<- NULL
     coefficients <<- NULL
   }
@@ -139,8 +134,8 @@ mod_penalized_Regression_server <- function(input, output, session, updateData, 
   })
   
   # When user press enable or disable the lambda
-  observeEvent(input$permitir.landa, {
-    if (as.logical(input$permitir.landa)) {
+  observeEvent(input$permitir_landa, {
+    if (as.logical(input$permitir_landa)) {
       shinyjs::enable("log_landa")
     } else {
       shinyjs::disable("log_landa")
@@ -155,7 +150,7 @@ mod_penalized_Regression_server <- function(input, output, session, updateData, 
       isolate(datos.prueba <- updateData$datos.prueba)
       isolate(variable.predecir <- updateData$variable.predecir)
       isolate(alpha <- as.numeric(input$alpha.rlr))
-      isolate(standardize <- as.logical(input$switch.scale.rlr))
+      isolate(standardize <- as.logical(input$switch_scale_rlr))
 
       nombreModelo <<- paste0(nombreBase, rlr_type(alpha))
       
@@ -167,7 +162,7 @@ mod_penalized_Regression_server <- function(input, output, session, updateData, 
       modelo.rlr$call$standardize <- standardize
       modelo.rlr$call$alpha <- alpha
       
-      if (isolate(as.logical(input$permitir.landa) && !is.na(input$log_landa))) {
+      if (isolate(as.logical(input$permitir_landa) && !is.na(input$log_landa))) {
         log.landa <<- isolate(input$log_landa)
       }
       else{log.landa <<- NULL}
@@ -300,8 +295,10 @@ mod_penalized_Regression_server <- function(input, output, session, updateData, 
         prediccion.rlr <- modelos$rlr[[nombreModelo]]$prediccion
         isolate(datos.prueba <- updateData$datos.prueba)
         isolate(variable.predecir <- updateData$variable.predecir)
+        isolate(alpha <- as.numeric(input$alpha.rlr))
+        tipo <- rlr_type(alpha)
         
-        codigo <- disp_models(nombreModelo, tr("rlr", updateData$idioma), variable.predecir)
+        codigo <- disp_models(nombreModelo, paste0(tr("rlr", updateData$idioma),"-",tipo), variable.predecir)
         updateAceEditor(session, "fieldCodeRlrDisp", value = codigo)
         
         titulos <- c(
@@ -310,7 +307,8 @@ mod_penalized_Regression_server <- function(input, output, session, updateData, 
           tr("pred", updateData$idioma)
         )
         
-        plot_real_prediction(datos.prueba[variable.predecir],prediccion.rlr,tr("rlr", updateData$idioma),titulos)
+        plot_real_prediction(datos.prueba[variable.predecir],prediccion.rlr,
+                             paste0(tr("rlr", updateData$idioma),"-",tipo),titulos)
       }
       else{NULL}
     }, error = function(e){

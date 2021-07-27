@@ -1,62 +1,3 @@
-# KNN PAGE ----------------------------------------------------------------------------------------------------------------
-
-#' kkn_model
-#' 
-#' @description generates the code to create the k nearest neighbors model.
-#' 
-#' @param data the name of the learning data.
-#' @param variable.pred the name of the variable to be predicted.
-#' @param scale the scale parameter of the model.
-#' @param kmax the kmax parameter of the model.
-#' @param kernel the kernel parameter of the model.
-#' @param model.var the name of the variable that stores the resulting model.
-#' @param distance the distance parameter of the model.
-#' 
-#' @seealso \code{\link[kknn]{train.kknn}}
-#' 
-#' @export
-#'
-#' @examples
-#' library(kknn)
-#' x <- kkn_model('iris', 'Petal.Length')
-#' exe(x)
-#' print(modelo.knn)
-#' 
-kkn_model <- function(data = "datos.aprendizaje", variable.pred = NULL, scale = TRUE, kmax = 7, kernel = "optimal", model.var = "modelo.knn", distance = 2){
-  kmax <- ifelse(!is.numeric(kmax), exe("round(sqrt(nrow(",data,"))"), kmax)
-  return(paste0(model.var," <- train.kknn(`",variable.pred,"`~., data = ",data,", scale =",scale,", kmax=",kmax,", kernel = '",kernel,"', distance = ",distance,")"))
-}
-
-#' kkn_prediction
-#'
-#' @description generates the code to create the prediction of the k nearest neighbors model.
-#'
-#' @param data the name of the test data.
-#' @param variable.pred the name of the variable to be predicted.
-#' @param model.var the name of the variable that stores the resulting model.
-#' @param pred.var the name of the variable that stores the resulting prediction.
-#'
-#'
-#' @export
-#'
-#' @examples
-#' library(kknn)
-#' library(dplyr)
-#' 
-#' x <- kkn_model('iris', 'Petal.Length', model.var = 'model_knn')
-#' exe(x)
-#' print(model_knn)
-#' 
-#' x <- kkn_prediction('iris', 'Petal.Length', 'model_knn', 'my_prediction')
-#' exe(x)
-#' print(my_prediction)
-#' 
-kkn_prediction <- function(data = "datos.prueba", variable.pred = NULL, model.var = "modelo.knn", pred.var = "prediccion.knn") {
-  return(paste0(pred.var," <- predict(",model.var,", ",data," %>% select(-`",variable.pred,"`))"))
-}
-
-
-
 # RD PAGE -----------------------------------------------------------------------------------------------------------------
 
 #' rd_model
@@ -319,14 +260,13 @@ nn_plot <- function(model.var = "modelo.nn"){
 #' @param prediction the name of the prediction object.
 #' @param model_name the name of the model.
 #' @param var_pred the name of the variable to be predicted.
-#' @param data the name of the current data.
 #'
 #' @export
 #'
 #' @examples
 #' disp_models("prediction.knn", "KNN", "Species")
 #' 
-disp_models <- function(prediction, model_name, var_pred, data = "datos.prueba"){
+disp_models <- function(prediction, model_name, var_pred){
   
-  paste0("plot_real_prediction(",data,"[,'",var_pred,"'], ", prediction,", '",model_name,"')")
+  paste0("plot_real_prediction(test.data['",var_pred,"'], ", prediction,", '",model_name,"')")
 }

@@ -77,28 +77,27 @@ mod_KNN_ui <- function(id){
 mod_KNN_server <- function(input, output, session,updateData, updatePlot){
   ns <- session$ns
   
+  nombreBase <- "modelo.knn."
+  nombreModelo <- "modelo.knn."
+  
   return.knn.default.values <- function(){
+    updateNumericInput(session, "kmax.knn", value = 7)
     updateSelectInput(session, "kernel.knn",selected = "optimal")
-    updateSwitchInput(session,"switch.scale.knn", value = T)
+    #updateSwitchInput(session,"switch.scale.knn", value = T)
     updateNumericInput(session, "distance.knn", value = 2)
     
-    knn.args.default <<- TRUE
-    
-    output$txtknn <- renderText(NULL)
-    output$knnPrediTable <- DT::renderDataTable(NULL)
-    output$plot.knn.disp <- renderEcharts4r(NULL)
-    output$indexdfknn <- render_index_table(NULL)
-    output$indexdfknn2 <- render_index_table(NULL)
-  }
-  
-  observeEvent(updateData$idioma,{
-    model.var = paste0("modelo.knn.", input$kernel.knn)
-    if(exists(model.var)){
-      execute_knn_ind()
-      plot_disp_knn()
+    isolate(datos.aprendizaje <- updateData$datos.aprendizaje)
+    if(!is.null(datos.aprendizaje)){
+      updateNumericInput(session, "kmax.knn", value = round(sqrt(nrow(datos.aprendizaje))))
     }
-  })
-  
+    
+    # output$txtknn <- renderText(NULL)
+    # output$knnPrediTable <- DT::renderDataTable(NULL)
+    # output$plot.knn.disp <- renderEcharts4r(NULL)
+    # output$indexdfknn <- render_index_table(NULL)
+    # output$indexdfknn2 <- render_index_table(NULL)
+  }
+
   
   
   observeEvent(updateData$datos.aprendizaje,{
@@ -108,63 +107,51 @@ mod_KNN_server <- function(input, output, session,updateData, updatePlot){
  
   # When the knn model is generated
   observeEvent(input$runKnn, {
-    if (validate_data(isolate(updateData), idioma = isolate(updateData$idioma))) { # Si se tiene los datos entonces :
-      default_codigo_knn()
+    if (validate_data(updateData, idioma = updateData$idioma)) { # Si se tiene los datos entonces :
       knn_full()
     }
   })
+  
+  
+  # Execute model, prediction and indices
+  knn_full <- function() {
+    tryCatch({
+      isolate(datos.aprendizaje <- updateData$datos.aprendizaje)
+      isolate(datos.prueba <- updateData$datos.prueba)
+      isolate(variable.predecir <- updateData$variable.predecir)
+      isolate(scale <- as.logical(input$switch.scale.knn))
+      isolate(kernel <- input$kernel.knn)
+      isolate(kmax <- input$kmax.knn)
+      isolate(distance <- input$distance.knn)
+      
+      nombreModelo <<- paste0(nombreBase, kernel)
+      
+      #Model generate
+      modelo.knn <- kkn_model(datos.aprendizaje,variable.predecir, scale, kmax, kernel, distance)
+      updateAceEditor(session, "fieldCodeKnn", value = codeKnn(variable.predecir,scale, kmax, kernel, distance))
+      #Cambiamos la forma en que va aparecer el call
+      modelo.knn$call$formula <- paste0(variable.predecir,"~.")
+      modelo.knn$call$kernel <- kernel
+      modelo.knn$call$scale <- scale
+      modelo.knn$call$distance <- distance
+      
+      #Prediccion
+      prediccion.knn <- kkn_prediction(modelo.knn, datos.prueba)
+      updateAceEditor(session, "fieldCodeKnnPred", value = codeKnnPred(nombreModelo))
+      
+      #Indices
+      indices.knn <- general_indices(datos.prueba[,variable.predecir], prediccion.knn)
+      updateAceEditor(session, "fieldCodeKnnIG", value = codeKnnIG(variable.predecir))
+      
+      #isolamos para que no entre en un ciclo en el primer renderPrint
+      isolate(modelos$knn[[nombreModelo]] <- list(modelo = modelo.knn, prediccion = prediccion.knn, indices = indices.knn,
+                                                  id = kernel))
+    }, error = function(e){
+      isolate(modelos$knn[[nombreModelo]] <- NULL)
+      showNotification(paste0("Error (KNN-00) : ",e), duration = 10, type = "error")
+    })
+  }
 
-  
-  # Upgrade code fields to default version
-  default_codigo_knn <- function() {
-    if(!is.null(datos.aprendizaje) & knn.args.default){
-      k.value <- round(sqrt(nrow(datos.aprendizaje)))
-      updateNumericInput(session,"kmax.knn",value = k.value)
-      knn.args.default <<- FALSE
-    }else{
-      k.value <- input$kmax.knn
-    }
-    
-    # Se acualiza el codigo del modelo
-    codigo <- kkn_model(variable.pred = variable.predecir,
-                        scale = input$switch.scale.knn,
-                        kmax = k.value,
-                        kernel = input$kernel.knn,
-                        model.var = paste0("modelo.knn.", input$kernel.knn),
-                        distance = input$distance.knn)
-    
-    updateAceEditor(session, "fieldCodeKnn", value = codigo)
-    cod.knn.modelo <<- codigo
-    
-    # Se genera el codigo de la prediccion
-    codigo <- kkn_prediction(variable.pred = variable.predecir,
-                             model.var = paste0("modelo.knn.", input$kernel.knn), 
-                             pred.var  = paste0("prediccion.knn.", input$kernel.knn))
-    
-    updateAceEditor(session, "fieldCodeKnnPred", value = codigo)
-    cod.knn.pred <<- codigo
-    
-    
-    # Se genera el codigo de la indices
-    codigo <- extract_code("general_indices")
-    updateAceEditor(session, "fieldCodeKnnIG", value = codigo)
-    cod.knn.ind <<- codigo
-  }
-  
-  # Cleans the data according to the process where the error is generated
-  clean_knn <- function(capa = NULL) {
-    for (i in capa:3) {
-      switch(i, {
-        exe("modelo.knn.",input$kernel.knn," <<- NULL")
-        output$txtknn <- renderPrint(invisible(""))
-      }, {
-        exe("prediccion.knn.",input$kernel.knn," <<- NULL")
-        output$knnPrediTable <- DT::renderDataTable(NULL)
-      }, {
-        exe("indices.knn.",input$kernel.knn," <<- NULL")
-      })
-    }
-  }
   
   # Shows the graph the dispersion of the model with respect to the real values
   plot_disp_knn <- function(){
@@ -189,12 +176,7 @@ mod_KNN_server <- function(input, output, session,updateData, updatePlot){
     })
   }
   
-  # Execute model, prediction and indices
-  knn_full <- function() {
-    execute_knn()
-    execute_knn_pred()
-    execute_knn_ind()
-  }
+
   
   # Generates the model
   execute_knn <- function() {

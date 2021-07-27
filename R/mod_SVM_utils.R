@@ -7,7 +7,7 @@
 #' @param data dataframe
 #' @param variable.pred the name of the variable to be predicted.
 #' @param scale the scale parameter of the model.
-#' @param kernel the kernel parameter of the model.
+#' @param kernel string. The kernel parameter of the model.
 #'
 #' @seealso \code{\link[e1071]{svm}}
 #'
@@ -46,7 +46,7 @@ svm_prediction <- function(model, test.data){
 
 #------------------------------------CODE---------------------------------------
 codeSvm <- function(variable.predecir, scale, kernel){
-  return(paste0("svm_model(data, '",variable.predecir,"', scale = ",scale, ", kernel = ",kernel,")"))
+  return(paste0("svm_model(data, '",variable.predecir,"', scale = ",scale, ", kernel = '",kernel,"')"))
 }
 
 codeSvmPred <- function(nombreModelo){

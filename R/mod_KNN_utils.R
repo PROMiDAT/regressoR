@@ -1,0 +1,59 @@
+# KNN PAGE ----------------------------------------------------------------------------------------------------------------
+
+#' kkn_model
+#' 
+#' @description generates a k nearest neighbors model.
+#' 
+#' @param data dataframe
+#' @param variable.pred the name of the variable to be predicted.
+#' @param scale the scale parameter of the model.
+#' @param kmax the kmax parameter of the model.
+#' @param kernel string. The kernel parameter of the model.
+#' @param distance the distance parameter of the model.
+#' 
+#' @seealso \code{\link[kknn]{train.kknn}}
+#' 
+#' @export
+#' 
+kkn_model <- function(data, variable.pred, scale = TRUE, kmax = 7, kernel = "optimal", distance = 2){
+  if(!is.null(variable.pred) && !is.null(data)){
+    form <- formula(paste0(variable.pred,"~."))
+    modelo.knn <- train.kknn(form, data = data, scale = scale, kmax = kmax, kernel = kernel, distance = distance)
+    return(modelo.knn)
+  }
+  return(NULL)
+  # kmax <- ifelse(!is.numeric(kmax), exe("round(sqrt(nrow(",data,"))"), kmax)
+  # return(paste0(model.var," <- train.kknn(`",variable.pred,"`~., data = ",data,", scale =",scale,", kmax=",kmax,", kernel = '",kernel,"', distance = ",distance,")"))
+}
+
+#' kkn_prediction
+#'
+#' @description generates the prediction of the k nearest neighbors model.
+#'
+#' @param model k nearest neighbors model(train.kknn).
+#' @param test.data dataframe.
+#'
+#' @export
+#' 
+kkn_prediction <- function(model, test.data) {
+  if(!is.null(test.data) && !is.null(model)){
+    return(predict(model,test.data))
+  }
+  return(NULL)
+  #return(paste0(pred.var," <- predict(",model.var,", ",data," %>% select(-`",variable.pred,"`))"))
+}
+
+
+#------------------------------------CODE---------------------------------------
+codeKnn <- function(variable.predecir, scale, kmax, kernel, distance){
+  return(paste0("kkn_model(data, '",variable.predecir,"', scale = ",scale, "kmax = ", kmax,
+                "kernel = '",kernel,"', distance = ", distance, ")"))
+}
+
+codeKnnPred <- function(nombreModelo){
+  return(paste0("kkn_prediction(model = ", nombreModelo, ", test.data)"))
+}
+
+codeKnnIG <- function(variable.predecir){
+  return(paste0("general_indices(test.data[,'",variable.predecir,"'], prediccion.knn)"))
+}
