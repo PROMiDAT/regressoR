@@ -4,25 +4,17 @@
 \alias{rlr_prediction}
 \title{rlr_prediction}
 \usage{
-rlr_prediction(
-  learning.data,
-  test.data,
-  variable.pred,
-  model,
-  log.lambda = NULL
-)
+rlr_prediction(model, test.data, variable.pred, log.lambda = NULL)
 }
 \arguments{
-\item{learning.data}{dataframe.}
+\item{model}{a penalized regression model(cv.glmnet).}
 
 \item{test.data}{dataframe.}
 
 \item{variable.pred}{the name of the variable to be predicted.}
 
-\item{model}{a penalized regression model(cv.glmnet).}
-
 \item{log.lambda}{numerical. Logarithm of lambda in case you don't want to use the optimal lambda.}
 }
 \description{
-generates the code to create the prediction of the penalized regression model.
+generates the prediction of the penalized regression model.
 }

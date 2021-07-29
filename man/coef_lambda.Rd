@@ -16,5 +16,5 @@ coef_lambda(data, variable.pred, model, log.lambda = NULL)
 \item{log.lambda}{numerical. Logarithm of lambda in case you don't want to use the optimal lambda.}
 }
 \description{
-generates the code to print the penalized regression coefficients.
+get penalized regression coefficients.
 }

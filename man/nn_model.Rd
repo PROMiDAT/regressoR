@@ -2,7 +2,7 @@
 % Please edit documentation in R/code_generate.R
 \name{nn_model}
 \alias{nn_model}
-\title{boosting_importance_plot}
+\title{nn_model}
 \usage{
 nn_model(
   data = "datos.aprendizaje",
@@ -36,25 +36,7 @@ nn_model(
 \item{...}{a vector with the number of nodes in each hidden layer.}
 }
 \description{
-generates the code to make the graph of variable importance.
-
 generates the code to create the neural network model.
-}
-\examples{
-\dontrun{
-library(gbm)
-library(ggplot2)
-library(forcats)
-library(dplyr)
-
-x <- boosting_model('iris', 'Petal.Length', "model_boosting")
-exe(x)
-
-x <- boosting_importance_plot('model_boosting', 'iris')
-exe(x)
-}
-nn_model
-
 }
 \seealso{
 \code{\link[neuralnet]{neuralnet}}

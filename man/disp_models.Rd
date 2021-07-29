@@ -4,7 +4,7 @@
 \alias{disp_models}
 \title{disp_models}
 \usage{
-disp_models(prediction, model_name, var_pred, data = "datos.prueba")
+disp_models(prediction, model_name, var_pred)
 }
 \arguments{
 \item{prediction}{the name of the prediction object.}
@@ -12,8 +12,6 @@ disp_models(prediction, model_name, var_pred, data = "datos.prueba")
 \item{model_name}{the name of the model.}
 
 \item{var_pred}{the name of the variable to be predicted.}
-
-\item{data}{the name of the current data.}
 }
 \description{
 this function generates the call code of the scatter function.

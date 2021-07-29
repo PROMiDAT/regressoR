@@ -13,7 +13,7 @@ mod_SVM_ui <- function(id){
   
   svm.options <- list(options.run(ns("runSvm")), tags$hr(style = "margin-top: 0px;"),
                       conditionalPanel("input.BoxSvm != 'tabSvmPlot'",
-                                       fluidRow(column(width = 5,br(), radioSwitch(id = ns("switch.scale.svm"), label = "escal",
+                                       fluidRow(column(width = 5,br(), radioSwitch(id = ns("switch_scale_svm"), label = "escal",
                                                                                    names = c("si", "no")), style = "margin-top: -20px;"),
                                                 column(width=5, selectInput(inputId = ns("kernel.svm"), label = labelInput("selkernel"), selected = "radial",
                                                                             choices =  c("linear", "polynomial", "radial", "sigmoid")))), ns = ns))
@@ -79,7 +79,7 @@ mod_SVM_server <- function(input, output, session,updateData, modelos){
   nombreModelo <- "modelo.svm."
   
   return.svm.default.values <- function(){
-    updateSwitchInput(session,"switch.scale.svm",value = T)
+    updateSwitchInput(session,"switch_scale_svm",value = T)
     updateSelectInput(session,"kernel.svm",selected = "radial")
     
     # output$txtSvm <- renderText(NULL)
@@ -106,7 +106,7 @@ mod_SVM_server <- function(input, output, session,updateData, modelos){
       isolate(datos.aprendizaje <- updateData$datos.aprendizaje)
       isolate(datos.prueba <- updateData$datos.prueba)
       isolate(variable.predecir <- updateData$variable.predecir)
-      isolate(scale <- as.logical(input$switch.scale.svm))
+      isolate(scale <- as.logical(input$switch_scale_svm))
       isolate(kernel <- input$kernel.svm)
       
       nombreModelo <<- paste0(nombreBase, kernel)

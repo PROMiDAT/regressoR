@@ -4,17 +4,15 @@
 \alias{rl_prediction}
 \title{rl_prediction}
 \usage{
-rl_prediction(modelo, test.data)
+rl_prediction(model, test.data)
 }
 \arguments{
-\item{data}{the name of the test data.}
+\item{model}{a linear regression model(lm).}
 
-\item{model.var}{the name of the variable that stores the resulting model.}
-
-\item{pred.var}{the name of the variable that stores the resulting prediction.}
+\item{test.data}{dataframe.}
 }
 \description{
-generates the code to create the prediction of the linear regression model.
+generates the prediction of the linear regression model.
 }
 \seealso{
 \code{\link[stats]{predict}}

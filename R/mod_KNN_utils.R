@@ -19,6 +19,12 @@ kkn_model <- function(data, variable.pred, scale = TRUE, kmax = 7, kernel = "opt
   if(!is.null(variable.pred) && !is.null(data)){
     form <- formula(paste0(variable.pred,"~."))
     modelo.knn <- train.kknn(form, data = data, scale = scale, kmax = kmax, kernel = kernel, distance = distance)
+    #Cambiamos la forma en que va aparecer el call
+    modelo.knn$call$formula <- form
+    modelo.knn$call$kmax <- kmax
+    modelo.knn$call$kernel <- kernel
+    modelo.knn$call$scale <- scale
+    modelo.knn$call$distance <- distance
     return(modelo.knn)
   }
   return(NULL)
@@ -46,8 +52,8 @@ kkn_prediction <- function(model, test.data) {
 
 #------------------------------------CODE---------------------------------------
 codeKnn <- function(variable.predecir, scale, kmax, kernel, distance){
-  return(paste0("kkn_model(data, '",variable.predecir,"', scale = ",scale, "kmax = ", kmax,
-                "kernel = '",kernel,"', distance = ", distance, ")"))
+  return(paste0("kkn_model(data, '",variable.predecir,"', scale = ",scale, ", kmax = ", kmax,
+                ", kernel = '",kernel,"', distance = ", distance, ")"))
 }
 
 codeKnnPred <- function(nombreModelo){

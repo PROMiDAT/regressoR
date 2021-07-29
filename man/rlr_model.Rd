@@ -14,8 +14,6 @@ rlr_model(data, variable.pred, alpha = 0, standardize = TRUE)
 \item{alpha}{the alpha parameter of the model.}
 
 \item{standardize}{the standardize parameter of the model.}
-
-\item{model.var}{the name of the variable that stores the resulting model.}
 }
 \description{
 generates a penalized regression model.
