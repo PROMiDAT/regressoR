@@ -110,12 +110,9 @@ mod_penalized_Regression_server <- function(input, output, session, updateData, 
   
   return.rlr.default.values <- function(){
     updateSelectInput(session, "alpha.rlr",selected = 1)
-    #https://stackoverflow.com/questions/63817417/custom-shiny-input-update-reactives
-    #message <- list(selected = T)
-    #session$sendInputMessage("switch_scale_rlr", message)
-    #updateSwitchInput(session, "switch_scale_rlr", value = T)
+    updateRadioSwitch(session,"switch_scale_rlr","TRUE")
     updateNumericInput(session,"log_landa",value = 2)
-    updateSwitchInput(session, "permitir_landa", value = F)
+    updateRadioSwitch(session,"permitir_landa","FALSE")
 
     log.landa <<- NULL
     coefficients <<- NULL
@@ -158,9 +155,6 @@ mod_penalized_Regression_server <- function(input, output, session, updateData, 
       modelo.rlr <- rlr_model(data = datos.aprendizaje, variable.pred = variable.predecir,
                               alpha = alpha, standardize = standardize)
       updateAceEditor(session, "fieldCodeRlr", value = codeRlr(variable.predecir,alpha,standardize))
-      #Cambiamos la forma en que va aparecer el call
-      modelo.rlr$call$standardize <- standardize
-      modelo.rlr$call$alpha <- alpha
       
       if (isolate(as.logical(input$permitir_landa) && !is.na(input$log_landa))) {
         log.landa <<- isolate(input$log_landa)

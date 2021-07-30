@@ -17,6 +17,10 @@ svm_model <- function(data, variable.pred, scale = TRUE, kernel = "linear"){
   if(!is.null(variable.pred) && !is.null(data)){
     form <- formula(paste0(variable.pred,"~."))
     modelo.svm <- svm(form, data, scale = scale, kernel = kernel)
+    #Cambiamos la forma en que va aparecer el call
+    modelo.svm$call$formula <- paste0(variable.predecir,"~.")
+    modelo.svm$call$kernel <- kernel
+    modelo.svm$call$scale <- scale
     return(modelo.svm)
   }
   return(NULL)

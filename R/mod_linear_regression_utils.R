@@ -10,7 +10,11 @@
 #' @export
 rl_model <- function(data, variable.pred){
   if(!is.null(variable.pred) && !is.null(data)){
-    return(lm(formula = paste0(variable.pred,"~."), data = data))
+    form <- formula(paste0(variable.pred,"~."))
+    modelo.rl <- lm(formula = form, data = data)
+    #Cambiamos la forma en que va aparecer el call
+    modelo.rl$call$formula <- form
+    return(modelo.rl)
   }
   return(NULL)
 }

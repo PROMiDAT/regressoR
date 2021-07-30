@@ -68,7 +68,7 @@ evolerror;Evolución del Error;Error Evolution
 garbol;Gráfico Árbol;Tree Plot
 reglas;Reglas;Rules
 varImp;Importancia de Variables;Variable Importance
-kmax;K Máximo:;K Max:
+kv;Valor de K:;K Value:
 selkernel;Seleccionar un Kernel:;Select kernel:
 escal;Escalar Datos;Scale Data
 reald;Datos Reales;Real Data

@@ -107,8 +107,6 @@ mod_linear_regression_server <- function(input, output, session, updateData, mod
       #Model generate
       modelo.rl <- rl_model(datos.aprendizaje,variable.predecir)
       updateAceEditor(session, "fieldCodeRl", value = codeRl(variable.predecir))
-      #Cambiamos la forma en que va aparecer el call
-      modelo.rl$call$formula <- paste0(variable.predecir,"~.")
       
       #Coefficients
       model.information <- rl_coeff(modelo.rl)

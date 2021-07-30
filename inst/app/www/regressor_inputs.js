@@ -17,9 +17,12 @@ $.extend(radioGroupButtonsBinding, {
     return $('input:radio[name="' + $escape4but(el.id) + '"]:checked').val();
   },
   setValue: function(el, value) {
-    $('input:radio[name="' + $escape4but(el.id) + '"][value="' + $escape4but(value) + '"]').prop('checked', true);
-    $('input:radio[name="' + $escape4but(el.id) + '"]').parent().removeClass('active');
-    $('input:radio[name="' + $escape4but(el.id) + '"][value="' + $escape4but(value) + '"]').parent().addClass('active');
+    console.log(el);
+    console.log(el.id);
+    console.log(value);
+    $('input:radio[name="' + el.id + '"][value="' + value + '"]').prop('checked', true);
+    $('input:radio[name="' + el.id + '"]').parent().removeClass('active');
+    $('input:radio[name="' + el.id + '"][value="' + value + '"]').parent().addClass('active');
   },
   subscribe: function(el, callback) {
     $(el).on('change.radioGroupButtonsBinding', function (event) {

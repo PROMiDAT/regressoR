@@ -7,7 +7,7 @@
 #' @param data dataframe
 #' @param variable.pred the name of the variable to be predicted.
 #' @param scale the scale parameter of the model.
-#' @param kmax the kmax parameter of the model.
+#' @param k the k value of the model.
 #' @param kernel string. The kernel parameter of the model.
 #' @param distance the distance parameter of the model.
 #' 
@@ -15,13 +15,15 @@
 #' 
 #' @export
 #' 
-kkn_model <- function(data, variable.pred, scale = TRUE, kmax = 7, kernel = "optimal", distance = 2){
+kkn_model <- function(data, variable.pred, scale = TRUE, k = 7, kernel = "optimal", distance = 2){
+  #Revisar error de library/import
+  library("kknn")
   if(!is.null(variable.pred) && !is.null(data)){
     form <- formula(paste0(variable.pred,"~."))
-    modelo.knn <- train.kknn(form, data = data, scale = scale, kmax = kmax, kernel = kernel, distance = distance)
+    modelo.knn <- kknn::train.kknn(form, data = data, scale = scale, ks = k, kernel = kernel, distance = distance)
     #Cambiamos la forma en que va aparecer el call
     modelo.knn$call$formula <- form
-    modelo.knn$call$kmax <- kmax
+    modelo.knn$call$ks <- k
     modelo.knn$call$kernel <- kernel
     modelo.knn$call$scale <- scale
     modelo.knn$call$distance <- distance
@@ -31,6 +33,7 @@ kkn_model <- function(data, variable.pred, scale = TRUE, kmax = 7, kernel = "opt
   # kmax <- ifelse(!is.numeric(kmax), exe("round(sqrt(nrow(",data,"))"), kmax)
   # return(paste0(model.var," <- train.kknn(`",variable.pred,"`~., data = ",data,", scale =",scale,", kmax=",kmax,", kernel = '",kernel,"', distance = ",distance,")"))
 }
+
 
 #' kkn_prediction
 #'
@@ -51,8 +54,8 @@ kkn_prediction <- function(model, test.data) {
 
 
 #------------------------------------CODE---------------------------------------
-codeKnn <- function(variable.predecir, scale, kmax, kernel, distance){
-  return(paste0("kkn_model(data, '",variable.predecir,"', scale = ",scale, ", kmax = ", kmax,
+codeKnn <- function(variable.predecir, scale, k, kernel, distance){
+  return(paste0("kkn_model(data, '",variable.predecir,"', scale = ",scale, ", k = ", k,
                 ", kernel = '",kernel,"', distance = ", distance, ")"))
 }
 

@@ -11,13 +11,13 @@ mod_KNN_ui <- function(id){
   ns <- NS(id)
   
   knn.options <- list(options.run(ns("runKnn")), tags$hr(style = "margin-top: 0px;"),
-                      fluidRow(column(numericInput(ns("kmax.knn"), labelInput("kmax"), min = 1,step = 1, value = 7), width = 5),
+                      fluidRow(column(numericInput(ns("k.knn"), labelInput("kv"), min = 1,step = 1, value = 7), width = 5),
                                column(selectInput(inputId = ns("kernel.knn"), label = labelInput("selkernel"),selected = "optimal",
                                                   choices = c("optimal", "rectangular", "triangular", "epanechnikov", "biweight",
                                                               "triweight", "cos","inv","gaussian")),width = 5)),
                       fluidRow(column(br(),radioSwitch(id = ns("switch_scale_knn"), label = "escal",
                                                        names = c("si", "no")), style = "margin-top: -20px;", width=5),
-                               column(width=6, numericInput(ns("distance.knn"), labelInput("distknn"), min = 1,step = 1, value = 2))) )
+                               column(width=5, numericInput(ns("distance.knn"), labelInput("distknn"), min = 1,step = 1, value = 2))) )
   
   knn.code.config <- list(h3(labelInput("codigo")), hr(style = "margin-top: 0px;"),
                           aceEditor(ns("fieldCodeKnn"), mode = "r", theme = "monokai", value = "", height = "7vh", readOnly = F))
@@ -81,14 +81,14 @@ mod_KNN_server <- function(input, output, session,updateData, modelos){
   nombreModelo <- "modelo.knn."
   
   return.knn.default.values <- function(){
-    updateNumericInput(session, "kmax.knn", value = 7)
+    updateNumericInput(session, "k.knn", value = 7)
     updateSelectInput(session, "kernel.knn",selected = "optimal")
-    #updateSwitchInput(session,"switch_scale_knn", value = T)
+    updateRadioSwitch(session,"switch_scale_knn","TRUE")
     updateNumericInput(session, "distance.knn", value = 2)
     
     isolate(datos.aprendizaje <- updateData$datos.aprendizaje)
     if(!is.null(datos.aprendizaje)){
-      updateNumericInput(session, "kmax.knn", value = round(sqrt(nrow(datos.aprendizaje))))
+      updateNumericInput(session, "k.knn", value = round(sqrt(nrow(datos.aprendizaje))))
     }
     
     # output$txtknn <- renderText(NULL)
@@ -121,14 +121,18 @@ mod_KNN_server <- function(input, output, session,updateData, modelos){
       isolate(variable.predecir <- updateData$variable.predecir)
       isolate(scale <- as.logical(input$switch_scale_knn))
       isolate(kernel <- input$kernel.knn)
-      isolate(kmax <- input$kmax.knn)
+      isolate(k <- input$k.knn)
       isolate(distance <- input$distance.knn)
       
       nombreModelo <<- paste0(nombreBase, kernel)
       
+      #Validacion tamaño del k
+      tam <- nrow(datos.aprendizaje)
+      k <- ifelse(k >= tam, tam - 2, k)
+      
       #Model generate
-      modelo.knn <- kkn_model(datos.aprendizaje,variable.predecir, scale, kmax, kernel, distance)
-      updateAceEditor(session, "fieldCodeKnn", value = codeKnn(variable.predecir,scale, kmax, kernel, distance))
+      modelo.knn <- kkn_model(datos.aprendizaje,variable.predecir, scale, k, kernel, distance)
+      updateAceEditor(session, "fieldCodeKnn", value = codeKnn(variable.predecir,scale, k, kernel, distance))
       
       #Prediccion
       prediccion.knn <- kkn_prediction(modelo.knn, datos.prueba)

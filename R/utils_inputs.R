@@ -74,6 +74,13 @@ checkSwitch <- function(id, label = NULL, name) {
   )
 }
 
+
+updateRadioSwitch <- function(session, inputId, value = "TRUE") {
+  message <- list(selected = value)
+  session$sendInputMessage(inputId, message)
+}
+
+
 codigo.monokai <- function(id, height) {
   aceEditor(
     id, mode = "r", theme = "monokai", value = "", 

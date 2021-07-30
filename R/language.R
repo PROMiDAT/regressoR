@@ -14,7 +14,7 @@ cambiar.labels <- function(){
     "selcolores","codigo","codedist","numericas","categoricas","ejecutar",
     "selmetodo","seltipo","resultados","distpred","distpredcat","pares",
     "denspred","generatem","predm","mc","indices","gclasificacion","garbol",
-    "reglas","evolerror","varImp","selkernel","kmax","escal","minsplit",
+    "reglas","evolerror","varImp","selkernel","kv","escal","minsplit",
     "maxdepth","splitIndex","numTree","numVars","ruleNumTree","selectAlg",
     "rocCurva","tablaComp","selectMod","selectCat", "reporte","titulo",
     "nombre","codreporte","salida","copyright","info","version","cargarNuev",

@@ -79,7 +79,7 @@ mod_SVM_server <- function(input, output, session,updateData, modelos){
   nombreModelo <- "modelo.svm."
   
   return.svm.default.values <- function(){
-    updateSwitchInput(session,"switch_scale_svm",value = T)
+    updateRadioSwitch(session,"switch_scale_svm","TRUE")
     updateSelectInput(session,"kernel.svm",selected = "radial")
     
     # output$txtSvm <- renderText(NULL)
@@ -114,10 +114,6 @@ mod_SVM_server <- function(input, output, session,updateData, modelos){
       #Model generate
       modelo.svm <- svm_model(datos.aprendizaje,variable.predecir, scale, kernel)
       updateAceEditor(session, "fieldCodeSvm", value = codeSvm(variable.predecir,scale, kernel))
-      #Cambiamos la forma en que va aparecer el call
-      modelo.svm$call$formula <- paste0(variable.predecir,"~.")
-      modelo.svm$call$kernel <- kernel
-      modelo.svm$call$scale <- scale
       
       #Prediccion
       prediccion.svm <- svm_prediction(modelo.svm, datos.prueba)

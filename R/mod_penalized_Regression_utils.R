@@ -16,7 +16,9 @@ rlr_model <- function(data, variable.pred,alpha = 0, standardize = TRUE){
     x <- model.matrix(form,data)[, -1]
     y <- data[,variable.pred]
     modelo.rlr <- cv.glmnet(x, y, standardize = standardize, alpha = alpha)
-    
+    #Cambiamos la forma en que va aparecer el call
+    modelo.rlr$call$standardize <- standardize
+    modelo.rlr$call$alpha <- alpha
     return(modelo.rlr)
   }
   return(NULL)
