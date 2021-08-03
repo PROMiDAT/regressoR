@@ -25,8 +25,8 @@ app_server <- function( input, output, session ) {
                                variable.predecir = NULL, idioma = "es")
   
   modelos    <-  reactiveValues(rl = NULL, rlr= NULL, dt = NULL, 
-                                rf = NULL, boost = NULL, xgb = NULL,
-                                knn = NULL, svm = NULL, nn = NULL)
+                                rf = NULL, boost = NULL, knn = NULL, 
+                                svm = NULL, rd = NULL, nn = NULL)
   
   updatePlot <- reactiveValues(dya.num     = NULL, 
                                dya.cat     = NULL, 
@@ -105,7 +105,7 @@ app_server <- function( input, output, session ) {
   # callModule(mod_boosting_server, "boosting_ui_1",updateData, updatePlot)
   callModule(mod_KNN_server, "KNN_ui_1",updateData, modelos)
   callModule(mod_SVM_server, "SVM_ui_1",updateData, modelos)
-  # callModule(mod_dimension_reduction_server, "dimension_reduction_ui_1",updateData, updatePlot)
+  callModule(mod_dimension_reduction_server, "dimension_reduction_ui_1",updateData, modelos)
   # callModule(mod_neural_networks_server, "neural_networks_ui_1",updateData, updatePlot)
   callModule(mod_model_comparison_server, "model_comparison_ui_1",updateData,modelos)
   # callModule(mod_new_data_predictions_server, "new_data_predictions_ui_1",updateData,updatePlot)

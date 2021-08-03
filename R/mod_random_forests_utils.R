@@ -2,9 +2,9 @@
 
 #' rf_model
 #' 
-#' @description generates the code to create the random forest model.
+#' @description generates a random forest model.
 #'
-#' @param data the name of the learning data.
+#' @param data dataframe
 #' @param variable.pred the name of the variable to be predicted.
 #' @param ntree the ntree parameter of the model.
 #' @param mtry the mtry parameter of the model.

@@ -81,12 +81,6 @@ mod_SVM_server <- function(input, output, session,updateData, modelos){
   return.svm.default.values <- function(){
     updateRadioSwitch(session,"switch_scale_svm","TRUE")
     updateSelectInput(session,"kernel.svm",selected = "radial")
-    
-    # output$txtSvm <- renderText(NULL)
-    # output$svmPrediTable <- DT::renderDataTable(NULL)
-    # output$plot.svm.disp <- renderEcharts4r(NULL)
-    # output$indexdfsvm <- render_index_table(NULL)
-    # output$indexdfsvm2 <- render_index_table(NULL)
   }
   
   observeEvent(updateData$datos.aprendizaje,{

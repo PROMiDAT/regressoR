@@ -8,7 +8,7 @@ kkn_model(
   data,
   variable.pred,
   scale = TRUE,
-  kmax = 7,
+  k = 7,
   kernel = "optimal",
   distance = 2
 )
@@ -20,7 +20,7 @@ kkn_model(
 
 \item{scale}{the scale parameter of the model.}
 
-\item{kmax}{the kmax parameter of the model.}
+\item{k}{the k value of the model.}
 
 \item{kernel}{string. The kernel parameter of the model.}
 

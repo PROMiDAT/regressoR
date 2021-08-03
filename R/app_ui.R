@@ -147,7 +147,7 @@ app_ui <- function(request) {
                       # tabItem(tabName = "boosting",  mod_boosting_ui("boosting_ui_1")),
                       tabItem(tabName = "knn",  mod_KNN_ui("KNN_ui_1")),
                       tabItem(tabName = "svm",  mod_SVM_ui("SVM_ui_1")),
-                      # tabItem(tabName = "rd",  mod_dimension_reduction_ui("dimension_reduction_ui_1")),
+                      tabItem(tabName = "rd",  mod_dimension_reduction_ui("dimension_reduction_ui_1")),
                       # tabItem(tabName = "nn",  mod_neural_networks_ui("neural_networks_ui_1")),
                       tabItem(tabName = "comparar",  mod_model_comparison_ui("model_comparison_ui_1")),
                       # tabItem(tabName = "predNuevos",  mod_new_data_predictions_ui("new_data_predictions_ui_1")),

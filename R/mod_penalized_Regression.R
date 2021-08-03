@@ -156,7 +156,7 @@ mod_penalized_Regression_server <- function(input, output, session, updateData, 
                               alpha = alpha, standardize = standardize)
       updateAceEditor(session, "fieldCodeRlr", value = codeRlr(variable.predecir,alpha,standardize))
       
-      if (isolate(as.logical(input$permitir_landa) && !is.na(input$log_landa))) {
+      if (isolate(as.logical(input$permitir_landa) && !is.na(isolate(input$log_landa)))) {
         log.landa <<- isolate(input$log_landa)
       }
       else{log.landa <<- NULL}
