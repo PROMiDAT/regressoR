@@ -836,7 +836,7 @@ printRandomForest <- function (model, n = 1, include.class = NULL, format = "", 
       if (var.class == "character" | var.class == "factor" | 
           var.class == "ordered") {
         node.op <- "IN"
-        var.levels <- levels(exe(model$call$data)[[var.names[j]]])
+        var.levels <- levels(model$datos[[var.names[j]]])
         bins <- rattle:::sdecimal2binary(var.values[j])
         bins <- c(bins, rep(0, length(var.levels) - length(bins)))
         if (tr.path[j] > 0) 

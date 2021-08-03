@@ -143,7 +143,7 @@ app_ui <- function(request) {
                       tabItem(tabName = "rl",  mod_linear_regression_ui("linear_regression_ui_1")),
                       tabItem(tabName = "rlr",  mod_penalized_Regression_ui("penalized_Regression_ui_1")),
                       tabItem(tabName = "dt",  mod_regression_trees_ui("regression_trees_ui_1")),
-                      # tabItem(tabName = "rf",  mod_random_forests_ui("random_forests_ui_1")),
+                      tabItem(tabName = "rf",  mod_random_forests_ui("random_forests_ui_1")),
                       # tabItem(tabName = "boosting",  mod_boosting_ui("boosting_ui_1")),
                       tabItem(tabName = "knn",  mod_KNN_ui("KNN_ui_1")),
                       tabItem(tabName = "svm",  mod_SVM_ui("SVM_ui_1")),

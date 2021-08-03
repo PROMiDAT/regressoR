@@ -20,18 +20,15 @@ mod_KNN_ui <- function(id){
                                column(width=5, numericInput(ns("distance.knn"), labelInput("distknn"), min = 1,step = 1, value = 2))) )
   
   knn.code.config <- list(h3(labelInput("codigo")), hr(style = "margin-top: 0px;"),
-                          aceEditor(ns("fieldCodeKnn"), mode = "r", theme = "monokai", value = "", height = "7vh", readOnly = F))
+                          codigo.monokai(ns("fieldCodeKnn"), height = "7vh"))
   
   knn.code <- list(h3(labelInput("codigo")), hr(style = "margin-top: 0px;"),
                    conditionalPanel("input.BoxKnn == 'tabKknPred'",
-                                    aceEditor(ns("fieldCodeKnnPred"), mode = "r", theme = "monokai",
-                                              value = "", height = "7vh", readOnly = F, autoComplete = "enabled"),ns = ns),
+                                    codigo.monokai(ns("fieldCodeKnnPred"), height = "7vh"),ns = ns),
                    conditionalPanel("input.BoxKnn == 'tabKknDisp'",
-                                    aceEditor(ns("fieldCodeKnnDisp"), mode = "r", theme = "monokai",
-                                              value = "", height = "7vh", readOnly = F, autoComplete = "enabled"),ns = ns),
+                                    codigo.monokai(ns("fieldCodeKnnDisp"), height = "7vh"),ns = ns),
                    conditionalPanel("input.BoxKnn == 'tabKknIndex'",
-                                    aceEditor(ns("fieldCodeKnnIG"), mode = "r", theme = "monokai",
-                                              value = "", height = "7vh", readOnly = F, autoComplete = "enabled"),ns = ns))
+                                    codigo.monokai(ns("fieldCodeKnnIG"), height = "7vh"),ns = ns))
   
   
   tabs.options.generate <- tabsOptions(buttons = list(icon("gear"), icon("code")), widths = c(50,100), heights = c(80,70),
@@ -90,12 +87,6 @@ mod_KNN_server <- function(input, output, session,updateData, modelos){
     if(!is.null(datos.aprendizaje)){
       updateNumericInput(session, "k.knn", value = round(sqrt(nrow(datos.aprendizaje))))
     }
-    
-    # output$txtknn <- renderText(NULL)
-    # output$knnPrediTable <- DT::renderDataTable(NULL)
-    # output$plot.knn.disp <- renderEcharts4r(NULL)
-    # output$indexdfknn <- render_index_table(NULL)
-    # output$indexdfknn2 <- render_index_table(NULL)
   }
   
   
@@ -128,7 +119,10 @@ mod_KNN_server <- function(input, output, session,updateData, modelos){
       
       #Validacion tamaño del k
       tam <- nrow(datos.aprendizaje)
-      k <- ifelse(k >= tam, tam - 2, k)
+      if(k >= tam){
+        k <- tam - 2
+        updateNumericInput(session, "k.knn", value = tam - 2)
+      }
       
       #Model generate
       modelo.knn <- kkn_model(datos.aprendizaje,variable.predecir, scale, k, kernel, distance)
@@ -155,8 +149,8 @@ mod_KNN_server <- function(input, output, session,updateData, modelos){
   output$txtknn <- renderPrint({
     tryCatch({
       if(!is.null(modelos$knn[[nombreModelo]])){
-        modelos.knn <- modelos$knn[[nombreModelo]]$modelo
-        print(modelos.knn)
+        modelo.knn <- modelos$knn[[nombreModelo]]$modelo
+        print(modelo.knn)
       }
       else{NULL}
     }, error = function(e){

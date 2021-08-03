@@ -284,55 +284,6 @@ e_posib_lambda <- function(cv.glm, log.lambda = NULL, titles = c("Error Cuadrát
 
 
 
-
-#' importance_plot_rf
-#' 
-#' @description graphs the importance of variables for the random forest model according to the percentage increase in mean square error.
-#'
-#' @param model.rf a random forest model.
-#' @param titles labels on the chart
-#'
-#' @seealso \code{\link[randomForest]{randomForest}}
-#'
-#' @author Ariel Arroyo <luis.ariel.arroyo@promidat.com>
-#' @return echarts4r plot
-#' @import echarts4r
-#' 
-#' @export
-#'
-#'
-#' @examples
-#' library(randomForest)
-#' x <- rf_model('iris', 'Petal.Length')
-#' exe(x)
-#' importance_plot_rf(modelo.rf)
-#' 
-importance_plot_rf <- function(model.rf, titles = c("Importancia de Variables Según el Porcentaje de Incremento del MSE",
-                               "Aumento porcentual del error cuadrático medio", "Variable")){
-  #https://www.displayr.com/how-is-variable-importance-calculated-for-a-random-forest/
-  df <- as.data.frame(model.rf$importance)
-  df$variables <- as.factor(rownames(df))
-  df <- df[order(df$`%IncMSE`, decreasing = T),]
-  
-  e_charts(data = df, x = variables) %>%
-    e_bar(serie = `%IncMSE`,legend = NULL) %>%
-    echarts4r::e_flip_coords() %>%
-    e_title(text = titles[1]) %>%
-    e_x_axis(name = titles[2], nameLocation = "center", 
-             nameTextStyle = list(padding = c(10,0,0,0)),
-             interval = 10,
-             axisLabel = list(formatter = '{value} %')) %>%
-    e_y_axis(name = titles[3], nameLocation = "start", inverse = T) %>%
-    e_tooltip(formatter = htmlwidgets::JS("function(params){
-    console.log(params)
-    return('<b>' +  params.value[1] + ': </b>' + Number.parseFloat(params.value[0]).toFixed(4) + '%')
-    }
-    ")) %>%
-    e_datazoom(show = F) %>%
-    e_show_loading()
-}
-
-
 boosting_importance_plot <- function(model, titles = c("Importancia de Variables según Influencia Relativa",
                                                        "Influencia Relativa","Variable")){
   df <- summary.gbm(model,order = T, plotit = F)

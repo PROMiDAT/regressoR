@@ -82,63 +82,6 @@ rd_type <- function(mode.rd = options_regressor("rd.mode")){
 }
 
 
-# RF PAGE ------------------------------------------------------------------------------------------------------------
-
-#' rf_model
-#' 
-#' @description generates the code to create the random forest model.
-#'
-#' @param data the name of the learning data.
-#' @param variable.pred the name of the variable to be predicted.
-#' @param model.var the name of the variable that stores the resulting model.
-#' @param ntree the ntree parameter of the model.
-#' @param mtry the mtry parameter of the model.
-#'
-#' @seealso \code{\link[randomForest]{randomForest}}
-#'
-#' @export
-#'
-#' @examples
-#' library(randomForest)
-#' x <- rf_model('iris', 'Petal.Length')
-#' exe(x)
-#' print(modelo.rf)
-#' 
-rf_model <- function(data = "datos.aprendizaje", variable.pred = NULL, model.var = "modelo.rf", ntree = 500, mtry = 1){
-  ntree <- ifelse(!is.numeric(ntree), 500, ntree)
-  codigo <- paste0(model.var," <- randomForest(`",variable.pred,"`~., data = ",data,",importance = TRUE,",
-                   " ntree =",ntree,",mtry =",mtry,")")
-  return(codigo)
-}
-
-#' rf_prediction
-#' 
-#' @description generates the code to create the prediction of the random forest model.
-#'
-#' @param data the name of the test data.
-#' @param variable.pred the name of the variable to be predicted.
-#' @param model.var the name of the variable that stores the resulting model.
-#' @param pred.var the name of the variable that stores the resulting prediction.
-#'
-#' @export
-#'
-#' @examples
-#' library(randomForest)
-#' library(dplyr)
-#' 
-#' x <- rf_model('iris', 'Petal.Length', model.var = 'model_rf')
-#' exe(x)
-#' print(model_rf)
-#' 
-#' x <- rf_prediction('iris', 'Petal.Length', 'model_rf', 'my_prediction')
-#' exe(x)
-#' print(my_prediction)
-#'
-rf_prediction <- function(data = "datos.prueba", variable.pred = NULL, model.var = "modelo.rf", pred.var = "prediccion.rf"){
-  return(paste0(pred.var," <- predict(",model.var,", ",data," %>% select(-`",variable.pred,"`))"))
-}
-
-
 
 # NN PAGE ------------------------------------------------------------------------------------------------------------
 
