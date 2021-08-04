@@ -13,9 +13,9 @@ mod_neural_networks_ui <- function(id){
   
   nn.options <- list(options.run(ns("runNn")), tags$hr(style = "margin-top: 0px;"),
                      fluidRow(column(numericInput(ns("threshold.nn"),labelInput("threshold"),
-                                                  min = 0, step = 0.01, value = 0.05), width = 6),
+                                                  min = 0, step = 0.1, value = 0.1), width = 5),
                               column(numericInput(ns("stepmax.nn"),labelInput("stepmax"),
-                                                  min = 100, step = 100, value = 5000), width = 6)),
+                                                  min = 100, step = 100, value = 5000), width = 5)),
                      fluidRow(column(sliderInput(inputId = ns("cant.capas.nn"), min = 1, max = 10,
                                                  label = labelInput("selectCapas"), value = 2), width = 12)),
                      fluidRow(lapply(1:10, function(i) tags$span(numericInput(paste0(ns("nn.cap."),i), NULL,
@@ -23,35 +23,32 @@ mod_neural_networks_ui <- function(id){
                                                                  class = "mini-numeric-select"))))
   
   nn.code.config <- list(h3(labelInput("codigo")), hr(style = "margin-top: 0px;"),
-                         aceEditor(ns("fieldCodeNn"), mode = "r", theme = "monokai", value = "", height = "22vh", readOnly = F))
+                         codigo.monokai(ns("fieldCodeNn"), height = "7vh"))
   
   
   nn.code <- list(h3(labelInput("codigo")), hr(style = "margin-top: 0px;"),
                   conditionalPanel("input.BoxNn == 'tabNnPlot'",
-                                   aceEditor(ns("fieldCodeNnPlot"), mode = "r", theme = "monokai", value = "", height = "9vh", readOnly = F),ns = ns),
+                                   codigo.monokai(ns("fieldCodeNnPlot"), height = "7vh"),ns = ns),
                   conditionalPanel("input.BoxNn == 'tabNnPred'",
-                                   aceEditor(ns("fieldCodeNnPred"), mode = "r", theme = "monokai",
-                                             value = "", height = "10vh", readOnly = F, autoComplete = "enabled"),ns = ns),
+                                   codigo.monokai(ns("fieldCodeNnPred"), height = "7vh"),ns = ns),
                   conditionalPanel("input.BoxNn == 'tabNnDisp'",
-                                   aceEditor(ns("fieldCodeNnDisp"), mode = "r", theme = "monokai",
-                                             value = "", height = "3vh", readOnly = F, autoComplete = "enabled"),ns = ns),
+                                   codigo.monokai(ns("fieldCodeNnDisp"), height = "7vh"),ns = ns),
                   conditionalPanel("input.BoxNn == 'tabNnIndex'",
-                                   aceEditor(ns("fieldCodeNnIG"), mode = "r", theme = "monokai",
-                                             value = "", height = "22vh", readOnly = F, autoComplete = "enabled"),ns = ns))
+                                   codigo.monokai(ns("fieldCodeNnIG"), height = "7vh"),ns = ns))
   
   tabs.nn <- tabsOptions(buttons = list(icon("gear"),icon("code")), widths = c(75,100), heights = c(95, 95),
                          tabs.content = list(nn.options, nn.code))
   
   
-  tabs.options.generate <- tabsOptions(buttons = list(icon("gear"), icon("code")), widths = c(50,100), heights = c(80,95),
+  tabs.options.generate <- tabsOptions(buttons = list(icon("gear"), icon("code")), widths = c(50,100), heights = c(80,70),
                                        tabs.content = list(nn.options,nn.code.config))
   
-  tabs.options.Nogenerate <- tabsOptions(buttons = list(icon("code")), widths = c(100), heights = c(95),
+  tabs.options.Nogenerate <- tabsOptions(buttons = list(icon("code")), widths = c(100), heights = c(70),
                                          tabs.content = list(nn.code))
   
   
   plot.nn <- tabPanel(title = labelInput("redPlot"), value = "tabNnPlot",
-                      plotOutput(ns('plot.nn'), height = "55vh"))
+                      plotOutput(ns('plot.nn'), height = "75vh"))
   
   generate.nn.panel <- tabPanel(title = labelInput("generatem"), value = "tabNnModelo",
                                 verbatimTextOutput(ns("txtnn")))
@@ -85,47 +82,39 @@ mod_neural_networks_ui <- function(id){
     page.nn
   )
 }
-    
+
 #' neural_networks Server Function
 #'
 #' @noRd 
-mod_neural_networks_server <- function(input, output, session,updateData, updatePlot){
+mod_neural_networks_server <- function(input, output, session,updateData, modelos){
   ns <- session$ns
+  
+  nombreModelo <- "modelo.nn"
+  
+  
+  return.nn.default.values <- function(){
+    updateSliderInput(session, "cant.capas.nn", value = 2)
+    updateNumericInput(session, "threshold.nn", value = 0.1)
+    updateNumericInput(session, "stepmax.nn", value = 5000)
+    updateLayers()
+  }
   
   observeEvent(updateData$datos.aprendizaje, {
     #Change to default values
     return.nn.default.values()
   })
   
-  
   # When user change the layer selector
   observeEvent(input$cant.capas.nn, {
     updateLayers()
   })
   
-  return.nn.default.values <- function(){
-    updateSliderInput(session, "cant.capas.nn", value = 2)
-    updateNumericInput(session, "threshold.nn", value = 0.05)
-    updateNumericInput(session, "stepmax.nn", value = 5000)
-    updateLayers()
-    output$plot.nn <- renderPlot(NULL)
-    output$nnPrediTable <- DT::renderDataTable(NULL)
-    output$plot.nn.disp <- renderEcharts4r(NULL)
-    output$indexdfnn <- render_index_table(NULL)
-    output$indexdfnn2 <- render_index_table(NULL)
-  }
-  
-  
-  observeEvent(updateData$idioma,{
-    model.var = "modelo.nn"
-    if(exists(model.var)){
-      execute_nn_ind()
-      plot_disp_nn()
-    }
-  })
-  
   
   updateLayers <- function(){
+    isolate({
+      datos.aprendizaje <- updateData$datos.aprendizaje
+      cant.capas <- input$cant.capas.nn
+    })
     if(!is.null(datos.aprendizaje) && !is.null(input$cant.capas.nn)){
       for (i in 1:10) {
         if(i <= input$cant.capas.nn) {
@@ -140,185 +129,201 @@ mod_neural_networks_server <- function(input, output, session,updateData, update
   
   # When the nn model is generated
   observeEvent(input$runNn, {
-    if (validate_data(isolate(updateData), idioma = isolate(updateData$idioma))) { # Si se tiene los datos entonces :
-      default_codigo_nn()
+    if (validate_data(updateData, idioma = updateData$idioma)) { # Si se tiene los datos entonces :
       nn_full()
     }
   })
   
-  
-  # Upgrade code fields to default version
-  default_codigo_nn <- function(){
-    #Se acualiza el codigo del modelo
-    
-    codigo <- nn_model(data = "datos.aprendizaje",
-                       variable.pred = variable.predecir,
-                       model.var = "modelo.nn",
-                       mean.var = "mean.nn",
-                       sd.var = "sd.nn",
-                       threshold = input$threshold.nn,
-                       stepmax = input$stepmax.nn,
-                       cant.hidden = input$cant.capas.nn,
-                       input$nn.cap.1,input$nn.cap.2,
-                       input$nn.cap.3,input$nn.cap.4,
-                       input$nn.cap.5,input$nn.cap.6,
-                       input$nn.cap.7,input$nn.cap.8,
-                       input$nn.cap.9,input$nn.cap.10)
-    
-    updateAceEditor(session, "fieldCodeNn", value = codigo)
-    cod.nn.modelo <<- codigo
-    
-    #Cambia el codigo del grafico del árbol
-    updateAceEditor(session, "fieldCodeNnPlot", value = nn_plot())
-    
-    #Se genera el codigo de la prediccion
-    codigo <- nn_prediction(variable.pred = variable.predecir)
-    updateAceEditor(session, "fieldCodeNnPred", value = codigo)
-    cod.nn.pred <<- codigo
-    
-    #Se genera el codigo de la indices
-    codigo <- extract_code("general_indices")
-    updateAceEditor(session, "fieldCodeNnIG", value = codigo)
-    cod.nn.ind <<- codigo
-  }
-  
-  # Shows the graph of the network
-  plot_net <- function(){
-    tryCatch({
-      capas <- c(input$nn.cap.1,input$nn.cap.2,input$nn.cap.3,input$nn.cap.4,
-                 input$nn.cap.5,input$nn.cap.6,input$nn.cap.7,input$nn.cap.8,input$nn.cap.9,input$nn.cap.10)
-      capas <- capas[1:input$cant.capas.nn]
-      if(input$cant.capas.nn * sum(capas) <= 1000 & ncol(modelo.nn$covariate) <= 25){
-        codigo = nn_plot()
-        output$plot.nn <- renderPlot(isolate(exe(codigo)))
-      }else{
-        showNotification(translate("bigPlot"), duration = 10, type = "message")
-      }
-    },
-    error = function(e){
-      output$plot.nn <- renderPlot(NULL)
-    })
-  }
-  
-  # Shows the graph the dispersion of the model with respect to the real values
-  plot_disp_nn <- function(){
-    tryCatch({ # Se corren los codigo
-      titulos <- c(
-        tr("predvsreal", updateData$idioma),
-        tr("realValue", updateData$idioma),
-        tr("pred", updateData$idioma)
-      )
-      
-      output$plot.nn.disp <- renderEcharts4r(plot_real_prediction(datos.prueba[variable.predecir],
-                                                                  prediccion.nn,translate("nn"),titulos))
-      
-      codigo <- disp_models("prediccion.nn", translate("nn"), variable.predecir)
-      updateAceEditor(session, "fieldCodeNnDisp", value = codigo)
-    },
-    error = function(e) { # Regresamos al estado inicial y mostramos un error
-      clean_nn(2)
-      showNotification(paste0("Error (NN-02) : ", e), duration = 15, type = "error")
-    })
-  }
-  
-  # Cleans the data according to the process where the error is generated
-  clean_nn <- function(capa = NULL) {
-    for (i in capa:3) {
-      switch(i, {
-        exe("modelo.nn <- NULL")
-        output$txtnn <- renderPrint(invisible(""))
-        output$plot.nn <- renderPlot(NULL)
-      }, {
-        exe("prediccion.nn <- NULL")
-        output$nnPrediTable <- DT::renderDataTable(NULL)
-      },{
-        exe("indices.nn <- NULL")
-      })
-    }
-  }
-  
   # Execute model, prediction and indices
   nn_full <- function() {
-    execute_nn()
-    if(NN_EXECUTION){
-      execute_nn_pred()
-      execute_nn_ind()
-    }
-  }
-  
-  # Generates the model
-  execute_nn <- function() {
-    tryCatch({ # Se corren los codigo
-      isolate(exe(cod.nn.modelo))
-      output$txtnn <- renderPrint(print(modelo.nn))
-      plot_net()
-      #nombres.modelos <<- c(nombres.modelos,"modelo.nn")
-      NN_EXECUTION <<- TRUE
-    },
-    error = function(e) { # Regresamos al estado inicial y mostramos un error
-      clean_nn(1)
-      showNotification(paste0("Error (NN-01) : ",e), duration = 15, type = "error")
-    },
-    warning = function(w){
-      clean_nn(1)
-      NN_EXECUTION <<- FALSE
-      showNotification(paste0(translate("nnWar")," (NN-01) : ",w), duration = 20, type = "warning")
-    },
-    #Por si no converge
-    finally = {
-      output$plot.nn.disp <- renderEcharts4r(NULL)
-      output$indexdfnn <- render_index_table(NULL)
-      output$indexdfnn2 <- render_index_table(NULL)
-    })
-  }
-  
-  # Generate the prediction
-  execute_nn_pred <- function() {
-    tryCatch({ # Se corren los codigo
-      isolate(exe(cod.nn.pred))
-      
-      # Cambia la tabla con la prediccion de nn
-      output$nnPrediTable <- DT::renderDataTable(tb_predic(real.val, prediccion.nn),server = FALSE)
-      
-      plot_disp_nn()
-      #nombres.modelos <<- c(nombres.modelos,"prediccion.nn")
-      updatePlot$tablaCom <- !updatePlot$tablaCom #graficar otra vez la tabla comparativa
-    },
-    error = function(e) { # Regresamos al estado inicial y mostramos un error
-      clean_nn(2)
-      showNotification(paste0("Error (NN-02) : ",e), duration = 15, type = "error")
-    })
-  }
-  
-  # Generates the indices
-  execute_nn_ind <- function() {
-    if(exists("prediccion.nn") && !is.null(prediccion.nn)){
-      tryCatch({ # Se corren los codigo
-        isolate(exe(cod.nn.ind))
-        indices.nn <- general_indices(datos.prueba[,variable.predecir], prediccion.nn)
-        
-        df <- as.data.frame(indices.nn)
-        colnames(df) <- c(translate("RMSE"), translate("MAE"), translate("ER"), translate("correlacion"))
-        output$indexdfnn <- render_index_table(df)
-        
-        df2 <- as.data.frame(summary_indices(datos.aprendizaje[,variable.predecir]))
-        colnames(df2) <- c(translate("minimo"),translate("q1"),translate("q3"),translate("maximo"))
-        output$indexdfnn2 <- render_index_table(df2)
-        
-        updateData$IndicesM[["nn"]] <<- indices.nn
-      },
-      error = function(e) { #Regresamos al estado inicial y mostramos un error
-        clean_nn(3)
-        showNotification(paste0("Error (NN-03) : ",e), duration = 15, type = "error")
-      })
-    }
-  }
- 
-}
     
+    tryCatch({
+      isolate({
+        datos.aprendizaje <- updateData$datos.aprendizaje
+        datos.prueba <- updateData$datos.prueba
+        variable.predecir <- updateData$variable.predecir
+        threshold <- input$threshold.nn
+        stepmax <- input$stepmax.nn
+        cant.capas <- input$cant.capas.nn
+      })
+      
+      threshold <- ifelse(threshold == 0, 0.01, threshold)
+      stepmax <- ifelse(stepmax < 100, 100, stepmax)
+      hidden <- c(input$nn.cap.1,input$nn.cap.2,input$nn.cap.3,input$nn.cap.4,
+                  input$nn.cap.5,input$nn.cap.6,input$nn.cap.7,input$nn.cap.8,
+                  input$nn.cap.9,input$nn.cap.10)
+      hidden <- hidden[1:cant.capas]
+      
+      #Model generate
+      modelo.nn <- nn_model(datos.aprendizaje,variable.predecir, hidden, threshold, stepmax)
+      updateAceEditor(session, "fieldCodeNn", value = codeNn(variable.predecir, hidden, threshold, stepmax))
+      
+      #Prediccion
+      prediccion.nn <- nn_prediction(modelo.nn, datos.prueba)
+      updateAceEditor(session, "fieldCodeNnPred", value = codeNnPred(nombreModelo))
+      
+      #Indices
+      indices.nn <- general_indices(datos.prueba[,variable.predecir], prediccion.nn)
+      updateAceEditor(session, "fieldCodeNnIG", value = codeNnIG(variable.predecir))
+      
+      #isolamos para que no entre en un ciclo en el primer renderPrint
+      isolate(modelos$nn[[nombreModelo]] <- list(modelo = modelo.nn, prediccion = prediccion.nn, indices = indices.nn))
+      
+    }, error = function(e){
+      isolate(modelos$nn[[nombreModelo]] <- NULL)
+      showNotification(paste0("Error (NN-00) : ",e), duration = 10, type = "error")
+      
+    },warning = function(w){
+      isolate(modelos$nn[[nombreModelo]] <- NULL)
+      showNotification(paste0(tr("nnWar")," (NN-00) : ",w), duration = 10, type = "warning")
+    })
+  }
+  
+  
+  #Update model tab
+  output$txtnn <- renderPrint({
+    tryCatch({
+      if(!is.null(modelos$nn[[nombreModelo]])){
+        modelo.nn <- modelos$nn[[nombreModelo]]$modelo
+        print(modelo.nn)
+      }
+      else{NULL}
+    }, error = function(e){
+      showNotification(paste0("Error (NN-01) : ",e), duration = 10, type = "error")
+      NULL
+    })
+  })
+  
+  
+  #Update neural network plot tab
+  output$plot.nn <- renderPlot({
+    tryCatch({
+      if(!is.null(modelos$nn[[nombreModelo]])){
+        isolate({
+          modelo.nn <- modelos$nn[[nombreModelo]]$modelo
+          cant.capas <- input$cant.capas.nn
+          hidden <- c(input$nn.cap.1,input$nn.cap.2,input$nn.cap.3,input$nn.cap.4,
+                      input$nn.cap.5,input$nn.cap.6,input$nn.cap.7,input$nn.cap.8,
+                      input$nn.cap.9,input$nn.cap.10)
+          hidden <- hidden[1:cant.capas]
+        })
+        
+        #Cambia el codigo del grafico del árbol
+        updateAceEditor(session, "fieldCodeNnPlot", value = paste0("nn_plot(", nombreModelo, ")"))
+        
+        if(cant.capas * sum(hidden) <= 1000 & ncol(modelo.nn$covariate) <= 25){
+          nn_plot(modelo.nn)
+        }else{
+          showNotification(tr("bigPlot"), duration = 10, type = "message")
+          NULL
+        }
+      }
+      else{NULL}
+    }, error = function(e){
+      showNotification(paste0("Error (NN-02) : ",e), duration = 10, type = "error")
+      NULL
+    })
+  })
+  
+  
+  
+  # Update prediction tab
+  output$nnPrediTable <- DT::renderDataTable({
+    tryCatch({
+      if(!is.null(modelos$nn[[nombreModelo]])){
+        prediccion.nn <- modelos$nn[[nombreModelo]]$prediccion
+        isolate({
+          datos.prueba <- updateData$datos.prueba
+          real.val <- datos.prueba[updateData$variable.predecir]
+        })
+        tb_predic(real.val, prediccion.nn, updateData$idioma)
+      }
+      else{NULL}
+      
+    }, error = function(e){
+      showNotification(paste0("Error (NN-03) : ", e), duration = 10, type = "error")
+      NULL
+    })
+  }, server = F)
+  
+  
+  # Update Dispersion Tab
+  output$plot.nn.disp <- renderEcharts4r({
+    tryCatch({
+      if(!is.null(modelos$nn[[nombreModelo]])){
+        prediccion.nn <- modelos$nn[[nombreModelo]]$prediccion
+        isolate({
+          datos.prueba <- updateData$datos.prueba
+          variable.predecir <- updateData$variable.predecir
+        })
+        
+        idioma <- updateData$idioma
+        
+        codigo <- disp_models(nombreModelo, tr("nn", idioma), variable.predecir)
+        updateAceEditor(session, "fieldCodeNnDisp", value = codigo)
+        
+        titulos <- c(
+          tr("predvsreal", idioma),
+          tr("realValue", idioma),
+          tr("pred", idioma)
+        )
+        
+        plot_real_prediction(datos.prueba[variable.predecir],prediccion.nn,
+                             tr("nn", idioma),titulos)
+      }
+      else{NULL}
+    }, error = function(e){
+      showNotification(paste0("Error (NN-04) : ", e), duration = 10, type = "error")
+      NULL
+    })
+  })
+  
+  
+  #Update Indices tab
+  output$indexdfnn <- renderTable({
+    tryCatch({
+      if(!is.null(modelos$nn[[nombreModelo]])){
+        idioma <- updateData$idioma
+        indices.nn <- modelos$nn[[nombreModelo]]$indices
+        df <- as.data.frame(indices.nn)
+        colnames(df) <- c(tr("RMSE", idioma), tr("MAE", idioma), tr("ER", idioma), tr("correlacion", idioma))
+        df
+      }
+      else{NULL}
+    }, error = function(e){
+      showNotification(paste0("Error (NN-05) : ",e), duration = 10, type = "error")
+      NULL
+    })
+  },striped = TRUE, bordered = TRUE, spacing = 'l', 
+  width = '100%',  digits = 5,align = 'c')
+  
+  
+  
+  output$indexdfnn2 <- renderTable({
+    tryCatch({
+      if(!is.null(modelos$nn[[nombreModelo]])){
+        idioma <- updateData$idioma
+        isolate(datos.prueba <- updateData$datos.prueba)
+        isolate(variable.predecir <- updateData$variable.predecir)
+        df2 <- as.data.frame(summary_indices(datos.prueba[,variable.predecir]))
+        colnames(df2) <- c(tr("minimo",idioma),tr("q1",idioma),
+                           tr("q3",idioma),tr("maximo",idioma))
+        df2
+      }
+      else{NULL}
+    }
+    , error = function(e){
+      showNotification(paste0("Error (NN-06) : ",e), duration = 10, type = "error")
+      NULL
+    })
+  },striped = TRUE, bordered = TRUE, spacing = 'l', 
+  width = '100%',  digits = 5,align = 'c')
+  
+}
+
 ## To be copied in the UI
 # mod_neural_networks_ui("neural_networks_ui_1")
-    
+
 ## To be copied in the server
 # callModule(mod_neural_networks_server, "neural_networks_ui_1")
- 
+
