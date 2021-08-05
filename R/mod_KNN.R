@@ -87,6 +87,8 @@ mod_KNN_server <- function(input, output, session,updateData, modelos){
     if(!is.null(datos.aprendizaje)){
       updateNumericInput(session, "k.knn", value = round(sqrt(nrow(datos.aprendizaje))))
     }
+    
+    nombreModelo <- "modelo.knn."
   }
   
   
@@ -107,13 +109,15 @@ mod_KNN_server <- function(input, output, session,updateData, modelos){
   # Execute model, prediction and indices
   knn_full <- function() {
     tryCatch({
-      isolate(datos.aprendizaje <- updateData$datos.aprendizaje)
-      isolate(datos.prueba <- updateData$datos.prueba)
-      isolate(variable.predecir <- updateData$variable.predecir)
-      isolate(scale <- as.logical(input$switch_scale_knn))
-      isolate(kernel <- input$kernel.knn)
-      isolate(k <- input$k.knn)
-      isolate(distance <- input$distance.knn)
+      isolate({
+        datos.aprendizaje <- updateData$datos.aprendizaje
+        datos.prueba <- updateData$datos.prueba
+        variable.predecir <- updateData$variable.predecir
+        scale <- as.logical(input$switch_scale_knn)
+        kernel <- input$kernel.knn
+        k <- input$k.knn
+        distance <- input$distance.knn
+      })
       
       nombreModelo <<- paste0(nombreBase, kernel)
       
@@ -164,8 +168,10 @@ mod_KNN_server <- function(input, output, session,updateData, modelos){
     tryCatch({
       if(!is.null(modelos$knn[[nombreModelo]])){
         prediccion.knn <- modelos$knn[[nombreModelo]]$prediccion
-        isolate(datos.prueba <- updateData$datos.prueba)
-        isolate(real.val <- datos.prueba[updateData$variable.predecir])
+        isolate({
+          datos.prueba <- updateData$datos.prueba
+          real.val <- datos.prueba[updateData$variable.predecir]
+        })
         tb_predic(real.val, prediccion.knn, updateData$idioma)
       }
       else{NULL}
@@ -182,9 +188,11 @@ mod_KNN_server <- function(input, output, session,updateData, modelos){
     tryCatch({
       if(!is.null(modelos$knn[[nombreModelo]])){
         prediccion.knn <- modelos$knn[[nombreModelo]]$prediccion
-        isolate(datos.prueba <- updateData$datos.prueba)
-        isolate(variable.predecir <- updateData$variable.predecir)
-        isolate(kernel <- input$kernel.knn)
+        isolate({
+          datos.prueba <- updateData$datos.prueba
+          variable.predecir <- updateData$variable.predecir
+          kernel <- input$kernel.knn
+        })
         idioma <- updateData$idioma
         
         codigo <- disp_models(nombreModelo, paste0(tr("knn", idioma),"-",kernel), variable.predecir)

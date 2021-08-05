@@ -12,13 +12,13 @@ mod_boosting_ui <- function(id){
   ns <- NS(id)
   
   b.options <- list(options.run(ns("runBoosting")), tags$hr(style = "margin-top: 0px;"),
-                    fluidRow(column(numericInput(ns("iter.boosting"), labelInput("numTree"), 20, width = "100%",min = 1), width = 6),
-                             column(numericInput(ns("shrinkage.boosting"), labelInput("shrinkage"), 0.1, width = "100%",min = 0.01, step = 0.01), width=6)),
+                    fluidRow(column(numericInput(ns("iter.boosting"), labelInput("numTree"), 20, width = "100%",min = 1), width = 5),
+                             column(numericInput(ns("shrinkage.boosting"), labelInput("shrinkage"), 0.1, width = "100%",min = 0.01, step = 0.01), width=5)),
                     fluidRow(column(selectInput(inputId = ns("tipo.boosting"), label = labelInput("selectAlg"),selected = "gaussian",
-                                                choices =  c("gaussian", "laplace", "tdist")), width = 6)))
+                                                choices =  c("gaussian", "laplace", "tdist")), width = 5)))
   
   b.code.config <- list(h3(labelInput("codigo")), hr(style = "margin-top: 0px;"),
-                        codigo.monokai(ns("fieldCodeBoosting"), height = "5vh"))
+                        codigo.monokai(ns("fieldCodeBoosting"), height = "7vh"))
   
   
   b.code  <- list(h3(labelInput("codigo")), hr(style = "margin-top: 0px;"),
@@ -29,7 +29,7 @@ mod_boosting_ui <- function(id){
                   conditionalPanel("input.BoxB == 'tabBDisp'",
                                    codigo.monokai(ns("fieldCodeBoostingDisp"), height = "7vh"),ns = ns),
                   conditionalPanel("input.BoxB == 'tabBIndex'",
-                                   codigo.monokai(ns("fieldCodeBoostingIG"), height = "22vh"),ns = ns))
+                                   codigo.monokai(ns("fieldCodeBoostingIG"), height = "7vh"),ns = ns))
   
   
   tabs.options.generate <- tabsOptions(buttons = list(icon("gear"), icon("code")), widths = c(50,100), heights = c(80,70),
@@ -72,32 +72,29 @@ mod_boosting_ui <- function(id){
     pagina.boosting
   )
 }
-    
+
 #' boosting Server Function
 #'
 #' @noRd 
-mod_boosting_server <- function(input, output, session,updateData, updatePlot){
+mod_boosting_server <- function(input, output, session,updateData, modelos){
   ns <- session$ns
+  
+  nombreBase <- "modelo.boost."
+  nombreModelo <- "modelo.boost."
   
   return.boosting.default.values <- function(){
     updateSelectInput(session,inputId = "tipo.boosting", selected = "gaussian")
     updateNumericInput(session, inputId = "iter.boosting", value = 20)
     updateNumericInput(session, inputId = "shrinkage.boosting", value = 0.1)
     
-    
-    # output$txtBoosting <- renderText(NULL)
-    # output$plot.boosting.import <- renderEcharts4r(NULL)
-    # output$boostingPrediTable <- DT::renderDataTable(NULL)
-    # output$plot.boosting.disp <- renderEcharts4r(NULL)
-    # output$indexdfb <- render_index_table(NULL)
-    # output$indexdfb2 <- render_index_table(NULL)
+    nombreModelo <- "modelo.boost."
   }
-
-
+  
+  
   observeEvent(updateData$datos.aprendizaje,{
     return.boosting.default.values()
   })
- 
+  
   # When the boosting model is generated
   observeEvent(input$runBoosting, {
     if (validate_data(updateData, idioma = updateData$idioma)){ # Si se tiene los datos entonces :
@@ -105,161 +102,196 @@ mod_boosting_server <- function(input, output, session,updateData, updatePlot){
     }
   })
   
-  
+
   # Execute model, prediction and indices
   boosting_full <- function() {
-    if(!is.null(calibrate_boosting(datos.aprendizaje))){
-      execute_boosting()
-      execute_boosting_pred()
-      execute_boosting_ind()
-    }else{
-      showNotification(translate("ErrorBsize"), duration = 15, type = "error")
-    }
-  }
-  
-  
-  # Generates the model
-  execute_boosting <- function() {
-    tryCatch({ # Se corren los codigo
-      isolate(exe(cod.b.modelo))
-      isolate(tipo <- input$tipo.boosting)
-      output$txtBoosting <- renderPrint(exe("print(summary(modelo.boosting.",tipo,",plotit = FALSE))"))
-      
-      plotear_boosting_imp()
-      
-      #nombres.modelos <<- c(nombres.modelos, paste0("modelo.boosting.",tipo))
-    },
-    error = function(e) { # Regresamos al estado inicial y mostramos un error
-      clean_boosting(1)
-      showNotification(paste0("Error (B-01) : ",e), duration = 15, type = "error")
-    })
-  }
-
-  
-  # Upgrade code fields to default version
-  deault_codigo_boosting <- function() {
-    # Se acualiza el codigo del modelo
-    codigo <- boosting_model(variable.pred = variable.predecir,
-                             model.var = paste0("modelo.boosting.",input$tipo.boosting),
-                             n.trees = input$iter.boosting,
-                             distribution = input$tipo.boosting,
-                             shrinkage = input$shrinkage.boosting)
-    
-    updateAceEditor(session, "fieldCodeBoosting", value = codigo)
-    cod.b.modelo <<- codigo
-    
-    # Se genera el codigo de la prediccion
-    codigo <- boosting_prediction(variable.pred = variable.predecir, 
-                                  model.var = paste0("modelo.boosting.",input$tipo.boosting),
-                                  pred.var = paste0("prediccion.boosting.",input$tipo.boosting),
-                                  n.trees = input$iter.boosting)
-    
-    updateAceEditor(session, "fieldCodeBoostingPred", value = codigo)
-    cod.b.pred <<- codigo
-    
-    # Se genera el codigo de la indices
-    codigo <- extract_code("general_indices")
-    updateAceEditor(session, "fieldCodeBoostingIG", value = codigo)
-    cod.b.ind <<- codigo
-  }
-
-  
-  # Shows the chart of importance
-  plotear_boosting_imp <- function() {
     tryCatch({
-      
-      titulos <- c(
-        tr("impVarRI", updateData$idioma),
-        tr("RI", updateData$idioma),
-        tr("variable", updateData$idioma)
-      )
-      
-      modelo <- exe(paste0("modelo.boosting.",input$tipo.boosting))
-      output$plot.boosting.import <- renderEcharts4r(boosting_importance_plot(modelo,titulos))
-      
-      # Cambia el codigo del grafico de importancia
-      codigo <- paste0("boosting_importance_plot(modelo.boosting.",input$tipo.boosting,")")
-      updateAceEditor(session, "fieldCodeBoostingPlotImport", value = codigo)
-    }, error = function(e) {
-      clean_boosting(1)
-    })
-  }
-
-  
-  # Generate the prediction
-  execute_boosting_pred <- function(){
-    tryCatch({ # Se corren los codigo
-      isolate(exe(cod.b.pred))
-      isolate(tipo <- input$tipo.boosting)
-      
-      # Cambia la tabla con la prediccion de boosting
-      output$boostingPrediTable <- DT::renderDataTable(tb_predic(real.val, exe("prediccion.boosting.",tipo)),server = FALSE)
-      
-      plot_disp_boosting()
-      #nombres.modelos <<- c(nombres.modelos, paste0("modelo.boosting.",tipo))
-      updatePlot$tablaCom <- !updatePlot$tablaCom #graficar otra vez la tabla comprativa
-    },
-    error = function(e) { # Regresamos al estado inicial y mostramos un error
-      clean_boosting(2)
-      showNotification(paste0("Error (B-02) : ",e), duration = 15, type = "error")
-    })
-  }
-  
-  
-  # Shows the graph the dispersion of the model with respect to the real values
-  plot_disp_boosting <- function(){
-    tryCatch({ # Se corren los codigo
-      titulos <- c(
-        tr("predvsreal", updateData$idioma),
-        tr("realValue", updateData$idioma),
-        tr("pred", updateData$idioma)
-      )
-      
-      output$plot.boosting.disp <- renderEcharts4r(plot_real_prediction(datos.prueba[variable.predecir],
-                                                                        exe(paste0("prediccion.boosting.",input$tipo.boosting)),
-                                                                        translate("boost"),titulos))
-      
-      codigo <- disp_models(paste0("prediccion.boosting.",input$tipo.boosting), translate("boost"), variable.predecir)
-      updateAceEditor(session, "fieldCodeBoostingDisp", value = codigo)
-    },
-    error = function(e) { # Regresamos al estado inicial y mostramos un error
-      clean_boosting(2)
-      showNotification(paste0("Error (B-02) : ", e), duration = 15, type = "error")
-    })
-  }
-  
-  # Generates the indices
-  execute_boosting_ind <- function() {
-    var.prediction.name <- paste0("prediccion.boosting.",input$tipo.boosting)
-    if(exists(var.prediction.name)){
-      tryCatch({ # Se corren los codigo
-        isolate(exe(cod.b.ind))
-        isolate(tipo <- input$tipo.boosting)
-        
-        indices.boosting <- general_indices(datos.prueba[,variable.predecir], exe("prediccion.boosting.",tipo))
-        
-        df <- as.data.frame(indices.boosting)
-        colnames(df) <- c(translate("RMSE"), translate("MAE"), translate("ER"), translate("correlacion"))
-        output$indexdfb <- render_index_table(df)
-        
-        df2 <- as.data.frame(summary_indices(datos.aprendizaje[,variable.predecir]))
-        colnames(df2) <- c(translate("minimo"),translate("q1"),translate("q3"),translate("maximo"))
-        output$indexdfb2 <- render_index_table(df2)
-        
-        #nombres.modelos <<- c(nombres.modelos, paste0("indices.boosting.",tipo))
-        updateData$IndicesM[[paste0("boost-",tipo)]] <<- indices.boosting
-      },
-      error = function(e) { # Regresamos al estado inicial y mostramos un error
-        clean_boosting(3)
-        showNotification(paste0("Error (B-03) : ", e), duration = 15, type = "error")
+      isolate({
+        datos.aprendizaje <- updateData$datos.aprendizaje
+        datos.prueba <- updateData$datos.prueba
+        variable.predecir <- updateData$variable.predecir
+        n.trees <- input$iter.boosting
+        distribution <- input$tipo.boosting
+        shrinkage <- input$shrinkage.boosting
       })
-    }
+      
+      if(!is.null(calibrate_boosting(datos.aprendizaje))){
+        nombreModelo <<- paste0(nombreBase, distribution)
+        
+        n.trees <- ifelse(!is.numeric(n.trees), 50, n.trees)
+        shrinkage <- ifelse(!is.numeric(shrinkage), 0.1, shrinkage)
+        
+        #Model generate
+        modelo.boost <- boosting_model(datos.aprendizaje,variable.predecir, n.trees, distribution, shrinkage)
+        updateAceEditor(session, "fieldCodeBoosting", value = codeBoost(variable.predecir, n.trees, distribution, shrinkage))
+        
+        #Prediccion
+        prediccion.boost <- boosting_prediction(modelo.boost, datos.prueba, n.trees)
+        updateAceEditor(session, "fieldCodeBoostingPred", value = codeBoostPred(nombreModelo, n.trees))
+        
+        #Indices
+        indices.boost <- general_indices(datos.prueba[,variable.predecir], prediccion.boost)
+        updateAceEditor(session, "fieldCodeBoostingIG", value = codeBoostIG(variable.predecir))
+        
+        #isolamos para que no entre en un ciclo en el primer renderPrint
+        isolate(modelos$boost[[nombreModelo]] <- list(modelo = modelo.boost, prediccion = prediccion.boost, indices = indices.boost,
+                                                      id = distribution))
+      }
+      else{
+        isolate(modelos$boost[[nombreModelo]] <- NULL)
+        showNotification(tr("ErrorBsize"), duration = 10, type = "error")
+      }
+      
+    }, error = function(e){
+      isolate(modelos$boost[[nombreModelo]] <- NULL)
+      showNotification(paste0("Error (Boost-00) : ",e), duration = 10, type = "error")
+    })
   }
+  
+  
+  #Update model tab
+  output$txtBoosting <- renderPrint({
+    tryCatch({
+      if(!is.null(modelos$boost[[nombreModelo]])){
+        modelo.boost <- modelos$boost[[nombreModelo]]$modelo
+        print(summary(modelo.boost, plotit = FALSE))
+      }
+      else{NULL}
+    }, error = function(e){
+      showNotification(paste0("Error (Boost-01) : ",e), duration = 10, type = "error")
+      NULL
+    })
+  })
+  
+  
+  # Update importance plot
+  output$plot.boosting.import <- renderEcharts4r({
+    tryCatch({
+      if(!is.null(modelos$boost[[nombreModelo]])){
+        
+        modelo.boost <- modelos$boost[[nombreModelo]]$modelo
+        
+        # Cambia el codigo del grafico de importancia
+        codigo <- paste0("boosting_importance_plot(", nombreModelo, ")")
+        updateAceEditor(session, "fieldCodeBoostingPlotImport", value = codigo)
+        
+        idioma <- updateData$idioma
+        titulos <- c(
+          tr("impVarRI", idioma),
+          tr("RI", idioma),
+          tr("variable", idioma)
+        )
+        
+        boosting_importance_plot(modelo.boost,titulos)
+      }
+      else{NULL}
+    }, error = function(e){
+      showNotification(paste0("Error (Boost-02) : ",e), duration = 10, type = "error")
+      NULL
+    })
+  })
+  
+  
+  # Update prediction tab
+  output$boostingPrediTable <- DT::renderDataTable({
+    tryCatch({
+      if(!is.null(modelos$boost[[nombreModelo]])){
+        prediccion.boost <- modelos$boost[[nombreModelo]]$prediccion
+        isolate({
+          datos.prueba <- updateData$datos.prueba
+          real.val <- datos.prueba[updateData$variable.predecir]
+        })
+        tb_predic(real.val, prediccion.boost, updateData$idioma)
+      }
+      else{NULL}
+      
+    }, error = function(e){
+      showNotification(paste0("Error (Boost-03) : ", e), duration = 10, type = "error")
+      NULL
+    })
+  }, server = F)
+  
+  
+  
+  # Update Dispersion Tab
+  output$plot.boosting.disp <- renderEcharts4r({
+    tryCatch({
+      if(!is.null(modelos$boost[[nombreModelo]])){
+        prediccion.boost <- modelos$boost[[nombreModelo]]$prediccion
+        isolate({
+          datos.prueba <- updateData$datos.prueba
+          variable.predecir <- updateData$variable.predecir
+          distribution <- input$tipo.boosting
+        })
+        
+        idioma <- updateData$idioma
+        
+        codigo <- disp_models(nombreModelo, paste0(tr("boost", idioma),"-",distribution), variable.predecir)
+        updateAceEditor(session, "fieldCodeBoostingDisp", value = codigo)
+        
+        titulos <- c(
+          tr("predvsreal", idioma),
+          tr("realValue", idioma),
+          tr("pred", idioma)
+        )
+        
+        plot_real_prediction(datos.prueba[variable.predecir],prediccion.boost,
+                             paste0(tr("boost", idioma),"-",distribution),titulos)
+      }
+      else{NULL}
+    }, error = function(e){
+      showNotification(paste0("Error (Boost-03) : ", e), duration = 10, type = "error")
+      NULL
+    })
+  })
+  
+  
+  #Update Indices tab
+  output$indexdfb <- renderTable({
+    tryCatch({
+      if(!is.null(modelos$boost[[nombreModelo]])){
+        idioma <- updateData$idioma
+        indices.boost<- modelos$boost[[nombreModelo]]$indices
+        df <- as.data.frame(indices.boost)
+        colnames(df) <- c(tr("RMSE", idioma), tr("MAE", idioma), tr("ER", idioma), tr("correlacion", idioma))
+        df
+      }
+      else{NULL}
+    }, error = function(e){
+      showNotification(paste0("Error (Boost-05) : ",e), duration = 10, type = "error")
+      NULL
+    })
+  },striped = TRUE, bordered = TRUE, spacing = 'l', 
+  width = '100%',  digits = 5,align = 'c')
+  
+  
+  
+  output$indexdfb2 <- renderTable({
+    tryCatch({
+      if(!is.null(modelos$boost[[nombreModelo]])){
+        idioma <- updateData$idioma
+        isolate({
+          datos.prueba <- updateData$datos.prueba
+          variable.predecir <- updateData$variable.predecir
+        })
+        df2 <- as.data.frame(summary_indices(datos.prueba[,variable.predecir]))
+        colnames(df2) <- c(tr("minimo",idioma),tr("q1",idioma),
+                           tr("q3",idioma),tr("maximo",idioma))
+        df2
+      }
+      else{NULL}
+    }
+    , error = function(e){
+      showNotification(paste0("Error (Boost-06) : ",e), duration = 10, type = "error")
+      NULL
+    })
+  },striped = TRUE, bordered = TRUE, spacing = 'l', 
+  width = '100%',  digits = 5,align = 'c')
 }
-    
+
 ## To be copied in the UI
 # mod_boosting_ui("boosting_ui_1")
-    
+
 ## To be copied in the server
 # callModule(mod_boosting_server, "boosting_ui_1")
- 
+

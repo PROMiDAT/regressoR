@@ -1,105 +1,122 @@
 #' boosting_model
 #' 
-#' @description generates the code to create the boosting model.
+#' @description generates a boosting model.
 #'
-#' @param data the name of the learning data.
+#' @param data dataframe
 #' @param variable.pred the name of the variable to be predicted.
-#' @param model.var the name of the variable that stores the resulting model.
-#' @param n.trees the n.trees parameter of the model.
-#' @param distribution the distribution parameter of the model.
-#' @param shrinkage the shrinkage parameter of the model.
+#' @param n.trees integer specifying the total number of trees to fit.
+#' @param distribution either a character string specifying the name of the distribution to use or a list with a component name specifying the distribution and any additional parameters needed.
+#' @param shrinkage the shrinkage parameter of the model. The learning rate or step-size reduction
 #'
 #' @seealso \code{\link[gbm]{gbm}}
 #'
 #' @export
 #' 
-#' @examples
-#' library(gbm)
-#' library(dplyr)
-#' 
-#' x <- boosting_model('iris', 'Petal.Length')
-#' exe(x)
-#' print(modelo.boosting)
-#' 
-boosting_model <- function(data = "datos.aprendizaje", variable.pred = NULL, model.var = "modelo.boosting", n.trees = 50, distribution = "gaussian", shrinkage = 0.1){
-  n.trees <- ifelse(!is.numeric(n.trees), 50, n.trees)
-  shrinkage <- ifelse(!is.numeric(shrinkage), 0.1, shrinkage)
-  extra.values <- calibrate_boosting(exe(data))
-  
-  if(is.null(extra.values)){
-    codigo <- paste0(model.var,"<- gbm(`",variable.pred,
-                     "`~ ., data = ",data,", distribution = '",
-                     distribution,"', n.trees = ",n.trees,", shrinkage = ",shrinkage,")")
-  }else{
-    codigo <- paste0(model.var," <- gbm(`",variable.pred,
-                     "`~ ., data = ",data,", distribution = '",
-                     distribution,"', n.trees = ",n.trees,", shrinkage = ",shrinkage,",n.minobsinnode = ",extra.values[["n.minobsinnode"]],
-                     ",bag.fraction = ",extra.values[["bag.fraction"]],")")
+boosting_model <- function(data, variable.pred, n.trees = 50, distribution = "gaussian", shrinkage = 0.1){
+  if(!is.null(variable.pred) && !is.null(data)){
+    extra.values <- calibrate_boosting(data)
+    form <- formula(paste0(variable.pred,"~."))
+    
+    if(is.null(extra.values)){
+      modelo.boost <- gbm(form, data = data, distribution = distribution, n.trees = n.trees, shrinkage = shrinkage)
+    }else{
+      modelo.boost <- gbm(form, data = data, distribution = distribution, n.trees = n.trees, shrinkage = shrinkage,
+                          n.minobsinnode = extra.values[["n.minobsinnode"]], bag.fraction = extra.values[["bag.fraction"]])
+    }
+    return(modelo.boost)
   }
-  return(codigo)
+  else{return(NULL)}
 }
 
 #' boosting_prediction
 #' 
-#' @description generates the code to create the prediction of the boosting model.
+#' @description generates the prediction of a boosting model.
 #'
-#' @param data the name of the test data.
-#' @param variable.pred the name of the variable to be predicted.
-#' @param model.var the name of the variable that stores the resulting model.
-#' @param pred.var the name of the variable that stores the resulting prediction.
-#' @param n.trees the n.trees parameter of the model.
+#' @param model boosting model(gbm).
+#' @param test.data dataframe.
+#' @param n.trees number of trees used in the prediction.
 #'
 #' @seealso \code{\link[gbm]{gbm}}
 #' 
 #' @export
-#'
-#' @examples
-#' library(gbm)
-#' library(dplyr)
-#' x <- boosting_model('iris', 'Petal.Length', "model_boosting")
-#' exe(x)
-#' print(model_boosting)
 #' 
-#' x <- boosting_prediction('iris', 'Petal.Length', 'model_boosting', 'my_prediction')
-#' exe(x)
-#' print(my_prediction)
-#' 
-boosting_prediction <- function(data = "datos.prueba", variable.pred = NULL, model.var = "modelo.boosting", pred.var = "prediccion.boosting", n.trees = 50) {
-  n.trees <- ifelse(!is.numeric(n.trees), 50, n.trees)
-  return(paste0(pred.var," <- predict(",model.var,
-                ", ",data," %>% select(-`",variable.pred,"`), n.trees = ",n.trees,")"))
+boosting_prediction <- function(model, test.data, n.trees = 50) {
+  if(!is.null(test.data) && !is.null(model)){
+    return(predict(model,test.data, n.trees = n.trees))
+  }
+  return(NULL)
+  # return(paste0(pred.var," <- predict(",model.var,
+  #               ", ",data," %>% select(-`",variable.pred,"`), n.trees = ",n.trees,")"))
 }
+
 
 #' boosting_importance_plot
 #' 
-#' @description generates the code to make the graph of variable importance.
+#' @description generates the graph of variable importance.
 #'
-#' @param model.var the name of the variable that stores the resulting model.
+#' @param model boosting model(gbm).
+#' @param titles Labels on the chart
+#' 
+#' @export
+#' 
+boosting_importance_plot <- function(model, titles = c("Importancia de Variables según Influencia Relativa",
+                                                       "Influencia Relativa","Variable")){
+  df <- summary.gbm(model,order = T, plotit = F)
+  
+  e_charts(data = df, x = var) %>%
+    e_bar(serie = rel.inf,legend = NULL) %>%
+    echarts4r::e_flip_coords() %>%
+    e_title(text = titles[1]) %>%
+    e_x_axis(name = titles[2], nameLocation = "center", 
+             nameTextStyle = list(padding = c(10,0,0,0)),
+             interval = 10,
+             axisLabel = list(formatter = '{value} %')) %>%
+    e_y_axis(name = titles[3], nameLocation = "start", inverse = T) %>%
+    e_tooltip(formatter = htmlwidgets::JS("function(params){
+    console.log(params)
+    return('<b>' +  params.value[1] + ': </b>' + Number.parseFloat(params.value[0]).toFixed(4) + '%')
+    }
+    ")) %>%
+    e_datazoom(show = F) %>%
+    e_show_loading()
+}
+
+
+#' calibrate_boosting
+#' 
+#' @description helps to get the maximum of n.minobsinnode and bag.fraction values with which no error is generated in the model.
+#'
 #' @param data the name of the learning data.
 #' 
+#' @seealso \code{\link[gbm]{gbm}}
+#'
 #' @export
 #'
 #' @examples
-#' \dontrun{
-#' library(gbm)
-#' library(ggplot2)
-#' library(forcats)
-#' library(dplyr)
+#' calibrate_boosting(iris)
 #' 
-#' x <- boosting_model('iris', 'Petal.Length', "model_boosting")
-#' exe(x)
-#' 
-#' x <- boosting_importance_plot('model_boosting', 'iris')
-#' exe(x)
-#' }
-# boosting_importance_plot <- function(model.var = "modelo.boosting", data = "datos.aprendizaje"){
-#   data <- exe(data)
-#   size.y <- ifelse(ncol(data) <= 25, 1.5, 1 - (ncol(data) - 25)/4 * 0.01 )
-#   size.y <- ifelse(size.y <= 0, 0.1, size.y)
-#   paste0("ggplot(summary(",model.var,"), aes(x = fct_reorder(var, rel.inf), y = rel.inf, fill = fct_reorder(var, rel.inf))) +\n",
-#          "geom_bar(stat = 'identity', position = 'identity', width = 0.1) +\n",
-#          "labs(title = '",translate("impVarRI"),"', y = '",translate("RI"),"', x = '') +\n",
-#          "scale_y_continuous(labels = scales::comma) + coord_flip() +\n",
-#          "theme(axis.text.x = element_text(angle = 45, hjust = 1),",
-#          "axis.text.y=element_text(size=rel(",size.y,")),legend.position='none')\n")
-# }
+calibrate_boosting <- function(data){
+  nr <- nrow(data)
+  for(i in 10:1){
+    for (j in seq(0.5, 1, 0.1)) {
+      if(nr * j > i*2 + 1){
+        return(list(n.minobsinnode = i, bag.fraction = j))
+      }
+    }
+  }
+  return(NULL)
+}
+
+
+#------------------------------------CODE---------------------------------------
+codeBoost <- function(variable.predecir, n.trees, distribution, shrinkage){
+  return(paste0("boosting_model(data, '",variable.predecir,"', n.trees = ",n.trees, ", distribution = '", distribution, "', shrinkage = ",shrinkage, ")"))
+}
+
+codeBoostPred <- function(nombreModelo, n.trees){
+  return(paste0("boosting_prediction(model = ", nombreModelo, ", test.data, n.trees = ", n.trees, ")"))
+}
+
+codeBoostIG <- function(variable.predecir){
+  return(paste0("general_indices(test.data[,'",variable.predecir,"'], prediccion.boost)"))
+}

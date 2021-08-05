@@ -97,7 +97,7 @@ app_server <- function( input, output, session ) {
   callModule(mod_penalized_Regression_server, "penalized_Regression_ui_1",updateData, modelos)
   callModule(mod_regression_trees_server, "regression_trees_ui_1",updateData, modelos)
   callModule(mod_random_forests_server, "random_forests_ui_1",updateData, modelos)
-  # callModule(mod_boosting_server, "boosting_ui_1",updateData, updatePlot)
+  callModule(mod_boosting_server, "boosting_ui_1",updateData, modelos)
   callModule(mod_KNN_server, "KNN_ui_1",updateData, modelos)
   callModule(mod_SVM_server, "SVM_ui_1",updateData, modelos)
   callModule(mod_dimension_reduction_server, "dimension_reduction_ui_1",updateData, modelos)
