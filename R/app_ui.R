@@ -5,7 +5,6 @@
 #' @import shiny
 #' @import gbm
 #' @import kknn
-#' @importFrom kknn contr.dummy
 #' @import e1071
 #' @import rpart
 #' @import knitr

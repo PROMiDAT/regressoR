@@ -74,21 +74,21 @@ importance_plot_rf <- function(model.rf, titles = c("Importancia de Variables Se
   df$variables <- as.factor(rownames(df))
   df <- df[order(df$`%IncMSE`, decreasing = T),]
   
-  e_charts(data = df, x = variables) %>%
-    e_bar(serie = `%IncMSE`,legend = NULL) %>%
-    echarts4r::e_flip_coords() %>%
-    e_title(text = titles[1]) %>%
+  e_charts(data = df, x = variables) |>
+    e_bar(serie = `%IncMSE`,legend = NULL) |>
+    echarts4r::e_flip_coords() |>
+    e_title(text = titles[1]) |>
     e_x_axis(name = titles[2], nameLocation = "center", 
              nameTextStyle = list(padding = c(10,0,0,0)),
              interval = 10,
-             axisLabel = list(formatter = '{value} %')) %>%
-    e_y_axis(name = titles[3], nameLocation = "start", inverse = T) %>%
+             axisLabel = list(formatter = '{value} %')) |>
+    e_y_axis(name = titles[3], nameLocation = "start", inverse = T) |>
     e_tooltip(formatter = htmlwidgets::JS("function(params){
     console.log(params)
     return('<b>' +  params.value[1] + ': </b>' + Number.parseFloat(params.value[0]).toFixed(4) + '%')
     }
-    ")) %>%
-    e_datazoom(show = F) %>%
+    ")) |>
+    e_datazoom(show = F) |>
     e_show_loading()
 }
 

@@ -63,21 +63,21 @@ boosting_importance_plot <- function(model, titles = c("Importancia de Variables
                                                        "Influencia Relativa","Variable")){
   df <- summary.gbm(model,order = T, plotit = F)
   
-  e_charts(data = df, x = var) %>%
-    e_bar(serie = rel.inf,legend = NULL) %>%
-    echarts4r::e_flip_coords() %>%
-    e_title(text = titles[1]) %>%
+  e_charts(data = df, x = var) |>
+    e_bar(serie = rel.inf,legend = NULL) |>
+    echarts4r::e_flip_coords() |>
+    e_title(text = titles[1]) |>
     e_x_axis(name = titles[2], nameLocation = "center", 
              nameTextStyle = list(padding = c(10,0,0,0)),
              interval = 10,
-             axisLabel = list(formatter = '{value} %')) %>%
-    e_y_axis(name = titles[3], nameLocation = "start", inverse = T) %>%
+             axisLabel = list(formatter = '{value} %')) |>
+    e_y_axis(name = titles[3], nameLocation = "start", inverse = T) |>
     e_tooltip(formatter = htmlwidgets::JS("function(params){
     console.log(params)
     return('<b>' +  params.value[1] + ': </b>' + Number.parseFloat(params.value[0]).toFixed(4) + '%')
     }
-    ")) %>%
-    e_datazoom(show = F) %>%
+    ")) |>
+    e_datazoom(show = F) |>
     e_show_loading()
 }
 

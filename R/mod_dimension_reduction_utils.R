@@ -153,11 +153,11 @@ plot_RMSE <- function(model, n.comp, titles = c("RMSE Según Número de Componen
     )
   )
   
-  e_charts() %>%
-    e_list(opts) %>%
-    e_title(text = titles[1]) %>%
-    e_tooltip() %>%
-    e_datazoom(show = F) %>%
+  e_charts() |>
+    e_list(opts) |>
+    e_title(text = titles[1]) |>
+    e_tooltip() |>
+    e_datazoom(show = F) |>
     e_show_loading()
 }
 
@@ -235,11 +235,11 @@ plot_pred_rd <- function(model, n.comp, titles = c("Varianza Explicada en Predic
     )
   )
   
-  e_charts() %>%
-    e_list(opts) %>%
-    e_title(text = titles[1]) %>%
-    e_tooltip() %>%
-    e_datazoom(show = F) %>%
+  e_charts() |>
+    e_list(opts) |>
+    e_title(text = titles[1]) |>
+    e_tooltip() |>
+    e_datazoom(show = F) |>
     e_show_loading()
 }
 
@@ -316,11 +316,11 @@ plot_var_pred_rd <- function(model, n.comp, titles = c("Varianza Explicada en Va
     )
   )
   
-  e_charts() %>%
-    e_list(opts) %>%
-    e_title(text = titles[1]) %>%
-    e_tooltip() %>%
-    e_datazoom(show = F) %>%
+  e_charts() |>
+    e_list(opts) |>
+    e_title(text = titles[1]) |>
+    e_tooltip() |>
+    e_datazoom(show = F) |>
     e_show_loading()
 }
 

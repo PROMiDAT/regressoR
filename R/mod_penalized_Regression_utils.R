@@ -131,26 +131,26 @@ e_posib_lambda <- function(cv.glm, log.lambda = NULL, titles = c("Error Cuadrát
   nzero  <- cv.glm$nzero
   data.lambda <- data.frame(x, y, upper, lower, nzero)
   
-  grafico  <- data.lambda %>%
-    e_charts(x) %>%
+  grafico  <- data.lambda |>
+    e_charts(x) |>
     e_scatter(y, symbol_size = 11, color = "red", 
               tooltip = list(formatter = htmlwidgets::JS(paste0("function(params){",
                                                                 "return(params.marker + '<br/>' + ",
                                                                 "'<b>Log(lambda): </b>' + ",
                                                                 "Number.parseFloat(params.value[0]).toFixed(6) + ",
                                                                 "'<br/><b>", titles[1], ": </b>' + ",
-                                                                "Number.parseFloat(params.value[1]).toFixed(6))}")))) %>%
+                                                                "Number.parseFloat(params.value[1]).toFixed(6))}")))) |>
     e_error_bar(lower, upper,
                 tooltip = list(formatter = htmlwidgets::JS(paste0("function(params){",
                                                                   "return('<b>", titles[2], ": </b>' + ",
                                                                   "Number.parseFloat(params.value[1]).toFixed(6) + ",
                                                                   "'<br/><b>", titles[3], ": </b>' + ",
-                                                                  "Number.parseFloat(params.value[2]).toFixed(6))}")))) %>%
+                                                                  "Number.parseFloat(params.value[2]).toFixed(6))}")))) |>
     e_mark_line(title = "Log(lambda.min)", 
                 data = list(xAxis = x1, 
                             tooltip = list(formatter = htmlwidgets::JS(paste0("function(params){",
                                                                               "return('<b>Log(lambda.min): </b>' + ",
-                                                                              "Number.parseFloat(params.value).toFixed(6))}"))))) %>%
+                                                                              "Number.parseFloat(params.value).toFixed(6))}"))))) |>
     e_mark_line(title = "Log(lambda.1se)", 
                 data = list(xAxis = x2,
                             tooltip = list(formatter = htmlwidgets::JS(paste0("function(params){",
@@ -159,7 +159,7 @@ e_posib_lambda <- function(cv.glm, log.lambda = NULL, titles = c("Error Cuadrát
   
   #Si se eligió manualmente un lambda
   if(!is.null(log.lambda)){
-    grafico <- grafico %>% 
+    grafico <- grafico |> 
       e_mark_line(title = titles[4], 
                   data = list(xAxis = log.lambda,
                               lineStyle = list(color = "blue"),
@@ -169,20 +169,20 @@ e_posib_lambda <- function(cv.glm, log.lambda = NULL, titles = c("Error Cuadrát
   }
   
   # number of non-zero coefficients at each lambda
-  grafico <- grafico %>%
+  grafico <- grafico |>
     e_line(nzero, x_index = 1, y_index = 1, tooltip = list(formatter = htmlwidgets::JS(paste0("function(params){",
                                                                                               "return('<b>Log(lambda): </b>' + ",
                                                                                               "Number.parseFloat(params.value[0]).toFixed(6) + ",
                                                                                               "'<br/><b>", titles[5],": </b>' + ",
-                                                                                              "params.value[1])}")))) %>%
-    e_grid(height = "40%") %>%
-    e_grid(height = "30%", top = "65%") %>%
-    e_x_axis(type = 'value', minInterval = 1, min = floor(min(data.lambda$x)), gridIndex = 0, index = 0, name = "Log(lambda)") %>%
-    e_y_axis(type = 'value', axisLine = list(onZero = F), gridIndex = 0, index = 0, name = titles[1]) %>%
-    e_x_axis(type = 'value', minInterval = 1, min = floor(min(data.lambda$x)), gridIndex = 1, index = 1, name = "Log(lambda)") %>%
-    e_y_axis(type = 'value', axisLine = list(onZero = F), gridIndex = 1, index = 1, axisLine = list(onZero = F), name = titles[5]) %>%
-    e_legend(FALSE) %>% 
-    e_tooltip(trigger = "item") %>% e_datazoom(show = F) %>% e_show_loading()
+                                                                                              "params.value[1])}")))) |>
+    e_grid(height = "40%") |>
+    e_grid(height = "30%", top = "65%") |>
+    e_x_axis(type = 'value', minInterval = 1, min = floor(min(data.lambda$x)), gridIndex = 0, index = 0, name = "Log(lambda)") |>
+    e_y_axis(type = 'value', axisLine = list(onZero = F), gridIndex = 0, index = 0, name = titles[1]) |>
+    e_x_axis(type = 'value', minInterval = 1, min = floor(min(data.lambda$x)), gridIndex = 1, index = 1, name = "Log(lambda)") |>
+    e_y_axis(type = 'value', axisLine = list(onZero = F), gridIndex = 1, index = 1, axisLine = list(onZero = F), name = titles[5]) |>
+    e_legend(FALSE) |> 
+    e_tooltip(trigger = "item") |> e_datazoom(show = F) |> e_show_loading()
   
   
   return(grafico)
@@ -222,9 +222,9 @@ e_coeff_landa <- function(cv.glm, log.lambda = NULL, titles = c("Coeficientes","
   }
   
   
-  grafico <- new %>%
-    group_by(nombre) %>%
-    e_charts(x) %>%
+  grafico <- new |>
+    group_by(nombre) |>
+    e_charts(x) |>
     e_line(y, bind = nombre, 
            tooltip = list(formatter = htmlwidgets::JS(paste0("function(params){",
                                                              "return(params.marker + ",
@@ -232,26 +232,26 @@ e_coeff_landa <- function(cv.glm, log.lambda = NULL, titles = c("Coeficientes","
                                                              "'<b>Log(lambda): </b>' + ",
                                                              "Number.parseFloat(params.value[0].toFixed(6)) + '<br/>' + ",
                                                              "'<b>", titles[1], ": </b>' + ",
-                                                             "Number.parseFloat(params.value[1].toFixed(6)))}")))) %>%
+                                                             "Number.parseFloat(params.value[1].toFixed(6)))}")))) |>
     e_mark_line(title = "Log(lambda.min)", 
                 data = list(xAxis = log(cv.glm$lambda.min), lineStyle = list(color = 'black'), 
                             tooltip = list(formatter = htmlwidgets::JS(paste0("function(params){",
                                                                               "return('<b>Log(lambda.min): </b>' + ",
-                                                                              "Number.parseFloat(params.value).toFixed(6))}"))))) %>%
-    e_x_axis(name = "Log(lambda)", axisLine = list(onZero = F)) %>%
-    e_y_axis(name = titles[1],axisLine = list(onZero = F)) %>%
+                                                                              "Number.parseFloat(params.value).toFixed(6))}"))))) |>
+    e_x_axis(name = "Log(lambda)", axisLine = list(onZero = F)) |>
+    e_y_axis(name = titles[1],axisLine = list(onZero = F)) |>
     e_labels(position = 'left',formatter = htmlwidgets::JS("
                                         function(params){
                                         if(params.dataIndex==0){
                                         return(params.name)
                                         }else
-                                        {return('')}}"))%>%
-    e_legend(show = FALSE) %>% e_tooltip() %>% 
-    e_datazoom(show = F) %>% e_show_loading()
+                                        {return('')}}"))|>
+    e_legend(show = FALSE) |> e_tooltip() |> 
+    e_datazoom(show = F) |> e_show_loading()
   
   #Si se eligió manualmente un lambda
   if(!is.null(log.lambda)){
-    grafico <- grafico %>% 
+    grafico <- grafico |> 
       e_mark_line(title = titles[2], 
                   data = list(xAxis = log.lambda,
                               lineStyle = list(color = "blue"),

@@ -11,7 +11,7 @@ mod_model_comparison_ui <- function(id){
   ns <- NS(id)
 
   table.comparison.panel <- tabPanel(title = labelInput("tablaComp"),
-                                     DT::dataTableOutput(ns("TablaComp"), height="70vh"))
+                                     withLoader(DT::dataTableOutput(ns("TablaComp"), height="70vh"), type = "html", loader = "loader4"))
   
   page.comparison <- tabItem(tabName = "comparar",
                              tabBox(id = ns("BoxCom"), width = NULL, height ="80%",
