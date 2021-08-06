@@ -53,30 +53,30 @@ mod_penalized_Regression_ui <- function(id){
   
   
   generate.rlr.panel <- tabPanel(title = labelInput("generatem"),value = "tabRlrModelo",
-                                 verbatimTextOutput(ns("txtRlr")))
+                                 withLoader(verbatimTextOutput(ns("txtRlr")),type = "html", loader = "loader4"))
   
   posib.landa.rlr.panel <- tabPanel(title = labelInput("posibLanda"),value = "tabRlrPosibLanda",
-                                    echarts4rOutput(ns('plot.rlr.posiblanda'), height = "80vh"))
+                                    echarts4rOutput(ns('plot_rlr_posiblanda'), height = "80vh"))
   
   coeff.rlr.panel <- tabPanel(title = labelInput("coeff"),value = "tabRlrCoeff",
-                              verbatimTextOutput(ns("txtRlrCoeff")))
+                              withLoader(verbatimTextOutput(ns("txtRlrCoeff")),type = "html", loader = "loader4"))
   
   landa.rlr.panel <- tabPanel(title = labelInput("gcoeff"),value = "tabRlrCoeff_landa",
-                              echarts4rOutput(ns('plot.rlr.Coeff_landa'), height = "75vh"))
+                              echarts4rOutput(ns('plot_rlr_Coeff_landa'), height = "75vh"))
   
   prediccion.rlr.panel <- tabPanel(title = labelInput("predm"), value = "tabRlrPred",
-                                   DT::dataTableOutput(ns("rlrPrediTable")))
+                                   withLoader(DT::dataTableOutput(ns("rlrPrediTable")),type = "html", loader = "loader4"))
   
   disp.rlr.panel <- tabPanel(title = labelInput("dispersion"), value = "tabRlrDisp",
-                             echarts4rOutput(ns('plot.rlr.disp'), height = "75vh"))
+                             echarts4rOutput(ns('plot_rlr_disp'), height = "75vh"))
   
   rlr.general.index.panel <- tabPanel(title = labelInput("indices"), value = "tabRlrIndex",
                                       br(),
-                                      fluidRow(tableOutput(ns('indexdfrlr'))),
+                                      fluidRow(withLoader(tableOutput(ns('indexdfrlr')),type = "html", loader = "loader4")),
                                       br(),
                                       fluidRow(column(width = 12, align="center", tags$h3(labelInput("resumenVarPre")))),
                                       br(),
-                                      fluidRow(tableOutput(ns('indexdfrlr2'))))
+                                      fluidRow(withLoader(tableOutput(ns('indexdfrlr2')),type = "html", loader = "loader4")))
   
   
   page.rlr <- tabItem(tabName = "rlr",
@@ -142,12 +142,13 @@ mod_penalized_Regression_server <- function(input, output, session, updateData, 
   # Execute model, prediction and indices
   rlr_full <- function(){
     tryCatch({
-      
-      isolate(datos.aprendizaje <- updateData$datos.aprendizaje)
-      isolate(datos.prueba <- updateData$datos.prueba)
-      isolate(variable.predecir <- updateData$variable.predecir)
-      isolate(alpha <- as.numeric(input$alpha.rlr))
-      isolate(standardize <- as.logical(input$switch_scale_rlr))
+      isolate({
+        datos.aprendizaje <- updateData$datos.aprendizaje
+        datos.prueba <- updateData$datos.prueba
+        variable.predecir <- updateData$variable.predecir
+        alpha <- as.numeric(input$alpha.rlr)
+        standardize <- as.logical(input$switch_scale_rlr)
+      })
 
       nombreModelo <<- paste0(nombreBase, rlr_type(alpha))
       
@@ -204,7 +205,7 @@ mod_penalized_Regression_server <- function(input, output, session, updateData, 
   })
   
   
-  output$plot.rlr.posiblanda <- renderEcharts4r({
+  output$plot_rlr_posiblanda <- renderEcharts4r({
     tryCatch({
       if(!is.null(modelos$rlr[[nombreModelo]])){
         titulos <- c(
@@ -231,7 +232,7 @@ mod_penalized_Regression_server <- function(input, output, session, updateData, 
   
   
   
-  output$plot.rlr.Coeff_landa <- renderEcharts4r({
+  output$plot_rlr_Coeff_landa <- renderEcharts4r({
     tryCatch({
       if(!is.null(modelos$rlr[[nombreModelo]])){
         param.lambda <- ifelse(is.null(log.landa),"",paste0(", log.lambda = ",log.landa))
@@ -269,8 +270,10 @@ mod_penalized_Regression_server <- function(input, output, session, updateData, 
     tryCatch({
       if(!is.null(modelos$rlr[[nombreModelo]])){
         prediccion.rlr <- modelos$rlr[[nombreModelo]]$prediccion
-        isolate(datos.prueba <- updateData$datos.prueba)
-        isolate(real.val <- datos.prueba[updateData$variable.predecir])
+        isolate({
+          datos.prueba <- updateData$datos.prueba
+          real.val <- datos.prueba[updateData$variable.predecir]
+        })
         tb_predic(real.val, prediccion.rlr, updateData$idioma)
       }
       else{NULL}
@@ -283,13 +286,15 @@ mod_penalized_Regression_server <- function(input, output, session, updateData, 
   
   
   # Update dispersion tab
-  output$plot.rlr.disp <- renderEcharts4r({
+  output$plot_rlr_disp <- renderEcharts4r({
     tryCatch({
       if(!is.null(modelos$rlr[[nombreModelo]])){
         prediccion.rlr <- modelos$rlr[[nombreModelo]]$prediccion
-        isolate(datos.prueba <- updateData$datos.prueba)
-        isolate(variable.predecir <- updateData$variable.predecir)
-        isolate(alpha <- as.numeric(input$alpha.rlr))
+        isolate({
+          datos.prueba <- updateData$datos.prueba
+          variable.predecir <- updateData$variable.predecir
+          alpha <- as.numeric(input$alpha.rlr)
+        })
         tipo <- rlr_type(alpha)
         
         codigo <- disp_models(nombreModelo, paste0(tr("rlr", updateData$idioma),"-",tipo), variable.predecir)
@@ -336,8 +341,10 @@ mod_penalized_Regression_server <- function(input, output, session, updateData, 
     tryCatch({
       if(!is.null(modelos$rlr[[nombreModelo]])){
         idioma <- updateData$idioma
-        isolate(datos.prueba <- updateData$datos.prueba)
-        isolate(variable.predecir <- updateData$variable.predecir)
+        isolate({
+          datos.prueba <- updateData$datos.prueba
+          variable.predecir <- updateData$variable.predecir
+        })
         df2 <- as.data.frame(summary_indices(datos.prueba[,variable.predecir]))
         colnames(df2) <- c(tr("minimo",idioma),tr("q1",idioma),
                            tr("q3",idioma),tr("maximo",idioma))

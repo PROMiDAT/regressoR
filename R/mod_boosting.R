@@ -39,24 +39,24 @@ mod_boosting_ui <- function(id){
                                          tabs.content = list(b.code))
   
   generate.b.panel <- tabPanel(title = labelInput("generatem"), value = "tabBModelo",
-                               verbatimTextOutput(ns("txtBoosting")))
+                               withLoader(verbatimTextOutput(ns("txtBoosting")),type = "html", loader = "loader4"))
   
   plot.boosting.import <- tabPanel(title = labelInput("varImp"), value = "tabBImp",
-                                   echarts4rOutput(ns('plot.boosting.import'), height = "75vh"))
+                                   echarts4rOutput(ns('plot_boosting_import'), height = "75vh"))
   
   prediction.b.panel <- tabPanel(title = labelInput("predm"), value = "tabBPred",
-                                 DT::dataTableOutput(ns("boostingPrediTable")))
+                                 withLoader(DT::dataTableOutput(ns("boostingPrediTable")),type = "html", loader = "loader4"))
   
   disp.boosting.panel <- tabPanel(title = labelInput("dispersion"), value = "tabBDisp",
-                                  echarts4rOutput(ns('plot.boosting.disp'), height = "75vh"))
+                                  echarts4rOutput(ns('plot_boosting_disp'), height = "75vh"))
   
   general.index.b.panel <- tabPanel(title = labelInput("indices"),value = "tabBIndex",
                                     br(),
-                                    fluidRow(tableOutput(ns('indexdfb'))),
+                                    fluidRow(withLoader(tableOutput(ns('indexdfb')),type = "html", loader = "loader4")),
                                     br(),
                                     fluidRow(column(width = 12, align="center", tags$h3(labelInput("resumenVarPre")))),
                                     br(),
-                                    fluidRow(tableOutput(ns('indexdfb2'))))
+                                    fluidRow(withLoader(tableOutput(ns('indexdfb2')),type = "html", loader = "loader4")))
   
   pagina.boosting <- tabItem(tabName = "boosting",
                              tabBox(id = ns("BoxB"), width = NULL, height ="80%",
@@ -165,7 +165,7 @@ mod_boosting_server <- function(input, output, session,updateData, modelos){
   
   
   # Update importance plot
-  output$plot.boosting.import <- renderEcharts4r({
+  output$plot_boosting_import <- renderEcharts4r({
     tryCatch({
       if(!is.null(modelos$boost[[nombreModelo]])){
         
@@ -214,7 +214,7 @@ mod_boosting_server <- function(input, output, session,updateData, modelos){
   
   
   # Update Dispersion Tab
-  output$plot.boosting.disp <- renderEcharts4r({
+  output$plot_boosting_disp <- renderEcharts4r({
     tryCatch({
       if(!is.null(modelos$boost[[nombreModelo]])){
         prediccion.boost <- modelos$boost[[nombreModelo]]$prediccion

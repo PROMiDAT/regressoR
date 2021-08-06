@@ -41,27 +41,27 @@ mod_random_forests_ui <- function(id){
                                          tabs.content = list(rf.code))
   
   generate.rf.panel <- tabPanel(title = labelInput("generatem"),value = "tabRfModelo",
-                                verbatimTextOutput(ns("txtRf")))
+                                withLoader(verbatimTextOutput(ns("txtRf")),type = "html", loader = "loader4"))
   
   plot.rf <- tabPanel(title = labelInput("varImp"), value = "tabRfImp",
-                      echarts4rOutput(ns('plot.rf'), height = "75vh"))
+                      echarts4rOutput(ns('plot_rf'), height = "75vh"))
   
   prediction.rf.panel <- tabPanel(title = labelInput("predm"), value = "tabRfPred",
-                                  DT::dataTableOutput(ns("rfPrediTable")))
+                                  withLoader(DT::dataTableOutput(ns("rfPrediTable")),type = "html", loader = "loader4"))
   
   disp.rf.panel <- tabPanel(title = labelInput("dispersion"), value = "tabRfDisp",
-                            echarts4rOutput(ns('plot.rf.disp'), height = "75vh"))
+                            echarts4rOutput(ns('plot_rf_disp'), height = "75vh"))
   
   general.index.rf.panel <- tabPanel(title = labelInput("indices"), value = "tabRfIndex",
                                      br(),
-                                     fluidRow(tableOutput(ns('indexdfrf'))),
+                                     fluidRow(withLoader(tableOutput(ns('indexdfrf')),type = "html", loader = "loader4")),
                                      br(),
                                      fluidRow(column(width = 12, align="center", tags$h3(labelInput("resumenVarPre")))),
                                      br(),
-                                     fluidRow(tableOutput(ns('indexdfrf2'))))
+                                     fluidRow(withLoader(tableOutput(ns('indexdfrf2')),type = "html", loader = "loader4")))
   
   rf.rules.panel <- tabPanel(title = labelInput("reglas"), value = "tabRfRules",
-                             verbatimTextOutput(ns("rulesRf")))
+                             withLoader(verbatimTextOutput(ns("rulesRf")),type = "html", loader = "loader4"))
   
   page.rf <- tabItem(tabName = "rf",
                      tabBox(id = ns("BoxRf"), width = NULL, height ="80%",
@@ -165,7 +165,7 @@ mod_random_forests_server <- function(input, output, session,updateData, modelos
   
   
   #Update importance chart
-  output$plot.rf <- renderEcharts4r({
+  output$plot_rf <- renderEcharts4r({
     tryCatch({
       if(!is.null(modelos$rf[[nombreModelo]])){
         
@@ -210,7 +210,7 @@ mod_random_forests_server <- function(input, output, session,updateData, modelos
   
   
   # Update Dispersion Tab
-  output$plot.rf.disp <- renderEcharts4r({
+  output$plot_rf_disp <- renderEcharts4r({
     tryCatch({
       if(!is.null(modelos$rf[[nombreModelo]])){
         prediccion.rf <- modelos$rf[[nombreModelo]]$prediccion

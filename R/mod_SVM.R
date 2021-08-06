@@ -38,21 +38,21 @@ mod_SVM_ui <- function(id){
                                          tabs.content = list(svm.code))
   
   generate.svm.panel <- tabPanel(title = labelInput("generatem"), value = "tabSvmModelo",
-                                 verbatimTextOutput(ns("txtSvm")))
+                                 withLoader(verbatimTextOutput(ns("txtSvm")),type = "html", loader = "loader4"))
   
   disp.svm.panel <- tabPanel(title = labelInput("dispersion"), value = "tabSvmDisp",
-                             echarts4rOutput(ns('plot.svm.disp'), height = "75vh"))
+                             echarts4rOutput(ns('plot_svm_disp'), height = "75vh"))
   
   prediction.svm.panel <- tabPanel(title = labelInput("predm"), value = "tabSvmPred",
-                                   DT::dataTableOutput(ns("svmPrediTable")))
+                                   withLoader(DT::dataTableOutput(ns("svmPrediTable")),type = "html", loader = "loader4"))
   
   general.index.svm.panel <- tabPanel(title = labelInput("indices"), value = "tabSvmIndex",
                                       br(),
-                                      fluidRow(tableOutput(ns('indexdfsvm'))),
+                                      fluidRow(withLoader(tableOutput(ns('indexdfsvm')),type = "html", loader = "loader4")),
                                       br(),
                                       fluidRow(column(width = 12, align="center", tags$h3(labelInput("resumenVarPre")))),
                                       br(),
-                                      fluidRow(tableOutput(ns('indexdfsvm2'))))
+                                      fluidRow(withLoader(tableOutput(ns('indexdfsvm2')),type = "html", loader = "loader4")))
   
   page.svm <- tabItem(tabName = "svm",
                       tabBox(id = ns("BoxSvm"), width = NULL, height ="80%",
@@ -97,11 +97,13 @@ mod_SVM_server <- function(input, output, session,updateData, modelos){
   # Execute model, prediction and indices
   svm_full <- function() {
     tryCatch({
-      isolate(datos.aprendizaje <- updateData$datos.aprendizaje)
-      isolate(datos.prueba <- updateData$datos.prueba)
-      isolate(variable.predecir <- updateData$variable.predecir)
-      isolate(scale <- as.logical(input$switch_scale_svm))
-      isolate(kernel <- input$kernel.svm)
+      isolate({
+        datos.aprendizaje <- updateData$datos.aprendizaje
+        datos.prueba <- updateData$datos.prueba
+        variable.predecir <- updateData$variable.predecir
+        scale <- as.logical(input$switch_scale_svm)
+        kernel <- input$kernel.svm
+      })
       
       nombreModelo <<- paste0(nombreBase, kernel)
       
@@ -147,8 +149,10 @@ mod_SVM_server <- function(input, output, session,updateData, modelos){
     tryCatch({
       if(!is.null(modelos$svm[[nombreModelo]])){
         prediccion.svm <- modelos$svm[[nombreModelo]]$prediccion
-        isolate(datos.prueba <- updateData$datos.prueba)
-        isolate(real.val <- datos.prueba[updateData$variable.predecir])
+        isolate({
+          datos.prueba <- updateData$datos.prueba
+          real.val <- datos.prueba[updateData$variable.predecir]
+        })
         tb_predic(real.val, prediccion.svm, updateData$idioma)
       }
       else{NULL}
@@ -161,14 +165,16 @@ mod_SVM_server <- function(input, output, session,updateData, modelos){
   
   
   # Update Dispersion Tab
-  output$plot.svm.disp <- renderEcharts4r({
+  output$plot_svm_disp <- renderEcharts4r({
     
     tryCatch({
       if(!is.null(modelos$svm[[nombreModelo]])){
         prediccion.svm <- modelos$svm[[nombreModelo]]$prediccion
-        isolate(datos.prueba <- updateData$datos.prueba)
-        isolate(variable.predecir <- updateData$variable.predecir)
-        isolate(kernel <- input$kernel.svm)
+        isolate({
+          datos.prueba <- updateData$datos.prueba
+          variable.predecir <- updateData$variable.predecir
+          kernel <- input$kernel.svm
+        })
         idioma <- updateData$idioma
         
         codigo <- disp_models(nombreModelo, paste0(tr("svm", idioma),"-",kernel), variable.predecir)
@@ -215,8 +221,10 @@ mod_SVM_server <- function(input, output, session,updateData, modelos){
     tryCatch({
       if(!is.null(modelos$svm[[nombreModelo]])){
         idioma <- updateData$idioma
-        isolate(datos.prueba <- updateData$datos.prueba)
-        isolate(variable.predecir <- updateData$variable.predecir)
+        isolate({
+          datos.prueba <- updateData$datos.prueba
+          variable.predecir <- updateData$variable.predecir
+        })
         df2 <- as.data.frame(summary_indices(datos.prueba[,variable.predecir]))
         colnames(df2) <- c(tr("minimo",idioma),tr("q1",idioma),
                            tr("q3",idioma),tr("maximo",idioma))

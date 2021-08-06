@@ -48,24 +48,24 @@ mod_neural_networks_ui <- function(id){
   
   
   plot.nn <- tabPanel(title = labelInput("redPlot"), value = "tabNnPlot",
-                      plotOutput(ns('plot.nn'), height = "75vh"))
+                      withLoader(plotOutput(ns('plot_nn') , height = "75vh"),type = "html", loader = "loader4"))
   
   generate.nn.panel <- tabPanel(title = labelInput("generatem"), value = "tabNnModelo",
-                                verbatimTextOutput(ns("txtnn")))
+                                withLoader(verbatimTextOutput(ns("txtnn")),type = "html", loader = "loader4"))
   
   prediction.nn.panel <- tabPanel(title = labelInput("predm"), value = "tabNnPred",
-                                  DT::dataTableOutput(ns("nnPrediTable")))
+                                  withLoader(DT::dataTableOutput(ns("nnPrediTable")),type = "html", loader = "loader4"))
   
   disp.nn.panel <- tabPanel(title = labelInput("dispersion"), value = "tabNnDisp",
-                            echarts4rOutput(ns('plot.nn.disp'), height = "75vh"))
+                            echarts4rOutput(ns('plot_nn_disp'), height = "75vh"))
   
   general.index.nn.panel <- tabPanel(title = labelInput("indices"), value = "tabNnIndex",
                                      br(),
-                                     fluidRow(tableOutput(ns('indexdfnn'))),
+                                     fluidRow(withLoader(tableOutput(ns('indexdfnn')),type = "html", loader = "loader4")),
                                      br(),
                                      fluidRow(column(width = 12, align="center", tags$h3(labelInput("resumenVarPre")))),
                                      br(),
-                                     fluidRow(tableOutput(ns('indexdfnn2'))))
+                                     fluidRow(withLoader(tableOutput(ns('indexdfnn2')),type = "html", loader = "loader4")))
   
   page.nn  <- tabItem(tabName = "nn",
                       tabBox(id = ns("BoxNn"), width = NULL, height ="80%",
@@ -196,7 +196,7 @@ mod_neural_networks_server <- function(input, output, session,updateData, modelo
   
   
   #Update neural network plot tab
-  output$plot.nn <- renderPlot({
+  output$plot_nn <- renderPlot({
     tryCatch({
       if(!is.null(modelos$nn[[nombreModelo]])){
         isolate({
@@ -248,7 +248,7 @@ mod_neural_networks_server <- function(input, output, session,updateData, modelo
   
   
   # Update Dispersion Tab
-  output$plot.nn.disp <- renderEcharts4r({
+  output$plot_nn_disp <- renderEcharts4r({
     tryCatch({
       if(!is.null(modelos$nn[[nombreModelo]])){
         prediccion.nn <- modelos$nn[[nombreModelo]]$prediccion

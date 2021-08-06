@@ -29,24 +29,24 @@ mod_linear_regression_ui <- function(id){
                           tabs.content = list(rl.code))
   
   generate.rl.panel <- tabPanel(title = labelInput("generatem"),value = "tabRlModelo",
-                                verbatimTextOutput(ns("txtRl")))
+                                withLoader(verbatimTextOutput(ns("txtRl")),type = "html", loader = "loader4"))
   
   coefficients.rl.panel <- tabPanel(title = labelInput("coeff"), value = "tabRlCoef",
-                                    DT::dataTableOutput(ns("rlCoefTable")))
+                                    withLoader(DT::dataTableOutput(ns("rlCoefTable")),type = "html", loader = "loader4"))
   
   prediccion.rl.panel <- tabPanel(title = labelInput("predm"), value = "tabRlPred",
-                                  DT::dataTableOutput(ns("rlPrediTable")))
+                                  withLoader(DT::dataTableOutput(ns("rlPrediTable")),type = "html", loader = "loader4"))
   
   disp.rl.panel <- tabPanel(title = labelInput("dispersion"), value = "tabRlDisp",
-                            echarts4rOutput(ns('plot.rl.disp'), height = "75vh"))
+                            echarts4rOutput(ns('plot_rl_disp'), height = "75vh"))
   
   rl.general.index.panel <- tabPanel(title = labelInput("indices"), value = "tabRlIndex",
                                      br(),
-                                     fluidRow(tableOutput(ns('indexdfrl'))),
+                                     fluidRow(withLoader(tableOutput(ns('indexdfrl')),type = "html", loader = "loader4")),
                                      br(),
                                      fluidRow(column(width = 12, align="center", tags$h3(labelInput("resumenVarPre")))),
                                      br(),
-                                     fluidRow(tableOutput(ns('indexdfrl2'))))
+                                     fluidRow(withLoader(tableOutput(ns('indexdfrl2')),type = "html", loader = "loader4")))
   
   
   page.rl <- tabItem(tabName = "rl",
@@ -74,12 +74,6 @@ mod_linear_regression_server <- function(input, output, session, updateData, mod
   r2 <- NULL
   
   return.rl.default.values <- function(){
-    #output$txtRl <- renderText(NULL)
-    # output$rlCoefTable <- DT::renderDataTable(NULL)
-    # output$rlPrediTable <- DT::renderDataTable(NULL)
-    # output$plot.rl.disp <- renderEcharts4r(NULL)
-    # output$indexdfrl <- renderTable(NULL)
-    # output$indexdfrl2 <- renderTable(NULL)
     df.rl <<- NULL
     r2 <<- NULL
   }
@@ -100,9 +94,11 @@ mod_linear_regression_server <- function(input, output, session, updateData, mod
   # Execute model, prediction and indices
   rl_full <- function(){
     tryCatch({
-      isolate(datos.aprendizaje <- updateData$datos.aprendizaje)
-      isolate(datos.prueba <- updateData$datos.prueba)
-      isolate(variable.predecir <- updateData$variable.predecir)
+      isolate({
+        datos.aprendizaje <- updateData$datos.aprendizaje
+        datos.prueba <- updateData$datos.prueba
+        variable.predecir <- updateData$variable.predecir
+      })
       
       #Model generate
       modelo.rl <- rl_model(datos.aprendizaje,variable.predecir)
@@ -173,8 +169,10 @@ mod_linear_regression_server <- function(input, output, session, updateData, mod
     tryCatch({
       if(!is.null(modelos$rl[[nombreModelo]])){
         prediccion.rl <- modelos$rl[[nombreModelo]]$prediccion
-        isolate(datos.prueba <- updateData$datos.prueba)
-        isolate(real.val <- datos.prueba[updateData$variable.predecir])
+        isolate({
+          datos.prueba <- updateData$datos.prueba
+          real.val <- datos.prueba[updateData$variable.predecir]
+        })
         tb_predic(real.val, prediccion.rl, updateData$idioma)
       }
       else{NULL}
@@ -187,13 +185,15 @@ mod_linear_regression_server <- function(input, output, session, updateData, mod
   
   
   # Update dispersion tab
-  output$plot.rl.disp <- renderEcharts4r({
+  output$plot_rl_disp <- renderEcharts4r({
     tryCatch({
       
       if(!is.null(modelos$rl[[nombreModelo]])){
         prediccion.rl <- modelos$rl[[nombreModelo]]$prediccion
-        isolate(datos.prueba <- updateData$datos.prueba)
-        isolate(variable.predecir <- updateData$variable.predecir)
+        isolate({
+          datos.prueba <- updateData$datos.prueba
+          variable.predecir <- updateData$variable.predecir
+        })
         codigo <- disp_models("prediccion.rl", tr("rl",updateData$idioma), variable.predecir)
         updateAceEditor(session, "fieldCodeRlDisp", value = codigo)
         
@@ -240,8 +240,10 @@ mod_linear_regression_server <- function(input, output, session, updateData, mod
     tryCatch({
       if(!is.null(modelos$rl[[nombreModelo]])){
         idioma <- updateData$idioma
-        isolate(datos.prueba <- updateData$datos.prueba)
-        isolate(variable.predecir <- updateData$variable.predecir)
+        isolate({
+          datos.prueba <- updateData$datos.prueba
+          variable.predecir <- updateData$variable.predecir
+        })
         df2 <- as.data.frame(summary_indices(datos.prueba[,variable.predecir]))
         colnames(df2) <- c(tr("minimo",idioma),tr("q1",idioma),
                            tr("q3",idioma),tr("maximo",idioma))

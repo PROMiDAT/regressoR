@@ -38,21 +38,21 @@ mod_KNN_ui <- function(id){
                                          tabs.content = list(knn.code))
   
   generate.knn.panel <- tabPanel(title = labelInput("generatem"), value = "tabKknModelo",
-                                 verbatimTextOutput(ns("txtknn")))
+                                 withLoader(verbatimTextOutput(ns("txtknn")),type = "html", loader = "loader4"))
   
   prediccion.knn.panel <- tabPanel(title = labelInput("predm"), value = "tabKknPred",
-                                   DT::dataTableOutput(ns("knnPrediTable")))
+                                   withLoader(DT::dataTableOutput(ns("knnPrediTable")),type = "html", loader = "loader4"))
   
   disp.knn.panel <- tabPanel(title = labelInput("dispersion"), value = "tabKknDisp",
-                             echarts4rOutput(ns('plot.knn.disp'), height = "75vh"))
+                             echarts4rOutput(ns('plot_knn_disp'), height = "75vh"))
   
   general.index.knn.panel <- tabPanel(title = labelInput("indices"), value = "tabKknIndex",
                                       br(),
-                                      fluidRow(tableOutput(ns('indexdfknn'))),
+                                      fluidRow(withLoader(tableOutput(ns('indexdfknn')),type = "html", loader = "loader4")),
                                       br(),
                                       fluidRow(column(width = 12, align="center", tags$h3(labelInput("resumenVarPre")))),
                                       br(),
-                                      fluidRow(tableOutput(ns('indexdfknn2'))))
+                                      fluidRow(withLoader(tableOutput(ns('indexdfknn2')),type = "html", loader = "loader4")))
   
   page.knn <- tabItem(tabName = "knn",
                       tabBox(id = ns("BoxKnn"), width = NULL, height ="80%",
@@ -184,7 +184,7 @@ mod_KNN_server <- function(input, output, session,updateData, modelos){
   
   
   # Update Dispersion Tab
-  output$plot.knn.disp <- renderEcharts4r({
+  output$plot_knn_disp <- renderEcharts4r({
     tryCatch({
       if(!is.null(modelos$knn[[nombreModelo]])){
         prediccion.knn <- modelos$knn[[nombreModelo]]$prediccion
@@ -240,8 +240,10 @@ mod_KNN_server <- function(input, output, session,updateData, modelos){
     tryCatch({
       if(!is.null(modelos$knn[[nombreModelo]])){
         idioma <- updateData$idioma
-        isolate(datos.prueba <- updateData$datos.prueba)
-        isolate(variable.predecir <- updateData$variable.predecir)
+        isolate({
+          datos.prueba <- updateData$datos.prueba
+          variable.predecir <- updateData$variable.predecir
+        })
         df2 <- as.data.frame(summary_indices(datos.prueba[,variable.predecir]))
         colnames(df2) <- c(tr("minimo",idioma),tr("q1",idioma),
                            tr("q3",idioma),tr("maximo",idioma))

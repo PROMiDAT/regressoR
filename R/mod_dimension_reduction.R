@@ -52,30 +52,30 @@ mod_dimension_reduction_ui <- function(id){
   
   
   generate.rd.panel <- tabPanel(title = labelInput("generatem"),value = "tabRdModelo",
-                                verbatimTextOutput(ns("txtRd")))
+                                withLoader(verbatimTextOutput(ns("txtRd")),type = "html", loader = "loader4"))
   
   rmse.rd.panel <- tabPanel(title = labelInput("RMSE"),value = "tabRdRMSE",
-                            echarts4rOutput(ns('plot.rd.rmse'), height = "75vh"))
+                            echarts4rOutput(ns('plot_rd_rmse'), height = "75vh"))
   
   plot.pred.rd.panel <- tabPanel(title = labelInput("RdPred"), value = "tabRdPlotPred",
-                                 echarts4rOutput(ns('plot.rd.pred'), height = "75vh"))
+                                 echarts4rOutput(ns('plot_rd_pred'), height = "75vh"))
   
   panel.plot.var.pred.rd <- tabPanel(title = labelInput("RdVarPred"), value = "tabRdPlotVarPred",
-                                     echarts4rOutput(ns('plot.rd.var.pred'), height = "75vh"))
+                                     echarts4rOutput(ns('plot_rd_var_pred'), height = "75vh"))
   
   prediction.rd.panel <- tabPanel(title = labelInput("predm"), value = "tabRdPred",
-                                  DT::dataTableOutput(ns("rdPrediTable")))
+                                  withLoader(DT::dataTableOutput(ns("rdPrediTable")),type = "html", loader = "loader4"))
   
   disp.rd.panel <- tabPanel(title = labelInput("dispersion"), value = "tabRdDisp",
-                            echarts4rOutput(ns('plot.rd.disp'), height = "75vh"))
+                            echarts4rOutput(ns('plot_rd_disp'), height = "75vh"))
   
   general.index.rd.panel <- tabPanel(title = labelInput("indices"), value = "tabRdIndex",
                                      br(),
-                                     fluidRow(tableOutput(ns('indexdfrd'))),
+                                     fluidRow(withLoader(tableOutput(ns('indexdfrd')),type = "html", loader = "loader4")),
                                      br(),
                                      fluidRow(column(width = 12, align="center", tags$h3(labelInput("resumenVarPre")))),
                                      br(),
-                                     fluidRow(tableOutput(ns('indexdfrd2'))))
+                                     fluidRow(withLoader(tableOutput(ns('indexdfrd2')),type = "html", loader = "loader4")))
   
   page.rd <- tabItem(tabName = "rd",
                      tabBox(id = ns("BoxRd"), width = NULL, height ="80%",
@@ -200,7 +200,7 @@ mod_dimension_reduction_server <- function(input, output, session,updateData, mo
   })
   
   
-  output$plot.rd.rmse <- renderEcharts4r({
+  output$plot_rd_rmse <- renderEcharts4r({
     tryCatch({
       if(!is.null(modelos$rd[[nombreModelo]])){
         modelo.rd <- modelos$rd[[nombreModelo]]$modelo
@@ -227,7 +227,7 @@ mod_dimension_reduction_server <- function(input, output, session,updateData, mo
   })
   
   
-  output$plot.rd.pred <- renderEcharts4r({
+  output$plot_rd_pred <- renderEcharts4r({
     tryCatch({
       if(!is.null(modelos$rd[[nombreModelo]])){
         
@@ -255,7 +255,7 @@ mod_dimension_reduction_server <- function(input, output, session,updateData, mo
   })
   
   
-  output$plot.rd.var.pred <- renderEcharts4r({
+  output$plot_rd_var_pred <- renderEcharts4r({
     tryCatch({
       if(!is.null(modelos$rd[[nombreModelo]])){
         modelo.rd <- modelos$rd[[nombreModelo]]$modelo
@@ -303,7 +303,7 @@ mod_dimension_reduction_server <- function(input, output, session,updateData, mo
   
   
   # Update Dispersion Tab
-  output$plot.rd.disp <- renderEcharts4r({
+  output$plot_rd_disp <- renderEcharts4r({
     tryCatch({
       
       if(!is.null(modelos$rd[[nombreModelo]])){
@@ -361,8 +361,10 @@ mod_dimension_reduction_server <- function(input, output, session,updateData, mo
     tryCatch({
       if(!is.null(modelos$rd[[nombreModelo]])){
         idioma <- updateData$idioma
-        isolate(datos.prueba <- updateData$datos.prueba)
-        isolate(variable.predecir <- updateData$variable.predecir)
+        isolate({
+          datos.prueba <- updateData$datos.prueba
+          variable.predecir <- updateData$variable.predecir
+        })
         df2 <- as.data.frame(summary_indices(datos.prueba[,variable.predecir]))
         colnames(df2) <- c(tr("minimo",idioma),tr("q1",idioma),
                            tr("q3",idioma),tr("maximo",idioma))

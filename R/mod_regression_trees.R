@@ -12,8 +12,8 @@ mod_regression_trees_ui <- function(id){
   ns <- NS(id)
   
   dt.options <- list(options.run(ns("runDt")), tags$hr(style = "margin-top: 0px;"),
-                     fluidRow(column(numericInput(ns("minsplit.dt"), labelInput("minsplit"), 2, width = "100%",min = 1), width = 6),
-                              column(numericInput(ns("maxdepth.dt"), labelInput("maxdepth"), 15, width = "100%",min = 0, max = 30, step = 1),width = 6)))
+                     fluidRow(column(numericInput(ns("minsplit.dt"), labelInput("minsplit"), 5, width = "100%",min = 1), width = 5),
+                              column(numericInput(ns("maxdepth.dt"), labelInput("maxdepth"), 15, width = "100%",min = 0, max = 30, step = 1),width = 5)))
   
   dt.code.config <- list(h3(labelInput("codigo")), hr(style = "margin-top: 0px;"),
                          codigo.monokai(ns("fieldCodeDt"), height = "7vh"))
@@ -38,27 +38,27 @@ mod_regression_trees_ui <- function(id){
                                          tabs.content = list(dt.code))
   
   generate.dt.panel <- tabPanel(title = labelInput("generatem"), value = "tabDtModelo",
-                                verbatimTextOutput(ns("txtDt")))
+                                withLoader(verbatimTextOutput(ns("txtDt")),type = "html", loader = "loader4"))
   
   plot.dt <- tabPanel(title = labelInput("garbol"), value = "tabDtPlot",
-                      plotOutput(ns('plot.dt'), height = "75vh"))
+                      withLoader(plotOutput(ns('plot_dt'), height = "75vh"),type = "html", loader = "loader4"))
   
   prediction.dt.panel <- tabPanel(title = labelInput("predm"), value = "tabDtPred",
-                                  DT::dataTableOutput(ns("dtPrediTable")))
+                                  withLoader(DT::dataTableOutput(ns("dtPrediTable")),type = "html", loader = "loader4"))
   
   disp.dt.panel <- tabPanel(title = labelInput("dispersion"), value = "tabDtDisp",
-                            echarts4rOutput(ns('plot.dt.disp'), height = "75vh"))
+                            echarts4rOutput(ns('plot_dt_disp'), height = "75vh"))
   
   general.index.dt.panel <- tabPanel(title = labelInput("indices"),value = "tabDtIndex",
                                      br(),
-                                     fluidRow(tableOutput(ns('indexdfdt'))),
+                                     fluidRow(withLoader(tableOutput(ns('indexdfdt')),type = "html", loader = "loader4")),
                                      br(),
                                      fluidRow(column(width = 12, align="center", tags$h3(labelInput("resumenVarPre")))),
                                      br(),
-                                     fluidRow(tableOutput(ns('indexdfdt2'))))
+                                     fluidRow(withLoader(tableOutput(ns('indexdfdt2')),type = "html", loader = "loader4")))
   
   rules.dt.panel <- tabPanel(title = labelInput("reglas"),value = "tabDtReglas",
-                             verbatimTextOutput(ns("rulesDt")))
+                             withLoader(verbatimTextOutput(ns("rulesDt")),type = "html", loader = "loader4"))
   
   page.dt <- tabItem(tabName = "dt",
                      tabBox(id = ns("BoxDt"), width = NULL, height ="80%",
@@ -85,15 +85,8 @@ mod_regression_trees_server <- function(input, output, session,updateData, model
   nombreModelo <- "modelo.dt"
   
   return.dt.default.values <- function(){
-    updateNumericInput(session,inputId = "minsplit.dt", value = 2)
+    updateNumericInput(session,inputId = "minsplit.dt", value = 5)
     updateNumericInput(session,inputId = "maxdepth.dt", value = 15)
-    # output$txtDt <- renderText(NULL)
-    # output$plot.dt <- renderPlot(NULL)
-    # output$dtPrediTable <- DT::renderDataTable(NULL)
-    # output$plot.dt.disp <- renderEcharts4r(NULL)
-    # output$indexdfdt <- render_index_table(NULL)
-    # output$indexdfdt2 <- render_index_table(NULL)
-    # output$rulesDt <- renderText(NULL)
   }
   
   observeEvent(updateData$datos.aprendizaje,{
@@ -111,12 +104,14 @@ mod_regression_trees_server <- function(input, output, session,updateData, model
   # Execute model, prediction and indices
   dt_full <- function() {
     tryCatch({
-      isolate(datos.aprendizaje <- updateData$datos.aprendizaje)
-      isolate(datos.prueba <- updateData$datos.prueba)
-      isolate(variable.predecir <- updateData$variable.predecir)
+      isolate({
+        datos.aprendizaje <- updateData$datos.aprendizaje
+        datos.prueba <- updateData$datos.prueba
+        variable.predecir <- updateData$variable.predecir
+        ms <- input$minsplit.dt
+        md <- input$maxdepth.dt
+      })
       
-      ms <- isolate(input$minsplit.dt)
-      md <- isolate(input$maxdepth.dt)
       minsplit <- ifelse(!is.numeric(ms), 20, ms)
       maxdepth <- ifelse(!is.numeric(md), 15, md)
       
@@ -161,7 +156,7 @@ mod_regression_trees_server <- function(input, output, session,updateData, model
   
   
   # Shows the graph of the tree
-  output$plot.dt <- renderPlot({
+  output$plot_dt <- renderPlot({
     tryCatch({
       if(!is.null(modelos$dt[[nombreModelo]])){
         updateAceEditor(session, "fieldCodeDtPlot", value = codeDtPlot(nombreModelo))
@@ -181,8 +176,10 @@ mod_regression_trees_server <- function(input, output, session,updateData, model
     tryCatch({
       if(!is.null(modelos$dt[[nombreModelo]])){
         prediccion.dt <- modelos$dt[[nombreModelo]]$prediccion
-        isolate(datos.prueba <- updateData$datos.prueba)
-        isolate(real.val <- datos.prueba[updateData$variable.predecir])
+        isolate({
+          datos.prueba <- updateData$datos.prueba
+          real.val <- datos.prueba[updateData$variable.predecir]
+        })
         tb_predic(real.val, prediccion.dt, updateData$idioma)
       }
       else{NULL}
@@ -195,12 +192,14 @@ mod_regression_trees_server <- function(input, output, session,updateData, model
 
   
   # Update dispersion tab
-  output$plot.dt.disp <- renderEcharts4r({
+  output$plot_dt_disp <- renderEcharts4r({
     tryCatch({
       if(!is.null(modelos$dt[[nombreModelo]])){
         prediccion.dt <- modelos$dt[[nombreModelo]]$prediccion
-        isolate(datos.prueba <- updateData$datos.prueba)
-        isolate(variable.predecir <- updateData$variable.predecir)
+        isolate({
+          datos.prueba <- updateData$datos.prueba
+          variable.predecir <- updateData$variable.predecir
+        })
         
         codigo <- disp_models("prediccion.dt", tr("dt",updateData$idioma), variable.predecir)
         updateAceEditor(session, "fieldCodeDtDisp", value = codigo)
@@ -262,8 +261,10 @@ mod_regression_trees_server <- function(input, output, session,updateData, model
     tryCatch({
       if(!is.null(modelos$dt[[nombreModelo]])){
         idioma <- updateData$idioma
-        isolate(datos.prueba <- updateData$datos.prueba)
-        isolate(variable.predecir <- updateData$variable.predecir)
+        isolate({
+          datos.prueba <- updateData$datos.prueba
+          variable.predecir <- updateData$variable.predecir
+        })
         df2 <- as.data.frame(summary_indices(datos.prueba[,variable.predecir]))
         colnames(df2) <- c(tr("minimo",idioma),tr("q1",idioma),
                            tr("q3",idioma),tr("maximo",idioma))
