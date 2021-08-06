@@ -8,8 +8,7 @@
 run_app <- function(
   ...
 ) {
-  #Loads all the functions and variables that the whole application needs
-  load_globals()
+  
   
   Sys.setenv("LANGUAGE" = "ES")
   if(toupper(.Platform$OS.type) != "WINDOWS") {

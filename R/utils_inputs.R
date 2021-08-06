@@ -50,6 +50,13 @@ radioSwitch <- function(id, label = NULL, names, values = NULL, val.def = T) {
   )
 }
 
+
+updateRadioSwitch <- function(session, inputId, value = "TRUE") {
+  message <- list(selected = value)
+  session$sendInputMessage(inputId, message)
+}
+
+
 checkSwitch <- function(id, label = NULL, name) {
   tags$div(
     class = "form-group", `data-shinyjs-resettable-type`="RadioButtons", 
@@ -75,12 +82,6 @@ checkSwitch <- function(id, label = NULL, name) {
 }
 
 
-updateRadioSwitch <- function(session, inputId, value = "TRUE") {
-  message <- list(selected = value)
-  session$sendInputMessage(inputId, message)
-}
-
-
 codigo.monokai <- function(id, height) {
   aceEditor(
     id, mode = "r", theme = "monokai", value = "", 
@@ -88,9 +89,22 @@ codigo.monokai <- function(id, height) {
   )
 }
 
+#' labelInput
+#' 
+#' @description label with identifier for language change 
+#'
+#' @details this function only work correctly on the server side because they need the css and js file.
+#'
+#' @param inputId The id of the label.
+#' @param value Default Value of the label (optional). Default value is "".
+#'
+#' @return shiny.tag object
+#' @noRd
+#' 
 labelInput <- function(inputId, value = ""){
   tags$span(`data-id` = inputId, value)
 }
+
 
 updateLabelInput <- function (session, labelid, value = NULL) {
   message <- dropNulls(list(labelid = labelid))

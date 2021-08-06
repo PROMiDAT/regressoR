@@ -45,7 +45,7 @@ mod_dispersion_server <- function(input, output, session, updateData){
   
   #' Update on load data
   observeEvent(updateData$datos, {
-    datos <- var_numerical(updateData$datos)
+    datos <- var.numericas(updateData$datos)
     updateSelectInput(session, "sel_disp", choices = colnames(datos))
   })
   

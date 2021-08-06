@@ -42,7 +42,7 @@ app_ui <- function(request) {
   
   # MENU --------------------------------------------------------------------------------------------------------------------
   load.menu <- menuItem(labelInput("data"), tabName = "cargar", icon = icon("dashboard"))
-
+  
   
   statistics.menu <- menuItem(labelInput("basico"), tabName = "parte1", icon = icon("th-list"),
                               menuSubItem(labelInput("resumen"), tabName = "resumen", icon = icon("sort-numeric-asc")),
@@ -152,8 +152,8 @@ app_ui <- function(request) {
                       tabItem(tabName = "comparar",  mod_model_comparison_ui("model_comparison_ui_1")),
                       # tabItem(tabName = "predNuevos",  mod_new_data_predictions_ui("new_data_predictions_ui_1")),
                       tabItem(tabName = "acercaDe",  mod_information_page_ui("information_page_ui_1"))
-                      ))
-      )
+                    ))
+    )
     
   )
 }
@@ -172,7 +172,7 @@ golem_add_external_resources <- function(){
   add_resource_path('img', app_sys('app/img'))
   add_resource_path('lang', app_sys('app/lang'))
   
- 
+  
   tags$head(
     favicon(),
     bundle_resources(

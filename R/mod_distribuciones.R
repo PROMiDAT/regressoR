@@ -70,8 +70,8 @@ mod_distribuciones_server <- function(input, output, session, updateData){
   #' Update on load data
   observeEvent(updateData$datos, {
     datos       <- updateData$datos
-    numericos   <- var_numerical(datos)
-    categoricos <- var_categorical(datos)
+    numericos   <- var.numericas(datos)
+    categoricos <- var.categoricas(datos)
     
     updateSelectInput(session, "sel_dya_num", choices = colnames(numericos))
     updateSelectInput(session, "sel_dya_cat", choices = colnames(categoricos))

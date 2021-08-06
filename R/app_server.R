@@ -5,9 +5,7 @@
 #' @import shiny
 #' @noRd
 app_server <- function( input, output, session ) {
-  
-  load_global_variables()
-  
+
   options(shiny.maxRequestSize = 209715200, width = 200, # 209715200 = 200 * 1024^2
           DT.options = list(aLengthMenu = c(10, 30, 50), iDisplayLength = 10, scrollX = TRUE, 
                             language = list(search = HTML('<i class="fa fa-search"></i>'),
@@ -71,7 +69,6 @@ app_server <- function( input, output, session ) {
     if(updateData$idioma != input$idioma){
       updateData$idioma <- input$idioma
     }
-    options_regressor(language = input$idioma)
     updateLabelInput(session, cambiar.labels(), tr(cambiar.labels(), input$idioma))
   })
   
@@ -83,8 +80,8 @@ app_server <- function( input, output, session ) {
   onStop(function(){
     stopApp()
   })
-    
-    
+  
+  
   ###################################  Modules  ###############################
   callModule(mod_carga_datos_server,"carga_datos_ui_1",updateData, modelos)
   callModule(mod_r_numerico_server, "r_numerico_ui_1",updateData)

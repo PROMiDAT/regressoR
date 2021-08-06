@@ -46,8 +46,8 @@ mod_Predictive_Power_server <- function(input, output, session, updateData){
     tryCatch({
       updateData$datos.aprendizaje
       updateAceEditor(session, "fieldCodePoderNum", value = "pairs_power(datos)")
-      if (ncol(var_numerical(updateData$datos)) >= 2) {
-        if(ncol(var_numerical(updateData$datos)) <= 25){
+      if (ncol(var.numericas(updateData$datos)) >= 2) {
+        if(ncol(var.numericas(updateData$datos)) <= 25){
           pairs_power(updateData$datos)
         }else{
           showNotification(tr("bigPlot",updateData$idioma), duration = 10, type = "message")

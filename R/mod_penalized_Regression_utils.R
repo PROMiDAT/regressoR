@@ -189,7 +189,6 @@ e_posib_lambda <- function(cv.glm, log.lambda = NULL, titles = c("Error Cuadrát
 }
 
 
-
 #' e_coeff_landa
 #' 
 #' @description Graph the coefficients and lambdas of a cv.glmnet model

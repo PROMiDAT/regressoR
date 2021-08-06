@@ -8,11 +8,7 @@
 #' @export
 #'
 pairs_power <- function(data){
-  pairs.panels(var_numerical(data), bg='black', ellipses=FALSE, smooth=FALSE,
+  pairs.panels(var.numericas(data), bg='black', ellipses=FALSE, smooth=FALSE,
                lm=TRUE, cex=0.5, cex.main=0.1, pch=20, main='',
                hist.col = gg_color_hue(3)[3], oma=c(1,1,1,1))
-  
-  # paste0("pairs.panels(var_numerical(",data,"), bg='black', ellipses=FALSE, smooth=FALSE,",
-  #        "lm=TRUE, cex=0.5, cex.main=0.1, pch=20, main='',",
-  #        "hist.col = gg_color_hue(3)[3], oma=c(1,1,1,1) )")
 }

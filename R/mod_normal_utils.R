@@ -25,11 +25,11 @@ e_histnormal <- function(data, colorbar = "steelblue", colorline = "gray",
   d <- diff(h$breaks)[1]
   
   distribu <- data.frame(
-    x = round(h$mids, 3), d = round(h$density, 3), n = round(normalidad, 3),
+    x = h$mids, d = h$density, n = normalidad,
     name = paste0("(", h$mids - d / 2, " - ", h$mids + d / 2, ")")
   )
   
-  distribu %>% e_charts(x) %>% e_bar(d, name = nombres[1]) %>% 
+  distribu %>% e_charts(x) %>% e_bar(d, name = nombres[1]) %>%
     e_line(n, name = nombres[2]) %>% e_x_axis(scale = T) %>%
     e_axis_labels(x = "", y = "Densidad") %>% 
     e_color(c(colorbar, colorline)) %>% e_tooltip() %>% 
@@ -79,7 +79,7 @@ e_qq <- function(data, colorpoint = "steelblue", colorline = "gray") {
 #' dfnormal(iris[, -5])
 #' 
 dfnormal <- function(data) {
-  data    <- var_numerical(data)
+  data    <- var.numericas(data)
   fisher  <- sapply(data, function(i) fisher.calc(i))
   pearson <- sapply(data, function(i) pearson.test(i))
   lillie  <- sapply(data, function(i) lillie.test(i))

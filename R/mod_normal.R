@@ -3,10 +3,10 @@
 #' @description A shiny Module.
 #'
 #' @param id,input,output,session Internal parameters for {shiny}.
+#' 
+#' @importFrom shiny NS tagList
+#' @noRd
 #'
-#' @noRd 
-#'
-#' @importFrom shiny NS tagList 
 mod_normal_ui <- function(id){
   ns <- NS(id)
   
@@ -46,7 +46,7 @@ mod_normal_ui <- function(id){
   
   normal.options <-  tags$div(class = "multiple-select-var", 
                               conditionalPanel("input.BoxNormal == 'tabNormalPlot' || input.BoxNormal == 'tabQPlot'",
-                                               selectInput(inputId = ns("sel.normal"), label = NULL, choices =  ""),ns = ns))
+                                               selectInput(inputId = ns("sel_normal"), label = NULL, choices =  ""),ns = ns))
   
   page.test.normality <- tabItem(tabName = "normalidad",
                                  tabBox(id = ns("BoxNormal"),
@@ -68,19 +68,18 @@ mod_normal_ui <- function(id){
 mod_normal_server <- function(input, output, session, updateData){
   ns <- session$ns
  
-  
-  # NORMALITY TEST PAGE ---------------------------------------------------------------------------------------------------
-  
-  # Show the graph of the normality test page
+  #Update on load data
   observeEvent(updateData$datos, {
-    updateSelectizeInput(session, "sel.normal", choices = colnames_empty(var_numerical(updateData$datos)))
+    numericos   <- var.numericas(updateData$datos)
+    
+    updateSelectInput(session, "sel_normal", choices = colnames(numericos))
   })
   
   #' Grafico Test de normalidad
   output$plot.normal <- renderEcharts4r({
     tryCatch({
       input$run.normal
-      var       <- input$sel.normal
+      var       <- input$sel_normal
       datos     <- updateData$datos[, var]
       colorBar  <- isolate(input$col_hist_bar)
       colorLine <- isolate(input$col_hist_line)
@@ -102,7 +101,7 @@ mod_normal_server <- function(input, output, session, updateData){
   #' Grafico qqplot + qqline
   output$plot_qq <- renderEcharts4r({
     input$run.normal
-    var        <- input$sel.normal
+    var        <- input$sel_normal
     datos      <- updateData$datos[, var]
     colorPoint <- isolate(input$col_qq_point)
     colorLine  <- isolate(input$col_qq_line)

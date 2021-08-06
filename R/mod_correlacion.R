@@ -7,6 +7,7 @@
 #' @noRd 
 #'
 #' @importFrom shiny NS tagList 
+#' 
 mod_correlacion_ui <- function(id){
   ns <- NS(id)
   
@@ -19,9 +20,9 @@ mod_correlacion_ui <- function(id){
                                                         type = "html", loader = "loader4")))
   
   corr.plot.opc <- list(options.run(ns("run_cor")), tags$hr(style = "margin-top: 0px;"),
-                          colourpicker::colourInput(ns("col_min"), labelInput("selcolor"), "#FF5733",allowTransparent = T),
-                          colourpicker::colourInput(ns("col_med"), labelInput("selcolor"), "#F8F5F5",allowTransparent = T),
-                          colourpicker::colourInput(ns("col_max"), labelInput("selcolor"), "#2E86C1",allowTransparent = T))
+                        colourpicker::colourInput(ns("col_max"), labelInput("selcolor"), "#2E86C1",allowTransparent = T),
+                        colourpicker::colourInput(ns("col_med"), labelInput("selcolor"), "#F8F5F5",allowTransparent = T),
+                        colourpicker::colourInput(ns("col_min"), labelInput("selcolor"), "#FF5733",allowTransparent = T))
   
   corr.plot.code <- list(h3(labelInput("codigo")), hr(style = "margin-top: 0px;"),
                            codigo.monokai(ns("fieldCodeCor"),  height = "24vh"))
@@ -58,28 +59,18 @@ mod_correlacion_server <- function(input, output, session, updateData){
   #' Gráfico de Correlaciones
   output$plot_cor <- renderEcharts4r({
     input$run_cor
-    datos <- var_numerical(updateData$datos)
+    datos <- var.numericas(updateData$datos)
     col_min <- isolate(input$col_min)
     col_med <- isolate(input$col_med)
     col_max <- isolate(input$col_max)
-    colores <- list(list(0, col_min), list(0.5, col_med), list(1, col_max))
+    colores <- list(col_min, col_med, col_max)
     
     tryCatch({
-      cod <- code.cor(col_min, col_med, col_max)
+      cod <- code.cor(colores)
       updateAceEditor(session, "fieldCodeCor", value = cod)
       
       datos.plot <- round(cor(datos), 3)
-      datos.plot %>% e_charts() %>% 
-        e_correlations(
-          order = "hclust", label = list(show = T),
-          inRange = list(color = c(col_min, col_med, col_max)),
-          itemStyle = list(borderWidth = 2, borderColor = "#fff")
-        ) %>% e_datazoom(show = F) %>% e_show_loading() %>% e_tooltip(
-          formatter = htmlwidgets::JS(paste0(
-            "function(params) {\n",
-            "  return(params.value[1] + ' ~ ' + params.value[0] + ': ' + parseFloat(params.value[2]).toFixed(3))\n", 
-            "}"))
-        )
+      e_cor(datos.plot, colores)
     }, error = function(e) {
       showNotification(paste0("ERROR: ", e), duration = 10, type = "error")
       return(NULL)
@@ -88,9 +79,9 @@ mod_correlacion_server <- function(input, output, session, updateData){
   
   #' Resultados numéricos de Correlaciones
   output$txt_cor <- renderPrint({
-    cod <- "cor(var_numerical(datos))"
+    cod <- "cor(var.numericas(datos))"
     updateAceEditor(session, "fieldCodeCor2", value = cod)
-    print(cor(var_numerical(updateData$datos)))
+    print(cor(var.numericas(updateData$datos)))
   })
 }
     

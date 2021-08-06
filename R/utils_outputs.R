@@ -1,42 +1,3 @@
-#' labelInput
-#' 
-#' @description label with identifier for language change 
-#'
-#' @details this function only work correctly on the server side because they need the css and js file.
-#'
-#' @param inputId The id of the label.
-#' @param value Default Value of the label (optional). Default value is "".
-#'
-#' @return shiny.tag object
-#' @keywords internal
-#' 
-labelInput <- function(inputId, value = ""){
-  tags$span(`data-id` = inputId, value)
-}
-
-
-#' code_field
-#' 
-#' @description create an \code{\link[shinyAce]{aceEditor}} wrapper with a button to execute the code
-#' 
-#' @details this function only work correctly on the server side because they need the css and js file.
-#'
-#' @param runid the id of the execute button.
-#' @param fieldid the id of the code field.
-#' @param ... arguments to be passed to \code{\link[shinyAce]{aceEditor}}
-#'
-#' @return shiny.tag object
-#' @keywords internal
-#' 
-code_field <- function(runid, fieldid, ...) {
-  tags$div(class = "box box-solid bg-black",
-           tags$div(style = "text-align:right;padding-right: 10px;",
-                    tags$button(id = runid, type = "button", class = "run-button action-button",
-                                icon("play"), tags$a(labelInput("ejecutar"), style = "color:white"))),
-           tags$div(class = "box-body",
-                    aceEditor(fieldid, mode = "r", theme = "monokai", value = "", ...)))
-}
-
 #' infoBoxPROMiDAT
 #' 
 #' @description create a box for the information tab
@@ -48,7 +9,7 @@ code_field <- function(runid, fieldid, ...) {
 #' @param icon icon of the box
 #'
 #' @return shiny.tag object
-#' @keywords internal
+#' @noRd
 #' 
 infoBoxPROMiDAT <- function(title, value, icon) {
   tags$div(class = "info-box bg-promidat",
@@ -57,51 +18,6 @@ infoBoxPROMiDAT <- function(title, value, icon) {
                     tags$span(class = "info-box-text", title),
                     tags$span(class = "info-box-number", value)))
 }
-
-#' inputRadio
-#' 
-#' @description create a radio button input 
-#'
-#' @details this function only work correctly on the server side because they need the css and js file.
-#'
-#' @param inputId the id of the radio button
-#' @param value a text value of the radio button
-#' @param isSelected logical. If TRUE the radio button is selected
-#'
-#' @return shiny.tag object
-#' @keywords internal
-#' 
-inputRadio <- function(inputId, value, isSelected) {
-  res <- tags$input(type="radio", name=inputId, value=value)
-  if(isSelected){
-    res$attribs$checked <- "checked"
-  }
-  return(res)
-}
-
-#' radioButtonsTr
-#' 
-#' @description create multples with names for language change.
-#' 
-#' @details this function only work correctly on the server side because they need the css and js file.
-#'
-#' @param inputId the id of the group.
-#' @param label label of the radio buttons group.
-#' @param values vector with the values of each radio button.
-#' @param names vector with the names of each radio button.
-#'
-#' @return shiny.tag object
-#' @keywords internal
-#' 
-radioButtonsTr <- function(inputId, label, values, names){
-  item <- function(i){
-    tags$div(class="radio",tags$label(inputRadio(inputId, values[i], i == 1),tags$span(labelInput(names[i]))))
-  }
-  tags$div(id=inputId, class="form-group shiny-input-radiogroup shiny-input-container",
-           tags$label(class="control-label", `for`= inputId, labelInput(label)),
-           tags$div(class="shiny-options-group", lapply(1:length(values), item )))
-}
-
 
 #' tabsOptions
 #'
@@ -115,7 +31,7 @@ radioButtonsTr <- function(inputId, label, values, names){
 #' @param tabs.content list with the content of each tab.
 #'
 #' @return shiny.tag
-#' @keywords internal
+#' @noRd
 #' 
 tabsOptions <- function(buttons = list(icon("gear"), icon("terminal")), widths = c(50, 100),
                         heights = c(100, 50), tabs.content = list("", "")){
@@ -144,19 +60,8 @@ tabsOptions <- function(buttons = list(icon("gear"), icon("terminal")), widths =
 #'
 #' @param table the data.frame to be converted
 #'
-#' @export
+#' @noRd
 #' 
-#' @examples
-#' if(interactive()) {
-#'    library(shiny)
-#'    shinyApp(
-#'       ui = fluidPage(fluidRow(column(12, tableOutput('tbl')))),
-#'       server = function(input, output) {
-#'          output$tbl = render_index_table(iris)
-#'       }
-#'    )
-#' }
-#'
 render_index_table <- function(table){
   renderTable({table}, striped = TRUE, bordered = TRUE,  
               spacing = 'l', width = '100%',  digits = 5,
@@ -178,19 +83,7 @@ render_index_table <- function(table){
 #' @seealso  \code{\link[DT]{datatable}}, \code{\link[DT]{renderDT}}
 #'
 #' @return a shiny.render.function
-#' @export
-#'
-#' @examples
-#' if(interactive()) {
-#'    library(shiny)
-#'    library(DT)
-#'    shinyApp(
-#'       ui = fluidPage(fluidRow(column(12, DTOutput('tbl')))),
-#'       server = function(input, output) {
-#'          output$tbl = render_table_data(iris)
-#'       }
-#'    )
-#' }
+#' @noRd
 #'
 render_table_data <- function(data, editable = TRUE, dom = "frtip", pageLength = 10, scrollY = "27vh", server = T, language = "es") {
   labelsNC <- ifelse(language == c("es", "es"), c("Num\u00E9rico","Categ\u00F3rico"), c("Numerical","Categorical"))
@@ -215,21 +108,8 @@ render_table_data <- function(data, editable = TRUE, dom = "frtip", pageLength =
 #' @param predic.var a vector with the prediction value.
 #' @param languaje string. ("es" for Spanish, "en" for English)
 #'
-#' @export
+#' @noRd
 #'
-#' @examples
-#' if(interactive()) {
-#'   library(shiny)
-#'   library(DT)
-#'   shinyApp( 
-#'     ui = fluidPage(fluidRow(column(12, DTOutput('tbl')))),
-#'    server = function(input, output) {
-#'      real <- iris[,'Petal.Width',drop = F]
-#'      pred <- sample(iris$Petal.Width, nrow(iris), replace =  T)
-#'      output$tbl = DT::renderDT(tb_predic(real, pred))
-#'    })
-#' }
-#' 
 tb_predic <- function(real, predic.var, languaje = "es"){
   df   <- cbind(real, predic.var,  abs(real - predic.var))
   colns <- c(tr("reald",languaje), tr("pred",languaje), tr("dif",languaje))

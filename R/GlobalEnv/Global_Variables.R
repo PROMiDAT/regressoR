@@ -1,73 +1,3 @@
-# GLOBAL VARIABLES --------------------------------------------------------------------------------------------------------
-# -- Data
-datos             <- NULL
-datos.originales  <- NULL
-datos.prueba      <- NULL
-datos.aprendizaje <- NULL
-variable.predecir <- NULL
-real.val          <- NULL
-contador          <- 0
-semilla           <- FALSE
-nombres.modelos   <- c()
-# -- Basic Statistics
-correlacion   <- NULL
-
-cod.cor       <- NULL
-cod.disp      <- NULL
-cod.dya.cat   <- NULL
-cod.dya.num   <- NULL
-cod.normal    <- NULL
-# -- Models
-#IndicesM  <- list()  ahora en updateData
-# -- RL
-cod.rl.modelo <- NULL
-cod.rl.pred   <- NULL
-cod.rl.ind    <- NULL
-# -- RLR
-cod.rlr.modelo   <- NULL
-cod.rlr.pred     <- NULL
-cod.rlr.ind      <- NULL
-# -- KNN
-cod.knn.modelo <- NULL
-cod.knn.pred   <- NULL
-cod.knn.ind    <- NULL
-knn.args.default <- TRUE
-#knn.stop.excu  <- FALSE
-
-# -- SVM
-cod.svm.modelo <- NULL
-cod.svm.pred   <- NULL
-cod.svm.ind    <- NULL
-# --- RD
-cod.rd.ind    <- NULL
-cod.rd.modelo <- NULL
-cod.rd.pred   <- NULL
-cv.glm.lasso  <- NULL
-cv.glm.ridge  <- NULL
-n.comp.rd     <- NULL
-# -- DT
-cod.dt.modelo <- NULL
-cod.dt.pred   <- NULL
-cod.dt.ind    <- NULL
-# -- RF
-cod.rf.modelo <- NULL
-cod.rf.pred   <- NULL
-cod.rf.ind    <- NULL
-rf.args.default <- TRUE
-#rf.stop.excu  <- FALSE
-# -- BOOSTING
-cod.b.modelo <- NULL
-cod.b.pred   <- NULL
-cod.b.ind    <- NULL
-# -- NN
-cod.nn.modelo <- NULL
-cod.nn.pred   <- NULL
-cod.nn.ind    <- NULL
-NN_EXECUTION  <- TRUE
-mean.nn       <- NULL
-sd.nn         <- NULL
-mean.nn.np    <- NULL
-sd.nn.np      <- NULL
 # -- Prediction of New Individuals
 datos.originales.completos  <- NULL
 datos.aprendizaje.completos <- NULL
@@ -78,5 +8,3 @@ contadorPN                  <- 0
 code.trans.pn               <- ""
 modelo.nuevos               <- NULL
 predic.nuevos               <- NULL
-# --  Reports
-salida.code  <- NULL
