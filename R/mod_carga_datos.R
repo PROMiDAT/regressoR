@@ -91,20 +91,6 @@ mod_carga_datos_ui <- function(id){
 mod_carga_datos_server <- function(input, output, session,  updateData, modelos){
   ns <- session$ns
   
-  selectInputTrans <- function(datos, var, idioma = "es") {
-    tags$select(
-      id = ns(paste0("sel", var)),
-      tags$option(value = "categorico", tr("categorico", idioma)),
-      if(class(datos[, var]) %in% c("numeric", "integer")) {
-        tags$option(value = "numerico", tr("numerico", idioma), 
-                    selected = 'selected')
-      } else {
-        tags$option(value = "numerico", tr("numerico", idioma))
-      },
-      tags$option(value = "disyuntivo", tr("disyuntivo", idioma))
-    )
-  }
-  
   #' Descarga tabla de datos
   output$downloaDatos <- downloadHandler(
     filename = function() {
@@ -287,7 +273,7 @@ mod_carga_datos_server <- function(input, output, session,  updateData, modelos)
       res <- list(res, lapply(colnames(datos), function(x) {
         list(fluidRow(
           column(4, tags$span(x)),
-          column(5, selectInputTrans(datos, x, idioma)),
+          column(5, selectInputTrans(datos, x, session, idioma)),
           column(3, tags$input(type = "checkbox", id = ns(paste0("del", x)), 
                                checked = T))
         ), hr(style = "margin-top: 10px; margin-bottom: 10px"))

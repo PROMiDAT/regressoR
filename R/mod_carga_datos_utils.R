@@ -11,6 +11,21 @@ var.categoricas <- function(data) {
   subset(data, select = !sapply(data, class) %in% c('numeric', 'integer'))
 }
 
+
+selectInputTrans <- function(datos, var, session, idioma = "es") {
+  tags$select(
+    id = session$ns(paste0("sel", var)),
+    tags$option(value = "categorico", tr("categorico", idioma)),
+    if(class(datos[, var]) %in% c("numeric", "integer")) {
+      tags$option(value = "numerico", tr("numerico", idioma), 
+                  selected = 'selected')
+    } else {
+      tags$option(value = "numerico", tr("numerico", idioma))
+    },
+    tags$option(value = "disyuntivo", tr("disyuntivo", idioma))
+  )
+}
+
 #' Create disjunctive columns to a data.frame.
 #'
 #' @param data a data.frame object.

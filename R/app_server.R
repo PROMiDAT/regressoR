@@ -20,19 +20,13 @@ app_server <- function( input, output, session ) {
   #updateData always has the same values of the global variables(datos, datos.prueba, datos.aprendizaje).
   updateData <- reactiveValues(originales = NULL, datos = NULL, 
                                datos.prueba = NULL, datos.aprendizaje = NULL, 
-                               variable.predecir = NULL, idioma = "es")
+                               variable.predecir = NULL, newpred = NULL, idioma = "es")
   
   modelos    <-  reactiveValues(rl = NULL, rlr= NULL, dt = NULL, 
                                 rf = NULL, boost = NULL, knn = NULL, 
-                                svm = NULL, rd = NULL, nn = NULL)
+                                svm = NULL, rd = NULL, nn = NULL, newpred = NULL)
   
-  updatePlot <- reactiveValues(dya.num     = NULL, 
-                               dya.cat     = NULL, 
-                               poder.pred  = NULL,
-                               poder.cat   = NULL,
-                               poder.num   = NULL, 
-                               poder.dens  = NULL, 
-                               tablaCom    = FALSE)
+  new.data <- reactiveValues(originales.train = NULL, datos.train = NULL, variable.predecir = NULL)
   
   
   
@@ -100,6 +94,6 @@ app_server <- function( input, output, session ) {
   callModule(mod_dimension_reduction_server, "dimension_reduction_ui_1",updateData, modelos)
   callModule(mod_neural_networks_server, "neural_networks_ui_1",updateData, modelos)
   callModule(mod_model_comparison_server, "model_comparison_ui_1",updateData,modelos)
-  # callModule(mod_new_data_predictions_server, "new_data_predictions_ui_1",updateData,updatePlot)
+  callModule(mod_new_data_predictions_server, "new_data_predictions_ui_1",updateData, new.data)
   callModule(mod_information_page_server, "information_page_ui_1")
 }
