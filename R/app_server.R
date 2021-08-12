@@ -24,9 +24,10 @@ app_server <- function( input, output, session ) {
   
   modelos    <-  reactiveValues(rl = NULL, rlr= NULL, dt = NULL, 
                                 rf = NULL, boost = NULL, knn = NULL, 
-                                svm = NULL, rd = NULL, nn = NULL, newpred = NULL)
+                                svm = NULL, rd = NULL, nn = NULL, new.data = NULL)
   
-  new.data <- reactiveValues(originales.train = NULL, datos.train = NULL, variable.predecir = NULL)
+  new.data <- reactiveValues(originales.train = NULL, datos.train = NULL, variable.predecir = NULL,
+                             nuevos = NULL)
   
   
   
@@ -94,6 +95,6 @@ app_server <- function( input, output, session ) {
   callModule(mod_dimension_reduction_server, "dimension_reduction_ui_1",updateData, modelos)
   callModule(mod_neural_networks_server, "neural_networks_ui_1",updateData, modelos)
   callModule(mod_model_comparison_server, "model_comparison_ui_1",updateData,modelos)
-  callModule(mod_new_data_predictions_server, "new_data_predictions_ui_1",updateData, new.data)
+  callModule(mod_new_data_predictions_server, "new_data_predictions_ui_1", updateData, new.data, modelos)
   callModule(mod_information_page_server, "information_page_ui_1")
 }

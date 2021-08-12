@@ -85,7 +85,7 @@ render_index_table <- function(table){
 #' @return a shiny.render.function
 #' @noRd
 #'
-render_table_data <- function(data, editable = TRUE, dom = "frtip", pageLength = 10, scrollY = "27vh", server = T, language = "es") {
+render_table_data <- function(data, editable = TRUE, dom = "frtip", pageLength = 20, scrollY = "27vh", server = T, language = "es") {
   labelsNC <- ifelse(language == c("es", "es"), c("Num\u00E9rico","Categ\u00F3rico"), c("Numerical","Categorical"))
   data <- head(data, n = 100)
   nombre.columnas <- c("ID", colnames(data))
