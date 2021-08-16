@@ -15,14 +15,13 @@ mod_penalized_Regression_ui <- function(id){
                       fluidRow(
                         column(selectInput(inputId = ns("alpha.rlr"), label = labelInput("selectAlg"), selected = 1,
                                            choices = list("Ridge" = 0, "Lasso" = 1)),width = 5),
-                        column(width = 5,br(), radioSwitch(id = ns("switch_scale_rlr"), label = "escal", 
-                                                 names = c("si", "no")), style = "margin-top: -20px;")),
+                        column(width = 5,radioSwitch(id = ns("switch_scale_rlr"), label = "escal", 
+                                                 names = c("si", "no")))),
                       fluidRow(column(id = ns("colManualLanda"),width = 5, 
                                       numericInput(ns("log_landa"), labelInput("log_landa"),value = 2, "NULL", width = "100%")),
-                               br(),
-                               column(width = 5, 
+                               column(width = 5,
                                       radioSwitch(id = ns("permitir_landa"), label = "",
-                                                  names = c("manual", "automatico"), val.def = FALSE), style = "margin-top: -15px;")))
+                                                  names = c("manual", "automatico"), val.def = FALSE))))
   
   
   rlr.code.config <- list(h3(labelInput("codigo")), hr(style = "margin-top: 0px;"),

@@ -93,29 +93,29 @@ mod_new_data_predictions_ui <- function(id){
   
   options.rl.pred <- list() # Vacio
   
-  options.rlr.pred <- fluidRow(column(selectInput(inputId = ns("alpha.rlr.pred"), label = labelInput("selectAlg"),selected = 1,
+  options.rlr.pred <- fluidRow(column(selectInput(inputId = ns("alpha.rlr"), label = labelInput("selectAlg"),selected = 1,
                                                   choices = list("Ridge" = 0, "Lasso" = 1)),width = 3),
-                               column(br(), switchInput(inputId = ns("switch.scale.rlr.pred"), onStatus = "success", offStatus = "danger", value = T,
-                                                        label = labelInput("escal"), onLabel = labelInput("si"), offLabel = labelInput("no"), labelWidth = "100%"), width=3),
-                               column(id = ns("colManualLanda.pred"),width = 3, numericInput(ns("landa.pred"), labelInput("landa"),value = 2, min = 0, "NULL", width = "100%")), br(),
-                               column(width = 3, switchInput(inputId = ns("permitir.landa.pred"), onStatus = "success", offStatus = "danger", value = F, width = "100%",
-                                                             label = "", onLabel = "Manual", offLabel = labelInput("automatico"), labelWidth = "100%")))
+                               column(width = 3,radioSwitch(id = ns("switch_scale_rlr"), label = "escal", 
+                                                            names = c("si", "no"))),
+                               column(id = ns("colManualLanda"),width = 3, numericInput(ns("log_landa"), labelInput("log_landa"),value = 2, min = 0, "NULL", width = "100%")),
+                               column(width = 3, radioSwitch(id = ns("permitir_landa"), label = "",
+                                                             names = c("manual", "automatico"), val.def = FALSE)))
   
   options.rd.pred <-  fluidRow(column(selectInput(inputId = ns("mode.rd.pred"), label = labelInput("selectAlg"),selected = 0,
                                                   choices = list("ACP" = 0, "MCP" = 1)),width = 3),
                                column(br(), switchInput(inputId = ns("switch.scale.rd.pred"), onStatus = "success", offStatus = "danger", value = T,
                                                         label = labelInput("escal"), onLabel = labelInput("si"), offLabel = labelInput("no"), labelWidth = "100%"), width=3),
-                               column(id = ns("colManualCom.pred"),width = 3, numericInput(ns("ncomp.rd.pred"), labelInput("ncomp"),value = 2, min = 0, "NULL", width = "100%")), br(),
+                               column(id = ns("colManualCom"),width = 3, numericInput(ns("ncomp.rd.pred"), labelInput("ncomp"),value = 2, min = 0, "NULL", width = "100%")), br(),
                                column(width = 3, switchInput(inputId = ns("permitir.ncomp.pred"), onStatus = "success", offStatus = "danger", value = F, width = "100%",
                                                              label = "", onLabel = "Manual", offLabel = labelInput("automatico"), labelWidth = "100%")))
   
-  options.knn.pred <- fluidRow(column(width = 3, br() , switchInput(inputId = ns("switch.scale.knn.pred"), onStatus = "success", offStatus = "danger", value = T,
+  options.knn.pred <- fluidRow(column(width = 3, br() , switchInput(inputId = ns("switch_scale_knn"), onStatus = "success", offStatus = "danger", value = T,
                                                                     label = labelInput("escal"), onLabel = labelInput("si"), offLabel = labelInput("no"), labelWidth = "100%", width = "100%")),
-                               column(width = 3, numericInput(ns("kmax.knn.pred"), labelInput("kmax"), min = 1,step = 1, value = 7,width="100%")),
-                               column(width = 3, selectInput(inputId = ns("kernel.knn.pred"), label = labelInput("selkernel") ,selected = 1, width="100%",
+                               column(width = 3, numericInput(ns("kmax_knn"), labelInput("kmax"), min = 1,step = 1, value = 7,width="100%")),
+                               column(width = 3, selectInput(inputId = ns("kernel_knn"), label = labelInput("selkernel") ,selected = 1, width="100%",
                                                              choices =  c("optimal", "rectangular", "triangular", "epanechnikov", "biweight",
                                                                           "triweight", "cos","inv","gaussian"))),
-                               column(width = 3,numericInput(ns("distance.knn.pred"), labelInput("distknn"), min = 1,step = 1, value = 2) ))
+                               column(width = 3,numericInput(ns("distance_knn"), labelInput("distknn"), min = 1,step = 1, value = 2) ))
   
   options.svm.pred <- fluidRow(column(width = 6, br(), switchInput(inputId = ns("switch.scale.svm.pred"), onStatus = "success", offStatus = "danger", value = T,
                                                                    label = labelInput("escal"), onLabel = labelInput("si"), offLabel = labelInput("no"), labelWidth = "100%", width = "100%")),
@@ -274,6 +274,26 @@ mod_new_data_predictions_server <- function(input, output, session, updateData, 
   })
   
   
+  default.values.inputs <- function(){
+    
+    #----------------rlr----------------
+    updateSelectInput(session, "alpha.rlr",selected = 1)
+    updateRadioSwitch(session,"switch_scale_rlr","TRUE")
+    updateNumericInput(session,"log_landa",value = 2)
+    updateRadioSwitch(session,"permitir_landa","FALSE")
+    
+    #---------------knn-----------------
+    
+    isolate(datos <- new.data$datos.train)
+    if(!is.null(datos)){
+      updateSelectInput(session, "sel.predic.var.nuevos", choices = rev(colnames.empty(var.numericas(datos))))
+      updateNumericInput(session, "kmax_knn", value = round(sqrt(nrow(datos))))
+      updateNumericInput(session, "mtry.rf.pred", value = round(sqrt(ncol(datos) -1)))
+    }
+    
+  }
+  
+  
   # Update the different tables in the "shiny" application
   # update_table_pn <- function(tablas = c("contentsPred", "contentsPred2")){
   #   if("contentsPred2" %in% tablas){
@@ -289,7 +309,7 @@ mod_new_data_predictions_server <- function(input, output, session, updateData, 
   #                                               scrollY = "25vh", server = T)
   #   }
   # }
-
+  
   
   # Updates neural network layers of new individuals
   update_nn_layers_pn <- function(){
@@ -306,6 +326,13 @@ mod_new_data_predictions_server <- function(input, output, session, updateData, 
   
   #update_nn_layers_pn()
   
+  # When the number of neural network layers changes.
+  observeEvent(c(input$cant.capas.nn.pred), {
+    update_nn_layers_pn()
+  })
+  
+  
+  
   # Download the data with the prediction
   # output$downloaDatosPred <- downloadHandler(
   #   filename = function() {
@@ -318,10 +345,7 @@ mod_new_data_predictions_server <- function(input, output, session, updateData, 
   #   }
   # )
   
-  # When the number of neural network layers changes.
-  observeEvent(c(input$cant.capas.nn.pred), {
-    update_nn_layers_pn()
-  })
+  
   
   # When the number of components changes.
   observeEvent(input$permitir.ncomp.pred, {
@@ -332,12 +356,12 @@ mod_new_data_predictions_server <- function(input, output, session, updateData, 
     }
   })
   
-  # When allowing the lambda changes
-  observeEvent(input$permitir.landa.pred, {
-    if (input$permitir.landa.pred) {
-      shinyjs::enable("landa.pred")
+  # When user press enable or disable the lambda
+  observeEvent(input$permitir_landa, {
+    if (as.logical(input$permitir_landa)) {
+      shinyjs::enable("log_landa")
     } else {
-      shinyjs::disable("landa.pred")
+      shinyjs::disable("log_landa")
     }
   })
   
@@ -348,15 +372,10 @@ mod_new_data_predictions_server <- function(input, output, session, updateData, 
       new.data$variable.predecir <- NULL
       new.data$nuevos <- NULL
       modelos$new.data$modelo <- NULL
+      modelos$new.data$prediccion <- NULL
     })
   }
   
-  default.params <- function(){
-    isolate(datos <- new.data$datos.train)
-    updateSelectInput(session, "sel.predic.var.nuevos", choices = rev(colnames.empty(var.numericas(datos))))
-    updateNumericInput(session, "kmax.knn.pred", value = round(sqrt(nrow(datos))))
-    updateNumericInput(session, "mtry.rf.pred", value = round(sqrt(ncol(datos) -1)))
-  }
   
   reset.next.btns <- function(){
     shinyjs::hide("btn_next3",anim = TRUE)
@@ -370,7 +389,6 @@ mod_new_data_predictions_server <- function(input, output, session, updateData, 
       shinyjs::hide("btn_next1",anim = TRUE)
       
       reset.data()
-      reset.next.btns()
       
       rowname    <- input$rownameNPred
       ruta       <- input$file2
@@ -388,7 +406,8 @@ mod_new_data_predictions_server <- function(input, output, session, updateData, 
       } else {
         #Todo correcto
         new.data$datos.train <- new.data$originales.train
-        default.params()
+        default.values.inputs()
+        reset.next.btns()
         shinyjs::show("btn_next1",anim = TRUE)
       }
     }, error = function(e) {
@@ -477,7 +496,6 @@ mod_new_data_predictions_server <- function(input, output, session, updateData, 
   
   #' Transform Button Function
   observeEvent(input$transButton1, {
-    reset.next.btns()
     
     datos  <- new.data$originales.train
     cod = ""
@@ -507,9 +525,10 @@ mod_new_data_predictions_server <- function(input, output, session, updateData, 
     }
     
     modelos$new.data$modelo <- NULL
-    
-    default.params()
+    modelos$new.data$prediccion <- NULL
     new.data$datos.train <- datos
+    default.values.inputs()
+    reset.next.btns()
   }, ignoreInit = TRUE)
   
   
@@ -550,12 +569,13 @@ mod_new_data_predictions_server <- function(input, output, session, updateData, 
                                           gen.code <- codeRl(variable.predecir)
                                           rl_model(datos.aprendizaje,variable.predecir)
                                         },
-                                        rlr  = rlr_model(data = "datos.aprendizaje.completos",
-                                                         variable.pred = variable.predecir.pn,
-                                                         model.var = "modelo.nuevos",
-                                                         cv.var = "cv.glm.nuevos",
-                                                         alpha = input$alpha.rlr.pred,
-                                                         standardize = input$switch.scale.rlr.pred),
+                                        rlr  = {
+                                          alpha <- as.numeric(input$alpha.rlr)
+                                          standardize <- as.logical(input$switch_scale_rlr)
+                                          gen.code <- codeRlr(variable.predecir,alpha,standardize)
+                                          rlr_model(data = datos.aprendizaje, variable.pred = variable.predecir,
+                                                    alpha = alpha, standardize = standardize)
+                                        },
                                         knn =  kkn_model(data = "datos.aprendizaje.completos",
                                                          variable.pred = variable.predecir.pn,
                                                          scale = input$switch.scale.knn.pred,
@@ -735,7 +755,9 @@ mod_new_data_predictions_server <- function(input, output, session, updateData, 
                                                   pred.code <- codeRlPred("rl.model")
                                                   rl_prediction(modelo, datos.prueba)
                                                 },
-                                                rlr =  rlr_prediction(data.a = "datos.aprendizaje.completos",
+                                                rlr =  {
+                                                  pred.code <- codeRlrPred("rlr.model", variab)
+                                                },rlr_prediction(data.a = "datos.aprendizaje.completos",
                                                                       data.p = 'datos.prueba.completos',
                                                                       variable.pred = variable.predecir.pn,
                                                                       model.var = 'modelo.nuevos',
