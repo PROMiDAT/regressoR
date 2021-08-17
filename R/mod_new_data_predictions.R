@@ -147,15 +147,14 @@ mod_new_data_predictions_ui <- function(id){
                         radioGroupButtons(ns("selectModelsPred"), labelInput("selectMod"), 
                                           list("<span data-id=\"rl\"></span>" = "rl",
                                                "<span data-id=\"rlr\"></span>" = "rlr",
-                                               "<span data-id=\"rd\"></span>" = "rd",
-                                               "<span data-id=\"knn\"></span>" = "knn",
                                                "<span data-id=\"dt\"></span>" = "dt",
                                                "<span data-id=\"rf\"></span>" = "rf",
                                                "<span data-id=\"boost\"></span>" = "boosting",
+                                               "<span data-id=\"knn\"></span>" = "knn",
                                                "<span data-id=\"svm\"></span>" = "svm",
                                                "<span data-id=\"rd\"></span>" = "rd",
                                                "<span data-id=\"nn\"></span>" = "nn"),
-                                          size = "sm", status = "primary",individual = FALSE, justified = FALSE, selected = "knn",
+                                          size = "sm", status = "primary",individual = FALSE, justified = FALSE, selected = "rl",
                                           checkIcon = list(yes = icon("ok", lib = "glyphicon"),
                                                            no = icon("remove", lib = "glyphicon"))))
   
@@ -721,7 +720,7 @@ mod_new_data_predictions_server <- function(input, output, session, updateData, 
       prediccion <- modelos$new.data$prediccion
       if(!is.null(prediccion)){
         datos.nuevos.pred <- new.data$nuevos
-        datos.nuevos.pred[, new.data$variable.predecir] <- prediccion
+        datos.nuevos.pred[, new.data$variable.predecir] <- as.vector(prediccion)
         output$PrediTablePN <- render_table_data(datos.nuevos.pred,editable = F,
                                                  scrollY = "40vh",server = T)
       }
@@ -747,23 +746,28 @@ mod_new_data_predictions_server <- function(input, output, session, updateData, 
         modelo <- modelos$new.data$modelo
         
         if(!is.null(modelo)){
+          
+          variable.predecir <- input$sel.predic.var.nuevos
+          new.data$variable.predecir <- variable.predecir
           modelo.seleccionado  <- input$selectModelsPred
           pred.code <- ""
           
           modelos$new.data$prediccion <- switch(modelo.seleccionado,
+                                                
                                                 rl  =  {
                                                   pred.code <- codeRlPred("rl.model")
                                                   rl_prediction(modelo, datos.prueba)
                                                 },
+                                                
                                                 rlr =  {
-                                                  pred.code <- codeRlrPred("rlr.model", variab)
-                                                },rlr_prediction(data.a = "datos.aprendizaje.completos",
-                                                                      data.p = 'datos.prueba.completos',
-                                                                      variable.pred = variable.predecir.pn,
-                                                                      model.var = 'modelo.nuevos',
-                                                                      pred.var = 'predic.nuevos',
-                                                                      lambda = if(input$permitir.landa.pred){ifelse(is.na(input$landa.pred),NULL,input$landa.pred)}else{NULL},
-                                                                      cv.var = "cv.glm.nuevos"),
+                                                  if (as.logical(input$permitir_landa) && !is.na(input$log_landa)) {
+                                                    log.landa <- input$log_landa
+                                                  }
+                                                  else{log.landa <- NULL}
+                                                  pred.code <- codeRlrPred("rlr.model", variable.predecir,log.landa)
+                                                  rlr_prediction(modelo, datos.prueba, variable.predecir,log.lambda = log.landa)
+                                                },
+                                                
                                                 knn =  kkn_prediction(data = 'datos.prueba.completos',
                                                                       variable.pred = variable.predecir.pn,
                                                                       model.var = 'modelo.nuevos',
