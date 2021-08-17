@@ -15,8 +15,8 @@ mod_KNN_ui <- function(id){
                                column(selectInput(inputId = ns("kernel.knn"), label = labelInput("selkernel"),selected = "optimal",
                                                   choices = c("optimal", "rectangular", "triangular", "epanechnikov", "biweight",
                                                               "triweight", "cos","inv","gaussian")),width = 5)),
-                      fluidRow(column(br(),radioSwitch(id = ns("switch_scale_knn"), label = "escal",
-                                                       names = c("si", "no")), style = "margin-top: -20px;", width=5),
+                      fluidRow(column(radioSwitch(id = ns("switch_scale_knn"), label = "escal",
+                                                       names = c("si", "no")), width=5),
                                column(width=5, numericInput(ns("distance.knn"), labelInput("distknn"), min = 1,step = 1, value = 2))) )
   
   knn.code.config <- list(h3(labelInput("codigo")), hr(style = "margin-top: 0px;"),

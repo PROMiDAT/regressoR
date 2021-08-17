@@ -98,7 +98,7 @@ codeRf <- function(variable.predecir, ntree, mtry){
   return(paste0("rf_model(data, '",variable.predecir,"', ntree = ",ntree, ", mtry = ", mtry, ")"))
 }
 
-codeRfPred <- function(nombreModelo){
+codeRfPred <- function(nombreModelo = "rf.model"){
   return(paste0("rf_prediction(model = ", nombreModelo, ", test.data)"))
 }
 

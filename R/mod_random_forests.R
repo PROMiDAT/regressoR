@@ -91,10 +91,11 @@ mod_random_forests_server <- function(input, output, session,updateData, modelos
   
   return.rf.default.values <- function(){
     updateNumericInput(session = session, inputId = "ntree.rf", value = 20)
+    updateNumericInput(session,"mtry.rf",value = 1)
     
     isolate(datos.aprendizaje <- updateData$datos.aprendizaje)
     if(!is.null(datos.aprendizaje)){
-      mtry.value <- round(sqrt(ncol(datos.aprendizaje)))
+      mtry.value <- round(sqrt(ncol(datos.aprendizaje) - 1))
       updateNumericInput(session,"mtry.rf",value = mtry.value)
     }
   }
@@ -115,17 +116,19 @@ mod_random_forests_server <- function(input, output, session,updateData, modelos
   # Execute model, prediction and indices
   rf_full <- function(){
     tryCatch({
-      isolate(datos.aprendizaje <- updateData$datos.aprendizaje)
-      isolate(datos.prueba <- updateData$datos.prueba)
-      isolate(variable.predecir <- updateData$variable.predecir)
-      isolate(ntree <- input$ntree.rf)
-      isolate(mtry <- input$mtry.rf)
+      isolate({
+        datos.aprendizaje <- updateData$datos.aprendizaje
+        datos.prueba <- updateData$datos.prueba
+        variable.predecir <- updateData$variable.predecir
+        ntree <- input$ntree.rf
+        mtry <- input$mtry.rf
+      })
       
       #Validacion tamaño del mtry
       tam <- ncol(datos.aprendizaje)
       if(mtry >= tam){
         mtry <- tam - 1
-        updateNumericInput(session, "mtry.rf", value = tam - 1)
+        updateNumericInput(session, "mtry.rf", value = mtry)
       }
       
       #Model generate
@@ -196,8 +199,10 @@ mod_random_forests_server <- function(input, output, session,updateData, modelos
     tryCatch({
       if(!is.null(modelos$rf[[nombreModelo]])){
         prediccion.rf <- modelos$rf[[nombreModelo]]$prediccion
-        isolate(datos.prueba <- updateData$datos.prueba)
-        isolate(real.val <- datos.prueba[updateData$variable.predecir])
+        isolate({
+          datos.prueba <- updateData$datos.prueba
+          real.val <- datos.prueba[updateData$variable.predecir]
+        })
         tb_predic(real.val, prediccion.rf, updateData$idioma)
       }
       else{NULL}
@@ -214,8 +219,10 @@ mod_random_forests_server <- function(input, output, session,updateData, modelos
     tryCatch({
       if(!is.null(modelos$rf[[nombreModelo]])){
         prediccion.rf <- modelos$rf[[nombreModelo]]$prediccion
-        isolate(datos.prueba <- updateData$datos.prueba)
-        isolate(variable.predecir <- updateData$variable.predecir)
+        isolate({
+          datos.prueba <- updateData$datos.prueba
+          variable.predecir <- updateData$variable.predecir
+        })
         idioma <- updateData$idioma
         
         codigo <- disp_models(nombreModelo, tr("rf", idioma), variable.predecir)
@@ -262,8 +269,10 @@ mod_random_forests_server <- function(input, output, session,updateData, modelos
     tryCatch({
       if(!is.null(modelos$rf[[nombreModelo]])){
         idioma <- updateData$idioma
-        isolate(datos.prueba <- updateData$datos.prueba)
-        isolate(variable.predecir <- updateData$variable.predecir)
+        isolate({
+          datos.prueba <- updateData$datos.prueba
+          variable.predecir <- updateData$variable.predecir
+        })
         df2 <- as.data.frame(summary_indices(datos.prueba[,variable.predecir]))
         colnames(df2) <- c(tr("minimo",idioma),tr("q1",idioma),
                            tr("q3",idioma),tr("maximo",idioma))

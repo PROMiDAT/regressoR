@@ -77,7 +77,7 @@ codeRlCoef <- function(nombreModelo = "modelo.rl"){
                 "information$df.rl[,c(1,4)]"))
 }
 
-codeRlPred <- function(nombreModelo){
+codeRlPred <- function(nombreModelo = "rl.model"){
   return(paste0("rl_prediction(model = ", nombreModelo, ", test.data)"))
 }
 

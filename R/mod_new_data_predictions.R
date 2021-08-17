@@ -101,6 +101,35 @@ mod_new_data_predictions_ui <- function(id){
                                column(width = 3, radioSwitch(id = ns("permitir_landa"), label = "",
                                                              names = c("manual", "automatico"), val.def = FALSE)))
   
+  options.dt.pred <- fluidRow(column(width = 6, numericInput(ns("minsplit_dt"), labelInput("minsplit"), 20, width = "50%",min = 1)),
+                              column(width = 6, numericInput(ns("maxdepth_dt"), labelInput("maxdepth"), 15, width = "50%",min = 0, max = 30, step = 1)))
+  
+  
+  options.rf.pred <- fluidRow(column(width = 6, numericInput(ns("ntree_rf"), labelInput("numTree"), 20, width = "50%", min = 1)),
+                              column(width = 6, numericInput(ns("mtry_rf"),labelInput("numVars"),1, width = "50%", min = 1)))
+  
+  
+  options.boosting.pred <- list(fluidRow(column(width = 4, numericInput(ns("iter.boosting.pred"), labelInput("numTree"), 300, width = "100%",min = 1)),
+                                         column(width = 4, numericInput(ns("shrinkage.boosting.pred"),labelInput("shrinkage"), 0.1, width = "100%",min = 0.0001)),
+                                         column(width = 4, selectInput(inputId = ns("tipo.boosting.pred"), label = labelInput("selectAlg"),selected = 1, width = "100%",
+                                                                       choices =  c("gaussian", "laplace", "tdist")))))
+  
+  
+  options.knn.pred <- fluidRow(column(width = 3,radioSwitch(id = ns("switch_scale_knn"), label = "escal",
+                                                            names = c("si", "no"))),
+                               column(width = 3, numericInput(ns("k_knn"), labelInput("kv"), min = 1,step = 1, value = 7,width="100%")),
+                               column(width = 3, selectInput(inputId = ns("kernel_knn"), label = labelInput("selkernel") ,selected = 1, width="100%",
+                                                             choices =  c("optimal", "rectangular", "triangular", "epanechnikov", "biweight",
+                                                                          "triweight", "cos","inv","gaussian"))),
+                               column(width = 3,numericInput(ns("distance_knn"), labelInput("distknn"), min = 1,step = 1, value = 2) ))
+  
+  
+  options.svm.pred <- fluidRow(column(width = 6, br(), switchInput(inputId = ns("switch.scale.svm.pred"), onStatus = "success", offStatus = "danger", value = T,
+                                                                   label = labelInput("escal"), onLabel = labelInput("si"), offLabel = labelInput("no"), labelWidth = "100%", width = "100%")),
+                               column(width = 6, selectInput(inputId = ns("kernel.svm.pred"), label = labelInput("selkernel"), selected = "radial", width="100%",
+                                                             choices =  c("linear", "polynomial", "radial", "sigmoid"))))
+  
+  
   options.rd.pred <-  fluidRow(column(selectInput(inputId = ns("mode.rd.pred"), label = labelInput("selectAlg"),selected = 0,
                                                   choices = list("ACP" = 0, "MCP" = 1)),width = 3),
                                column(br(), switchInput(inputId = ns("switch.scale.rd.pred"), onStatus = "success", offStatus = "danger", value = T,
@@ -109,29 +138,7 @@ mod_new_data_predictions_ui <- function(id){
                                column(width = 3, switchInput(inputId = ns("permitir.ncomp.pred"), onStatus = "success", offStatus = "danger", value = F, width = "100%",
                                                              label = "", onLabel = "Manual", offLabel = labelInput("automatico"), labelWidth = "100%")))
   
-  options.knn.pred <- fluidRow(column(width = 3, br() , switchInput(inputId = ns("switch_scale_knn"), onStatus = "success", offStatus = "danger", value = T,
-                                                                    label = labelInput("escal"), onLabel = labelInput("si"), offLabel = labelInput("no"), labelWidth = "100%", width = "100%")),
-                               column(width = 3, numericInput(ns("kmax_knn"), labelInput("kmax"), min = 1,step = 1, value = 7,width="100%")),
-                               column(width = 3, selectInput(inputId = ns("kernel_knn"), label = labelInput("selkernel") ,selected = 1, width="100%",
-                                                             choices =  c("optimal", "rectangular", "triangular", "epanechnikov", "biweight",
-                                                                          "triweight", "cos","inv","gaussian"))),
-                               column(width = 3,numericInput(ns("distance_knn"), labelInput("distknn"), min = 1,step = 1, value = 2) ))
   
-  options.svm.pred <- fluidRow(column(width = 6, br(), switchInput(inputId = ns("switch.scale.svm.pred"), onStatus = "success", offStatus = "danger", value = T,
-                                                                   label = labelInput("escal"), onLabel = labelInput("si"), offLabel = labelInput("no"), labelWidth = "100%", width = "100%")),
-                               column(width = 6, selectInput(inputId = ns("kernel.svm.pred"), label = labelInput("selkernel"), selected = "radial", width="100%",
-                                                             choices =  c("linear", "polynomial", "radial", "sigmoid"))))
-  
-  options.dt.pred <- fluidRow(column(width = 6, numericInput(ns("minsplit.dt.pred"), labelInput("minsplit"), 20, width = "100%",min = 1)),
-                              column(width = 6, numericInput(ns("maxdepth.dt.pred"), labelInput("maxdepth"), 15, width = "100%",min = 0, max = 30, step = 1)))
-  
-  options.rf.pred <- fluidRow(column(width = 6, numericInput(ns("ntree.rf.pred"), labelInput("numTree"), 20, width = "100%", min = 0)),
-                              column(width = 6, numericInput(ns("mtry.rf.pred"),labelInput("numVars"),1, width = "100%", min = 1)))
-  
-  options.boosting.pred <- list(fluidRow(column(width = 4, numericInput(ns("iter.boosting.pred"), labelInput("numTree"), 300, width = "100%",min = 1)),
-                                         column(width = 4, numericInput(ns("shrinkage.boosting.pred"),labelInput("shrinkage"), 0.1, width = "100%",min = 0.0001)),
-                                         column(width = 4, selectInput(inputId = ns("tipo.boosting.pred"), label = labelInput("selectAlg"),selected = 1, width = "100%",
-                                                                       choices =  c("gaussian", "laplace", "tdist")))))
   
   options.nn.pred <-list(fluidRow(column(numericInput(ns("threshold.nn.pred"),labelInput("threshold"),
                                                       min = 0, step = 0.01, value = 0.1), width = 4),
@@ -281,13 +288,25 @@ mod_new_data_predictions_server <- function(input, output, session, updateData, 
     updateNumericInput(session,"log_landa",value = 2)
     updateRadioSwitch(session,"permitir_landa","FALSE")
     
+    #----------------dt----------------
+    updateNumericInput(session,inputId = "minsplit_dt", value = 20)
+    updateNumericInput(session,inputId = "maxdepth_dt", value = 15)
+    
+    #----------------rf----------------
+    updateNumericInput(session = session, inputId = "ntree_rf", value = 20)
+    updateNumericInput(session,"mtry_rf",value = 1)
+    
     #---------------knn-----------------
+    updateNumericInput(session, "k_knn", value = 7)
+    updateSelectInput(session, "kernel_knn",selected = "optimal")
+    updateRadioSwitch(session,"switch_scale_knn","TRUE")
+    updateNumericInput(session, "distance_knn", value = 2)
     
     isolate(datos <- new.data$datos.train)
     if(!is.null(datos)){
       updateSelectInput(session, "sel.predic.var.nuevos", choices = rev(colnames.empty(var.numericas(datos))))
-      updateNumericInput(session, "kmax_knn", value = round(sqrt(nrow(datos))))
-      updateNumericInput(session, "mtry.rf.pred", value = round(sqrt(ncol(datos) -1)))
+      updateNumericInput(session, "k_knn", value = round(sqrt(nrow(datos))))
+      updateNumericInput(session, "mtry_rf", value = round(sqrt(ncol(datos) -1)))
     }
     
   }
@@ -575,23 +594,44 @@ mod_new_data_predictions_server <- function(input, output, session, updateData, 
                                           rlr_model(data = datos.aprendizaje, variable.pred = variable.predecir,
                                                     alpha = alpha, standardize = standardize)
                                         },
-                                        knn =  kkn_model(data = "datos.aprendizaje.completos",
-                                                         variable.pred = variable.predecir.pn,
-                                                         scale = input$switch.scale.knn.pred,
-                                                         kmax = input$kmax.knn.pred,
-                                                         kernel = input$kernel.knn.pred,
-                                                         model.var = "modelo.nuevos",
-                                                         distance = input$distance.knn.pred),
-                                        dt  = dt_model(data = "datos.aprendizaje.completos",
-                                                       variable.pred = variable.predecir.pn,
-                                                       model.var = "modelo.nuevos",
-                                                       minsplit = input$minsplit.dt.pred,
-                                                       maxdepth = input$maxdepth.dt.pred),
-                                        rf  = rf_model(data = "datos.aprendizaje.completos",
-                                                       variable.pred = variable.predecir.pn,
-                                                       model.var = "modelo.nuevos",
-                                                       ntree = input$ntree.rf.pred,
-                                                       mtry = input$mtry.rf.pred),
+                                        
+                                        dt  = {
+                                          gen.code <- codeDt(variable.predecir,input$minsplit_dt,input$maxdepth_dt)
+                                          dt_model(datos.aprendizaje, variable.predecir,
+                                                   minsplit = input$minsplit_dt,
+                                                   maxdepth = input$maxdepth_dt)
+                                        },
+                                        
+                                        rf  = {
+                                          ntree <- input$ntree_rf
+                                          mtry <- input$mtry_rf
+                                          #Validacion tamaño del mtry
+                                          tam <- ncol(datos.aprendizaje)
+                                          if(mtry >= tam){
+                                            mtry <- tam - 1
+                                            updateNumericInput(session, "mtry_rf", value = mtry)
+                                          }
+                                          
+                                          gen.code <- codeRf(variable.predecir,ntree, mtry)
+                                          rf_model(datos.aprendizaje, variable.predecir, ntree, mtry)
+                                        },
+                                        
+                                        knn =  {
+                                          scale <- as.logical(input$switch_scale_knn)
+                                          kernel <- input$kernel_knn
+                                          k <- input$k_knn
+                                          distance <- input$distance_knn
+                                          #Validacion tamaño del k
+                                          tam <- nrow(datos.aprendizaje)
+                                          if(k >= tam){
+                                            k <- tam - 2
+                                            updateNumericInput(session, "k_knn", value = k)
+                                          }
+                                          
+                                          gen.code <- codeKnn(variable.predecir, scale, k, kernel,distance)
+                                          kkn_model(datos.aprendizaje,variable.predecir, scale, k, kernel, distance)
+                                        },
+
                                         boosting = boosting_model(data = "datos.aprendizaje.completos",
                                                                   variable.pred = variable.predecir.pn,
                                                                   model.var = "modelo.nuevos",
@@ -755,7 +795,7 @@ mod_new_data_predictions_server <- function(input, output, session, updateData, 
           modelos$new.data$prediccion <- switch(modelo.seleccionado,
                                                 
                                                 rl  =  {
-                                                  pred.code <- codeRlPred("rl.model")
+                                                  pred.code <- codeRlPred()
                                                   rl_prediction(modelo, datos.prueba)
                                                 },
                                                 
@@ -767,18 +807,22 @@ mod_new_data_predictions_server <- function(input, output, session, updateData, 
                                                   pred.code <- codeRlrPred("rlr.model", variable.predecir,log.landa)
                                                   rlr_prediction(modelo, datos.prueba, variable.predecir,log.lambda = log.landa)
                                                 },
+                                                dt  = {
+                                                  pred.code <- codeDtPred()
+                                                  dt_prediction(modelo,datos.prueba)
+                                                },
                                                 
-                                                knn =  kkn_prediction(data = 'datos.prueba.completos',
-                                                                      variable.pred = variable.predecir.pn,
-                                                                      model.var = 'modelo.nuevos',
-                                                                      pred.var  = 'predic.nuevos'),
-                                                dt  = dt_prediction(data = "datos.prueba.completos",
-                                                                    model.var = "modelo.nuevos",
-                                                                    pred.var = "predic.nuevos"),
-                                                rf  = rf_prediction(data = "datos.prueba.completos",
-                                                                    variable.pred = variable.predecir.pn,
-                                                                    model.var = "modelo.nuevos",
-                                                                    pred.var = "predic.nuevos"),
+                                                
+                                                rf  = {
+                                                  pred.code <- codeRfPred()
+                                                  rf_prediction(modelo, datos.prueba)
+                                                },
+                                                
+                                                knn =  {
+                                                  pred.code <- codeKnnPred()
+                                                  kkn_prediction(modelo, datos.prueba)
+                                                },
+                                                
                                                 boosting = boosting_prediction(data = "datos.prueba.completos",
                                                                                variable.pred = variable.predecir.pn,
                                                                                model.var = "modelo.nuevos",

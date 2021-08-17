@@ -12,7 +12,7 @@ mod_regression_trees_ui <- function(id){
   ns <- NS(id)
   
   dt.options <- list(options.run(ns("runDt")), tags$hr(style = "margin-top: 0px;"),
-                     fluidRow(column(numericInput(ns("minsplit.dt"), labelInput("minsplit"), 5, width = "100%",min = 1), width = 5),
+                     fluidRow(column(numericInput(ns("minsplit.dt"), labelInput("minsplit"), 20, width = "100%",min = 1), width = 5),
                               column(numericInput(ns("maxdepth.dt"), labelInput("maxdepth"), 15, width = "100%",min = 0, max = 30, step = 1),width = 5)))
   
   dt.code.config <- list(h3(labelInput("codigo")), hr(style = "margin-top: 0px;"),
@@ -85,7 +85,7 @@ mod_regression_trees_server <- function(input, output, session,updateData, model
   nombreModelo <- "modelo.dt"
   
   return.dt.default.values <- function(){
-    updateNumericInput(session,inputId = "minsplit.dt", value = 5)
+    updateNumericInput(session,inputId = "minsplit.dt", value = 20)
     updateNumericInput(session,inputId = "maxdepth.dt", value = 15)
   }
   

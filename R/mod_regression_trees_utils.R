@@ -65,7 +65,7 @@ codeDt <- function(variable.predecir, minsplit, maxdepth){
 }
 
 
-codeDtPred <- function(nombreModelo){
+codeDtPred <- function(nombreModelo = "dt.model"){
   return(paste0("dt_prediction(model = ",nombreModelo,", test.data)"))
 }
 

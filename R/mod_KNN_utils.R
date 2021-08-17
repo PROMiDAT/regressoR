@@ -59,7 +59,7 @@ codeKnn <- function(variable.predecir, scale, k, kernel, distance){
                 ", kernel = '",kernel,"', distance = ", distance, ")"))
 }
 
-codeKnnPred <- function(nombreModelo){
+codeKnnPred <- function(nombreModelo = "knn.model"){
   return(paste0("kkn_prediction(model = ", nombreModelo, ", test.data)"))
 }
 
