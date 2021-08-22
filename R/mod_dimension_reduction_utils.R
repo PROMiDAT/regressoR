@@ -25,6 +25,10 @@ rd_model <- function(data, variable.pred, mode = 0, scale = TRUE){
     names(optimal.n) <- NULL
     modelo.rd$optimal.n.comp <- optimal.n
     
+    #Cambiamos el call
+    modelo.rd$call$formula <- form
+    modelo.rd$call$scale <- scale
+    
     return(modelo.rd)
   }
   else{

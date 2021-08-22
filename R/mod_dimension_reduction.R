@@ -14,13 +14,11 @@ mod_dimension_reduction_ui <- function(id){
   rd.options  <- list(options.run(ns("runRd")), tags$hr(style = "margin-top: 0px;"),
                       fluidRow(column(selectInput(inputId = ns("modo.rd"), label = labelInput("selectAlg"),selected = 0,
                                                   choices = list("ACP" = 0, "MCP" = 1)),width = 5),
-                               column(width=5, br(), 
-                                      radioSwitch(id = ns("switch_scale_rd"), label = "escal",
-                                                  names = c("si", "no")), style = "margin-top: -20px;")),
+                               column(width=5,radioSwitch(id = ns("switch_scale_rd"), label = "escal",names = c("si", "no")))),
                       fluidRow(column(id = ns("colManualCom"),width = 5, 
-                                      numericInput(ns("ncomp.rd"), labelInput("ncomp"),value = 2, min = 1, width = "100%")), br(),
+                                      numericInput(ns("ncomp.rd"), labelInput("ncomp"),value = 2, min = 1, width = "100%")),
                                column(width = 5, radioSwitch(id = ns("permitir_ncomp"), label = "",
-                                                             names = c("manual", "automatico"), val.def = FALSE), style = "margin-top: -15px;")))
+                                                             names = c("manual", "automatico"), val.def = FALSE))))
   
   
   rd.code.config <- list(h3(labelInput("codigo")), hr(style = "margin-top: 0px;"),
@@ -151,7 +149,7 @@ mod_dimension_reduction_server <- function(input, output, session,updateData, mo
         
         ncomp <<- NULL
         if (as.logical(input$permitir_ncomp) && !is.na(input$ncomp.rd)) {
-          if(input$ncomp.rd >= 0 && input$ncomp.rd <= ncol(datos.aprendizaje)){
+          if(input$ncomp.rd >= 1 && input$ncomp.rd <= ncol(datos.aprendizaje)){
             ncomp <<- input$ncomp.rd
           }
         }

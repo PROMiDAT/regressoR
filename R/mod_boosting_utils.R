@@ -22,7 +22,13 @@ boosting_model <- function(data, variable.pred, n.trees = 50, distribution = "ga
     }else{
       modelo.boost <- gbm(form, data = data, distribution = distribution, n.trees = n.trees, shrinkage = shrinkage,
                           n.minobsinnode = extra.values[["n.minobsinnode"]], bag.fraction = extra.values[["bag.fraction"]])
+      modelo.boost$call$n.minobsinnode <- extra.values[["n.minobsinnode"]]
+      modelo.boost$call$bag.fraction <- extra.values[["bag.fraction"]]
     }
+    modelo.boost$call$formula <- form
+    modelo.boost$call$distribution <- distribution
+    modelo.boost$call$n.trees <- n.trees
+    modelo.boost$call$shrinkage <- shrinkage
     return(modelo.boost)
   }
   else{return(NULL)}

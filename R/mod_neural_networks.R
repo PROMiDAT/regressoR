@@ -120,6 +120,7 @@ mod_neural_networks_server <- function(input, output, session,updateData, modelo
         if(i <= input$cant.capas.nn) {
           #No se usa ns() x el parámetro asis de show y hide.
           shinyjs::show(paste0("nn.cap.", i))
+          updateNumericInput(session, paste0("nn.cap.", i), value = 2)
         } else {
           shinyjs::hide(paste0("nn.cap.", i))
         }

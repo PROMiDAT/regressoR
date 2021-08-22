@@ -53,7 +53,7 @@ codeSvm <- function(variable.predecir, scale, kernel){
   return(paste0("svm_model(data, '",variable.predecir,"', scale = ",scale, ", kernel = '",kernel,"')"))
 }
 
-codeSvmPred <- function(nombreModelo){
+codeSvmPred <- function(nombreModelo = "svm.model"){
   return(paste0("svm_prediction(model = ", nombreModelo, ", test.data)"))
 }
 

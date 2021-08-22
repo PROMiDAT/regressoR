@@ -105,13 +105,13 @@ mod_new_data_predictions_ui <- function(id){
                               column(width = 6, numericInput(ns("maxdepth_dt"), labelInput("maxdepth"), 15, width = "50%",min = 0, max = 30, step = 1)))
   
   
-  options.rf.pred <- fluidRow(column(width = 6, numericInput(ns("ntree_rf"), labelInput("numTree"), 20, width = "50%", min = 1)),
+  options.rf.pred <- fluidRow(column(width = 6, numericInput(ns("ntree_rf"), labelInput("numTree"), 100, width = "50%", min = 1)),
                               column(width = 6, numericInput(ns("mtry_rf"),labelInput("numVars"),1, width = "50%", min = 1)))
   
   
-  options.boosting.pred <- list(fluidRow(column(width = 4, numericInput(ns("iter.boosting.pred"), labelInput("numTree"), 300, width = "100%",min = 1)),
-                                         column(width = 4, numericInput(ns("shrinkage.boosting.pred"),labelInput("shrinkage"), 0.1, width = "100%",min = 0.0001)),
-                                         column(width = 4, selectInput(inputId = ns("tipo.boosting.pred"), label = labelInput("selectAlg"),selected = 1, width = "100%",
+  options.boosting.pred <- list(fluidRow(column(width = 4, numericInput(ns("iter_boosting"), labelInput("numTree"), 200, width = "75%",min = 1)),
+                                         column(width = 4, numericInput(ns("shrinkage_boosting"),labelInput("shrinkage"), 0.1, width = "75%",min = 0.0001)),
+                                         column(width = 4, selectInput(inputId = ns("tipo_boosting"), label = labelInput("selectAlg"),selected = 1, width = "75%",
                                                                        choices =  c("gaussian", "laplace", "tdist")))))
   
   
@@ -124,29 +124,29 @@ mod_new_data_predictions_ui <- function(id){
                                column(width = 3,numericInput(ns("distance_knn"), labelInput("distknn"), min = 1,step = 1, value = 2) ))
   
   
-  options.svm.pred <- fluidRow(column(width = 6, br(), switchInput(inputId = ns("switch.scale.svm.pred"), onStatus = "success", offStatus = "danger", value = T,
-                                                                   label = labelInput("escal"), onLabel = labelInput("si"), offLabel = labelInput("no"), labelWidth = "100%", width = "100%")),
-                               column(width = 6, selectInput(inputId = ns("kernel.svm.pred"), label = labelInput("selkernel"), selected = "radial", width="100%",
+  options.svm.pred <- fluidRow(column(width = 3, radioSwitch(id = ns("switch_scale_svm"), label = "escal",
+                                                             names = c("si", "no"))),
+                               column(width = 3),
+                               column(width = 6, selectInput(inputId = ns("kernel_svm"), label = labelInput("selkernel"), selected = "radial", width="50%",
                                                              choices =  c("linear", "polynomial", "radial", "sigmoid"))))
   
   
-  options.rd.pred <-  fluidRow(column(selectInput(inputId = ns("mode.rd.pred"), label = labelInput("selectAlg"),selected = 0,
+  options.rd.pred <-  fluidRow(column(selectInput(inputId = ns("mode_rd"), label = labelInput("selectAlg"),selected = 0,
                                                   choices = list("ACP" = 0, "MCP" = 1)),width = 3),
-                               column(br(), switchInput(inputId = ns("switch.scale.rd.pred"), onStatus = "success", offStatus = "danger", value = T,
-                                                        label = labelInput("escal"), onLabel = labelInput("si"), offLabel = labelInput("no"), labelWidth = "100%"), width=3),
-                               column(id = ns("colManualCom"),width = 3, numericInput(ns("ncomp.rd.pred"), labelInput("ncomp"),value = 2, min = 0, "NULL", width = "100%")), br(),
-                               column(width = 3, switchInput(inputId = ns("permitir.ncomp.pred"), onStatus = "success", offStatus = "danger", value = F, width = "100%",
-                                                             label = "", onLabel = "Manual", offLabel = labelInput("automatico"), labelWidth = "100%")))
+                               column(width= 3, radioSwitch(id = ns("switch_scale_rd"), label = "escal",names = c("si", "no"))),
+                               column(id = ns("colManualCom"),width = 3, numericInput(ns("ncomp_rd"), labelInput("ncomp"),value = 2, min = 0, "NULL", width = "100%")),
+                               column(width = 3, radioSwitch(id = ns("permitir_ncomp"), label = "",
+                                                             names = c("manual", "automatico"), val.def = FALSE)))
   
   
   
-  options.nn.pred <-list(fluidRow(column(numericInput(ns("threshold.nn.pred"),labelInput("threshold"),
-                                                      min = 0, step = 0.01, value = 0.1), width = 4),
-                                  column(numericInput(ns("stepmax.nn.pred"),labelInput("stepmax"),
-                                                      min = 100, step = 100, value = 5000), width = 4),
-                                  column(sliderInput(inputId = ns("cant.capas.nn.pred"), min = 1, max = 10,
-                                                     label = labelInput("selectCapas"), value = 5), width = 4)),
-                         fluidRow(lapply(1:10, function(i) tags$span(numericInput(ns(paste0("nn.cap.pred.",i)), NULL,
+  options.nn.pred <-list(fluidRow(column(numericInput(ns("threshold_nn"),labelInput("threshold"),
+                                                      min = 0, step = 0.01, value = 0.1), width = 3),
+                                  column(numericInput(ns("stepmax_nn"),labelInput("stepmax"),
+                                                      min = 100, step = 100, value = 5000), width = 3),
+                                  column(sliderInput(inputId = ns("cant_capas_nn"), min = 1, max = 10,
+                                                     label = labelInput("selectCapas"), value = 5), width = 5)),
+                         fluidRow(lapply(1:10, function(i) tags$span(numericInput(ns(paste0("nn_cap_",i)), NULL,
                                                                                   min = 1, step = 1, value = 2),
                                                                      class = "mini-numeric-select"))))
   
@@ -293,14 +293,36 @@ mod_new_data_predictions_server <- function(input, output, session, updateData, 
     updateNumericInput(session,inputId = "maxdepth_dt", value = 15)
     
     #----------------rf----------------
-    updateNumericInput(session = session, inputId = "ntree_rf", value = 20)
+    updateNumericInput(session = session, inputId = "ntree_rf", value = 100)
     updateNumericInput(session,"mtry_rf",value = 1)
+    
+    #----------------boosting----------------
+    updateSelectInput(session,inputId = "tipo_boosting", selected = "gaussian")
+    updateNumericInput(session, inputId = "iter_boosting", value = 200)
+    updateNumericInput(session, inputId = "shrinkage_boosting", value = 0.1)
     
     #---------------knn-----------------
     updateNumericInput(session, "k_knn", value = 7)
     updateSelectInput(session, "kernel_knn",selected = "optimal")
     updateRadioSwitch(session,"switch_scale_knn","TRUE")
     updateNumericInput(session, "distance_knn", value = 2)
+    
+    #---------------svm-----------------
+    updateRadioSwitch(session,"switch_scale_svm","TRUE")
+    updateSelectInput(session,"kernel_svm",selected = "radial")
+    
+    #---------------rd------------------
+    updateSelectInput(session,"mode_rd",selected = 0)
+    updateRadioSwitch(session,"switch_scale_rd","TRUE")
+    updateNumericInput(session,"ncomp_rd", value = 2)
+    updateRadioSwitch(session,"permitir_ncomp","FALSE")
+    
+    #---------------nn------------------
+    updateSliderInput(session, "cant_capas_nn", value = 2)
+    updateNumericInput(session, "threshold_nn", value = 0.1)
+    updateNumericInput(session, "stepmax_nn", value = 5000)
+    update_nn_layers_pn()
+    
     
     isolate(datos <- new.data$datos.train)
     if(!is.null(datos)){
@@ -312,65 +334,51 @@ mod_new_data_predictions_server <- function(input, output, session, updateData, 
   }
   
   
-  # Update the different tables in the "shiny" application
-  # update_table_pn <- function(tablas = c("contentsPred", "contentsPred2")){
-  #   if("contentsPred2" %in% tablas){
-  #     output$contentsPred <- render_table_data(datos.aprendizaje.completos,editable = F,
-  #                                              scrollY = "25vh", server = F)
-  #   }
-  #   if("contentsPred2" %in% tablas){
-  #     output$contentsPred2 <- render_table_data(datos.aprendizaje.completos,editable = F,
-  #                                               scrollY = "25vh", server = F)
-  #   }
-  #   if("contentsPred3" %in% tablas){
-  #     output$contentsPred3 <- render_table_data(datos.prueba.completos,editable = F,
-  #                                               scrollY = "25vh", server = T)
-  #   }
-  # }
-  
-  
   # Updates neural network layers of new individuals
   update_nn_layers_pn <- function(){
-    if(!is.null(input$cant.capas.nn.pred)){
+    if(!is.null(input$cant_capas_nn)){
       for (i in 1:10) {
-        if(i <= input$cant.capas.nn.pred) {
-          shinyjs::show(paste0("nn.cap.pred.", i))
+        if(i <= input$cant_capas_nn) {
+          shinyjs::show(paste0("nn_cap_", i))
+          updateNumericInput(session, paste0("nn_cap_", i), value = 2)
         } else {
-          shinyjs::hide(paste0("nn.cap.pred.", i))
+          shinyjs::hide(paste0("nn_cap_", i))
         }
       }
     }
   }
   
-  #update_nn_layers_pn()
-  
   # When the number of neural network layers changes.
-  observeEvent(c(input$cant.capas.nn.pred), {
+  observeEvent(c(input$cant_capas_nn), {
     update_nn_layers_pn()
   })
   
   
   
   # Download the data with the prediction
-  # output$downloaDatosPred <- downloadHandler(
-  #   filename = function() {
-  #     input$file3$name
-  #   },
-  #   content = function(file) {
-  #     if(!is.null(predic.nuevos)){
-  #       write.csv(new_col(datos.prueba.completos, variable.predecir.pn, predic.nuevos), file, row.names = input$rownameNPred2)
-  #     }
-  #   }
-  # )
+  output$downloaDatosPred <- downloadHandler(
+    filename = function() {
+      input$file3$name
+    },
+    content = function(file) {
+      isolate({
+        prediccion <- modelos$new.data$prediccion
+        datos.nuevos.pred <- new.data$nuevos
+        datos.nuevos.pred[, new.data$variable.predecir] <- as.vector(prediccion)
+      })
+      if(!is.null(prediccion)){
+        write.csv(datos.nuevos.pred, file, row.names = input$rownameNPred2)
+      }
+    }
+  )
   
   
-  
-  # When the number of components changes.
-  observeEvent(input$permitir.ncomp.pred, {
-    if (input$permitir.ncomp.pred) {
-      shinyjs::enable("ncomp.rd.pred")
+  # Habilitada o deshabilitada el número de componenetes 
+  observeEvent(input$permitir_ncomp, {
+    if (as.logical(input$permitir_ncomp)) {
+      shinyjs::enable("ncomp_rd")
     } else {
-      shinyjs::disable("ncomp.rd.pred")
+      shinyjs::disable("ncomp_rd")
     }
   })
   
@@ -573,7 +581,7 @@ mod_new_data_predictions_server <- function(input, output, session, updateData, 
     
     tryCatch({
       
-      shinyjs::hide(id = "btn_next4", anim = T)
+      shinyjs::hide(id = "btn_next3", anim = T)
       
       variable.predecir <- input$sel.predic.var.nuevos
       new.data$variable.predecir <- variable.predecir
@@ -631,58 +639,73 @@ mod_new_data_predictions_server <- function(input, output, session, updateData, 
                                           gen.code <- codeKnn(variable.predecir, scale, k, kernel,distance)
                                           kkn_model(datos.aprendizaje,variable.predecir, scale, k, kernel, distance)
                                         },
-
-                                        boosting = boosting_model(data = "datos.aprendizaje.completos",
-                                                                  variable.pred = variable.predecir.pn,
-                                                                  model.var = "modelo.nuevos",
-                                                                  n.trees = input$iter.boosting.pred,
-                                                                  distribution = input$tipo.boosting.pred,
-                                                                  shrinkage = input$shrinkage.boosting.pre),
-                                        svm = svm_model(data = "datos.aprendizaje.completos",
-                                                        variable.pred = variable.predecir.pn,
-                                                        model.var = "modelo.nuevos",
-                                                        scale = input$switch.scale.svm.pred,
-                                                        kernel = input$kernel.svm.pred),
-                                        rd = rd_model(data = "datos.aprendizaje.completos",
-                                                      variable.pred = variable.predecir.pn,
-                                                      model.var = "modelo.nuevos",
-                                                      n.comp = "n.comp.rd.np",
-                                                      mode = input$mode.rd.pred,
-                                                      scale = input$switch.scale.rd.pred),
-                                        nn = nn_model(data = "datos.aprendizaje.completos",
-                                                      variable.pred = variable.predecir.pn,
-                                                      model.var = "modelo.nuevos",
-                                                      mean.var = "mean.nn.np",
-                                                      sd.var = "sd.nn.np",
-                                                      threshold = input$threshold.nn.pred,
-                                                      stepmax = input$stepmax.nn.pred,
-                                                      cant.hidden = input$cant.capas.nn.pred,
-                                                      input$nn.cap.pred.1,input$nn.cap.pred.2,
-                                                      input$nn.cap.pred.3,input$nn.cap.pred.4,
-                                                      input$nn.cap.pred.5,input$nn.cap.pred.6,
-                                                      input$nn.cap.pred.7,input$nn.cap.pred.8,
-                                                      input$nn.cap.pred.9,input$nn.cap.pred.10))
+                                        
+                                        boosting = {
+                                          if(!is.null(calibrate_boosting(datos.aprendizaje))){
+                                            n.trees <- input$iter_boosting
+                                            distribution <- input$tipo_boosting
+                                            shrinkage <- input$shrinkage_boosting
+                                            gen.code <- codeBoost(variable.predecir, n.trees, distribution, shrinkage)
+                                            boosting_model(datos.aprendizaje,variable.predecir, n.trees, distribution, shrinkage)
+                                          }
+                                          else{
+                                            showNotification(tr("ErrorBsize"), duration = 10, type = "error")
+                                            NULL
+                                          }
+                                        },
+                                        svm = {
+                                          scale <- as.logical(input$switch_scale_svm)
+                                          kernel <- input$kernel_svm
+                                          gen.code <- codeSvm(variable.predecir,scale,kernel)
+                                          svm_model(datos.aprendizaje,variable.predecir, scale, kernel)
+                                        },
+                                        
+                                        rd = {
+                                          scale <- as.logical(input$switch_scale_rd)
+                                          modo.rd <- input$mode_rd
+                                          gen.code <- codeRd(variable.predecir,modo.rd, scale)
+                                          modelo.rd <- rd_model(datos.aprendizaje,variable.predecir, modo.rd, scale)
+                                          ncomp <- NULL
+                                          if (as.logical(input$permitir_ncomp) && !is.na(input$ncomp_rd)) {
+                                            if(input$ncomp_rd >= 1 && input$ncomp_rd <= ncol(datos.aprendizaje)){
+                                              ncomp <- input$ncomp_rd
+                                            }
+                                          }
+                                          if(is.null(ncomp)){
+                                            ncomp <- modelo.rd$optimal.n.comp
+                                            updateNumericInput(session,"ncomp_rd", value = ncomp)
+                                          }
+                                          modelo.rd$ncomp_rd <- ncomp
+                                          modelo.rd
+                                        },
+                                        nn = {
+                                          threshold <- input$threshold_nn
+                                          stepmax <- input$stepmax_nn
+                                          cant.capas <- input$cant_capas_nn
+                                          threshold <- ifelse(threshold == 0, 0.01, threshold)
+                                          stepmax <- ifelse(stepmax < 100, 100, stepmax)
+                                          hidden <- c(input$nn_cap_1,input$nn_cap_2,input$nn_cap_3,input$nn_cap_4,
+                                                      input$nn_cap_5,input$nn_cap_6,input$nn_cap_7,input$nn_cap_8,
+                                                      input$nn_cap_9,input$nn_cap_10)
+                                          hidden <- hidden[1:cant.capas]
+                                          gen.code <- codeNn(variable.predecir, hidden, threshold, stepmax)
+                                          nn_model(datos.aprendizaje,variable.predecir, hidden, threshold, stepmax)
+                                        })
       
       
       updateAceEditor(session, "fieldPredNuevos", value = gen.code)
       
-      
-      # if( (input$selectModelsPred == "boosting" &&
-      #      !is.null(calibrate_boosting(datos.aprendizaje.completos)) ) ||
-      #     input$selectModelsPred != "boosting" ){
-      #   exe(codigo)
-      #   update_model_text_pn(codigo)
-      # }else{
-      #   showNotification(tr("ErrorBsize"), duration = 10, type = "error")
-      # }
-      
       shinyjs::show(id = "btn_next3", anim = T)
     },
     error =  function(e){
+      modelos$new.data$modelo <- NULL
+      shinyjs::hide(id = "btn_next3", anim = T)
       showNotification(paste0("Error: ", e), duration = 10, type = "error")
     },
     warning = function(w){
       if(input$selectModelsPred == "nn"){
+        modelos$new.data$modelo <- NULL
+        shinyjs::hide(id = "btn_next3", anim = T)
         showNotification(paste0(tr("nnWar")," (NN-01) : ",w), duration = 10, type = "warning")
       }
     })
@@ -792,6 +815,7 @@ mod_new_data_predictions_server <- function(input, output, session, updateData, 
           modelo.seleccionado  <- input$selectModelsPred
           pred.code <- ""
           
+          modelos$new.data$prediccion <- NULL
           modelos$new.data$prediccion <- switch(modelo.seleccionado,
                                                 
                                                 rl  =  {
@@ -823,26 +847,23 @@ mod_new_data_predictions_server <- function(input, output, session, updateData, 
                                                   kkn_prediction(modelo, datos.prueba)
                                                 },
                                                 
-                                                boosting = boosting_prediction(data = "datos.prueba.completos",
-                                                                               variable.pred = variable.predecir.pn,
-                                                                               model.var = "modelo.nuevos",
-                                                                               pred.var = "predic.nuevos",
-                                                                               n.trees = input$iter.boosting.pred),
-                                                svm = svm_prediction(data = "datos.prueba.completos",
-                                                                     variable.pred = variable.predecir.pn,
-                                                                     model.var = "modelo.nuevos",
-                                                                     pred.var = "predic.nuevos"),
-                                                rd  =  rd_prediction(data = "datos.prueba.completos",
-                                                                     model.var = "modelo.nuevos",
-                                                                     pred.var = "predic.nuevos",
-                                                                     n.comp = "n.comp.rd.np",
-                                                                     ncomp = if(input$permitir.ncomp.pred){input$ncomp.rd.pred}else{NULL}),
-                                                nn = nn_prediction(data = "datos.prueba.completos",
-                                                                   variable.pred = variable.predecir.pn,
-                                                                   model.var = "modelo.nuevos",
-                                                                   pred.var = "predic.nuevos",
-                                                                   mean.var = "mean.nn.np",
-                                                                   sd.var = "sd.nn.np"))
+                                                boosting = {
+                                                  pred.code <- codeBoostPred("boosting.model", input$iter_boosting)
+                                                  boosting_prediction(modelo, datos.prueba, input$iter_boosting)
+                                                },
+                                                svm = {
+                                                  pred.code <- codeSvmPred()
+                                                  svm_prediction(modelo, datos.prueba)
+                                                },
+                                                
+                                                rd  =  {
+                                                  pred.code <- codeRdPred("rd.model",modelo$ncomp_rd)
+                                                  rd_prediction(modelo,datos.prueba, modelo$ncomp_rd)
+                                                },
+                                                nn = {
+                                                  pred.code <- codeNnPred()
+                                                  nn_prediction(modelo, datos.prueba)
+                                                })
           
           updateAceEditor(session, "fieldCodePredPN", value = pred.code)
           

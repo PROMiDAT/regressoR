@@ -13,8 +13,8 @@ mod_SVM_ui <- function(id){
   
   svm.options <- list(options.run(ns("runSvm")), tags$hr(style = "margin-top: 0px;"),
                       conditionalPanel("input.BoxSvm != 'tabSvmPlot'",
-                                       fluidRow(column(width = 5,br(), radioSwitch(id = ns("switch_scale_svm"), label = "escal",
-                                                                                   names = c("si", "no")), style = "margin-top: -20px;"),
+                                       fluidRow(column(width = 5,radioSwitch(id = ns("switch_scale_svm"), label = "escal",
+                                                                             names = c("si", "no"))),
                                                 column(width=5, selectInput(inputId = ns("kernel.svm"), label = labelInput("selkernel"), selected = "radial",
                                                                             choices =  c("linear", "polynomial", "radial", "sigmoid")))), ns = ns))
   

@@ -104,7 +104,7 @@ codeNn <- function(variable.predecir, hidden, threshold, stepmax){
   return(paste0("nn_model(data, '",variable.predecir,"', hidden = ",as_string_c(hidden,quote = FALSE), ", threshold = ", threshold, ", stepmax = ",stepmax, ")"))
 }
 
-codeNnPred <- function(nombreModelo){
+codeNnPred <- function(nombreModelo = "nn.model"){
   return(paste0("nn_prediction(model = ", nombreModelo, ", test.data)"))
 }
 
