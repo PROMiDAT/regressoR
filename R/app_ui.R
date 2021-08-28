@@ -11,30 +11,26 @@
 #' @import glmnet
 #' @importFrom rattle asRules
 #' @import xtable
-#' @import xgboost
-#' @import shinyjs
 #' @import ggplot2
 #' @import stringr
 #' @import forcats
 #' @import shinyAce
-#' @import corrplot
-#' @import neuralnet
 #' @import rpart.plot
-#' @import randomForest
-#' @import colourpicker
-#' @import shinyWidgets
-#' @import flexdashboard
-#' @import shinydashboard
-#' @import shinydashboardPlus
-#' @import dplyr
 #' @import zip
-#' @import pls
 #' @import stats
-#' @import graphics
 #' @import echarts4r
 #' @import shinycustomloader
 #' @import htmlwidgets
+#' @importFrom shinydashboardPlus dashboardPage dashboardHeader dashboardSidebar
+#' @importFrom graphics hist
 #' @importFrom DT tableHeader formatStyle
+#' @importFrom colourpicker colourInput
+#' @importFrom randomForest randomForest
+#' @importFrom pls pcr plsr MSEP RMSEP explvar R2 mvrValstats
+#' @importFrom neuralnet neuralnet compute
+#' @rawNamespace import(shinydashboard, except = c(dashboardHeader,dashboardPage,dashboardSidebar))
+#' @rawNamespace import(shinyWidgets, except = alert)
+#' @rawNamespace import(shinyjs, except = c(runExample,colourInput))
 #' @keywords internal
 #' @noRd
 app_ui <- function(request) {
