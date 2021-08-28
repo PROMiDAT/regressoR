@@ -94,6 +94,8 @@ mod_linear_regression_server <- function(input, output, session, updateData, mod
   # Execute model, prediction and indices
   rl_full <- function(){
     tryCatch({
+      shinyjs::runjs(code = "generating_model = true")
+      
       isolate({
         datos.aprendizaje <- updateData$datos.aprendizaje
         datos.prueba <- updateData$datos.prueba
@@ -122,6 +124,9 @@ mod_linear_regression_server <- function(input, output, session, updateData, mod
     }, error = function(e){
       isolate(modelos$rl[[nombreModelo]] <- NULL)
       showNotification(paste0("Error (RL-00) : ",e), duration = 10, type = "error")
+    },
+    finally = {
+      shinyjs::runjs(code = "generating_model = false")
     })
     
   }

@@ -106,6 +106,8 @@ mod_boosting_server <- function(input, output, session,updateData, modelos){
   # Execute model, prediction and indices
   boosting_full <- function() {
     tryCatch({
+      shinyjs::runjs(code = "generating_model = true")
+      
       isolate({
         datos.aprendizaje <- updateData$datos.aprendizaje
         datos.prueba <- updateData$datos.prueba
@@ -145,7 +147,8 @@ mod_boosting_server <- function(input, output, session,updateData, modelos){
     }, error = function(e){
       isolate(modelos$boost[[nombreModelo]] <- NULL)
       showNotification(paste0("Error (Boost-00) : ",e), duration = 10, type = "error")
-    })
+    },
+    finally = {shinyjs::runjs(code = "generating_model = false")})
   }
   
   

@@ -104,6 +104,8 @@ mod_regression_trees_server <- function(input, output, session,updateData, model
   # Execute model, prediction and indices
   dt_full <- function() {
     tryCatch({
+      shinyjs::runjs(code = "generating_model = true")
+      
       isolate({
         datos.aprendizaje <- updateData$datos.aprendizaje
         datos.prueba <- updateData$datos.prueba
@@ -136,6 +138,9 @@ mod_regression_trees_server <- function(input, output, session,updateData, model
     }, error = function(e){
       isolate(modelos$dt[[nombreModelo]] <- NULL)
       showNotification(paste0("Error (DT-00) : ",e), duration = 10, type = "error")
+    },
+    finally = {
+      shinyjs::runjs(code = "generating_model = false")
     })
   }
   

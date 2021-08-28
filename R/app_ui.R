@@ -102,9 +102,9 @@ app_ui <- function(request) {
     tags$link(rel="icon", href="https://www.promidat.org/theme/image.php/formal_white/theme/1438713216/favicon"),
     useShinyjs())
   
-  #The loading page
-  # load.page <- conditionalPanel(condition="($('html').hasClass('shiny-busy'))",
-  #                               div(id = "loaderWrapper", div(id="loader")))
+  #The loading page generating model
+  load.page <- conditionalPanel(condition="($('html').hasClass('shiny-busy')) && generating_model == true",
+                                div(id = "loaderWrapper", div(id="loaderModel")))
   
   
   
@@ -126,7 +126,7 @@ app_ui <- function(request) {
       ),
       dashboardSidebar(mi.menu),
       dashboardBody(mi.head,
-                    #load.page,
+                    load.page,
                     tabItems(
                       tabItem(tabName = "cargar",  mod_carga_datos_ui("carga_datos_ui_1")),
                       tabItem(tabName = "resumen",  mod_r_numerico_ui("r_numerico_ui_1")),

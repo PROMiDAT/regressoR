@@ -580,7 +580,7 @@ mod_new_data_predictions_server <- function(input, output, session, updateData, 
   observeEvent(input$PredNuevosBttnModelo,{
     
     tryCatch({
-      
+      shinyjs::runjs(code = "generating_model = true")
       shinyjs::hide(id = "btn_next3", anim = T)
       
       variable.predecir <- input$sel.predic.var.nuevos
@@ -708,6 +708,9 @@ mod_new_data_predictions_server <- function(input, output, session, updateData, 
         shinyjs::hide(id = "btn_next3", anim = T)
         showNotification(paste0(tr("nnWar")," (NN-01) : ",w), duration = 10, type = "warning")
       }
+    },
+    finally = {
+      shinyjs::runjs(code = "generating_model = false")
     })
   }, ignoreInit = TRUE)
   

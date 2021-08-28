@@ -116,6 +116,8 @@ mod_random_forests_server <- function(input, output, session,updateData, modelos
   # Execute model, prediction and indices
   rf_full <- function(){
     tryCatch({
+      shinyjs::runjs(code = "generating_model = true")
+      
       isolate({
         datos.aprendizaje <- updateData$datos.aprendizaje
         datos.prueba <- updateData$datos.prueba
@@ -149,7 +151,8 @@ mod_random_forests_server <- function(input, output, session,updateData, modelos
     }, error = function(e){
       isolate(modelos$rf[[nombreModelo]] <- NULL)
       showNotification(paste0("Error (RF-00) : ",e), duration = 10, type = "error")
-    })
+    },
+    finally = {shinyjs::runjs(code = "generating_model = false")})
   }
   
   #Update model tab

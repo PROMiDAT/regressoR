@@ -139,6 +139,7 @@ mod_dimension_reduction_server <- function(input, output, session,updateData, mo
   # Execute model, prediction and indices
   rd_full <- function(){
     tryCatch({
+      shinyjs::runjs(code = "generating_model = true")
       
       isolate({
         datos.aprendizaje <- updateData$datos.aprendizaje
@@ -179,7 +180,8 @@ mod_dimension_reduction_server <- function(input, output, session,updateData, mo
     }, error = function(e){
       isolate(modelos$rd[[nombreModelo]] <- NULL)
       showNotification(paste0("Error (RD-00) : ",e), duration = 10, type = "error")
-    })
+    },
+    finally = {shinyjs::runjs(code = "generating_model = false")})
   }
   
   

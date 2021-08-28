@@ -139,6 +139,8 @@ mod_neural_networks_server <- function(input, output, session,updateData, modelo
   nn_full <- function() {
     
     tryCatch({
+      shinyjs::runjs(code = "generating_model = true")
+      
       isolate({
         datos.aprendizaje <- updateData$datos.aprendizaje
         datos.prueba <- updateData$datos.prueba
@@ -177,6 +179,9 @@ mod_neural_networks_server <- function(input, output, session,updateData, modelo
     },warning = function(w){
       isolate(modelos$nn[[nombreModelo]] <- NULL)
       showNotification(paste0(tr("nnWar")," (NN-00) : ",w), duration = 10, type = "warning")
+    },
+    finally = {
+      shinyjs::runjs(code = "generating_model = false")
     })
   }
   

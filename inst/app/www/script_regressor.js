@@ -1,6 +1,10 @@
+//---------Flags-----------
 var promidat_flat_models = {knn: true, dt: true, rf: true, 
                             boosting: true, svm: true, rl: true, 
                             nn: true, rlr: true, rd: true};
+                            
+generating_model = false
+//-------------------------
 
 function promidat_model_firt(e, model, id){
   if(promidat_flat_models[model]){
