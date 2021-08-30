@@ -3,23 +3,21 @@
 #' @param request Internal parameter for `{shiny}`. 
 #' DO NOT REMOVE.
 #' @import shiny
+#' @import rlang
 #' @import gbm
 #' @import kknn
 #' @import e1071
 #' @import rpart
-#' @import knitr
 #' @import glmnet
-#' @importFrom rattle asRules
 #' @import xtable
 #' @import ggplot2
 #' @import stringr
-#' @import forcats
 #' @import shinyAce
 #' @import rpart.plot
-#' @import zip
 #' @import stats
 #' @import echarts4r
 #' @import shinycustomloader
+#' @import htmltools
 #' @import htmlwidgets
 #' @importFrom shinydashboardPlus dashboardPage dashboardHeader dashboardSidebar
 #' @importFrom graphics hist
@@ -70,7 +68,9 @@ app_ui <- function(request) {
                                   labelInput("idioma"),
                                   tags$i(class="fa fa-angle-left pull-right")),
                            tags$ul(class="treeview-menu", style="display: none;", `data-expanded`="Idioma",
-                                   radioButtons('idioma', labelInput("selidioma"), c('Español'='es', 'English'='en')),
+                                   radioButtons('idioma', labelInput("selidioma"), 
+                                                choiceNames = c(tr('espanol', 'es'), 'English'),
+                                                choiceValues = c("es", "en")),
                                    tags$br()))
   
   #Los sliderInput y colourpicker por un motivo imprevisto se tienen que inicializar

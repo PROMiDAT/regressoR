@@ -63,8 +63,8 @@ mod_normal_ui <- function(id){
 }
     
 #' normal Server Function
-#'
-#' @noRd 
+#' @keywords internal
+#' 
 mod_normal_server <- function(input, output, session, updateData){
   ns <- session$ns
  
@@ -75,7 +75,7 @@ mod_normal_server <- function(input, output, session, updateData){
     updateSelectInput(session, "sel_normal", choices = colnames(numericos))
   })
   
-  #' Grafico Test de normalidad
+  # Grafico Test de normalidad
   output$plot.normal <- renderEcharts4r({
     tryCatch({
       input$run.normal
@@ -98,7 +98,7 @@ mod_normal_server <- function(input, output, session, updateData){
   })
   
   
-  #' Grafico qqplot + qqline
+  # Grafico qqplot + qqline
   output$plot_qq <- renderEcharts4r({
     input$run.normal
     var        <- input$sel_normal
@@ -118,7 +118,7 @@ mod_normal_server <- function(input, output, session, updateData){
   })
   
   
-  #' Resumen Test de normalidad
+  # Resumen Test de normalidad
   output$calc_normal <- DT::renderDT({
     input$run.normal
     datos <- updateData$datos

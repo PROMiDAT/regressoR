@@ -67,8 +67,8 @@ rf_prediction <- function(model, test.data){
 #' 
 #' @export
 #'
-importance_plot_rf <- function(model.rf, titles = c("Importancia de Variables Según el Porcentaje de Incremento del MSE",
-                                                    "Aumento porcentual del error cuadrático medio", "Variable")){
+importance_plot_rf <- function(model.rf, titles = c("Importancia de Variables Segun el Porcentaje de Incremento del MSE",
+                                                    "Aumento porcentual del error cuadratico medio", "Variable")){
   #https://www.displayr.com/how-is-variable-importance-calculated-for-a-random-forest/
   df <- as.data.frame(model.rf$importance)
   df$variables <- as.factor(rownames(df))

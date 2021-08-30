@@ -9,24 +9,4 @@ mod_carga_datos_server(input, output, session, updateData, modelos)
 \description{
 carga_datos Server Function
 }
-\keyword{Aprendizaje}
-\keyword{Button}
-\keyword{Descarga}
-\keyword{Function}
-\keyword{Load}
-\keyword{Predict}
-\keyword{Prueba}
-\keyword{Segment}
-\keyword{Table}
-\keyword{Transform}
-\keyword{Update}
-\keyword{Variable}
-\keyword{data}
-\keyword{datos}
-\keyword{de}
 \keyword{internal}
-\keyword{on}
-\keyword{tabla}
-\keyword{table}
-\keyword{testing}
-\keyword{training}

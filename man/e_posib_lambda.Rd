@@ -7,7 +7,7 @@
 e_posib_lambda(
   cv.glm,
   log.lambda = NULL,
-  titles = c("Error Cuadrático Medio", "Curva Inferior", "Curva Superior",
+  titles = c("Error Cuadratico Medio", "Curva Inferior", "Curva Superior",
     "Seleccionado", "Coeficientes Distintos de Cero")
 )
 }

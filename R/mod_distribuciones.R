@@ -62,12 +62,12 @@ mod_distribuciones_ui <- function(id){
     
 
 #' distribuciones Server Function
-#'
-#' @noRd 
+#' @keywords internal
+#' 
 mod_distribuciones_server <- function(input, output, session, updateData){
   ns <- session$ns
   
-  #' Update on load data
+  # Update on load data
   observeEvent(updateData$datos, {
     datos       <- updateData$datos
     numericos   <- var.numericas(datos)
@@ -77,7 +77,7 @@ mod_distribuciones_server <- function(input, output, session, updateData){
     updateSelectInput(session, "sel_dya_cat", choices = colnames(categoricos))
   })
   
-  #' Gráfico de Distribuciones (Númericas)
+  # Gráfico de Distribuciones (Númericas)
   output$plot_num <- renderEcharts4r({
     input$run_dist
     datos      <- updateData$datos
@@ -115,7 +115,7 @@ mod_distribuciones_server <- function(input, output, session, updateData){
       formatStyle(1, color = "white", backgroundColor = "#CBB051", target = "row")
   })
   
-  #' Gráfico de Distribuciones (Categóricas)
+  # Gráfico de Distribuciones (Categóricas)
   output$plot_cat <- renderEcharts4r({
     var  <- input$sel_dya_cat
     validate(need(var != "", tr("errorcat", isolate(updateData$idioma))))

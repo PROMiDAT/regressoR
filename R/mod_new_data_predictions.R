@@ -4,7 +4,7 @@
 #'
 #' @param id,input,output,session Internal parameters for {shiny}.
 #'
-#' @noRd 
+#' @noRd
 #'
 #' @importFrom shiny NS tagList 
 mod_new_data_predictions_ui <- function(id){
@@ -232,8 +232,8 @@ mod_new_data_predictions_ui <- function(id){
 }
 
 #' new_data_predictions Server Function
-#'
-#' @noRd 
+#' @keywords internal
+#' 
 mod_new_data_predictions_server <- function(input, output, session, updateData, new.data, modelos){
   ns <- session$ns
   
@@ -409,7 +409,7 @@ mod_new_data_predictions_server <- function(input, output, session, updateData, 
   }
   
   
-  #' Load Button Function 1
+  # Load Button Function 1
   observeEvent(input$loadButtonNPred, {
     tryCatch({
       shinyjs::hide("btn_next1",anim = TRUE)
@@ -475,21 +475,21 @@ mod_new_data_predictions_server <- function(input, output, session, updateData, 
   })
   
   
-  #' Update data on table1
+  # Update data on table1
   output$tabladatos1 <- DT::renderDataTable({
     #Se necesita por problema con la reactividad
     input$btn_prev1
     updateDataTable1_2()
   }, server = T)
   
-  #' Update data on table2
+  # Update data on table2
   output$tabladatos2 <- DT::renderDataTable({
     input$btn_next1
     updateDataTable1_2()
   }, server = T)
   
   
-  #' Update Transform Table1
+  # Update Transform Table1
   output$transData1 <- renderUI({
     datos  <- new.data$originales.train
     idioma <- updateData$idioma
@@ -520,7 +520,7 @@ mod_new_data_predictions_server <- function(input, output, session, updateData, 
   })
   
   
-  #' Transform Button Function
+  # Transform Button Function
   observeEvent(input$transButton1, {
     
     datos  <- new.data$originales.train
@@ -716,7 +716,7 @@ mod_new_data_predictions_server <- function(input, output, session, updateData, 
   
   
   
-  #' Load Button Function 2
+  # Load Button Function 2
   observeEvent(input$loadButtonNPred2, {
     tryCatch({
       
@@ -747,7 +747,7 @@ mod_new_data_predictions_server <- function(input, output, session, updateData, 
   
   
   
-  #' Update data on table3
+  # Update data on table3
   output$tabladatos3 <- DT::renderDataTable({
     datos  <- new.data$nuevos
     tipos  <- c(

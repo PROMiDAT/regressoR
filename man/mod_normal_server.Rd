@@ -9,3 +9,4 @@ mod_normal_server(input, output, session, updateData)
 \description{
 normal Server Function
 }
+\keyword{internal}

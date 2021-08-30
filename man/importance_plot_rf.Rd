@@ -6,8 +6,8 @@
 \usage{
 importance_plot_rf(
   model.rf,
-  titles = c("Importancia de Variables Según el Porcentaje de Incremento del MSE",
-    "Aumento porcentual del error cuadrático medio", "Variable")
+  titles = c("Importancia de Variables Segun el Porcentaje de Incremento del MSE",
+    "Aumento porcentual del error cuadratico medio", "Variable")
 )
 }
 \arguments{

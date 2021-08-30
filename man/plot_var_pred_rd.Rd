@@ -7,7 +7,7 @@
 plot_var_pred_rd(
   model,
   n.comp,
-  titles = c("Varianza Explicada en Variable a Predecir", "Número de Componente",
+  titles = c("Varianza Explicada en Variable a Predecir", "Numero de Componente",
     "Porcentaje de Varianza Explicada")
 )
 }

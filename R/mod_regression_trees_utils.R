@@ -76,7 +76,3 @@ codeDtIG <- function(variable.predecir){
 codeDtPlot <- function(nombreModelo){
   return(paste0("dt_plot(", nombreModelo,")"))
 }
-
-codeDtRule <- function(nombreModelo){
-  return(paste0("rattle::asRules(",nombreModelo,")"))
-}

@@ -8,7 +8,7 @@ plot_real_prediction(
   real,
   prediction,
   model = "",
-  titles = c("Predicciones vs Valores Reales", "Valor Real", "Predicción")
+  titles = c("Predicciones vs Valores Reales", "Valor Real", "Prediccion")
 )
 }
 \arguments{
@@ -25,13 +25,6 @@ echarts4r plot
 }
 \description{
 scatter plot between the actual value of the variable to be predicted and the prediction of the model.
-}
-\examples{
-real <- rnorm(45)
-prediction <- rnorm(45)
-model <- "KNN"
-plot_real_prediction(real, prediction, model)
-
 }
 \author{
 Ariel Arroyo <luis.ariel.arroyo@promidat.com>

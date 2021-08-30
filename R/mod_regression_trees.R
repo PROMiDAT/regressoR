@@ -230,9 +230,17 @@ mod_regression_trees_server <- function(input, output, session,updateData, model
   output$rulesDt <- renderPrint({
     tryCatch({
       if(!is.null(modelos$dt[[nombreModelo]])){
-        updateAceEditor(session, "fieldCodeDtRule", codeDtRule(nombreModelo))
+        isolate({
+          variable.predecir <- updateData$variable.predecir
+        })
+        
         modelo.dt <- modelos$dt[[nombreModelo]]$modelo
-        rattle::asRules(modelo.dt)
+        
+        updateAceEditor(session, "fieldCodeDtRule", paste0("rpart.rules(model.dt, cover = TRUE,nn = TRUE , style = 'tall', digits=3,
+                            response.name ='",paste0("Rule Number - ", variable.predecir),"')"))
+        
+        rpart.plot::rpart.rules(modelo.dt, cover = TRUE,nn = TRUE ,roundint=FALSE, style = "tall", digits=3, 
+                                response.name = paste0("Rule Number - ", variable.predecir))
       }
       else{NULL}
     }, error = function(e){

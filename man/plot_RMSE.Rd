@@ -7,7 +7,7 @@
 plot_RMSE(
   model,
   n.comp,
-  titles = c("RMSE Según Número de Componentes", "Número de Componente", "RMSE")
+  titles = c("RMSE Segun Numero de Componentes", "Numero de Componente", "RMSE")
 )
 }
 \arguments{

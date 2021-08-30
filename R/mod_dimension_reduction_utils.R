@@ -100,8 +100,8 @@ rd_type <- function(mode.rd = 0){
 #' 
 #' @export
 #' 
-plot_RMSE <- function(model, n.comp, titles = c("RMSE Según Número de Componentes",
-                                                "Número de Componente","RMSE")){
+plot_RMSE <- function(model, n.comp, titles = c("RMSE Segun Numero de Componentes",
+                                                "Numero de Componente","RMSE")){
   
   RMSE.CV <- pls::RMSEP(model)$val[1, 1, ]
   df <- data.frame(Componentes = 0:(length(RMSE.CV) - 1), Error = RMSE.CV)
@@ -181,7 +181,7 @@ plot_RMSE <- function(model, n.comp, titles = c("RMSE Según Número de Componen
 #' @export
 #' 
 plot_pred_rd <- function(model, n.comp, titles = c("Varianza Explicada en Predictores",
-                                                   "Número de Componentes","Porcentaje de Varianza Explicada")){
+                                                   "Numero de Componentes","Porcentaje de Varianza Explicada")){
   
   
   var.explicada <- cumsum(pls::explvar(model)) / 100
@@ -263,7 +263,7 @@ plot_pred_rd <- function(model, n.comp, titles = c("Varianza Explicada en Predic
 #' @export
 #' 
 plot_var_pred_rd <- function(model, n.comp, titles = c("Varianza Explicada en Variable a Predecir",
-                                                       "Número de Componente","Porcentaje de Varianza Explicada")){
+                                                       "Numero de Componente","Porcentaje de Varianza Explicada")){
   
   var.explicada <- drop(pls::R2(model, estimate = "train", intercept = FALSE)$val)
   df <- data.frame(Componentes = 1:length(var.explicada), Varianza = var.explicada * 100)

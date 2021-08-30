@@ -300,7 +300,7 @@ mod_random_forests_server <- function(input, output, session,updateData, modelos
       if(!is.null(modelos$rf[[nombreModelo]]) && !is.na(n)){
         modelo.rf <- modelos$rf[[nombreModelo]]$modelo
         updateAceEditor(session,"fieldCodeRfRules",paste0("printRandomForests(modelo.rf, ",n,", format='VB')"))
-        printRandomForests(modelo.rf, n, format='VB')
+        rulesRandomForest(modelo.rf, n, format='VB')
       }
       else{NULL}
     },

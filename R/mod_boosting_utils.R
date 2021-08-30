@@ -65,12 +65,12 @@ boosting_prediction <- function(model, test.data, n.trees = 50) {
 #' 
 #' @export
 #' 
-boosting_importance_plot <- function(model, titles = c("Importancia de Variables según Influencia Relativa",
+boosting_importance_plot <- function(model, titles = c("Importancia de Variables segun Influencia Relativa",
                                                        "Influencia Relativa","Variable")){
   df <- summary.gbm(model,order = T, plotit = F)
   
   e_charts(data = df, x = var) |>
-    e_bar(serie = rel.inf,legend = NULL) |>
+    e_bar(serie = quote(rel.inf) ,legend = NULL) |>
     echarts4r::e_flip_coords() |>
     e_title(text = titles[1]) |>
     e_x_axis(name = titles[2], nameLocation = "center", 

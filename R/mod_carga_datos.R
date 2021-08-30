@@ -91,7 +91,7 @@ mod_carga_datos_ui <- function(id){
 mod_carga_datos_server <- function(input, output, session,  updateData, modelos){
   ns <- session$ns
   
-  #' Descarga tabla de datos
+  # Descarga tabla de datos
   output$downloaDatos <- downloadHandler(
     filename = function() {
       input$archivo$name
@@ -101,7 +101,7 @@ mod_carga_datos_server <- function(input, output, session,  updateData, modelos)
     }
   )
   
-  #' Descarga tabla de Prueba
+  # Descarga tabla de Prueba
   output$downloaDatosP <- downloadHandler(
     filename = function() {
       paste0("(",tr("dataP"),")",input$archivo$name)
@@ -110,7 +110,7 @@ mod_carga_datos_server <- function(input, output, session,  updateData, modelos)
       write.csv(updateData$datos.prueba, file, row.names = input$rowname)
     }
   )
-  #' Descarga tabla de Aprendizaje
+  # Descarga tabla de Aprendizaje
   output$downloaDatosA <- downloadHandler(
     filename = function() {
       paste0("(",tr("dataA"),")",input$archivo$name)
@@ -120,7 +120,7 @@ mod_carga_datos_server <- function(input, output, session,  updateData, modelos)
     }
   )
   
-  #' Load Button Function
+  # Load Button Function
   observeEvent(input$loadButton, {
     rowname    <- isolate(input$rowname)
     ruta       <- isolate(input$archivo)
@@ -159,7 +159,7 @@ mod_carga_datos_server <- function(input, output, session,  updateData, modelos)
     close.menu("parte2", is.null(updateData$datos.aprendizaje))
   })
   
-  #' Transform Button Function
+  # Transform Button Function
   observeEvent(input$transButton, {
     datos <- updateData$originales
     cod = ""
@@ -195,7 +195,7 @@ mod_carga_datos_server <- function(input, output, session,  updateData, modelos)
     updateData$datos <- datos
   }) 
   
-  #' Segment Button Function
+  # Segment Button Function
   observeEvent(input$segmentButton, {
     
     for(modelName in names(modelos)){
@@ -225,7 +225,7 @@ mod_carga_datos_server <- function(input, output, session,  updateData, modelos)
     })
   })
   
-  #' Update data on table
+  # Update data on table
   output$tabladatos <- DT::renderDataTable({
     datos  <- updateData$datos
     tipos  <- c(
@@ -257,7 +257,7 @@ mod_carga_datos_server <- function(input, output, session,  updateData, modelos)
   }, server = T)
   
   
-  #' Update Transform Table
+  # Update Transform Table
   output$transData = renderUI({
     datos  <- updateData$originales
     idioma <- updateData$idioma
@@ -288,7 +288,7 @@ mod_carga_datos_server <- function(input, output, session,  updateData, modelos)
   })
   
 
-  #' Update testing data on table
+  # Update testing data on table
   output$tablaPrueba <- DT::renderDataTable({
     datos  <- updateData$datos.prueba
     tipos  <- c(
@@ -320,7 +320,7 @@ mod_carga_datos_server <- function(input, output, session,  updateData, modelos)
   }, server = T)
   
   
-  #' Update training data on table
+  # Update training data on table
   output$tablaAprendizaje <- DT::renderDataTable({
     datos  <- updateData$datos.aprendizaje
     tipos  <- c(
@@ -372,7 +372,7 @@ mod_carga_datos_server <- function(input, output, session,  updateData, modelos)
     }
   })
   
-  #' Update Predict Variable
+  # Update Predict Variable
   observeEvent(updateData$datos, {
     datos <- updateData$datos
     updateSelectInput(session, "sel.predic.var", choices = rev(colnames.empty(var.numericas(datos))))

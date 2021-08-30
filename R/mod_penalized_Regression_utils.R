@@ -119,7 +119,7 @@ rlr_type <- function(alpha_rlr = 0){
 #' 
 #' @export
 #' 
-e_posib_lambda <- function(cv.glm, log.lambda = NULL, titles = c("Error Cuadrático Medio","Curva Inferior",
+e_posib_lambda <- function(cv.glm, log.lambda = NULL, titles = c("Error Cuadratico Medio","Curva Inferior",
                                                                  "Curva Superior","Seleccionado",
                                                                  "Coeficientes Distintos de Cero")){
   x  <- log(cv.glm$lambda)

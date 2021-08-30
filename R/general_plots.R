@@ -30,15 +30,9 @@ gg_color_hue <- function(n) {
 #' @return echarts4r plot
 #' @import echarts4r
 #' @export
-#'
-#' @examples
-#' real <- rnorm(45)
-#' prediction <- rnorm(45)
-#' model <- "KNN"
-#' plot_real_prediction(real, prediction, model)
 #' 
 plot_real_prediction <- function(real, prediction, model = "", titles = c("Predicciones vs Valores Reales",
-                                                                          "Valor Real","Predicción")) {
+                                                                          "Valor Real","Prediccion")) {
 
   #Coordenadas para los puntos
   prediction <- unname(prediction)

@@ -38,18 +38,18 @@ mod_dispersion_ui <- function(id){
 }
     
 #' dispersion Server Function
-#'
-#' @noRd 
+#' @keywords internal
+#' 
 mod_dispersion_server <- function(input, output, session, updateData){
   ns <- session$ns
   
-  #' Update on load data
+  # Update on load data
   observeEvent(updateData$datos, {
     datos <- var.numericas(updateData$datos)
     updateSelectInput(session, "sel_disp", choices = colnames(datos))
   })
   
-  #' Scatter Plot
+  # Scatter Plot
   output$plot_disp <- renderEcharts4r({
     input$run_disp
     datos <- updateData$datos

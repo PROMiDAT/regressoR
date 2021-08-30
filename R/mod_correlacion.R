@@ -4,7 +4,7 @@
 #'
 #' @param id,input,output,session Internal parameters for {shiny}.
 #'
-#' @noRd 
+#' @noRd
 #'
 #' @importFrom shiny NS tagList 
 #' 
@@ -51,12 +51,12 @@ mod_correlacion_ui <- function(id){
 }
     
 #' correlacion Server Function
-#'
-#' @noRd 
+#' @keywords internal
+#' 
 mod_correlacion_server <- function(input, output, session, updateData){
   ns <- session$ns
   
-  #' Gráfico de Correlaciones
+  # Gráfico de Correlaciones
   output$plot_cor <- renderEcharts4r({
     input$run_cor
     datos <- var.numericas(updateData$datos)
@@ -77,7 +77,7 @@ mod_correlacion_server <- function(input, output, session, updateData){
     })
   })
   
-  #' Resultados numéricos de Correlaciones
+  # Resultados numéricos de Correlaciones
   output$txt_cor <- renderPrint({
     cod <- "cor(var.numericas(datos))"
     updateAceEditor(session, "fieldCodeCor2", value = cod)

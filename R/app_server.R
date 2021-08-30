@@ -3,7 +3,7 @@
 #' @param input,output,session Internal parameters for {shiny}.
 #'     DO NOT REMOVE.
 #' @import shiny
-#' @noRd
+#' 
 app_server <- function( input, output, session ) {
 
   options(shiny.maxRequestSize = 209715200, width = 200, # 209715200 = 200 * 1024^2
@@ -31,7 +31,7 @@ app_server <- function( input, output, session ) {
   
   
   
-  #' Enable/disable on load data
+  # Enable/disable on load data
   observe({
     if(is.null(updateData$datos) || ncol(updateData$datos) < 1) {
       addClass(class = "disabled", selector = 'a[href^="#shiny-tab-parte1"]')

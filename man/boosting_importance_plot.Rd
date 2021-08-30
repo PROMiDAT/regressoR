@@ -6,7 +6,7 @@
 \usage{
 boosting_importance_plot(
   model,
-  titles = c("Importancia de Variables según Influencia Relativa",
+  titles = c("Importancia de Variables segun Influencia Relativa",
     "Influencia Relativa", "Variable")
 )
 }
