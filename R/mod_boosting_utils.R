@@ -70,7 +70,7 @@ boosting_importance_plot <- function(model, titles = c("Importancia de Variables
   df <- summary.gbm(model,order = T, plotit = F)
   
   e_charts(data = df, x = var) |>
-    e_bar(serie = quote(rel.inf) ,legend = NULL) |>
+    e_bar_(serie = "rel.inf" ,legend = NULL) |>
     echarts4r::e_flip_coords() |>
     e_title(text = titles[1]) |>
     e_x_axis(name = titles[2], nameLocation = "center", 

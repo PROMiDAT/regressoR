@@ -3,7 +3,7 @@
 rulesRandomForest <- function (model, n = 1, include.class = NULL, format = "", comment = "") 
 {
   if (!inherits(model, "randomForest")) 
-    stop(Rtxt("the model is not of the 'randomForest' class"))
+    stop("the model is not of the 'randomForest' class")
   if (format == "VB") 
     comment = "'"
   trs      <- getTrees(model, n)
@@ -127,7 +127,7 @@ sdecimal2binarys.small <- function (x)
   if (x == 0) 
     return(0)
   if (x < 0) 
-    stop(Rtxt("the input must be positive"))
+    stop("the input must be positive")
   dec <- x
   n <- floor(log(x)/log(2))
   bin <- c(1)

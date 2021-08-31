@@ -19,6 +19,6 @@
 #' @keywords package
 #' @docType package
 
-NULL
-utils::globalVariables(c(
-))
+# NULL
+# utils::globalVariables(c(
+# ))

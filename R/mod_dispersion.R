@@ -62,8 +62,8 @@ mod_dispersion_server <- function(input, output, session, updateData){
       datos <- data.frame(x = datos[[vars[1]]], y = datos[[vars[2]]],
                           id = row.names(datos))
       
-      datos |> e_charts(x) |> e_scatter(y, bind = id, symbol_size = 10) |>
-        e_x_axis(x) |> e_y_axis(y) |> e_datazoom(show = F) |>
+      datos |> e_charts_("x") |> e_scatter_("y", bind = "id", symbol_size = 10) |>
+        e_x_axis_("x") |> e_y_axis_("y") |> e_datazoom(show = F) |>
         e_color(color) |> e_axis_labels(x = vars[1], y = vars[2]) |>
         e_tooltip(formatter = htmlwidgets::JS(paste0(
           "function(params) {
@@ -79,7 +79,7 @@ mod_dispersion_server <- function(input, output, session, updateData){
         z = datos[[vars[3]]], id = row.names(datos)
       )
       
-      datos |> e_charts(x) |> e_scatter_3d(y, z, bind = id) |> e_color(color) |>
+      datos |> e_charts_("x") |> e_scatter_3d_("y", "z", bind = "id") |> e_color(color) |>
         e_x_axis_3d(name = vars[1], axisLine = list(lineStyle = list(color = "white"))) |>
         e_y_axis_3d(name = vars[2], axisLine = list(lineStyle = list(color = "white"))) |>
         e_z_axis_3d(name = vars[3], axisLine = list(lineStyle = list(color = "white"))) |>

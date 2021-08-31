@@ -131,7 +131,7 @@ mod_distribuciones_server <- function(input, output, session, updateData){
         value = summary(datos.plot, maxsum = length(levels(datos.plot)))
       )
       
-      datos.plot |> e_charts(label) |> e_bar(value, name = var) |>
+      datos.plot |> e_charts_("label") |> e_bar_("value", name = var) |>
         e_tooltip() |> e_datazoom(show = F) |> e_show_loading()
     }, error = function(e) {
       showNotification(paste0("ERROR: ", e), duration = 10, type = "error")

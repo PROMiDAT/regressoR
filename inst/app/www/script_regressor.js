@@ -16,6 +16,8 @@ function promidat_model_firt(e, model, id){
  window.addEventListener("load", function(event) {
   /* Al cargarse la página  se pone el titulo */
   $("header").find("nav").append('<span class="header-title"> <i>regresso</i>R </span>');
+  
+  //eliminar_tabs_extras()
 
   /* Los modelos se vuelven ejecutar al ser seleccionados una vez se haga una segmentacion diferente*/
   $("a[href^='#shiny-tab-knn']").on('click', function(e){promidat_model_firt(e,"knn","KNN_ui_1-runKnn")});

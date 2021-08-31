@@ -19,8 +19,10 @@
 #' @import shinycustomloader
 #' @import htmltools
 #' @import htmlwidgets
+#' @importFrom utils head read.table write.csv
+#' @importFrom grDevices adjustcolor hcl
 #' @importFrom shinydashboardPlus dashboardPage dashboardHeader dashboardSidebar
-#' @importFrom graphics hist
+#' @importFrom graphics hist abline lines pairs par points polygon rect smoothScatter strwidth text
 #' @importFrom DT tableHeader formatStyle
 #' @importFrom colourpicker colourInput
 #' @importFrom randomForest randomForest

@@ -84,7 +84,7 @@ e_histboxplot <- function(data, var.name, colorBar = "steelblue", colorPoint = "
   data <- data.frame(x = 1:length(data), y = data)
   colnames(data) <- c("x", var.name)
   
-  r <- data |> e_charts(x) |> e_boxplot(var.name) |> 
+  r <- data |> e_charts_("x") |> e_boxplot(var.name) |> 
     e_histogram_(var.name, x_index = 1, y_index = 1) |> 
     e_grid(height = "50%") |> e_grid(height = "30%", top = "60%") |> 
     e_y_axis(gridIndex = 1) |> e_x_axis(gridIndex = 1) |> 

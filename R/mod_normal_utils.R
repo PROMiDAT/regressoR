@@ -29,8 +29,8 @@ e_histnormal <- function(data, colorbar = "steelblue", colorline = "gray",
     name = paste0("(", h$mids - d / 2, " - ", h$mids + d / 2, ")")
   )
   
-  distribu |> e_charts(x) |> e_bar(d, name = nombres[1]) |>
-    e_line(n, name = nombres[2]) |> e_x_axis(scale = T) |>
+  distribu |> e_charts_("x") |> e_bar_("d", name = nombres[1]) |>
+    e_line_("n", name = nombres[2]) |> e_x_axis(scale = T) |>
     e_axis_labels(x = "", y = "Densidad") |> 
     e_color(c(colorbar, colorline)) |> e_tooltip() |> 
     e_datazoom(show = F) |> e_show_loading()
@@ -61,8 +61,8 @@ e_qq <- function(data, colorpoint = "steelblue", colorline = "gray") {
   data$z <- data$x * slope + int
   data <- round(data, 3)
   
-  data |> e_charts(x) |> e_scatter(y, name = "QQplot", symbol_size = 8) |>
-    e_line(z, name = "QQline", symbol = 'none') |> e_x_axis(scale = T) |>
+  data |> e_charts_("x") |> e_scatter_("y", name = "QQplot", symbol_size = 8) |>
+    e_line_("z", name = "QQline", symbol = 'none') |> e_x_axis(scale = T) |>
     e_y_axis(scale = T) |> e_tooltip() |> e_datazoom(show = F) |> 
     e_color(c(colorpoint, colorline)) |> e_show_loading()
 }

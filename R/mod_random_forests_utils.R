@@ -74,8 +74,8 @@ importance_plot_rf <- function(model.rf, titles = c("Importancia de Variables Se
   df$variables <- as.factor(rownames(df))
   df <- df[order(df$`%IncMSE`, decreasing = T),]
   
-  e_charts(data = df, x = variables) |>
-    e_bar(serie = `%IncMSE`,legend = NULL) |>
+  e_charts_(data = df, x = "variables") |>
+    e_bar_(serie = "%IncMSE",legend = NULL) |>
     echarts4r::e_flip_coords() |>
     e_title(text = titles[1]) |>
     e_x_axis(name = titles[2], nameLocation = "center", 
