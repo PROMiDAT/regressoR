@@ -172,7 +172,7 @@ mod_new_data_predictions_ui <- function(id){
   create.pred.model.panel <- div(id = ns("seccion3"), style= "display:none;",fluidRow(
     column(width = 1, actionButton(inputId = ns("btn_prev2"),
                                    label = NULL, icon = icon("backward"), style = btn_style) ),
-    column(width = 10,tabBox(
+    column(width = 10,tabBox(id = ns("BoxModel_New_Data"),
       width = 12,
       tabPanel(title = labelInput("seleParModel"),solidHeader = FALSE, collapsible = FALSE, collapsed = FALSE, value = "crearModelo",
                options.model,
@@ -211,7 +211,7 @@ mod_new_data_predictions_ui <- function(id){
   prediccion.pred.panel <- div(id = ns("seccion5"), style= "display:none;",fluidRow(
     column(width = 1, actionButton(inputId = ns("btn_prev4"),
                                    label = NULL, icon = icon("backward"), style = btn_style) ),
-    column(width = 11,tabBox(
+    column(width = 11,tabBox(id = ns("BoxPrediccion_New_Data"),
       width = 12,
       tabPanel(title = labelInput("predicnuevos"), value = "predicModelo",
                DT::dataTableOutput(ns("PrediTablePN")),
@@ -234,7 +234,7 @@ mod_new_data_predictions_ui <- function(id){
 #' new_data_predictions Server Function
 #' @keywords internal
 #' 
-mod_new_data_predictions_server <- function(input, output, session, updateData, new.data, modelos){
+mod_new_data_predictions_server <- function(input, output, session, updateData, new.data){
   ns <- session$ns
   
   observeEvent(input$btn_next1,{
@@ -362,7 +362,7 @@ mod_new_data_predictions_server <- function(input, output, session, updateData, 
     },
     content = function(file) {
       isolate({
-        prediccion <- modelos$new.data$prediccion
+        prediccion <- new.data$prediccion
         datos.nuevos.pred <- new.data$nuevos
         datos.nuevos.pred[, new.data$variable.predecir] <- as.vector(prediccion)
       })
@@ -397,8 +397,8 @@ mod_new_data_predictions_server <- function(input, output, session, updateData, 
       new.data$datos.train      <- NULL
       new.data$variable.predecir <- NULL
       new.data$nuevos <- NULL
-      modelos$new.data$modelo <- NULL
-      modelos$new.data$prediccion <- NULL
+      new.data$modelo <- NULL
+      new.data$prediccion <- NULL
     })
   }
   
@@ -550,8 +550,8 @@ mod_new_data_predictions_server <- function(input, output, session, updateData, 
       }
     }
     
-    modelos$new.data$modelo <- NULL
-    modelos$new.data$prediccion <- NULL
+    new.data$modelo <- NULL
+    new.data$prediccion <- NULL
     new.data$datos.train <- datos
     default.values.inputs()
     reset.next.btns()
@@ -562,8 +562,8 @@ mod_new_data_predictions_server <- function(input, output, session, updateData, 
   #Update model tab
   output$txtPredNuevos <- renderPrint({
     tryCatch({
-      if(!is.null(modelos$new.data$modelo)){
-        print(modelos$new.data$modelo)
+      if(!is.null(new.data$modelo)){
+        print(new.data$modelo)
       }
       else{
         cat(tr("noModel", updateData$idioma))
@@ -590,7 +590,7 @@ mod_new_data_predictions_server <- function(input, output, session, updateData, 
       
       gen.code <- ""
       
-      modelos$new.data$modelo <- switch(modelo.seleccionado,
+      new.data$modelo <- switch(modelo.seleccionado,
                                         rl   = {
                                           gen.code <- codeRl(variable.predecir)
                                           rl_model(datos.aprendizaje,variable.predecir)
@@ -698,13 +698,15 @@ mod_new_data_predictions_server <- function(input, output, session, updateData, 
       shinyjs::show(id = "btn_next3", anim = T)
     },
     error =  function(e){
-      modelos$new.data$modelo <- NULL
+      new.data$modelo <- NULL
+      new.data$prediccion <- NULL
       shinyjs::hide(id = "btn_next3", anim = T)
       showNotification(paste0("Error: ", e), duration = 10, type = "error")
     },
     warning = function(w){
       if(input$selectModelsPred == "nn"){
-        modelos$new.data$modelo <- NULL
+        new.data$modelo <- NULL
+        new.data$prediccion <- NULL
         shinyjs::hide(id = "btn_next3", anim = T)
         showNotification(paste0(tr("nnWar")," (NN-01) : ",w), duration = 10, type = "warning")
       }
@@ -781,9 +783,9 @@ mod_new_data_predictions_server <- function(input, output, session, updateData, 
   
   
   #Update prediction tab
-  observeEvent(modelos$new.data$prediccion,{
+  observeEvent(new.data$prediccion,{
     tryCatch({
-      prediccion <- modelos$new.data$prediccion
+      prediccion <- new.data$prediccion
       if(!is.null(prediccion)){
         datos.nuevos.pred <- new.data$nuevos
         datos.nuevos.pred[, new.data$variable.predecir] <- as.vector(prediccion)
@@ -809,7 +811,7 @@ mod_new_data_predictions_server <- function(input, output, session, updateData, 
       datos.prueba <- new.data$nuevos
       
       if(!is.null(new.data$nuevos)){
-        modelo <- modelos$new.data$modelo
+        modelo <- new.data$modelo
         
         if(!is.null(modelo)){
           
@@ -818,8 +820,8 @@ mod_new_data_predictions_server <- function(input, output, session, updateData, 
           modelo.seleccionado  <- input$selectModelsPred
           pred.code <- ""
           
-          modelos$new.data$prediccion <- NULL
-          modelos$new.data$prediccion <- switch(modelo.seleccionado,
+          new.data$prediccion <- NULL
+          new.data$prediccion <- switch(modelo.seleccionado,
                                                 
                                                 rl  =  {
                                                   pred.code <- codeRlPred()

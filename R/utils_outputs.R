@@ -19,6 +19,24 @@ infoBoxPROMiDAT <- function(title, value, icon) {
                     tags$span(class = "info-box-number", value)))
 }
 
+
+
+tabBoxPrmdt <- function (..., id = NULL, title = NULL, opciones = NULL) {
+  content <- shiny::tabsetPanel(..., id = id, selected = NULL)
+  content$attribs$class <- "nav-tabs-custom"
+  
+  if (!is.null(title)) {
+    content$children[[1]] <- htmltools::tagAppendChild(
+      content$children[[1]], tags$li(class = "header pull-right", title))
+  }
+  if (!is.null(opciones)) {
+    pos <- length(content$children[[2]]$children[[1]]) + 1
+    content$children[[2]]$children[[1]][[pos]] <- opciones
+  }
+  
+  content
+}
+
 #' tabsOptions
 #'
 #' @description create tabs options on panels.
