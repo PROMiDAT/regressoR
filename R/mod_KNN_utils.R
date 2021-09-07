@@ -17,7 +17,8 @@
 #' 
 kkn_model <- function(data, variable.pred, scale = TRUE, k = 7, kernel = "optimal", distance = 2){
   #Revisar error de library/import
-  library("kknn")
+  #library("kknn")
+  eval(parse(text = "library('kknn')"))
   if(!is.null(variable.pred) && !is.null(data)){
     form <- formula(paste0(variable.pred,"~."))
     modelo.knn <- kknn::train.kknn(form, data = data, scale = scale, ks = k, kernel = kernel, distance = distance)
@@ -33,6 +34,54 @@ kkn_model <- function(data, variable.pred, scale = TRUE, k = 7, kernel = "optima
   # kmax <- ifelse(!is.numeric(kmax), exe("round(sqrt(nrow(",data,"))"), kmax)
   # return(paste0(model.var," <- train.kknn(`",variable.pred,"`~., data = ",data,", scale =",scale,", kmax=",kmax,", kernel = '",kernel,"', distance = ",distance,")"))
 }
+
+
+#------------Tomadas del paquete kknn por error sin library---------------------
+# contr.dummy <- function (n, contrasts = TRUE) 
+# {
+#   if (length(n) <= 1) {
+#     if (is.numeric(n) && length(n) == 1 && n > 1) 
+#       levels <- 1:n
+#     else stop("contrasts are not defined for 0 degrees of freedom")
+#   }
+#   else levels <- n
+#   lenglev <- length(levels)
+#   cont <- array(0, c(lenglev, lenglev), list(levels, levels))
+#   cont[col(cont) == row(cont)] <- 1
+#   cont
+# }
+# 
+# contr.ordinal <- function (n, contrasts = TRUE) 
+# {
+#   if (length(n) <= 1) {
+#     if (is.numeric(n) && length(n) == 1 && n > 1) 
+#       levels <- 1:n
+#     else stop("contrasts are not defined for 0 degrees of freedom")
+#   }
+#   else levels <- n
+#   lenglev <- length(levels)
+#   cont <- array(0.5, c(lenglev, lenglev - 1), list(levels, 
+#                                                    NULL))
+#   cont[lower.tri(cont)] <- -0.5
+#   cont
+# }
+# 
+# 
+# contr.metric <- function (n, contrasts = TRUE) 
+# {
+#   if (length(n) <= 1) {
+#     if (is.numeric(n) && length(n) == 1 && n > 1) 
+#       levels <- 1:n
+#     else stop("contrasts are not defined for 0 degrees of freedom")
+#   }
+#   else levels <- n
+#   lenglev <- length(levels)
+#   cont <- array((1:lenglev) - (1 + lenglev)/2, c(lenglev, 1), 
+#                 list(levels, NULL))
+#   cont
+# }
+#-------------------------------------------------------------------------------
+
 
 
 #' kkn_prediction
