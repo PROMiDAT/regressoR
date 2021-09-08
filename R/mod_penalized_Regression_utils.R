@@ -134,26 +134,26 @@ e_posib_lambda <- function(cv.glm, log.lambda = NULL, titles = c("Error Cuadrati
   grafico  <- data.lambda |>
     e_charts(x) |>
     e_scatter(y, symbol_size = 11, color = "red", 
-              tooltip = list(formatter = htmlwidgets::JS(paste0("function(params){",
+              tooltip = list(formatter = e_JS(paste0("function(params){",
                                                                 "return(params.marker + '<br/>' + ",
                                                                 "'<b>Log(lambda): </b>' + ",
                                                                 "Number.parseFloat(params.value[0]).toFixed(6) + ",
                                                                 "'<br/><b>", titles[1], ": </b>' + ",
                                                                 "Number.parseFloat(params.value[1]).toFixed(6))}")))) |>
     e_error_bar(lower, upper,
-                tooltip = list(formatter = htmlwidgets::JS(paste0("function(params){",
+                tooltip = list(formatter = e_JS(paste0("function(params){",
                                                                   "return('<b>", titles[2], ": </b>' + ",
                                                                   "Number.parseFloat(params.value[1]).toFixed(6) + ",
                                                                   "'<br/><b>", titles[3], ": </b>' + ",
                                                                   "Number.parseFloat(params.value[2]).toFixed(6))}")))) |>
     e_mark_line(title = "Log(lambda.min)", 
                 data = list(xAxis = x1, 
-                            tooltip = list(formatter = htmlwidgets::JS(paste0("function(params){",
+                            tooltip = list(formatter = e_JS(paste0("function(params){",
                                                                               "return('<b>Log(lambda.min): </b>' + ",
                                                                               "Number.parseFloat(params.value).toFixed(6))}"))))) |>
     e_mark_line(title = "Log(lambda.1se)", 
                 data = list(xAxis = x2,
-                            tooltip = list(formatter = htmlwidgets::JS(paste0("function(params){",
+                            tooltip = list(formatter = e_JS(paste0("function(params){",
                                                                               "return('<b>Log(lambda.1se): </b>' + ",
                                                                               "Number.parseFloat(params.value).toFixed(6))}")))))
   
@@ -163,14 +163,14 @@ e_posib_lambda <- function(cv.glm, log.lambda = NULL, titles = c("Error Cuadrati
       e_mark_line(title = titles[4], 
                   data = list(xAxis = log.lambda,
                               lineStyle = list(color = "blue"),
-                              tooltip = list(formatter = htmlwidgets::JS(paste0("function(params){",
+                              tooltip = list(formatter = e_JS(paste0("function(params){",
                                                                                 "return('<b>Log(lambda) ",titles[4], ": </b>' + ",
                                                                                 "Number.parseFloat(params.value).toFixed(6))}")))))
   }
   
   # number of non-zero coefficients at each lambda
   grafico <- grafico |>
-    e_line(nzero, x_index = 1, y_index = 1, tooltip = list(formatter = htmlwidgets::JS(paste0("function(params){",
+    e_line(nzero, x_index = 1, y_index = 1, tooltip = list(formatter = e_JS(paste0("function(params){",
                                                                                               "return('<b>Log(lambda): </b>' + ",
                                                                                               "Number.parseFloat(params.value[0]).toFixed(6) + ",
                                                                                               "'<br/><b>", titles[5],": </b>' + ",
@@ -226,7 +226,7 @@ e_coeff_landa <- function(cv.glm, log.lambda = NULL, titles = c("Coeficientes","
     group_by(nombre) |>
     e_charts(x) |>
     e_line(y, bind = nombre, 
-           tooltip = list(formatter = htmlwidgets::JS(paste0("function(params){",
+           tooltip = list(formatter = e_JS(paste0("function(params){",
                                                              "return(params.marker + ",
                                                              "'<b>' + params.seriesName + '</b><br/>' + ",
                                                              "'<b>Log(lambda): </b>' + ",
@@ -235,12 +235,12 @@ e_coeff_landa <- function(cv.glm, log.lambda = NULL, titles = c("Coeficientes","
                                                              "Number.parseFloat(params.value[1].toFixed(6)))}")))) |>
     e_mark_line(title = "Log(lambda.min)", 
                 data = list(xAxis = log(cv.glm$lambda.min), lineStyle = list(color = 'black'), 
-                            tooltip = list(formatter = htmlwidgets::JS(paste0("function(params){",
+                            tooltip = list(formatter = e_JS(paste0("function(params){",
                                                                               "return('<b>Log(lambda.min): </b>' + ",
                                                                               "Number.parseFloat(params.value).toFixed(6))}"))))) |>
     e_x_axis(name = "Log(lambda)", axisLine = list(onZero = F)) |>
     e_y_axis(name = titles[1],axisLine = list(onZero = F)) |>
-    e_labels(position = 'left',formatter = htmlwidgets::JS("
+    e_labels(position = 'left',formatter = e_JS("
                                         function(params){
                                         if(params.dataIndex==0){
                                         return(params.name)
@@ -255,7 +255,7 @@ e_coeff_landa <- function(cv.glm, log.lambda = NULL, titles = c("Coeficientes","
       e_mark_line(title = titles[2], 
                   data = list(xAxis = log.lambda,
                               lineStyle = list(color = "blue"),
-                              tooltip = list(formatter = htmlwidgets::JS(paste0("function(params){",
+                              tooltip = list(formatter = e_JS(paste0("function(params){",
                                                                                 "return('<b>Log(lambda) ", titles[2],": </b>' + ",
                                                                                 "Number.parseFloat(params.value).toFixed(6))}")))))
   }

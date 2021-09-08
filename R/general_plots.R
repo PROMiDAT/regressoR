@@ -63,7 +63,7 @@ plot_real_prediction <- function(real, prediction, model = "", titles = c("Predi
         symbolSize = 10,
         color = "red",
         data = x_y.values,
-        tooltip = list(formatter = htmlwidgets::JS(paste0(
+        tooltip = list(formatter = e_JS(paste0(
         "function(params){
         return(params.marker + '<br/><b> ID: </b>' + params.name + '<br /><b>",
         titles[2],": </b>' + params.value[0].toFixed(4) + '<br /><b>",titles[3],": </b>' + params.value[1].toFixed(4))

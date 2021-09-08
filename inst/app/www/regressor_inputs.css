@@ -55,6 +55,15 @@
 	opacity: 1; display: inline-block;
 }
 
+
+/*radioGroupMulti*/
+.btn-radiogroup-multi {
+    padding-right: 3px !important;
+    padding-bottom: 3px !important;
+    width: auto !important;
+}
+
+
 /* Color Inputs */
 .select-color {
   width: 50%;

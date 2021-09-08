@@ -39,7 +39,7 @@ e_cor <- function(x, colors = c("#FF5733", "#F8F5F5", "#2E86C1")) {
   )
   
   e_charts() |> e_list(opts) |> e_datazoom(show = F) |> e_show_loading() |> e_tooltip(
-    formatter = htmlwidgets::JS(paste0(
+    formatter = e_JS(paste0(
       "function(params) {\n",
       "  return(params.value[1] + ' ~ ' + params.value[0] + ': ' + params.value[2])\n", 
       "}"))

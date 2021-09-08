@@ -83,7 +83,7 @@ importance_plot_rf <- function(model.rf, titles = c("Importancia de Variables Se
              interval = 10,
              axisLabel = list(formatter = '{value} %')) |>
     e_y_axis(name = titles[3], nameLocation = "start", inverse = T) |>
-    e_tooltip(formatter = htmlwidgets::JS("function(params){
+    e_tooltip(formatter = e_JS("function(params){
     console.log(params)
     return('<b>' +  params.value[1] + ': </b>' + Number.parseFloat(params.value[0]).toFixed(4) + '%')
     }

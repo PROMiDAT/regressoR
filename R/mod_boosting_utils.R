@@ -78,7 +78,7 @@ boosting_importance_plot <- function(model, titles = c("Importancia de Variables
              interval = 10,
              axisLabel = list(formatter = '{value} %')) |>
     e_y_axis(name = titles[3], nameLocation = "start", inverse = T) |>
-    e_tooltip(formatter = htmlwidgets::JS("function(params){
+    e_tooltip(formatter = e_JS("function(params){
     console.log(params)
     return('<b>' +  params.value[1] + ': </b>' + Number.parseFloat(params.value[0]).toFixed(4) + '%')
     }

@@ -18,7 +18,7 @@
 usethis::use_package( "DT" )
 usethis::use_package( "golem" )
 usethis::use_package( "shiny" )
-usethis::use_package( "config" )
+#usethis::use_package( "config" )
 usethis::use_package( "shinyjs" )
 usethis::use_package( "shinydashboard" )
 usethis::use_package( "shinydashboardPlus" )

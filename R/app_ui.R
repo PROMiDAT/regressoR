@@ -9,16 +9,12 @@
 #' @import e1071
 #' @import rpart
 #' @import glmnet
-#' @import xtable
-#' @import ggplot2
-#' @import stringr
 #' @import shinyAce
 #' @import rpart.plot
 #' @import stats
 #' @import echarts4r
 #' @import shinycustomloader
 #' @import htmltools
-#' @import htmlwidgets
 #' @importFrom utils head read.table write.csv
 #' @importFrom grDevices adjustcolor hcl
 #' @importFrom shinydashboardPlus dashboardPage dashboardHeader dashboardSidebar
@@ -29,7 +25,6 @@
 #' @importFrom pls pcr plsr MSEP RMSEP explvar R2 mvrValstats
 #' @importFrom neuralnet neuralnet compute
 #' @rawNamespace import(shinydashboard, except = c(dashboardHeader,dashboardPage,dashboardSidebar))
-#' @rawNamespace import(shinyWidgets, except = alert)
 #' @rawNamespace import(shinyjs, except = c(runExample,colourInput))
 #' @keywords internal
 #' @noRd

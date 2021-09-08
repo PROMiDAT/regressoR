@@ -141,7 +141,7 @@ plot_RMSE <- function(model, n.comp, titles = c("RMSE Segun Numero de Componente
         lineStyle = list(width = 2,type = 'solid'),
         color = "#4682B4",
         data = x_y.RMSE,
-        tooltip = list(formatter = htmlwidgets::JS(paste0(
+        tooltip = list(formatter = e_JS(paste0(
           "function(params){
           return('<b>",titles[2],": </b>' + params.value[0] + '<br /><b>",titles[3],": </b>' + params.value[1].toFixed(4))
       }
@@ -223,7 +223,7 @@ plot_pred_rd <- function(model, n.comp, titles = c("Varianza Explicada en Predic
         lineStyle = list(width = 2,type = 'solid'),
         color = "#4682B4",
         data = x_y.Varianza,
-        tooltip = list(formatter = htmlwidgets::JS(paste0(
+        tooltip = list(formatter = e_JS(paste0(
           "function(params){
           return('<b>",titles[2],": </b>' + params.value[0] + '<br /><b>",titles[3],": </b>' + params.value[1].toFixed(4))
       }
@@ -304,7 +304,7 @@ plot_var_pred_rd <- function(model, n.comp, titles = c("Varianza Explicada en Va
         lineStyle = list(width = 2,type = 'solid'),
         color = "#4682B4",
         data = x_y.Varianza,
-        tooltip = list(formatter = htmlwidgets::JS(paste0(
+        tooltip = list(formatter = e_JS(paste0(
           "function(params){
           return('<b>",titles[2],": </b>' + params.value[0] + '<br /><b>",titles[3],": </b>' + params.value[1].toFixed(4))
       }

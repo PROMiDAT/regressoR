@@ -51,6 +51,51 @@ radioSwitch <- function(id, label = NULL, names, values = NULL, val.def = T) {
 }
 
 
+
+radioGroupMulti <- function(id, values, label = NULL) {
+  tags$div(
+    class = "form-group", `data-shinyjs-resettable-type`="RadioButtons",
+    if(!is.null(label)) {
+      tags$label(class = "control-label", `for` = id, `data-id` = label)
+    },
+    tags$div(
+      class = "radioGroupButtons btn-group-container-sw shiny-flow-layout", id = id, `data-toggle`="buttons",
+      tags$div(
+        class = "btn-radiogroup btn-radiogroup-multi",
+        tags$button(
+          class =  "btn radiobtn btn-radioswitch active",
+          tags$span(class = "radio-btn-icon-yes", tags$i(class="glyphicon glyphicon-ok")),
+          tags$span(class = "radio-btn-icon-no", tags$i(class="glyphicon glyphicon-remove")),
+          
+          tags$input(type="radio", autocomplete="off", name=id, value=values[1], checked = "checked",
+                     style = "position: absolute;clip: rect(0,0,0,0);pointer-events: none;"),
+          
+          labelInput(values[1])
+        )
+      ),
+      lapply(values[-1], function(val){
+        tags$div(
+          class = "btn-radiogroup btn-radiogroup-multi", role = "group",
+          tags$div(
+            class = "btn-radiogroup",
+            tags$button(
+              class =  "btn radiobtn btn-radioswitch",
+              tags$span(class = "radio-btn-icon-yes", tags$i(class="glyphicon glyphicon-ok")),
+              tags$span(class = "radio-btn-icon-no", tags$i(class="glyphicon glyphicon-remove")),
+              
+              tags$input(type="radio", autocomplete="off", name=id, value=val,
+                         style = "position: absolute;clip: rect(0,0,0,0);pointer-events: none;"),
+              
+              labelInput(val)
+            )
+          )
+        )
+      })
+    )
+  )
+}
+
+
 updateRadioSwitch <- function(session, inputId, value = "TRUE") {
   message <- list(selected = value)
   session$sendInputMessage(inputId, message)

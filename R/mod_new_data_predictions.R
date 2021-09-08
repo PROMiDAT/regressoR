@@ -151,19 +151,8 @@ mod_new_data_predictions_ui <- function(id){
                                                                      class = "mini-numeric-select"))))
   
   options.model <- list(selectInput(inputId = ns("sel.predic.var.nuevos"), label = labelInput("seleccionarPredecir"), choices =  "", width = "100%"),
-                        radioGroupButtons(ns("selectModelsPred"), labelInput("selectMod"), 
-                                          list("<span data-id=\"rl\"></span>" = "rl",
-                                               "<span data-id=\"rlr\"></span>" = "rlr",
-                                               "<span data-id=\"dt\"></span>" = "dt",
-                                               "<span data-id=\"rf\"></span>" = "rf",
-                                               "<span data-id=\"boost\"></span>" = "boosting",
-                                               "<span data-id=\"knn\"></span>" = "knn",
-                                               "<span data-id=\"svm\"></span>" = "svm",
-                                               "<span data-id=\"rd\"></span>" = "rd",
-                                               "<span data-id=\"nn\"></span>" = "nn"),
-                                          size = "sm", status = "primary",individual = FALSE, justified = FALSE, selected = "rl",
-                                          checkIcon = list(yes = icon("ok", lib = "glyphicon"),
-                                                           no = icon("remove", lib = "glyphicon"))))
+                        radioGroupMulti(id = ns("selectModelsPred"), label = "selectMod",
+                                   c("rl","rlr","dt","rf","boost","knn","svm","rd","nn")))
   
   tabs.models  <- tabsOptions(buttons = list(icon("code")), widths = c(100), heights = c(40),
                               tabs.content = list(list(codigo.monokai(ns("fieldPredNuevos"), height = "7vh"))))
@@ -186,7 +175,7 @@ mod_new_data_predictions_ui <- function(id){
                                 options.dt.pred, ns = ns),
                conditionalPanel(condition =  "input.selectModelsPred == 'rf'",
                                 options.rf.pred, ns = ns),
-               conditionalPanel(condition =  "input.selectModelsPred == 'boosting'",
+               conditionalPanel(condition =  "input.selectModelsPred == 'boost'",
                                 options.boosting.pred, ns = ns),
                conditionalPanel(condition =  "input.selectModelsPred == 'svm'",
                                 options.svm.pred, ns = ns),
@@ -640,7 +629,7 @@ mod_new_data_predictions_server <- function(input, output, session, updateData, 
                                           kkn_model(datos.aprendizaje,variable.predecir, scale, k, kernel, distance)
                                         },
                                         
-                                        boosting = {
+                                        boost = {
                                           if(!is.null(calibrate_boosting(datos.aprendizaje))){
                                             n.trees <- input$iter_boosting
                                             distribution <- input$tipo_boosting
@@ -852,7 +841,7 @@ mod_new_data_predictions_server <- function(input, output, session, updateData, 
                                                   kkn_prediction(modelo, datos.prueba)
                                                 },
                                                 
-                                                boosting = {
+                                                boost = {
                                                   pred.code <- codeBoostPred("boosting.model", input$iter_boosting)
                                                   boosting_prediction(modelo, datos.prueba, input$iter_boosting)
                                                 },

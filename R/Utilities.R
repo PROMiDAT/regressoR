@@ -515,3 +515,28 @@ dummy.data.frame <- function (data, names = NULL, omit.constants = TRUE, dummy.c
   attr(df, "dummies") <- new.attr
   return(df)
 }
+
+
+
+#----------------------htmlwidgets------------------------
+# Funciones tomadas del paquete htmlwidgets
+
+#' Eval character vectors to JS code
+#'
+#' @param ... character vectors to evaluate
+#'
+#' @author Joseline Quiros <joseline.quiros@promidat.com>
+#' @export e_JS
+#' @examples
+#' e_JS('5 * 3')
+#' 
+e_JS <- function (...) 
+{
+  x <- c(...)
+  if (is.null(x)) 
+    return()
+  if (!is.character(x)) 
+    stop("The arguments for JS() must be a character vector")
+  x <- paste(x, collapse = "\n")
+  structure(x, class = unique(c("JS_EVAL", oldClass(x))))
+}
