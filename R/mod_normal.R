@@ -12,13 +12,13 @@ mod_normal_ui <- function(id){
   
   normal.opc <- list(options.run(ns("run.normal")), tags$hr(style = "margin-top: 0px;"),
                      conditionalPanel("input.BoxNormal == 'tabNormalPlot'",
-                                      colourpicker::colourInput(ns("col_hist_bar"), labelInput("selcolbar"),value = "steelblue", allowTransparent = T),
-                                      colourpicker::colourInput(ns("col_hist_line"), labelInput("selcolline"),value = "#555555", allowTransparent = T),
+                                      colourInput(ns("col_hist_bar"), labelInput("selcolbar"),value = "steelblue", allowTransparent = T),
+                                      colourInput(ns("col_hist_line"), labelInput("selcolline"),value = "#555555", allowTransparent = T),
                                       ns = ns
                      ),
                      conditionalPanel("input.BoxNormal == 'tabQPlot'",
-                                      colourpicker::colourInput(ns("col_qq_point"), labelInput("selcolpoint"),value = "steelblue", allowTransparent = T),
-                                      colourpicker::colourInput(ns("col_qq_line"), labelInput("selcolline"),value = "#555555", allowTransparent = T),
+                                      colourInput(ns("col_qq_point"), labelInput("selcolpoint"),value = "steelblue", allowTransparent = T),
+                                      colourInput(ns("col_qq_line"), labelInput("selcolline"),value = "#555555", allowTransparent = T),
                                       ns = ns
                      ),
                      conditionalPanel("input.BoxNormal == 'tabNormalCalc'",

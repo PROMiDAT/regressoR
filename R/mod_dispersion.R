@@ -15,7 +15,7 @@ mod_dispersion_ui <- function(id){
                                          options = list(maxItems = 3)))
   
   dispersion.opc <- list(options.run(ns("run_disp")), tags$hr(style = "margin-top: 0px;"),
-                         colourpicker::colourInput(ns("col_disp"), labelInput("selcolor"), 
+                         colourInput(ns("col_disp"), labelInput("selcolor"), 
                                                    value = "steelblue",allowTransparent = T))
   
   dispersion.code <- list(h3(labelInput("codigo")), hr(style = "margin-top: 0px;"),

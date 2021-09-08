@@ -540,3 +540,89 @@ e_JS <- function (...)
   x <- paste(x, collapse = "\n")
   structure(x, class = unique(c("JS_EVAL", oldClass(x))))
 }
+
+
+#----------------------colourpicker------------------------
+colourInput <- function (inputId, label, value = "white", showColour = c("both", 
+                                                          "text", "background"), palette = c("square", "limited"), 
+          allowedCols = NULL, allowTransparent = FALSE, returnName = FALSE, 
+          closeOnClick = FALSE) 
+{
+  showColour <- match.arg(showColour)
+  palette <- match.arg(palette)
+  value <- restoreInput(id = inputId, default = value)
+  shiny::addResourcePath("colourpicker-binding", system.file("srcjs", 
+                                                             package = "colourpicker"))
+  shiny::addResourcePath("colourpicker-lib", system.file("www", 
+                                                         "shared", "colourpicker", package = "colourpicker"))
+  deps <- list(htmltools::htmlDependency("colourpicker-binding", 
+                                         "0.1.0", c(href = "colourpicker-binding"), script = "input_binding_colour.js"), 
+               htmltools::htmlDependency("colourpicker-lib", "0.1.0", 
+                                         c(href = "colourpicker-lib"), script = "js/colourpicker.min.js", 
+                                         stylesheet = "css/colourpicker.min.css"))
+  inputTag <- shiny::tags$input(id = inputId, type = "text", 
+                                class = "form-control shiny-colour-input", `data-init-value` = value, 
+                                `data-show-colour` = showColour, `data-palette` = palette)
+  if (!is.null(allowedCols)) {
+    allowedCols <- toJSON(allowedCols)
+    inputTag <- shiny::tagAppendAttributes(inputTag, `data-allowed-cols` = allowedCols)
+  }
+  if (returnName) {
+    inputTag <- shiny::tagAppendAttributes(inputTag, `data-return-name` = "true")
+  }
+  if (allowTransparent) {
+    inputTag <- shiny::tagAppendAttributes(inputTag, `data-allow-alpha` = "true")
+  }
+  if (closeOnClick) {
+    inputTag <- shiny::tagAppendAttributes(inputTag, `data-close-on-click` = "true")
+  }
+  inputTag <- shiny::div(class = "form-group shiny-input-container", 
+                         `data-shiny-input-type` = "colour", label, inputTag)
+  htmltools::attachDependencies(inputTag, deps)
+}
+
+#---------------------------jsonlite---------------------------
+asJSON <- function (x, ...) 
+{
+  standardGeneric("asJSON")
+}
+
+toJSON <- function (x, dataframe = c("rows", "columns", "values"), matrix = c("rowmajor", 
+                                                                    "columnmajor"), Date = c("ISO8601", "epoch"), POSIXt = c("string", 
+                                                                                                                             "ISO8601", "epoch", "mongo"), factor = c("string", "integer"), 
+          complex = c("string", "list"), raw = c("base64", "hex", "mongo", 
+                                                 "int", "js"), null = c("list", "null"), na = c("null", 
+                                                                                                "string"), auto_unbox = FALSE, digits = 4, pretty = FALSE, 
+          force = FALSE, ...) 
+{
+  dataframe <- match.arg(dataframe)
+  matrix <- match.arg(matrix)
+  Date <- match.arg(Date)
+  POSIXt <- match.arg(POSIXt)
+  factor <- match.arg(factor)
+  complex <- match.arg(complex)
+  raw <- match.arg(raw)
+  null <- match.arg(null)
+  x <- force(x)
+  if (!missing(na)) {
+    na <- match.arg(na)
+  }
+  else {
+    na <- NULL
+  }
+  indent <- if (isTRUE(pretty)) 
+    0L
+  else NA_integer_
+  ans <- asJSON(x, dataframe = dataframe, Date = Date, POSIXt = POSIXt, 
+                factor = factor, complex = complex, raw = raw, matrix = matrix, 
+                auto_unbox = auto_unbox, digits = digits, na = na, null = null, 
+                force = force, indent = indent, ...)
+  if (is.numeric(pretty)) {
+    #prettify(ans, pretty)
+  }
+  else {
+    class(ans) <- "json"
+    return(ans)
+  }
+}
+#----------------------colourpicker------------------------

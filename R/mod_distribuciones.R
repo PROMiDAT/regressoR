@@ -17,9 +17,9 @@ mod_distribuciones_ui <- function(id){
                                            selectInput(inputId = ns("sel_dya_cat"), label = NULL, choices = ""),ns = ns))
   
   distr.numericas.opc <- list(options.run(ns("run_dist")), tags$hr(style = "margin-top: 0px;"),
-                             colourpicker::colourInput(ns("col_dist_bar"),labelInput("selcolbar"),
+                             colourInput(ns("col_dist_bar"),labelInput("selcolbar"),
                                                        value = "steelblue",allowTransparent = T),
-                             colourpicker::colourInput(ns("col_dist_point"), labelInput("selcolline"),
+                             colourInput(ns("col_dist_point"), labelInput("selcolline"),
                                                        value = "red",allowTransparent = T))
   
   distr.numericas.code <- list(h3(labelInput("codigo")), hr(style = "margin-top: 0px;"),

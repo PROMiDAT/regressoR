@@ -20,7 +20,6 @@ Imports:
     shinyjs (>= 1.0),
     neuralnet (>= 1.44.2),
     rpart (>= 4.1-13),
-    colourpicker (>= 1.0),
     DT (>= 0.5),
     randomForest (>= 4.6-14),
     e1071 (>= 1.7-0.1),

@@ -20,7 +20,6 @@
 #' @importFrom shinydashboardPlus dashboardPage dashboardHeader dashboardSidebar
 #' @importFrom graphics hist abline lines pairs par points polygon rect smoothScatter strwidth text
 #' @importFrom DT tableHeader formatStyle
-#' @importFrom colourpicker colourInput
 #' @importFrom randomForest randomForest
 #' @importFrom pls pcr plsr MSEP RMSEP explvar R2 mvrValstats
 #' @importFrom neuralnet neuralnet compute
@@ -75,7 +74,7 @@ app_ui <- function(request) {
   init.inputs <- tags$div(style = "display:none;",
                           sliderInput(inputId = "aux", min = 2, value = 2,
                                       label = "Cantidad de Clusters", max = 10),
-                          colourpicker::colourInput(
+                          colourInput(
                             "auxColor", NULL, value = "red", allowTransparent = T))
   
   # The side menu

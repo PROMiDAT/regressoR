@@ -20,9 +20,9 @@ mod_correlacion_ui <- function(id){
                                                         type = "html", loader = "loader4")))
   
   corr.plot.opc <- list(options.run(ns("run_cor")), tags$hr(style = "margin-top: 0px;"),
-                        colourpicker::colourInput(ns("col_max"), labelInput("selcolor"), "#2E86C1",allowTransparent = T),
-                        colourpicker::colourInput(ns("col_med"), labelInput("selcolor"), "#F8F5F5",allowTransparent = T),
-                        colourpicker::colourInput(ns("col_min"), labelInput("selcolor"), "#FF5733",allowTransparent = T))
+                        colourInput(ns("col_max"), labelInput("selcolor"), "#2E86C1",allowTransparent = T),
+                        colourInput(ns("col_med"), labelInput("selcolor"), "#F8F5F5",allowTransparent = T),
+                        colourInput(ns("col_min"), labelInput("selcolor"), "#FF5733",allowTransparent = T))
   
   corr.plot.code <- list(h3(labelInput("codigo")), hr(style = "margin-top: 0px;"),
                            codigo.monokai(ns("fieldCodeCor"),  height = "24vh"))
