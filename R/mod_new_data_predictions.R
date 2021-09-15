@@ -728,8 +728,13 @@ mod_new_data_predictions_server <- function(input, output, session, updateData, 
       encabezado <- input$headerNPred2
       deleteNA   <- input$deleteNAnPred2
       
-      new.data$nuevos <- carga.datos(
-        rowname, ruta$datapath, sep, dec, encabezado, deleteNA)
+      new.data$nuevos <- carga.datos.np(
+        rowname, ruta$datapath, sep, dec, encabezado)
+      
+      #Ignorar la variable a predecir a la hora de eliminar los NA
+      new.data$nuevos[,new.data$variable.predecir] <- NULL
+      new.data$nuevos <- accion.NAs(new.data$nuevos, deleteNA)
+      new.data$nuevos[,new.data$variable.predecir] <- NA
       
       #Actualiza los datos según la configuración anterior
       new.data$nuevos <- transformar.datos(new.data$nuevos)
