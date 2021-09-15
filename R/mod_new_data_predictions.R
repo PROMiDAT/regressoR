@@ -509,12 +509,9 @@ mod_new_data_predictions_server <- function(input, output, session, updateData, 
   })
   
   
-  # Transform Button Function
-  observeEvent(input$transButton1, {
-    
-    datos  <- new.data$originales.train
+  #Función para realizar la transformación de datos
+  transformar.datos <- function(datos){
     cod = ""
-    
     for (var in colnames(datos)) {
       if(!input[[paste0("del", var)]]) {
         datos[, var] <- NULL
@@ -539,7 +536,19 @@ mod_new_data_predictions_server <- function(input, output, session, updateData, 
       }
     }
     
+    return(datos)
+  }
+  
+  
+  # Transform Button Function
+  observeEvent(input$transButton1, {
+    
+    datos  <- new.data$originales.train
+    
+    datos <- transformar.datos(datos)
+    
     new.data$modelo <- NULL
+    new.data$nuevos <- NULL
     new.data$prediccion <- NULL
     new.data$datos.train <- datos
     default.values.inputs()
@@ -571,6 +580,8 @@ mod_new_data_predictions_server <- function(input, output, session, updateData, 
     tryCatch({
       shinyjs::runjs(code = "generating_model = true")
       shinyjs::hide(id = "btn_next3", anim = T)
+      new.data$modelo <- NULL
+      new.data$prediccion <- NULL
       
       variable.predecir <- input$sel.predic.var.nuevos
       new.data$variable.predecir <- variable.predecir
@@ -687,15 +698,11 @@ mod_new_data_predictions_server <- function(input, output, session, updateData, 
       shinyjs::show(id = "btn_next3", anim = T)
     },
     error =  function(e){
-      new.data$modelo <- NULL
-      new.data$prediccion <- NULL
       shinyjs::hide(id = "btn_next3", anim = T)
       showNotification(paste0("Error: ", e), duration = 10, type = "error")
     },
     warning = function(w){
       if(input$selectModelsPred == "nn"){
-        new.data$modelo <- NULL
-        new.data$prediccion <- NULL
         shinyjs::hide(id = "btn_next3", anim = T)
         showNotification(paste0(tr("nnWar")," (NN-01) : ",w), duration = 10, type = "warning")
       }
@@ -711,6 +718,7 @@ mod_new_data_predictions_server <- function(input, output, session, updateData, 
   observeEvent(input$loadButtonNPred2, {
     tryCatch({
       
+      new.data$prediccion <- NULL
       shinyjs::hide("btn_next4",anim = TRUE)
       
       rowname    <- input$rownameNPred2
@@ -722,6 +730,9 @@ mod_new_data_predictions_server <- function(input, output, session, updateData, 
       
       new.data$nuevos <- carga.datos(
         rowname, ruta$datapath, sep, dec, encabezado, deleteNA)
+      
+      #Actualiza los datos según la configuración anterior
+      new.data$nuevos <- transformar.datos(new.data$nuevos)
       
       if(ncol(new.data$nuevos) <= 1) {
         showNotification("ERROR: Check Separators", duration = 10, type = "error")
@@ -777,7 +788,13 @@ mod_new_data_predictions_server <- function(input, output, session, updateData, 
       prediccion <- new.data$prediccion
       if(!is.null(prediccion)){
         datos.nuevos.pred <- new.data$nuevos
+        #Eliminamos la antigua columna de la variable a predecir
+        nombres <- colnames(datos.nuevos.pred)
+        datos.nuevos.pred <- datos.nuevos.pred[!nombres %in% new.data$variable.predecir]
+        
+        #Colocamos de ultimo la columna con las predicciones
         datos.nuevos.pred[, new.data$variable.predecir] <- as.vector(prediccion)
+        
         output$PrediTablePN <- render_table_data(datos.nuevos.pred,editable = F,
                                                  scrollY = "40vh",server = T)
       }

@@ -31,7 +31,7 @@ mod_KNN_ui <- function(id){
                                     codigo.monokai(ns("fieldCodeKnnIG"), height = "7vh"),ns = ns))
   
   
-  tabs.options.generate <- tabsOptions(buttons = list(icon("gear"), icon("code")), widths = c(50,100), heights = c(80,70),
+  tabs.options.generate <- tabsOptions(buttons = list(icon("gear"), icon("code")), widths = c(50,100), heights = c(90,70),
                                        tabs.content = list(knn.options,knn.code.config))
   
   tabs.options.Nogenerate <- tabsOptions(buttons = list(icon("code")), widths = c(100), heights = c(70),
