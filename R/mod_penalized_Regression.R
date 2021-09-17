@@ -327,9 +327,7 @@ mod_penalized_Regression_server <- function(input, output, session, updateData, 
       if(!is.null(modelos$rlr[[nombreModelo]])){
         idioma <- updateData$idioma
         indices.rlr <- modelos$rlr[[nombreModelo]]$indices
-        df <- as.data.frame(indices.rlr)
-        colnames(df) <- c(tr("RMSE", idioma), tr("MAE", idioma), tr("ER", idioma), tr("correlacion", idioma))
-        df
+        tabla.indicesPrecision(indices.rlr, idioma)
       }
       else{NULL}
     }, error = function(e){
@@ -337,7 +335,7 @@ mod_penalized_Regression_server <- function(input, output, session, updateData, 
       NULL
     })
   },striped = TRUE, bordered = TRUE, spacing = 'l', 
-  width = '100%',  digits = 5,align = 'c')
+  width = '100%', align = 'c')
   
   
   
@@ -361,7 +359,7 @@ mod_penalized_Regression_server <- function(input, output, session, updateData, 
       NULL
     })
   },striped = TRUE, bordered = TRUE, spacing = 'l', 
-  width = '100%',  digits = 5,align = 'c')
+  width = '100%', align = 'c')
 }
 
 ## To be copied in the UI

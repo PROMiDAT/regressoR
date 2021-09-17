@@ -48,6 +48,7 @@ mod_model_comparison_server <- function(input, output, session, updateData, mode
         colnames(df) <- c(tr("RMSE",updateData$idioma), tr("MAE", updateData$idioma),
                           tr("ER", updateData$idioma)  , tr("correlacion",updateData$idioma))
         #Ordenamos por la primera columna(menor a mayor)
+        df <- round(df,2)
         df <- df[order(df[,1]),]
         
         DT::datatable(df,selection = "none", editable = FALSE,

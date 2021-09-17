@@ -254,9 +254,7 @@ mod_random_forests_server <- function(input, output, session,updateData, modelos
       if(!is.null(modelos$rf[[nombreModelo]])){
         idioma <- updateData$idioma
         indices.rf <- modelos$rf[[nombreModelo]]$indices
-        df <- as.data.frame(indices.rf)
-        colnames(df) <- c(tr("RMSE", idioma), tr("MAE", idioma), tr("ER", idioma), tr("correlacion", idioma))
-        df
+        tabla.indicesPrecision(indices.rf, idioma)
       }
       else{NULL}
     }, error = function(e){
@@ -264,7 +262,7 @@ mod_random_forests_server <- function(input, output, session,updateData, modelos
       NULL
     })
   },striped = TRUE, bordered = TRUE, spacing = 'l', 
-  width = '100%',  digits = 5,align = 'c')
+  width = '100%', align = 'c')
   
   
   
@@ -288,7 +286,7 @@ mod_random_forests_server <- function(input, output, session,updateData, modelos
       NULL
     })
   },striped = TRUE, bordered = TRUE, spacing = 'l', 
-  width = '100%',  digits = 5,align = 'c')
+  width = '100%', align = 'c')
   
   
   

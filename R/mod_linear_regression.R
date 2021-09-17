@@ -238,7 +238,7 @@ mod_linear_regression_server <- function(input, output, session, updateData, mod
       NULL
     })
   },striped = TRUE, bordered = TRUE, spacing = 'l', 
-  width = '100%',  digits = 5,align = 'c')
+  width = '100%',  digits = 2,align = 'c')
   
   
   output$indexdfrl2 <- renderTable({
@@ -261,7 +261,7 @@ mod_linear_regression_server <- function(input, output, session, updateData, mod
       NULL
     })
   },striped = TRUE, bordered = TRUE, spacing = 'l', 
-  width = '100%',  digits = 5,align = 'c')
+  width = '100%',  digits = 2,align = 'c')
   
 }
     

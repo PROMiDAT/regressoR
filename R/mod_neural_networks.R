@@ -291,9 +291,7 @@ mod_neural_networks_server <- function(input, output, session,updateData, modelo
       if(!is.null(modelos$nn[[nombreModelo]])){
         idioma <- updateData$idioma
         indices.nn <- modelos$nn[[nombreModelo]]$indices
-        df <- as.data.frame(indices.nn)
-        colnames(df) <- c(tr("RMSE", idioma), tr("MAE", idioma), tr("ER", idioma), tr("correlacion", idioma))
-        df
+        tabla.indicesPrecision(indices.nn, idioma)
       }
       else{NULL}
     }, error = function(e){
@@ -301,7 +299,7 @@ mod_neural_networks_server <- function(input, output, session,updateData, modelo
       NULL
     })
   },striped = TRUE, bordered = TRUE, spacing = 'l', 
-  width = '100%',  digits = 5,align = 'c')
+  width = '100%', align = 'c')
   
   
   
@@ -325,7 +323,7 @@ mod_neural_networks_server <- function(input, output, session,updateData, modelo
       NULL
     })
   },striped = TRUE, bordered = TRUE, spacing = 'l', 
-  width = '100%',  digits = 5,align = 'c')
+  width = '100%', align = 'c')
   
 }
 

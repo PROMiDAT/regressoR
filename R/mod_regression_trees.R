@@ -256,9 +256,7 @@ mod_regression_trees_server <- function(input, output, session,updateData, model
       if(!is.null(modelos$dt[[nombreModelo]])){
         idioma <- updateData$idioma
         indices.dt <- modelos$dt[[nombreModelo]]$indices
-        df <- as.data.frame(indices.dt)
-        colnames(df) <- c(tr("RMSE", idioma), tr("MAE", idioma), tr("ER", idioma), tr("correlacion", idioma))
-        df
+        tabla.indicesPrecision(indices.dt, idioma)
       }
       else{NULL}
     }, error = function(e){
@@ -266,7 +264,7 @@ mod_regression_trees_server <- function(input, output, session,updateData, model
       NULL
     })
   },striped = TRUE, bordered = TRUE, spacing = 'l', 
-  width = '100%',  digits = 5,align = 'c')
+  width = '100%', align = 'c')
   
   
   
@@ -290,7 +288,7 @@ mod_regression_trees_server <- function(input, output, session,updateData, model
       NULL
     })
   },striped = TRUE, bordered = TRUE, spacing = 'l', 
-  width = '100%',  digits = 5,align = 'c')
+  width = '100%', align = 'c')
   
 }
 

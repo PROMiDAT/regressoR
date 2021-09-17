@@ -225,9 +225,7 @@ mod_KNN_server <- function(input, output, session,updateData, modelos){
       if(!is.null(modelos$knn[[nombreModelo]])){
         idioma <- updateData$idioma
         indices.knn <- modelos$knn[[nombreModelo]]$indices
-        df <- as.data.frame(indices.knn)
-        colnames(df) <- c(tr("RMSE", idioma), tr("MAE", idioma), tr("ER", idioma), tr("correlacion", idioma))
-        df
+        tabla.indicesPrecision(indices.knn, idioma)
       }
       else{NULL}
     }, error = function(e){
@@ -235,7 +233,7 @@ mod_KNN_server <- function(input, output, session,updateData, modelos){
       NULL
     })
   },striped = TRUE, bordered = TRUE, spacing = 'l', 
-  width = '100%',  digits = 5,align = 'c')
+  width = '100%',align = 'c')
   
   
   
@@ -259,7 +257,7 @@ mod_KNN_server <- function(input, output, session,updateData, modelos){
       NULL
     })
   },striped = TRUE, bordered = TRUE, spacing = 'l', 
-  width = '100%',  digits = 5,align = 'c')
+  width = '100%',align = 'c')
   
 }
 

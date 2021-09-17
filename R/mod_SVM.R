@@ -206,9 +206,7 @@ mod_SVM_server <- function(input, output, session,updateData, modelos){
       if(!is.null(modelos$svm[[nombreModelo]])){
         idioma <- updateData$idioma
         indices.svm <- modelos$svm[[nombreModelo]]$indices
-        df <- as.data.frame(indices.svm)
-        colnames(df) <- c(tr("RMSE", idioma), tr("MAE", idioma), tr("ER", idioma), tr("correlacion", idioma))
-        df
+        tabla.indicesPrecision(indices.svm, idioma)
       }
       else{NULL}
     }, error = function(e){
@@ -216,7 +214,7 @@ mod_SVM_server <- function(input, output, session,updateData, modelos){
       NULL
     })
   },striped = TRUE, bordered = TRUE, spacing = 'l', 
-  width = '100%',  digits = 5,align = 'c')
+  width = '100%', align = 'c')
   
   
   
@@ -240,7 +238,7 @@ mod_SVM_server <- function(input, output, session,updateData, modelos){
       NULL
     })
   },striped = TRUE, bordered = TRUE, spacing = 'l', 
-  width = '100%',  digits = 5,align = 'c')
+  width = '100%', align = 'c')
   
 }
 

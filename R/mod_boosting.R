@@ -255,9 +255,7 @@ mod_boosting_server <- function(input, output, session,updateData, modelos){
       if(!is.null(modelos$boost[[nombreModelo]])){
         idioma <- updateData$idioma
         indices.boost<- modelos$boost[[nombreModelo]]$indices
-        df <- as.data.frame(indices.boost)
-        colnames(df) <- c(tr("RMSE", idioma), tr("MAE", idioma), tr("ER", idioma), tr("correlacion", idioma))
-        df
+        tabla.indicesPrecision(indices.boost, idioma)
       }
       else{NULL}
     }, error = function(e){
@@ -265,7 +263,7 @@ mod_boosting_server <- function(input, output, session,updateData, modelos){
       NULL
     })
   },striped = TRUE, bordered = TRUE, spacing = 'l', 
-  width = '100%',  digits = 5,align = 'c')
+  width = '100%', align = 'c')
   
   
   
@@ -289,7 +287,7 @@ mod_boosting_server <- function(input, output, session,updateData, modelos){
       NULL
     })
   },striped = TRUE, bordered = TRUE, spacing = 'l', 
-  width = '100%',  digits = 5,align = 'c')
+  width = '100%',align = 'c')
 }
 
 ## To be copied in the UI

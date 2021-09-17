@@ -69,7 +69,7 @@ mod_correlacion_server <- function(input, output, session, updateData){
       cod <- code.cor(colores)
       updateAceEditor(session, "fieldCodeCor", value = cod)
       
-      datos.plot <- round(cor(datos), 3)
+      datos.plot <- round(cor(datos), 2)
       e_cor(datos.plot, colores)
     }, error = function(e) {
       showNotification(paste0("ERROR: ", e), duration = 10, type = "error")

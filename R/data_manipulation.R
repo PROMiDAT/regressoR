@@ -17,14 +17,22 @@
 general_indices <- function(real, prediccion) {
   RMSE <- sqrt(sum((real - prediccion) ^ 2) / length(prediccion))
   MAE  <- sum(abs(real - prediccion)) / length(prediccion)
-  RE   <- paste0(as.character(round(sum(abs(real - prediccion)) / sum(abs(real)) * 100, 3)), "%")
+  RE   <- sum(abs(real - prediccion)) / sum(abs(real)) * 100
   desvStand <- sd(prediccion)
   COR  <- ifelse(near(desvStand,0), 0, as.numeric(cor(real, prediccion)))
   COR  <- ifelse(is.na(COR), 0 , COR)
-  return(list(Raiz.Error.Cuadratico = RMSE,
-              Error.Absoluto = MAE,
-              Error.Relativo = RE,
-              Correlacion = COR))
+  indices <- list(Raiz.Error.Cuadratico = RMSE,
+                  Error.Absoluto = MAE,
+                  Error.Relativo = RE,
+                  Correlacion = COR)
+  return(indices)
+}
+
+
+tabla.indicesPrecision <- function(indices,idioma){
+  df <- round(as.data.frame(indices), digits = 2)
+  colnames(df) <- c(tr("RMSE", idioma), tr("MAE", idioma), tr("ER", idioma), tr("correlacion", idioma))
+  return(df)
 }
 
 #' summary_indices

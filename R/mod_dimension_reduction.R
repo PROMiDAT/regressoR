@@ -343,9 +343,7 @@ mod_dimension_reduction_server <- function(input, output, session,updateData, mo
       if(!is.null(modelos$rd[[nombreModelo]])){
         idioma <- updateData$idioma
         indices.rd <- modelos$rd[[nombreModelo]]$indices
-        df <- as.data.frame(indices.rd)
-        colnames(df) <- c(tr("RMSE", idioma), tr("MAE", idioma), tr("ER", idioma), tr("correlacion", idioma))
-        df
+        tabla.indicesPrecision(indices.rd, idioma)
       }
       else{NULL}
     }, error = function(e){
@@ -353,7 +351,7 @@ mod_dimension_reduction_server <- function(input, output, session,updateData, mo
       NULL
     })
   },striped = TRUE, bordered = TRUE, spacing = 'l', 
-  width = '100%',  digits = 5,align = 'c')
+  width = '100%', align = 'c')
   
   
   
@@ -377,7 +375,7 @@ mod_dimension_reduction_server <- function(input, output, session,updateData, mo
       NULL
     })
   },striped = TRUE, bordered = TRUE, spacing = 'l', 
-  width = '100%',  digits = 5,align = 'c')
+  width = '100%', align = 'c')
   
 }
 
