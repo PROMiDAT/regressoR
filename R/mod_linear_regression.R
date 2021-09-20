@@ -147,25 +147,37 @@ mod_linear_regression_server <- function(input, output, session, updateData, mod
   })
   
   #Update Coefficients tab
-  #Necesita observeEvent porque render_table_data no es reactivo
-  observeEvent(c(modelos$rl,updateData$idioma),{
+  output$rlCoefTable <- DT::renderDataTable({
     tryCatch({
-      output$rlCoefTable <- render_table_data({
-        tryCatch({
-          if(!is.null(df.rl) && !is.null(modelos$rl[[nombreModelo]])){
-            df.rl[,c(1,4)]
-          }else{NULL}
-        }, error = function(e){
-          showNotification(paste0("Error (RL-02) : ", e), duration = 10, type = "error")
-          NULL
-        })
-      }, server = FALSE, language = updateData$idioma)
-      
-    },
-    error = function(e) {
+      if(!is.null(df.rl) && !is.null(modelos$rl[[nombreModelo]])){
+        dttable.custom(data.frame(id = row.names(df.rl), coeff = df.rl[,1]))
+      }
+      else{NULL}
+    }, error = function(e){
       showNotification(paste0("Error (RL-02) : ", e), duration = 10, type = "error")
+      NULL
     })
-  },ignoreInit = TRUE)
+  }, server = F)
+  
+  #Necesita observeEvent porque render_table_data no es reactivo
+  # observeEvent(c(modelos$rl,updateData$idioma),{
+  #   tryCatch({
+  #     output$rlCoefTable <- render_table_data({
+  #       tryCatch({
+  #         if(!is.null(df.rl) && !is.null(modelos$rl[[nombreModelo]])){
+  #           df.rl[,c(1,4)]
+  #         }else{NULL}
+  #       }, error = function(e){
+  #         showNotification(paste0("Error (RL-02) : ", e), duration = 10, type = "error")
+  #         NULL
+  #       })
+  #     }, server = FALSE, language = updateData$idioma)
+  #     
+  #   },
+  #   error = function(e) {
+  #     showNotification(paste0("Error (RL-02) : ", e), duration = 10, type = "error")
+  #   })
+  # },ignoreInit = TRUE)
 
   
   

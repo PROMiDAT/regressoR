@@ -792,6 +792,7 @@ mod_new_data_predictions_server <- function(input, output, session, updateData, 
     tryCatch({
       prediccion <- new.data$prediccion
       if(!is.null(prediccion)){
+        prediccion <- round(prediccion,2)
         datos.nuevos.pred <- new.data$nuevos
         #Eliminamos la antigua columna de la variable a predecir
         nombres <- colnames(datos.nuevos.pred)

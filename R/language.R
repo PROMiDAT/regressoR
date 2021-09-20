@@ -2,8 +2,8 @@ load("inst/app/lang/translation.bin") # Load translation.bin (dictionary to chan
 enc <- "utf8"
 
 cambiar.labels <- function(){
-  c("idioma","selidioma","data","basico","resumen","normalidad",
-    "dispersion","distribucion","correlacion","poderpred","reporte",
+  c("id","idioma","selidioma","data","basico","resumen","normalidad",
+    "dispersion","distribucion","correlacion","coeff","poderpred","reporte",
     "aprendizaje","acercade","comparacion","predicnuevos","knn","dt",
     "rf","boost","svm","cargar","header","Rownames","eliminana","si","no",
     "cargarchivo","subir","trans","aplicar","separador","coma","puntocoma",

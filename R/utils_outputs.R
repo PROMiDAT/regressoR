@@ -118,6 +118,23 @@ render_table_data <- function(data, editable = TRUE, dom = "frtip", pageLength =
                                     options = list(dom = dom, pageLength = pageLength, scrollY = scrollY)), server = server))
 }
 
+
+dttable.custom <- function(df){
+  print(colnames(df))
+  #olumnas.translate <- sapply(colnames(df), function(c) return(paste0("<span data-id='",c,"'></span>")))
+  columnas.translate <- sapply(colnames(df), function(c) return(labelInput(df)))
+  #tipo.columnas <- lapply(columnas.translate, function(i)tags$th(HTML(i)))
+  sketch <- withTags(table(DT::tableHeader(columnas.translate)))
+  
+  return(DT::datatable(df,
+                       rownames = FALSE,
+                       selection = "none",
+                       editable = FALSE,
+                       escape  = FALSE,
+                       container = sketch,
+                       options = list(dom = "frtip", pageLength = 10)))
+}
+
 #' tb_predic
 #' 
 #' @description creates comparison table between prediction and real data (test data).
@@ -133,6 +150,8 @@ tb_predic <- function(real, predic.var, languaje = "es"){
   colns <- c(tr("reald",languaje), tr("pred",languaje), tr("dif",languaje))
   colnames(df) <- colns
   sketch <- htmltools::withTags(table(DT::tableHeader(c("ID",colns))))
+  
+  df <- round(df,2)
   return(DT::datatable(df,
                        selection = "none",
                        editable = FALSE,
