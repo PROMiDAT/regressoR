@@ -185,7 +185,7 @@ mod_regression_trees_server <- function(input, output, session,updateData, model
           datos.prueba <- updateData$datos.prueba
           real.val <- datos.prueba[updateData$variable.predecir]
         })
-        tb_predic(real.val, prediccion.dt, updateData$idioma)
+        tb_predic(real.val, prediccion.dt, updateData$decimals, updateData$idioma)
       }
       else{NULL}
       
@@ -256,7 +256,7 @@ mod_regression_trees_server <- function(input, output, session,updateData, model
       if(!is.null(modelos$dt[[nombreModelo]])){
         idioma <- updateData$idioma
         indices.dt <- modelos$dt[[nombreModelo]]$indices
-        tabla.indicesPrecision(indices.dt, idioma)
+        tabla.indicesPrecision(indices.dt, updateData$decimals, idioma)
       }
       else{NULL}
     }, error = function(e){

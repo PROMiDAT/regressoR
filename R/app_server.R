@@ -20,7 +20,8 @@ app_server <- function( input, output, session ) {
   #updateData always has the same values of the global variables(datos, datos.prueba, datos.aprendizaje).
   updateData <- reactiveValues(originales = NULL, datos = NULL, 
                                datos.prueba = NULL, datos.aprendizaje = NULL, 
-                               variable.predecir = NULL, newpred = NULL, idioma = "es")
+                               variable.predecir = NULL, newpred = NULL,
+                               idioma = "es", decimals = 2)
   
   modelos    <-  reactiveValues(rl = NULL, rlr= NULL, dt = NULL, 
                                 rf = NULL, boost = NULL, knn = NULL, 
@@ -65,6 +66,22 @@ app_server <- function( input, output, session ) {
       updateData$idioma <- input$idioma
     }
     updateLabelInput(session, cambiar.labels(), tr(cambiar.labels(), input$idioma))
+  })
+  
+  observeEvent(input$decimals_confg,{
+    n <- input$decimals_confg
+    if(is.numeric(n)){
+      if(n >= 0 & n <= 20){
+        updateData$decimals <- n
+      }
+      else{
+        updateNumericInput(session,inputId = "decimals_confg",value = 2)
+        updateData$decimals <- 2
+      }
+    }
+    else{
+      updateData$decimals <- 2
+    }
   })
   
   

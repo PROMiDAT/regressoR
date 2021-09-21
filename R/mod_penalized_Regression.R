@@ -58,7 +58,7 @@ mod_penalized_Regression_ui <- function(id){
                                     echarts4rOutput(ns('plot_rlr_posiblanda'), height = "80vh"))
   
   coeff.rlr.panel <- tabPanel(title = labelInput("coeff"),value = "tabRlrCoeff",
-                              withLoader(verbatimTextOutput(ns("txtRlrCoeff")),type = "html", loader = "loader4"))
+                              withLoader(DT::dataTableOutput(ns("dtRlrCoeff")),type = "html", loader = "loader4"))
   
   landa.rlr.panel <- tabPanel(title = labelInput("gcoeff"),value = "tabRlrCoeff_landa",
                               echarts4rOutput(ns('plot_rlr_Coeff_landa'), height = "75vh"))
@@ -259,14 +259,20 @@ mod_penalized_Regression_server <- function(input, output, session, updateData, 
   
   
   #Update coefficients tab
-  output$txtRlrCoeff <- renderPrint({
+  output$dtRlrCoeff <- DT::renderDataTable({
     tryCatch({
-      ifelse(!is.null(modelos$rlr[[nombreModelo]]), print(coefficients), NULL)
+      if(!is.null(modelos$rlr[[nombreModelo]])){
+        dttable.custom(data.frame(row.names = row.names(coefficients),coeff = as.vector(coefficients)), 
+                       decimals = updateData$decimals,translatable = TRUE, language = isolate(updateData$idioma))
+      }
+      else{
+        NULL
+      }
     }, error = function(e){
       showNotification(paste0("Error (RLR-04) : ", e), duration = 10, type = "error")
       NULL
     })
-  })
+  }, server = FALSE)
   
   
   # Update prediction tab
@@ -278,7 +284,7 @@ mod_penalized_Regression_server <- function(input, output, session, updateData, 
           datos.prueba <- updateData$datos.prueba
           real.val <- datos.prueba[updateData$variable.predecir]
         })
-        tb_predic(real.val, prediccion.rlr, updateData$idioma)
+        tb_predic(real.val, prediccion.rlr, updateData$decimals, updateData$idioma)
       }
       else{NULL}
       
@@ -327,7 +333,7 @@ mod_penalized_Regression_server <- function(input, output, session, updateData, 
       if(!is.null(modelos$rlr[[nombreModelo]])){
         idioma <- updateData$idioma
         indices.rlr <- modelos$rlr[[nombreModelo]]$indices
-        tabla.indicesPrecision(indices.rlr, idioma)
+        tabla.indicesPrecision(indices.rlr, updateData$decimals, idioma)
       }
       else{NULL}
     }, error = function(e){

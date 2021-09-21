@@ -242,7 +242,7 @@ mod_neural_networks_server <- function(input, output, session,updateData, modelo
           datos.prueba <- updateData$datos.prueba
           real.val <- datos.prueba[updateData$variable.predecir]
         })
-        tb_predic(real.val, prediccion.nn, updateData$idioma)
+        tb_predic(real.val, prediccion.nn, updateData$decimals, updateData$idioma)
       }
       else{NULL}
       
@@ -291,7 +291,7 @@ mod_neural_networks_server <- function(input, output, session,updateData, modelo
       if(!is.null(modelos$nn[[nombreModelo]])){
         idioma <- updateData$idioma
         indices.nn <- modelos$nn[[nombreModelo]]$indices
-        tabla.indicesPrecision(indices.nn, idioma)
+        tabla.indicesPrecision(indices.nn, updateData$decimals, idioma)
       }
       else{NULL}
     }, error = function(e){

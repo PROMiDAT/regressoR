@@ -152,7 +152,7 @@ mod_new_data_predictions_ui <- function(id){
   
   options.model <- list(selectInput(inputId = ns("sel.predic.var.nuevos"), label = labelInput("seleccionarPredecir"), choices =  "", width = "100%"),
                         radioGroupMulti(id = ns("selectModelsPred"), label = "selectMod",
-                                   c("rl","rlr","dt","rf","boost","knn","svm","rd","nn")))
+                                        c("rl","rlr","dt","rf","boost","knn","svm","rd","nn")))
   
   tabs.models  <- tabsOptions(buttons = list(icon("code")), widths = c(100), heights = c(40),
                               tabs.content = list(list(codigo.monokai(ns("fieldPredNuevos"), height = "7vh"))))
@@ -162,31 +162,31 @@ mod_new_data_predictions_ui <- function(id){
     column(width = 1, actionButton(inputId = ns("btn_prev2"),
                                    label = NULL, icon = icon("backward"), style = btn_style) ),
     column(width = 10,tabBox(id = ns("BoxModel_New_Data"),
-      width = 12,
-      tabPanel(title = labelInput("seleParModel"),solidHeader = FALSE, collapsible = FALSE, collapsed = FALSE, value = "crearModelo",
-               options.model,
-               conditionalPanel(condition =  "input.selectModelsPred == 'rl'",
-                                options.rl.pred, ns = ns),
-               conditionalPanel(condition =  "input.selectModelsPred == 'rlr'",
-                                options.rlr.pred, ns = ns),
-               conditionalPanel(condition =  "input.selectModelsPred == 'knn'",
-                                options.knn.pred, ns = ns),
-               conditionalPanel(condition =  "input.selectModelsPred == 'dt'",
-                                options.dt.pred, ns = ns),
-               conditionalPanel(condition =  "input.selectModelsPred == 'rf'",
-                                options.rf.pred, ns = ns),
-               conditionalPanel(condition =  "input.selectModelsPred == 'boost'",
-                                options.boosting.pred, ns = ns),
-               conditionalPanel(condition =  "input.selectModelsPred == 'svm'",
-                                options.svm.pred, ns = ns),
-               conditionalPanel(condition =  "input.selectModelsPred == 'nn'",
-                                options.nn.pred, ns = ns),
-               conditionalPanel(condition =  "input.selectModelsPred == 'rd'",
-                                options.rd.pred, ns = ns),
-               withLoader(verbatimTextOutput(ns("txtPredNuevos")), type = "html", loader = "loader4"),
-               actionButton(ns("PredNuevosBttnModelo"), labelInput("generarM"), 
-                            width  = "100%", style = "background-color:#CBB051;color:#fff;margin-top:9px;")),
-      tabs.models)),
+                             width = 12,
+                             tabPanel(title = labelInput("seleParModel"),solidHeader = FALSE, collapsible = FALSE, collapsed = FALSE, value = "crearModelo",
+                                      options.model,
+                                      conditionalPanel(condition =  "input.selectModelsPred == 'rl'",
+                                                       options.rl.pred, ns = ns),
+                                      conditionalPanel(condition =  "input.selectModelsPred == 'rlr'",
+                                                       options.rlr.pred, ns = ns),
+                                      conditionalPanel(condition =  "input.selectModelsPred == 'knn'",
+                                                       options.knn.pred, ns = ns),
+                                      conditionalPanel(condition =  "input.selectModelsPred == 'dt'",
+                                                       options.dt.pred, ns = ns),
+                                      conditionalPanel(condition =  "input.selectModelsPred == 'rf'",
+                                                       options.rf.pred, ns = ns),
+                                      conditionalPanel(condition =  "input.selectModelsPred == 'boost'",
+                                                       options.boosting.pred, ns = ns),
+                                      conditionalPanel(condition =  "input.selectModelsPred == 'svm'",
+                                                       options.svm.pred, ns = ns),
+                                      conditionalPanel(condition =  "input.selectModelsPred == 'nn'",
+                                                       options.nn.pred, ns = ns),
+                                      conditionalPanel(condition =  "input.selectModelsPred == 'rd'",
+                                                       options.rd.pred, ns = ns),
+                                      withLoader(verbatimTextOutput(ns("txtPredNuevos")), type = "html", loader = "loader4"),
+                                      actionButton(ns("PredNuevosBttnModelo"), labelInput("generarM"), 
+                                                   width  = "100%", style = "background-color:#CBB051;color:#fff;margin-top:9px;")),
+                             tabs.models)),
     column(width = 1, actionButton(inputId = ns("btn_next3"),
                                    label = NULL, icon = icon("forward"), style = btn_style_hidden) )
   ))
@@ -201,13 +201,13 @@ mod_new_data_predictions_ui <- function(id){
     column(width = 1, actionButton(inputId = ns("btn_prev4"),
                                    label = NULL, icon = icon("backward"), style = btn_style) ),
     column(width = 11,tabBox(id = ns("BoxPrediccion_New_Data"),
-      width = 12,
-      tabPanel(title = labelInput("predicnuevos"), value = "predicModelo",
-               DT::dataTableOutput(ns("PrediTablePN")),
-               hr(),
-               downloadButton(ns("downloaDatosPred"), labelInput("descargar"), style = "width:100%"),
-               actionButton(ns("predecirPromidat"), "preditc",style="display:none;")),
-      tabs.models2))))
+                             width = 12,
+                             tabPanel(title = labelInput("predicnuevos"), value = "predicModelo",
+                                      DT::dataTableOutput(ns("PrediTablePN")),
+                                      hr(),
+                                      downloadButton(ns("downloaDatosPred"), labelInput("descargar"), style = "width:100%"),
+                                      actionButton(ns("predecirPromidat"), "preditc",style="display:none;")),
+                             tabs.models2))))
   
   
   
@@ -591,106 +591,106 @@ mod_new_data_predictions_server <- function(input, output, session, updateData, 
       gen.code <- ""
       
       new.data$modelo <- switch(modelo.seleccionado,
-                                        rl   = {
-                                          gen.code <- codeRl(variable.predecir)
-                                          rl_model(datos.aprendizaje,variable.predecir)
-                                        },
-                                        rlr  = {
-                                          alpha <- as.numeric(input$alpha.rlr)
-                                          standardize <- as.logical(input$switch_scale_rlr)
-                                          gen.code <- codeRlr(variable.predecir,alpha,standardize)
-                                          rlr_model(data = datos.aprendizaje, variable.pred = variable.predecir,
-                                                    alpha = alpha, standardize = standardize)
-                                        },
-                                        
-                                        dt  = {
-                                          gen.code <- codeDt(variable.predecir,input$minsplit_dt,input$maxdepth_dt)
-                                          dt_model(datos.aprendizaje, variable.predecir,
-                                                   minsplit = input$minsplit_dt,
-                                                   maxdepth = input$maxdepth_dt)
-                                        },
-                                        
-                                        rf  = {
-                                          ntree <- input$ntree_rf
-                                          mtry <- input$mtry_rf
-                                          #Validacion tamaño del mtry
-                                          tam <- ncol(datos.aprendizaje)
-                                          if(mtry >= tam){
-                                            mtry <- tam - 1
-                                            updateNumericInput(session, "mtry_rf", value = mtry)
-                                          }
-                                          
-                                          gen.code <- codeRf(variable.predecir,ntree, mtry)
-                                          rf_model(datos.aprendizaje, variable.predecir, ntree, mtry)
-                                        },
-                                        
-                                        knn =  {
-                                          scale <- as.logical(input$switch_scale_knn)
-                                          kernel <- input$kernel_knn
-                                          k <- input$k_knn
-                                          distance <- input$distance_knn
-                                          #Validacion tamaño del k
-                                          tam <- nrow(datos.aprendizaje)
-                                          if(k >= tam){
-                                            k <- tam - 2
-                                            updateNumericInput(session, "k_knn", value = k)
-                                          }
-                                          
-                                          gen.code <- codeKnn(variable.predecir, scale, k, kernel,distance)
-                                          kkn_model(datos.aprendizaje,variable.predecir, scale, k, kernel, distance)
-                                        },
-                                        
-                                        boost = {
-                                          if(!is.null(calibrate_boosting(datos.aprendizaje))){
-                                            n.trees <- input$iter_boosting
-                                            distribution <- input$tipo_boosting
-                                            shrinkage <- input$shrinkage_boosting
-                                            gen.code <- codeBoost(variable.predecir, n.trees, distribution, shrinkage)
-                                            boosting_model(datos.aprendizaje,variable.predecir, n.trees, distribution, shrinkage)
-                                          }
-                                          else{
-                                            showNotification(tr("ErrorBsize"), duration = 10, type = "error")
-                                            NULL
-                                          }
-                                        },
-                                        svm = {
-                                          scale <- as.logical(input$switch_scale_svm)
-                                          kernel <- input$kernel_svm
-                                          gen.code <- codeSvm(variable.predecir,scale,kernel)
-                                          svm_model(datos.aprendizaje,variable.predecir, scale, kernel)
-                                        },
-                                        
-                                        rd = {
-                                          scale <- as.logical(input$switch_scale_rd)
-                                          modo.rd <- input$mode_rd
-                                          gen.code <- codeRd(variable.predecir,modo.rd, scale)
-                                          modelo.rd <- rd_model(datos.aprendizaje,variable.predecir, modo.rd, scale)
-                                          ncomp <- NULL
-                                          if (as.logical(input$permitir_ncomp) && !is.na(input$ncomp_rd)) {
-                                            if(input$ncomp_rd >= 1 && input$ncomp_rd <= ncol(datos.aprendizaje)){
-                                              ncomp <- input$ncomp_rd
-                                            }
-                                          }
-                                          if(is.null(ncomp)){
-                                            ncomp <- modelo.rd$optimal.n.comp
-                                            updateNumericInput(session,"ncomp_rd", value = ncomp)
-                                          }
-                                          modelo.rd$ncomp_rd <- ncomp
-                                          modelo.rd
-                                        },
-                                        nn = {
-                                          threshold <- input$threshold_nn
-                                          stepmax <- input$stepmax_nn
-                                          cant.capas <- input$cant_capas_nn
-                                          threshold <- ifelse(threshold == 0, 0.01, threshold)
-                                          stepmax <- ifelse(stepmax < 100, 100, stepmax)
-                                          hidden <- c(input$nn_cap_1,input$nn_cap_2,input$nn_cap_3,input$nn_cap_4,
-                                                      input$nn_cap_5,input$nn_cap_6,input$nn_cap_7,input$nn_cap_8,
-                                                      input$nn_cap_9,input$nn_cap_10)
-                                          hidden <- hidden[1:cant.capas]
-                                          gen.code <- codeNn(variable.predecir, hidden, threshold, stepmax)
-                                          nn_model(datos.aprendizaje,variable.predecir, hidden, threshold, stepmax)
-                                        })
+                                rl   = {
+                                  gen.code <- codeRl(variable.predecir)
+                                  rl_model(datos.aprendizaje,variable.predecir)
+                                },
+                                rlr  = {
+                                  alpha <- as.numeric(input$alpha.rlr)
+                                  standardize <- as.logical(input$switch_scale_rlr)
+                                  gen.code <- codeRlr(variable.predecir,alpha,standardize)
+                                  rlr_model(data = datos.aprendizaje, variable.pred = variable.predecir,
+                                            alpha = alpha, standardize = standardize)
+                                },
+                                
+                                dt  = {
+                                  gen.code <- codeDt(variable.predecir,input$minsplit_dt,input$maxdepth_dt)
+                                  dt_model(datos.aprendizaje, variable.predecir,
+                                           minsplit = input$minsplit_dt,
+                                           maxdepth = input$maxdepth_dt)
+                                },
+                                
+                                rf  = {
+                                  ntree <- input$ntree_rf
+                                  mtry <- input$mtry_rf
+                                  #Validacion tamaño del mtry
+                                  tam <- ncol(datos.aprendizaje)
+                                  if(mtry >= tam){
+                                    mtry <- tam - 1
+                                    updateNumericInput(session, "mtry_rf", value = mtry)
+                                  }
+                                  
+                                  gen.code <- codeRf(variable.predecir,ntree, mtry)
+                                  rf_model(datos.aprendizaje, variable.predecir, ntree, mtry)
+                                },
+                                
+                                knn =  {
+                                  scale <- as.logical(input$switch_scale_knn)
+                                  kernel <- input$kernel_knn
+                                  k <- input$k_knn
+                                  distance <- input$distance_knn
+                                  #Validacion tamaño del k
+                                  tam <- nrow(datos.aprendizaje)
+                                  if(k >= tam){
+                                    k <- tam - 2
+                                    updateNumericInput(session, "k_knn", value = k)
+                                  }
+                                  
+                                  gen.code <- codeKnn(variable.predecir, scale, k, kernel,distance)
+                                  kkn_model(datos.aprendizaje,variable.predecir, scale, k, kernel, distance)
+                                },
+                                
+                                boost = {
+                                  if(!is.null(calibrate_boosting(datos.aprendizaje))){
+                                    n.trees <- input$iter_boosting
+                                    distribution <- input$tipo_boosting
+                                    shrinkage <- input$shrinkage_boosting
+                                    gen.code <- codeBoost(variable.predecir, n.trees, distribution, shrinkage)
+                                    boosting_model(datos.aprendizaje,variable.predecir, n.trees, distribution, shrinkage)
+                                  }
+                                  else{
+                                    showNotification(tr("ErrorBsize"), duration = 10, type = "error")
+                                    NULL
+                                  }
+                                },
+                                svm = {
+                                  scale <- as.logical(input$switch_scale_svm)
+                                  kernel <- input$kernel_svm
+                                  gen.code <- codeSvm(variable.predecir,scale,kernel)
+                                  svm_model(datos.aprendizaje,variable.predecir, scale, kernel)
+                                },
+                                
+                                rd = {
+                                  scale <- as.logical(input$switch_scale_rd)
+                                  modo.rd <- input$mode_rd
+                                  gen.code <- codeRd(variable.predecir,modo.rd, scale)
+                                  modelo.rd <- rd_model(datos.aprendizaje,variable.predecir, modo.rd, scale)
+                                  ncomp <- NULL
+                                  if (as.logical(input$permitir_ncomp) && !is.na(input$ncomp_rd)) {
+                                    if(input$ncomp_rd >= 1 && input$ncomp_rd <= ncol(datos.aprendizaje)){
+                                      ncomp <- input$ncomp_rd
+                                    }
+                                  }
+                                  if(is.null(ncomp)){
+                                    ncomp <- modelo.rd$optimal.n.comp
+                                    updateNumericInput(session,"ncomp_rd", value = ncomp)
+                                  }
+                                  modelo.rd$ncomp_rd <- ncomp
+                                  modelo.rd
+                                },
+                                nn = {
+                                  threshold <- input$threshold_nn
+                                  stepmax <- input$stepmax_nn
+                                  cant.capas <- input$cant_capas_nn
+                                  threshold <- ifelse(threshold == 0, 0.01, threshold)
+                                  stepmax <- ifelse(stepmax < 100, 100, stepmax)
+                                  hidden <- c(input$nn_cap_1,input$nn_cap_2,input$nn_cap_3,input$nn_cap_4,
+                                              input$nn_cap_5,input$nn_cap_6,input$nn_cap_7,input$nn_cap_8,
+                                              input$nn_cap_9,input$nn_cap_10)
+                                  hidden <- hidden[1:cant.capas]
+                                  gen.code <- codeNn(variable.predecir, hidden, threshold, stepmax)
+                                  nn_model(datos.aprendizaje,variable.predecir, hidden, threshold, stepmax)
+                                })
       
       
       updateAceEditor(session, "fieldPredNuevos", value = gen.code)
@@ -788,31 +788,33 @@ mod_new_data_predictions_server <- function(input, output, session, updateData, 
   
   
   #Update prediction tab
-  observeEvent(new.data$prediccion,{
+  output$PrediTablePN <- DT::renderDataTable({
     tryCatch({
+      isolate({
+        datos.nuevos.pred <- new.data$nuevos
+        variable.predecir <- new.data$variable.predecir
+      })
       prediccion <- new.data$prediccion
       if(!is.null(prediccion)){
-        prediccion <- round(prediccion,2)
-        datos.nuevos.pred <- new.data$nuevos
+        prediccion <- round(prediccion,updateData$decimals)
         #Eliminamos la antigua columna de la variable a predecir
         nombres <- colnames(datos.nuevos.pred)
-        datos.nuevos.pred <- datos.nuevos.pred[!nombres %in% new.data$variable.predecir]
+        datos.nuevos.pred <- datos.nuevos.pred[!nombres %in% variable.predecir]
         
         #Colocamos de ultimo la columna con las predicciones
-        datos.nuevos.pred[, new.data$variable.predecir] <- as.vector(prediccion)
+        datos.nuevos.pred[, variable.predecir] <- as.vector(prediccion)
         
-        output$PrediTablePN <- render_table_data(datos.nuevos.pred,editable = F,
-                                                 scrollY = "40vh",server = T)
+        dttable.custom(datos.nuevos.pred, decimals = NULL)
       }
       else{
-        output$PrediTablePN <- DT::renderDT(DT::datatable(data.frame()))
         updateAceEditor(session, "fieldCodePredPN", value = "")
+        DT::datatable(data.frame())
       }
     }, error = function(e){
       showNotification(paste0("Error :", e), duration = 10, type = "error")
-      output$PrediTablePN <- DT::renderDT(DT::datatable(data.frame()))
+      DT::datatable(data.frame())
     })
-  })
+  }, server = FALSE)
   
   
   # When the user enters the prediction panel
@@ -834,53 +836,53 @@ mod_new_data_predictions_server <- function(input, output, session, updateData, 
           
           new.data$prediccion <- NULL
           new.data$prediccion <- switch(modelo.seleccionado,
-                                                
-                                                rl  =  {
-                                                  pred.code <- codeRlPred()
-                                                  rl_prediction(modelo, datos.prueba)
-                                                },
-                                                
-                                                rlr =  {
-                                                  if (as.logical(input$permitir_landa) && !is.na(input$log_landa)) {
-                                                    log.landa <- input$log_landa
-                                                  }
-                                                  else{log.landa <- NULL}
-                                                  pred.code <- codeRlrPred("rlr.model", variable.predecir,log.landa)
-                                                  rlr_prediction(modelo, datos.prueba, variable.predecir,log.lambda = log.landa)
-                                                },
-                                                dt  = {
-                                                  pred.code <- codeDtPred()
-                                                  dt_prediction(modelo,datos.prueba)
-                                                },
-                                                
-                                                
-                                                rf  = {
-                                                  pred.code <- codeRfPred()
-                                                  rf_prediction(modelo, datos.prueba)
-                                                },
-                                                
-                                                knn =  {
-                                                  pred.code <- codeKnnPred()
-                                                  kkn_prediction(modelo, datos.prueba)
-                                                },
-                                                
-                                                boost = {
-                                                  pred.code <- codeBoostPred("boosting.model", input$iter_boosting)
-                                                  boosting_prediction(modelo, datos.prueba, input$iter_boosting)
-                                                },
-                                                svm = {
-                                                  pred.code <- codeSvmPred()
-                                                  svm_prediction(modelo, datos.prueba)
-                                                },
-                                                
-                                                rd  =  {
-                                                  pred.code <- codeRdPred("rd.model",modelo$ncomp_rd)
-                                                  rd_prediction(modelo,datos.prueba, modelo$ncomp_rd)
-                                                },
-                                                nn = {
-                                                  pred.code <- codeNnPred()
-                                                  nn_prediction(modelo, datos.prueba)
-                                                })
+                                        
+                                        rl  =  {
+                                          pred.code <- codeRlPred()
+                                          rl_prediction(modelo, datos.prueba)
+                                        },
+                                        
+                                        rlr =  {
+                                          if (as.logical(input$permitir_landa) && !is.na(input$log_landa)) {
+                                            log.landa <- input$log_landa
+                                          }
+                                          else{log.landa <- NULL}
+                                          pred.code <- codeRlrPred("rlr.model", variable.predecir,log.landa)
+                                          rlr_prediction(modelo, datos.prueba, variable.predecir,log.lambda = log.landa)
+                                        },
+                                        dt  = {
+                                          pred.code <- codeDtPred()
+                                          dt_prediction(modelo,datos.prueba)
+                                        },
+                                        
+                                        
+                                        rf  = {
+                                          pred.code <- codeRfPred()
+                                          rf_prediction(modelo, datos.prueba)
+                                        },
+                                        
+                                        knn =  {
+                                          pred.code <- codeKnnPred()
+                                          kkn_prediction(modelo, datos.prueba)
+                                        },
+                                        
+                                        boost = {
+                                          pred.code <- codeBoostPred("boosting.model", input$iter_boosting)
+                                          boosting_prediction(modelo, datos.prueba, input$iter_boosting)
+                                        },
+                                        svm = {
+                                          pred.code <- codeSvmPred()
+                                          svm_prediction(modelo, datos.prueba)
+                                        },
+                                        
+                                        rd  =  {
+                                          pred.code <- codeRdPred("rd.model",modelo$ncomp_rd)
+                                          rd_prediction(modelo,datos.prueba, modelo$ncomp_rd)
+                                        },
+                                        nn = {
+                                          pred.code <- codeNnPred()
+                                          nn_prediction(modelo, datos.prueba)
+                                        })
           
           updateAceEditor(session, "fieldCodePredPN", value = pred.code)
           

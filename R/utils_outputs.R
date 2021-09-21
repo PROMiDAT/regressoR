@@ -112,27 +112,44 @@ render_table_data <- function(data, editable = TRUE, dom = "frtip", pageLength =
                                                              paste0("<span data-id='categorico'>", labelsNC[2], "</span>")))
   tipo.columnas <- lapply(tipo.columnas, function(i)tags$th(HTML(i)))
   sketch <- withTags(table(DT::tableHeader(nombre.columnas),
-                                      tags$tfoot(tags$tr(tags$th(), tipo.columnas))))
+                           tags$tfoot(tags$tr(tags$th(), tipo.columnas))))
   
   return(DT::renderDT(DT::datatable(data, selection = 'none', editable = editable,  container = sketch,
                                     options = list(dom = dom, pageLength = pageLength, scrollY = scrollY)), server = server))
 }
 
 
-dttable.custom <- function(df){
-  print(colnames(df))
-  #olumnas.translate <- sapply(colnames(df), function(c) return(paste0("<span data-id='",c,"'></span>")))
-  columnas.translate <- sapply(colnames(df), function(c) return(labelInput(df)))
-  #tipo.columnas <- lapply(columnas.translate, function(i)tags$th(HTML(i)))
-  sketch <- withTags(table(DT::tableHeader(columnas.translate)))
+#El parámetro idioma se utiliza para cuando se llama directamente la función
+#Cuando se actualiza el idioma simplemente se cambian los nombres del encabezado a traves de los span data-id
+dttable.custom <- function(df, decimals = NULL, translatable = FALSE, language = "es"){
+  
+  columnas.nombres <- c("ID",colnames(df))
+  
+  #Redondeos
+  if(!is.null(decimals)){
+    df <- data.frame(lapply(df, function(x) if(is.numeric(x)) round(x, decimals) else x),
+                     row.names = row.names(df))
+  }
+  
+  #Traducciones
+  if(translatable){
+    columnas.nombres <- sapply(columnas.nombres, function(c) return(HTML(paste0("<span data-id='",c,"'>",tr(c,language),"</span>"))))
+  }
+  
+  #Bosquejo
+  sketch <- withTags(table(DT::tableHeader(columnas.nombres, escape = FALSE)))
   
   return(DT::datatable(df,
-                       rownames = FALSE,
+                       rownames = TRUE,
                        selection = "none",
                        editable = FALSE,
                        escape  = FALSE,
                        container = sketch,
-                       options = list(dom = "frtip", pageLength = 10)))
+                       options = list(dom = "frtip", pageLength = 10, 
+                                      columnDefs = list(
+                                        list(orderable=TRUE, targets=0),
+                                        list(className = 'dt-center', targets = "_all"))
+                       )))
 }
 
 #' tb_predic
@@ -145,17 +162,26 @@ dttable.custom <- function(df){
 #'
 #' @noRd
 #'
-tb_predic <- function(real, predic.var, languaje = "es"){
+tb_predic <- function(real, predic.var, decimals = NULL, languaje = "es"){
   df   <- cbind(real, predic.var,  abs(real - predic.var))
   colns <- c(tr("reald",languaje), tr("pred",languaje), tr("dif",languaje))
   colnames(df) <- colns
   sketch <- htmltools::withTags(table(DT::tableHeader(c("ID",colns))))
   
-  df <- round(df,2)
+  #Redondeo
+  if(!is.null(decimals)){
+    df <- round(df,decimals)
+  }
+  
   return(DT::datatable(df,
                        selection = "none",
                        editable = FALSE,
                        escape  = FALSE,
                        container = sketch,
-                       options = list(dom = "frtip", pageLength = 10)))
+                       options = list(dom = "frtip", pageLength = 10,
+                                      columnDefs = list(
+                                        list(orderable=TRUE, targets=0),
+                                        list(className = 'dt-center', targets = "_all"))
+                                      )
+                       ))
 }

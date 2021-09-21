@@ -1,5 +1,7 @@
 key;es;en
+confg;Configuración;Configuration
 idioma;Idioma;Language
+ndec;Número de Decimales;Number of Decimals
 espanol;Español;Spanish
 selidioma;Seleccionar Idioma:;Select Language
 data;Datos;Data
@@ -30,7 +32,7 @@ reporte;Generar Reporte;Generate Report
 acercade;Acerca De;About
 cargar;Cargar;Load
 trans;Transformar;Transform
-id;ID;ID
+ID;ID;ID
 header;Nombre de Variables;Variables names
 Rownames;Nombre de Individuos;Row names
 separador;Separador de Datos;Data Separator

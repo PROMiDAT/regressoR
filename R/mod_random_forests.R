@@ -206,7 +206,7 @@ mod_random_forests_server <- function(input, output, session,updateData, modelos
           datos.prueba <- updateData$datos.prueba
           real.val <- datos.prueba[updateData$variable.predecir]
         })
-        tb_predic(real.val, prediccion.rf, updateData$idioma)
+        tb_predic(real.val, prediccion.rf, updateData$decimals, updateData$idioma)
       }
       else{NULL}
       
@@ -254,7 +254,7 @@ mod_random_forests_server <- function(input, output, session,updateData, modelos
       if(!is.null(modelos$rf[[nombreModelo]])){
         idioma <- updateData$idioma
         indices.rf <- modelos$rf[[nombreModelo]]$indices
-        tabla.indicesPrecision(indices.rf, idioma)
+        tabla.indicesPrecision(indices.rf, updateData$decimals, idioma)
       }
       else{NULL}
     }, error = function(e){

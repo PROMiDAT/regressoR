@@ -204,7 +204,7 @@ mod_boosting_server <- function(input, output, session,updateData, modelos){
           datos.prueba <- updateData$datos.prueba
           real.val <- datos.prueba[updateData$variable.predecir]
         })
-        tb_predic(real.val, prediccion.boost, updateData$idioma)
+        tb_predic(real.val, prediccion.boost, updateData$decimals, updateData$idioma)
       }
       else{NULL}
       
@@ -255,7 +255,7 @@ mod_boosting_server <- function(input, output, session,updateData, modelos){
       if(!is.null(modelos$boost[[nombreModelo]])){
         idioma <- updateData$idioma
         indices.boost<- modelos$boost[[nombreModelo]]$indices
-        tabla.indicesPrecision(indices.boost, idioma)
+        tabla.indicesPrecision(indices.boost, updateData$decimals, idioma)
       }
       else{NULL}
     }, error = function(e){

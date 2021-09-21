@@ -290,7 +290,7 @@ mod_dimension_reduction_server <- function(input, output, session,updateData, mo
           datos.prueba <- updateData$datos.prueba
           real.val <- datos.prueba[updateData$variable.predecir]
         })
-        tb_predic(real.val, prediccion.rd, updateData$idioma)
+        tb_predic(real.val, prediccion.rd, updateData$decimals, updateData$idioma)
       }
       else{NULL}
       
@@ -343,7 +343,7 @@ mod_dimension_reduction_server <- function(input, output, session,updateData, mo
       if(!is.null(modelos$rd[[nombreModelo]])){
         idioma <- updateData$idioma
         indices.rd <- modelos$rd[[nombreModelo]]$indices
-        tabla.indicesPrecision(indices.rd, idioma)
+        tabla.indicesPrecision(indices.rd, updateData$decimals, idioma)
       }
       else{NULL}
     }, error = function(e){

@@ -60,13 +60,16 @@ app_ui <- function(request) {
   
   menu.language <- tags$li(class = "nodisabled treeview",
                            tags$a(href = "#shiny-tab-tabdioma",
-                                  tags$i(class="fa fa-language"),
-                                  labelInput("idioma"),
+                                  tags$i(class="fa fa-cog"),
+                                  labelInput("confg"),
                                   tags$i(class="fa fa-angle-left pull-right")),
                            tags$ul(class="treeview-menu", style="display: none;", `data-expanded`="Idioma",
                                    radioButtons('idioma', labelInput("selidioma"), 
                                                 choiceNames = c(tr('espanol', 'es'), 'English'),
                                                 choiceValues = c("es", "en")),
+                                   tags$br(),
+                                   numericInput("decimals_confg", label = labelInput("ndec"),
+                                                min = 0, max = 20, value = 2,step = 1,width = "50%"),
                                    tags$br()))
   
   #Los sliderInput y colourpicker por un motivo imprevisto se tienen que inicializar

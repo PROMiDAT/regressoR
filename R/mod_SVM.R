@@ -156,7 +156,7 @@ mod_SVM_server <- function(input, output, session,updateData, modelos){
           datos.prueba <- updateData$datos.prueba
           real.val <- datos.prueba[updateData$variable.predecir]
         })
-        tb_predic(real.val, prediccion.svm, updateData$idioma)
+        tb_predic(real.val, prediccion.svm, updateData$decimals, updateData$idioma)
       }
       else{NULL}
       
@@ -206,7 +206,7 @@ mod_SVM_server <- function(input, output, session,updateData, modelos){
       if(!is.null(modelos$svm[[nombreModelo]])){
         idioma <- updateData$idioma
         indices.svm <- modelos$svm[[nombreModelo]]$indices
-        tabla.indicesPrecision(indices.svm, idioma)
+        tabla.indicesPrecision(indices.svm, updateData$decimals, idioma)
       }
       else{NULL}
     }, error = function(e){

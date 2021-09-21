@@ -29,8 +29,11 @@ general_indices <- function(real, prediccion) {
 }
 
 
-tabla.indicesPrecision <- function(indices,idioma){
-  df <- round(as.data.frame(indices), digits = 2)
+tabla.indicesPrecision <- function(indices, decimals = NULL, idioma){
+  df <- as.data.frame(indices)
+  if(!is.null(decimals)){
+    df <- round(df, digits = decimals)
+  }
   colnames(df) <- c(tr("RMSE", idioma), tr("MAE", idioma), tr("ER", idioma), tr("correlacion", idioma))
   return(df)
 }

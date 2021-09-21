@@ -150,7 +150,8 @@ mod_linear_regression_server <- function(input, output, session, updateData, mod
   output$rlCoefTable <- DT::renderDataTable({
     tryCatch({
       if(!is.null(df.rl) && !is.null(modelos$rl[[nombreModelo]])){
-        dttable.custom(data.frame(id = row.names(df.rl), coeff = df.rl[,1]))
+        dttable.custom(data.frame(row.names = row.names(df.rl), coeff = df.rl[,1]), 
+                       decimals = updateData$decimals,translatable = TRUE, language = isolate(updateData$idioma))
       }
       else{NULL}
     }, error = function(e){
@@ -158,26 +159,6 @@ mod_linear_regression_server <- function(input, output, session, updateData, mod
       NULL
     })
   }, server = F)
-  
-  #Necesita observeEvent porque render_table_data no es reactivo
-  # observeEvent(c(modelos$rl,updateData$idioma),{
-  #   tryCatch({
-  #     output$rlCoefTable <- render_table_data({
-  #       tryCatch({
-  #         if(!is.null(df.rl) && !is.null(modelos$rl[[nombreModelo]])){
-  #           df.rl[,c(1,4)]
-  #         }else{NULL}
-  #       }, error = function(e){
-  #         showNotification(paste0("Error (RL-02) : ", e), duration = 10, type = "error")
-  #         NULL
-  #       })
-  #     }, server = FALSE, language = updateData$idioma)
-  #     
-  #   },
-  #   error = function(e) {
-  #     showNotification(paste0("Error (RL-02) : ", e), duration = 10, type = "error")
-  #   })
-  # },ignoreInit = TRUE)
 
   
   
@@ -190,7 +171,7 @@ mod_linear_regression_server <- function(input, output, session, updateData, mod
           datos.prueba <- updateData$datos.prueba
           real.val <- datos.prueba[updateData$variable.predecir]
         })
-        tb_predic(real.val, prediccion.rl, updateData$idioma)
+        tb_predic(real.val, prediccion.rl, updateData$decimals,updateData$idioma)
       }
       else{NULL}
       
@@ -242,15 +223,16 @@ mod_linear_regression_server <- function(input, output, session, updateData, mod
         colnames(df) <- c(tr("RMSE",idioma), tr("MAE",idioma),
                           tr("ER",idioma), tr("R2",idioma),
                           tr("correlacion", idioma))
-        df
+        print(round(df,updateData$decimals))
+        round(df,updateData$decimals)
       }
       else{NULL}
     }, error = function(e){
       showNotification(paste0("Error (RL-05) : ",e), duration = 10, type = "error")
       NULL
     })
-  },striped = TRUE, bordered = TRUE, spacing = 'l', 
-  width = '100%',  digits = 2,align = 'c')
+  }, digits = 5, striped = TRUE, bordered = TRUE, spacing = 'l', 
+  width = '100%',align = 'c')
   
   
   output$indexdfrl2 <- renderTable({
@@ -273,7 +255,7 @@ mod_linear_regression_server <- function(input, output, session, updateData, mod
       NULL
     })
   },striped = TRUE, bordered = TRUE, spacing = 'l', 
-  width = '100%',  digits = 2,align = 'c')
+  width = '100%',align = 'c')
   
 }
     

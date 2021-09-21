@@ -175,7 +175,7 @@ mod_KNN_server <- function(input, output, session,updateData, modelos){
           datos.prueba <- updateData$datos.prueba
           real.val <- datos.prueba[updateData$variable.predecir]
         })
-        tb_predic(real.val, prediccion.knn, updateData$idioma)
+        tb_predic(real.val, prediccion.knn, updateData$decimals, updateData$idioma)
       }
       else{NULL}
       
@@ -225,7 +225,7 @@ mod_KNN_server <- function(input, output, session,updateData, modelos){
       if(!is.null(modelos$knn[[nombreModelo]])){
         idioma <- updateData$idioma
         indices.knn <- modelos$knn[[nombreModelo]]$indices
-        tabla.indicesPrecision(indices.knn, idioma)
+        tabla.indicesPrecision(indices.knn, updateData$decimals, idioma)
       }
       else{NULL}
     }, error = function(e){
