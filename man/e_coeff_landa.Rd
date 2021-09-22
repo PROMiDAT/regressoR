@@ -7,7 +7,7 @@
 e_coeff_landa(
   cv.glm,
   log.lambda = NULL,
-  titles = c("Coeficientes", "Seleccionado")
+  titles = c("Coeficientes", "Seleccionado", "Automatico")
 )
 }
 \arguments{

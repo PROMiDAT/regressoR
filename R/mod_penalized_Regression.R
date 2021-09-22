@@ -217,6 +217,7 @@ mod_penalized_Regression_server <- function(input, output, session, updateData, 
           tr("lowCurve", updateData$idioma),
           tr("uppCurve", updateData$idioma),
           tr("selected", updateData$idioma),
+          tr("automatico", updateData$idioma),
           tr("nonZeroCoeff", updateData$idioma)
         )
         
@@ -245,7 +246,8 @@ mod_penalized_Regression_server <- function(input, output, session, updateData, 
         
         titulos <- c(
           tr("coeff", updateData$idioma),
-          tr("selected", updateData$idioma)
+          tr("selected", updateData$idioma),
+          tr("automatico", updateData$idioma)
         )
         
         e_coeff_landa(modelos$rlr[[nombreModelo]]$modelo, log.landa, titulos)
@@ -347,16 +349,10 @@ mod_penalized_Regression_server <- function(input, output, session, updateData, 
   
   output$indexdfrlr2 <- renderTable({
     tryCatch({
-      if(!is.null(modelos$rlr[[nombreModelo]])){
+      if(!is.null(modelos$rlr[[nombreModelo]])& !is.null(updateData$summary.var.pred)){
         idioma <- updateData$idioma
-        isolate({
-          datos.prueba <- updateData$datos.prueba
-          variable.predecir <- updateData$variable.predecir
-        })
-        df2 <- as.data.frame(summary_indices(datos.prueba[,variable.predecir]))
-        colnames(df2) <- c(tr("minimo",idioma),tr("q1",idioma),
-                           tr("q3",idioma),tr("maximo",idioma))
-        df2
+        decimals <- updateData$decimals
+        tabla.varpred.summary(updateData$summary.var.pred, decimals, idioma)
       }
       else{NULL}
     }

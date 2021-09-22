@@ -215,9 +215,11 @@ mod_carga_datos_server <- function(input, output, session,  updateData, modelos)
                                       semilla,
                                       permitir.semilla)
         updateAceEditor(session, "fieldCodeSegment", value = codigo.editor)
+        
         res <- segmentar.datos(datos,porcentaje,semilla,permitir.semilla)
         updateData$datos.prueba      <-  res$test
         updateData$datos.aprendizaje <-  res$train
+        updateData$summary.var.pred <- summary_indices(res$test[,updateData$variable.predecir])
       }
     }, error = function(e) {
       borrar.modelos(updateData)

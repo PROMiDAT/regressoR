@@ -48,7 +48,7 @@ mod_r_numerico_server <- function(input, output, session, updateData) {
     datos <- isolate(updateData$datos)
     idioma <- isolate(updateData$idioma)
     if(input$sel.resumen %in% colnames(var.numericas(datos))) {
-      resumen.numerico(datos, input$sel.resumen, idioma)
+      resumen.numerico(datos, input$sel.resumen, updateData$decimals, idioma)
     } else {
       resumen.categorico(datos, input$sel.resumen)
     }

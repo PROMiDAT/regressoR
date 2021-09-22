@@ -4,10 +4,12 @@
 \alias{pairs_power}
 \title{pairs_power}
 \usage{
-pairs_power(data)
+pairs_power(data, decimals = 2)
 }
 \arguments{
 \item{data}{A DataFrame}
+
+\item{decimals}{Number of numbers after the decimal point.}
 }
 \description{
 Generate a pair chart

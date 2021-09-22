@@ -48,7 +48,7 @@ mod_Predictive_Power_server <- function(input, output, session, updateData){
       updateAceEditor(session, "fieldCodePoderNum", value = "pairs_power(datos)")
       if (ncol(var.numericas(updateData$datos)) >= 2) {
         if(ncol(var.numericas(updateData$datos)) <= 25){
-          pairs_power(updateData$datos)
+          pairs_power(updateData$datos, decimals = updateData$decimals)
         }else{
           showNotification(tr("bigPlot",updateData$idioma), duration = 10, type = "message")
           NULL

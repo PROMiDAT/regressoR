@@ -20,7 +20,7 @@ app_server <- function( input, output, session ) {
   #updateData always has the same values of the global variables(datos, datos.prueba, datos.aprendizaje).
   updateData <- reactiveValues(originales = NULL, datos = NULL, 
                                datos.prueba = NULL, datos.aprendizaje = NULL, 
-                               variable.predecir = NULL, newpred = NULL,
+                               variable.predecir = NULL, summary.var.pred = NULL,
                                idioma = "es", decimals = 2)
   
   modelos    <-  reactiveValues(rl = NULL, rlr= NULL, dt = NULL, 

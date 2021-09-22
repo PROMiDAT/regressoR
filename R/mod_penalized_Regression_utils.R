@@ -41,7 +41,7 @@ rlr_model <- function(data, variable.pred,alpha = 0, standardize = TRUE){
 #' 
 coef_lambda <- function(data, variable.pred, model, log.lambda = NULL){
   if(!is.null(variable.pred) && !is.null(data) && !is.null(model)){
-    lambda <- ifelse(is.null(log.lambda), model$lambda.min, exp(log.lambda))
+    lambda <- ifelse(is.null(log.lambda), model$lambda.1se, exp(log.lambda))
     return(predict(model, s = lambda, type = 'coefficients', exact = FALSE))
   }
   return(NULL)
@@ -69,7 +69,7 @@ rlr_prediction <- function(model, test.data, variable.pred, log.lambda = NULL) {
     prueba <- test.data
     prueba[, variable.pred] <- 0
     prueba <- model.matrix(form, prueba)[, -1]
-    lambda <- ifelse(is.null(log.lambda), model$lambda.min, exp(log.lambda))
+    lambda <- ifelse(is.null(log.lambda), model$lambda.1se, exp(log.lambda))
     return(predict(model,newx = prueba, s = lambda, exact = FALSE))
   }
   return(NULL)
@@ -120,11 +120,13 @@ rlr_type <- function(alpha_rlr = 0){
 #' @export
 #' 
 e_posib_lambda <- function(cv.glm, log.lambda = NULL, titles = c("Error Cuadratico Medio","Curva Inferior",
-                                                                 "Curva Superior","Seleccionado",
+                                                                 "Curva Superior","Seleccionado","Automatico",
                                                                  "Coeficientes Distintos de Cero")){
   x  <- log(cv.glm$lambda)
   y  <- cv.glm$cvm
+  #lambda.min
   x1 <- x[cv.glm$index[[1]]]
+  #lambda.1se
   x2 <- x[cv.glm$index[[2]]]
   upper <- cv.glm$cvup
   lower <- cv.glm$cvlo
@@ -146,16 +148,16 @@ e_posib_lambda <- function(cv.glm, log.lambda = NULL, titles = c("Error Cuadrati
                                                                   "Number.parseFloat(params.value[1]).toFixed(6) + ",
                                                                   "'<br/><b>", titles[3], ": </b>' + ",
                                                                   "Number.parseFloat(params.value[2]).toFixed(6))}")))) |>
-    e_mark_line(title = "Log(lambda.min)", 
-                data = list(xAxis = x1, 
+    e_mark_line(title = titles[5], 
+                data = list(xAxis = x2, 
                             tooltip = list(formatter = e_JS(paste0("function(params){",
-                                                                              "return('<b>Log(lambda.min): </b>' + ",
-                                                                              "Number.parseFloat(params.value).toFixed(6))}"))))) |>
-    e_mark_line(title = "Log(lambda.1se)", 
-                data = list(xAxis = x2,
-                            tooltip = list(formatter = e_JS(paste0("function(params){",
-                                                                              "return('<b>Log(lambda.1se): </b>' + ",
+                                                                              "return('<b>Log(lambda) ", titles[5],": </b>' + ",
                                                                               "Number.parseFloat(params.value).toFixed(6))}")))))
+    # e_mark_line(title = "Log(lambda.1se)", 
+    #             data = list(xAxis = x2,
+    #                         tooltip = list(formatter = e_JS(paste0("function(params){",
+    #                                                                           "return('<b>Log(lambda.1se): </b>' + ",
+    #                                                                           "Number.parseFloat(params.value).toFixed(6))}")))))
   
   #Si se eligió manualmente un lambda
   if(!is.null(log.lambda)){
@@ -173,14 +175,14 @@ e_posib_lambda <- function(cv.glm, log.lambda = NULL, titles = c("Error Cuadrati
     e_line(nzero, x_index = 1, y_index = 1, tooltip = list(formatter = e_JS(paste0("function(params){",
                                                                                               "return('<b>Log(lambda): </b>' + ",
                                                                                               "Number.parseFloat(params.value[0]).toFixed(6) + ",
-                                                                                              "'<br/><b>", titles[5],": </b>' + ",
+                                                                                              "'<br/><b>", titles[6],": </b>' + ",
                                                                                               "params.value[1])}")))) |>
     e_grid(height = "40%") |>
     e_grid(height = "30%", top = "65%") |>
     e_x_axis(type = 'value', minInterval = 1, min = floor(min(data.lambda$x)), gridIndex = 0, index = 0, name = "Log(lambda)") |>
     e_y_axis(type = 'value', axisLine = list(onZero = F), gridIndex = 0, index = 0, name = titles[1]) |>
     e_x_axis(type = 'value', minInterval = 1, min = floor(min(data.lambda$x)), gridIndex = 1, index = 1, name = "Log(lambda)") |>
-    e_y_axis(type = 'value', axisLine = list(onZero = F), gridIndex = 1, index = 1, axisLine = list(onZero = F), name = titles[5]) |>
+    e_y_axis(type = 'value', axisLine = list(onZero = F), gridIndex = 1, index = 1, axisLine = list(onZero = F), name = titles[6]) |>
     e_legend(FALSE) |> 
     e_tooltip(trigger = "item") |> e_datazoom(show = F) |> e_show_loading()
   
@@ -205,7 +207,7 @@ e_posib_lambda <- function(cv.glm, log.lambda = NULL, titles = c("Error Cuadrati
 #' 
 #' @export
 #' 
-e_coeff_landa <- function(cv.glm, log.lambda = NULL, titles = c("Coeficientes","Seleccionado")){
+e_coeff_landa <- function(cv.glm, log.lambda = NULL, titles = c("Coeficientes","Seleccionado","Automatico")){
   
   data   <- data.frame(t(as.data.frame(as.matrix(cv.glm$glmnet.fit$beta))))
   x      <- log(cv.glm$glmnet.fit$lambda)
@@ -233,10 +235,10 @@ e_coeff_landa <- function(cv.glm, log.lambda = NULL, titles = c("Coeficientes","
                                                              "Number.parseFloat(params.value[0].toFixed(6)) + '<br/>' + ",
                                                              "'<b>", titles[1], ": </b>' + ",
                                                              "Number.parseFloat(params.value[1].toFixed(6)))}")))) |>
-    e_mark_line(title = "Log(lambda.min)", 
-                data = list(xAxis = log(cv.glm$lambda.min), lineStyle = list(color = 'black'), 
+    e_mark_line(title = titles[3], 
+                data = list(xAxis = log(cv.glm$lambda.1se), lineStyle = list(color = 'black'), 
                             tooltip = list(formatter = e_JS(paste0("function(params){",
-                                                                              "return('<b>Log(lambda.min): </b>' + ",
+                                                                              "return('<b>Log(lambda) ", titles[3],": </b>' + ",
                                                                               "Number.parseFloat(params.value).toFixed(6))}"))))) |>
     e_x_axis(name = "Log(lambda)", axisLine = list(onZero = F)) |>
     e_y_axis(name = titles[1],axisLine = list(onZero = F)) |>

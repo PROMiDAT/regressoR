@@ -34,6 +34,10 @@ tabla.indicesPrecision <- function(indices, decimals = NULL, idioma){
   if(!is.null(decimals)){
     df <- round(df, digits = decimals)
   }
+  #Esto es necesario debido a problema con la cantidad de decimales
+  #con la función renderTable
+  df[,] <- sapply(df[,], as.character)
+  
   colnames(df) <- c(tr("RMSE", idioma), tr("MAE", idioma), tr("ER", idioma), tr("correlacion", idioma))
   return(df)
 }
@@ -54,4 +58,20 @@ summary_indices <- function(data){
        "1Q"  = quantile(data, prob=c(0.25)),
        "3Q"  = quantile(data, prob=c(0.75)),
        "Max" = max(data))
+}
+
+
+tabla.varpred.summary <- function(summary.var, decimals = NULL, idioma = "es"){
+  df <- as.data.frame(summary.var)
+  
+  if(!is.null(decimals)){
+    df <- round(df, digits = decimals)
+  }
+  #Esto es necesario debido a problema con la cantidad de decimales
+  #con la función renderTable
+  df[,] <- sapply(df[,], as.character)
+  
+  colnames(df) <- c(tr("minimo",idioma),tr("q1",idioma),
+                     tr("q3",idioma),tr("maximo",idioma))
+  return(df)
 }

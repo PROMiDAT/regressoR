@@ -305,16 +305,10 @@ mod_neural_networks_server <- function(input, output, session,updateData, modelo
   
   output$indexdfnn2 <- renderTable({
     tryCatch({
-      if(!is.null(modelos$nn[[nombreModelo]])){
+      if(!is.null(modelos$nn[[nombreModelo]])& !is.null(updateData$summary.var.pred)){
         idioma <- updateData$idioma
-        isolate({
-          datos.prueba <- updateData$datos.prueba
-          variable.predecir <- updateData$variable.predecir
-        })
-        df2 <- as.data.frame(summary_indices(datos.prueba[,variable.predecir]))
-        colnames(df2) <- c(tr("minimo",idioma),tr("q1",idioma),
-                           tr("q3",idioma),tr("maximo",idioma))
-        df2
+        decimals <- updateData$decimals
+        tabla.varpred.summary(updateData$summary.var.pred, decimals, idioma)
       }
       else{NULL}
     }

@@ -223,30 +223,28 @@ mod_linear_regression_server <- function(input, output, session, updateData, mod
         colnames(df) <- c(tr("RMSE",idioma), tr("MAE",idioma),
                           tr("ER",idioma), tr("R2",idioma),
                           tr("correlacion", idioma))
-        print(round(df,updateData$decimals))
-        round(df,updateData$decimals)
+
+        df <- round(df,updateData$decimals)
+        #Esto es necesario debido a problema con la cantidad de decimales
+        #con la función renderTable
+        df[,] <- sapply(df[,], as.character)
+        df
       }
       else{NULL}
     }, error = function(e){
       showNotification(paste0("Error (RL-05) : ",e), duration = 10, type = "error")
       NULL
     })
-  }, digits = 5, striped = TRUE, bordered = TRUE, spacing = 'l', 
-  width = '100%',align = 'c')
+  }, striped = TRUE, bordered = TRUE,
+  spacing = 'l', width = '100%',align = 'c')
   
   
   output$indexdfrl2 <- renderTable({
     tryCatch({
-      if(!is.null(modelos$rl[[nombreModelo]])){
+      if(!is.null(modelos$rl[[nombreModelo]]) & !is.null(updateData$summary.var.pred)){
         idioma <- updateData$idioma
-        isolate({
-          datos.prueba <- updateData$datos.prueba
-          variable.predecir <- updateData$variable.predecir
-        })
-        df2 <- as.data.frame(summary_indices(datos.prueba[,variable.predecir]))
-        colnames(df2) <- c(tr("minimo",idioma),tr("q1",idioma),
-                           tr("q3",idioma),tr("maximo",idioma))
-        df2
+        decimals <- updateData$decimals
+        tabla.varpred.summary(updateData$summary.var.pred, decimals, idioma)
       }
       else{NULL}
     }

@@ -7,35 +7,35 @@
 #' @examples
 #' resumen.numerico(iris, "Sepal.Length")
 #' 
-resumen.numerico <- function(data, variable, idioma = "es") {
+resumen.numerico <- function(data, variable, decimals = 2, idioma = "es") {
   datos.numericos <- list(
     Q1 = list(
       id = "q1", Label = tags$span(`data-id`="q1", tr("q1", idioma)), color = "green",
-      Value = format(round(quantile(data[, variable], .25), 3), scientific = F)
+      Value = format(round(quantile(data[, variable], .25), decimals), scientific = F)
     ),
     Mediana = list(
       id = "mediana", Label = tags$span(`data-id`="mediana", tr("mediana", idioma)),
-      Value = format(round(median(data[, variable]), 3), scientific = F),
+      Value = format(round(median(data[, variable]), decimals), scientific = F),
       color = "orange"),
     Q3 = list(
       id = "q3", Label = tags$span(`data-id`="q3", tr("q3", idioma)), color = "maroon",
-      Value = format(round(quantile(data[, variable], .75), 3), scientific = F)
+      Value = format(round(quantile(data[, variable], .75), decimals), scientific = F)
     ),
     Minimo = list(
       id = "minimo", Label = tags$span(`data-id`="minimo", tr("minimo", idioma)),
-      Value = format(round(min(data[, variable]), 3), scientific = F),
+      Value = format(round(min(data[, variable]), decimals), scientific = F),
       color = "red"),
     Promedio = list(
       id = "promedio", Label = tags$span(`data-id`="promedio", tr("promedio", idioma)),
-      Value = format(round(mean(data[, variable]), 3), scientific = F),
+      Value = format(round(mean(data[, variable]), decimals), scientific = F),
       color = "blue"),
     Maximo = list(
       id = "maximo", Label = tags$span(`data-id`="maximo", tr("maximo", idioma)),
-      Value = format(round(max(data[, variable]), 3), scientific = F),
+      Value = format(round(max(data[, variable]), decimals), scientific = F),
       color = "purple"),
     DS <- list(
       id = "ds", Label = tags$span(`data-id`="ds", tr("ds", idioma)), color = "yellow",
-      Value = format(round(sd(data[, variable]), 3), scientific = FALSE, nsmall = 3)
+      Value = format(round(sd(data[, variable]), decimals), scientific = FALSE)
     )
   )
   
