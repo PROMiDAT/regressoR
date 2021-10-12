@@ -9,7 +9,7 @@ Authors@R: c(
     person("Ariel", "Arroyo S.", role = c("ctb","prg")))
 Depends: R (>= 4.1)
 Imports:
-    shiny (>= 1.2.0),
+    shiny (>= 1.7.1),
     golem (>= 0.3.1),
     echarts4r (>= 0.4.1),
     shinyAce (>= 0.3.3),
