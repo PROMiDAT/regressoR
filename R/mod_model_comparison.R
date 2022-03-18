@@ -25,13 +25,13 @@ mod_model_comparison_ui <- function(id){
 #' model_comparison Server Function
 #'
 #' @noRd 
-mod_model_comparison_server <- function(input, output, session, updateData, modelos){
+mod_model_comparison_server <- function(input, output, session, updateData, modelos, codedioma){
   ns <- session$ns
   
   #Muestra la tabla comparativa.
   output$TablaComp <- DT::renderDataTable({
     tryCatch({
-      idioma <- updateData$idioma
+      idioma <- codedioma$idioma
       df <- data.frame()
       for(modelName in names(modelos)){
         if(!is.null(modelos[[modelName]])){

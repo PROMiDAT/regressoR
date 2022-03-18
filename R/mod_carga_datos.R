@@ -88,7 +88,7 @@ mod_carga_datos_ui <- function(id){
 #'
 #' @keywords internal
 
-mod_carga_datos_server <- function(input, output, session,  updateData, modelos){
+mod_carga_datos_server <- function(input, output, session,  updateData, modelos, codedioma){
   ns <- session$ns
   
   # Descarga tabla de datos
@@ -219,7 +219,7 @@ mod_carga_datos_server <- function(input, output, session,  updateData, modelos)
         res <- segmentar.datos(datos,porcentaje,semilla,permitir.semilla)
         updateData$datos.prueba      <-  res$test
         updateData$datos.aprendizaje <-  res$train
-        updateData$summary.var.pred <- summary_indices(res$test[,updateData$variable.predecir])
+        updateData$summary.var.pred  <-  summary_indices(res$test[,updateData$variable.predecir])
       }
     }, error = function(e) {
       borrar.modelos(updateData)
@@ -231,8 +231,8 @@ mod_carga_datos_server <- function(input, output, session,  updateData, modelos)
   output$tabladatos <- DT::renderDataTable({
     datos  <- updateData$datos
     tipos  <- c(
-      tr("numerico",   isolate(updateData$idioma)),
-      tr("categorico", isolate(updateData$idioma))
+      tr("numerico",   isolate(codedioma$idiomadioma)),
+      tr("categorico", isolate(codedioma$idiomadioma))
     )
     
     tryCatch({
@@ -262,7 +262,7 @@ mod_carga_datos_server <- function(input, output, session,  updateData, modelos)
   # Update Transform Table
   output$transData = renderUI({
     datos  <- updateData$originales
-    idioma <- updateData$idioma
+    idioma <- codedioma$idiomadioma
     
     res <- list(fluidRow(
       column(4, tags$span(tags$b("Variable"))),
@@ -294,8 +294,8 @@ mod_carga_datos_server <- function(input, output, session,  updateData, modelos)
   output$tablaPrueba <- DT::renderDataTable({
     datos  <- updateData$datos.prueba
     tipos  <- c(
-      tr("numerico",   isolate(updateData$idioma)),
-      tr("categorico", isolate(updateData$idioma))
+      tr("numerico",   isolate(codedioma$idiomadioma)),
+      tr("categorico", isolate(codedioma$idiomadioma))
     )
     
     tryCatch({
@@ -326,8 +326,8 @@ mod_carga_datos_server <- function(input, output, session,  updateData, modelos)
   output$tablaAprendizaje <- DT::renderDataTable({
     datos  <- updateData$datos.aprendizaje
     tipos  <- c(
-      tr("numerico",   isolate(updateData$idioma)),
-      tr("categorico", isolate(updateData$idioma))
+      tr("numerico",   isolate(codedioma$idiomadioma)),
+      tr("categorico", isolate(codedioma$idiomadioma))
     )
     
     tryCatch({

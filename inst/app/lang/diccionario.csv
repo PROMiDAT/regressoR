@@ -20,6 +20,7 @@ imputar;Imputar;Impute
 acerto;Acertó;Matched
 fallo;Falló;Failed
 rl;Regresión Lineal;Linear Regression
+reglin;Regresión Lineal;Linear Regression
 rlr;Regresión Penalizada;Penalized Regression
 knn;K Vecinos Más Cercanos;K Nearest Neighbors
 dt;Árboles de Regresión;Regression Trees

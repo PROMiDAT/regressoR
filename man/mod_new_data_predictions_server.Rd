@@ -4,7 +4,14 @@
 \alias{mod_new_data_predictions_server}
 \title{new_data_predictions Server Function}
 \usage{
-mod_new_data_predictions_server(input, output, session, updateData, new.data)
+mod_new_data_predictions_server(
+  input,
+  output,
+  session,
+  updateData,
+  new.data,
+  codedioma
+)
 }
 \description{
 new_data_predictions Server Function

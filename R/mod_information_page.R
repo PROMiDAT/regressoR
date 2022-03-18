@@ -26,7 +26,7 @@ mod_information_page_ui <- function(id){
 #' information_page Server Function
 #'
 #' @noRd 
-mod_information_page_server <- function(input, output, session){
+mod_information_page_server <- function(input, output, session, codedioma){
   ns <- session$ns
 }
     

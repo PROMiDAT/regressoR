@@ -1,4 +1,5 @@
 load("inst/app/lang/translation.bin") # Load translation.bin (dictionary to change language)
+translation <- append(translation, readeR::translation.readeR())
 enc <- "utf8"
 
 cambiar.labels <- function(){
@@ -40,17 +41,17 @@ tr <- function(text, idioma = "es") {
 
 
 #' translate
-#' 
+#'
 #' @description translates text id into current language.
-#' 
+#'
 #' @param text the id for the text.
 #' @param language the language to choose. It can be "es" or "en".
-#' 
+#'
 #' @export
 #' @examples
 #' translate("knn")
 #' translate("knn", "en")
-#' 
+#'
 translate <- function(text, language = "es") {
   if(is.null(language) || !any(language %in% c("es", "en"))){
     language <- "es"
@@ -72,19 +73,19 @@ dropNulls <- function (x) {
 
 
 
-updateLabelInput <- function (session, labelid, value = NULL) {
-  message <- dropNulls(list(labelid = labelid))
-  if(length(labelid) == 1) {
-    labelid <- list(labelid)
-  }
-  ifelse(
-    is.null(value), sentvalue <- labelid,
-    ifelse(length(value) == 1, sentvalue <- list(value),
-           sentvalue <- value))
-  session$sendCustomMessage(
-    type = 'updateLabel',
-    message = list(ids = labelid, values = sentvalue))
-}
+# updateLabelInput <- function (session, labelid, value = NULL) {
+#   message <- dropNulls(list(labelid = labelid))
+#   if(length(labelid) == 1) {
+#     labelid <- list(labelid)
+#   }
+#   ifelse(
+#     is.null(value), sentvalue <- labelid,
+#     ifelse(length(value) == 1, sentvalue <- list(value),
+#            sentvalue <- value))
+#   session$sendCustomMessage(
+#     type = 'updateLabel',
+#     message = list(ids = labelid, values = sentvalue))
+# }
 
 
 

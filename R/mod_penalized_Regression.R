@@ -99,7 +99,7 @@ mod_penalized_Regression_ui <- function(id){
 #' penalized_Regression Server Function
 #'
 #' @noRd 
-mod_penalized_Regression_server <- function(input, output, session, updateData, modelos){
+mod_penalized_Regression_server <- function(input, output, session, updateData, modelos, codedioma){
   ns <- session$ns
   
   nombreBase <- "modelo.rlr."
@@ -117,17 +117,20 @@ mod_penalized_Regression_server <- function(input, output, session, updateData, 
     coefficients <<- NULL
   }
   
-  
-  observeEvent(updateData$datos.aprendizaje,{
-    return.rlr.default.values()
-  })
-  
-  # When the rlr model is generated
-  observeEvent(input$runRlr, {
-    if (validate_data(updateData, idioma = updateData$idioma)) { # If you have the data then :
-      rlr_full()
-    }
-  })
+  # 
+  # observeEvent(updateData$datos.aprendizaje,{
+  #   return.rlr.default.values()
+  #   if (validate_data(updateData, idioma = codedioma$idioma)) { # If you have the data then :
+  #     rlr_full()
+  #   }
+  # })
+  # 
+  # # When the rlr model is generated
+  # observeEvent(input$runRlr, {
+  #   if (validate_data(updateData, idioma = codedioma$idioma)) { # If you have the data then :
+  #     rlr_full()
+  #   }
+  # })
   
   # When user press enable or disable the lambda
   observeEvent(input$permitir_landa, {
@@ -156,8 +159,7 @@ mod_penalized_Regression_server <- function(input, output, session, updateData, 
       #Model generate
       modelo.rlr <- rlr_model(data = datos.aprendizaje, variable.pred = variable.predecir,
                               alpha = alpha, standardize = standardize)
-      updateAceEditor(session, "fieldCodeRlr", value = codeRlr(variable.predecir,alpha,standardize))
-      
+
       if (isolate(as.logical(input$permitir_landa) && !is.na(isolate(input$log_landa)))) {
         log.landa <<- isolate(input$log_landa)
       }
@@ -166,21 +168,16 @@ mod_penalized_Regression_server <- function(input, output, session, updateData, 
       # Coefficients
       coefficients <<- coef_lambda(data = datos.aprendizaje, variable.pred = variable.predecir,
                                    model = modelo.rlr, log.lambda = log.landa)
-      updateAceEditor(session, "fieldCodeRlrCoeff", value = codeRlrCoeff(variable.predecir,
-                                                                         nombreModelo,log.landa))
 
       # Prediction
       prediccion.rlr <- rlr_prediction(modelo.rlr, datos.prueba, variable.predecir,
                                        log.lambda = log.landa)
-      updateAceEditor(session, "fieldCodeRlrPred", value = codeRlrPred(nombreModelo,variable.predecir,
-                                                                       log.landa))
       
       
       #Indices
       indices.rlr <- general_indices(datos.prueba[,variable.predecir], prediccion.rlr)
-      updateAceEditor(session, "fieldCodeRlrIG", value = codeRlrIG(variable.predecir))
 
-      
+      codigo.penalized.regression()
       #isolamos para que no entre en un ciclo en el primer renderPrint
       isolate(modelos$rlr[[nombreModelo]] <- list(modelo = modelo.rlr, prediccion = prediccion.rlr, indices = indices.rlr,
                                                   id = rlr_type(alpha)))
@@ -196,7 +193,49 @@ mod_penalized_Regression_server <- function(input, output, session, updateData, 
   
   #Update model tab
   output$txtRlr <- renderPrint({
+    input$runRlr
     tryCatch({
+      codigo.penalized.regression()
+      
+      isolate({
+        datos.aprendizaje <- updateData$datos.aprendizaje
+        datos.prueba      <- updateData$datos.prueba
+        variable.predecir <- updateData$variable.predecir
+        alpha             <- as.numeric(input$alpha.rlr)
+        standardize       <- as.logical(input$switch_scale_rlr)
+      })
+      
+      nombreModelo <<- paste0(nombreBase, rlr_type(alpha))
+      
+      #Model generate
+      modelo.rlr <- rlr_model(data = datos.aprendizaje, variable.pred = variable.predecir,
+                              alpha = alpha, standardize = standardize)
+      
+      if (isolate(as.logical(input$permitir_landa) && !is.na(isolate(input$log_landa)))) {
+        log.landa <<- isolate(input$log_landa)
+      }
+      else{log.landa <<- NULL}
+      
+      # Coefficients
+      coefficients <<- coef_lambda(data          = datos.aprendizaje, 
+                                   variable.pred = variable.predecir,
+                                   model         = modelo.rlr, 
+                                   log.lambda    = log.landa)
+      
+      # Prediction
+      prediccion.rlr <- rlr_prediction(modelo.rlr, 
+                                       datos.prueba, 
+                                       variable.predecir,
+                                       log.lambda = log.landa)
+      
+      
+      #Indices
+      indices.rlr <- general_indices(datos.prueba[,variable.predecir], 
+                                     prediccion.rlr)
+      
+      #isolamos para que no entre en un ciclo en el primer renderPrint
+      isolate(modelos$rlr[[nombreModelo]] <- list(modelo = modelo.rlr, prediccion = prediccion.rlr, indices = indices.rlr,
+                                                  id = rlr_type(alpha)))
       if(!is.null(modelos$rlr[[nombreModelo]])){
         modelos.rlr <- modelos$rlr[[nombreModelo]]$modelo
         print(modelos.rlr)
@@ -213,12 +252,12 @@ mod_penalized_Regression_server <- function(input, output, session, updateData, 
     tryCatch({
       if(!is.null(modelos$rlr[[nombreModelo]])){
         titulos <- c(
-          tr("MSE", updateData$idioma),
-          tr("lowCurve", updateData$idioma),
-          tr("uppCurve", updateData$idioma),
-          tr("selected", updateData$idioma),
-          tr("automatico", updateData$idioma),
-          tr("nonZeroCoeff", updateData$idioma)
+          tr("MSE", codedioma$idioma),
+          tr("lowCurve", codedioma$idioma),
+          tr("uppCurve", codedioma$idioma),
+          tr("selected", codedioma$idioma),
+          tr("automatico", codedioma$idioma),
+          tr("nonZeroCoeff", codedioma$idioma)
         )
         
         param.lambda <- ifelse(is.null(log.landa),"",paste0(", log.lambda = ",log.landa))
@@ -245,9 +284,9 @@ mod_penalized_Regression_server <- function(input, output, session, updateData, 
         updateAceEditor(session, "fieldCodeRlrCoeff_landa", value = codigo)
         
         titulos <- c(
-          tr("coeff", updateData$idioma),
-          tr("selected", updateData$idioma),
-          tr("automatico", updateData$idioma)
+          tr("coeff", codedioma$idioma),
+          tr("selected", codedioma$idioma),
+          tr("automatico", codedioma$idioma)
         )
         
         e_coeff_landa(modelos$rlr[[nombreModelo]]$modelo, log.landa, titulos)
@@ -265,7 +304,7 @@ mod_penalized_Regression_server <- function(input, output, session, updateData, 
     tryCatch({
       if(!is.null(modelos$rlr[[nombreModelo]])){
         dttable.custom(data.frame(row.names = row.names(coefficients),coeff = as.vector(coefficients)), 
-                       decimals = updateData$decimals,translatable = TRUE, language = isolate(updateData$idioma))
+                       decimals = updateData$decimals,translatable = TRUE, language = isolate(codedioma$idioma))
       }
       else{
         NULL
@@ -286,7 +325,7 @@ mod_penalized_Regression_server <- function(input, output, session, updateData, 
           datos.prueba <- updateData$datos.prueba
           real.val <- datos.prueba[updateData$variable.predecir]
         })
-        tb_predic(real.val, prediccion.rlr, updateData$decimals, updateData$idioma)
+        tb_predic(real.val, prediccion.rlr, updateData$decimals, codedioma$idioma)
       }
       else{NULL}
       
@@ -309,17 +348,17 @@ mod_penalized_Regression_server <- function(input, output, session, updateData, 
         })
         tipo <- rlr_type(alpha)
         
-        codigo <- disp_models(nombreModelo, paste0(tr("rlr", updateData$idioma),"-",tipo), variable.predecir)
+        codigo <- disp_models(nombreModelo, paste0(tr("rlr", codedioma$idioma),"-",tipo), variable.predecir)
         updateAceEditor(session, "fieldCodeRlrDisp", value = codigo)
         
         titulos <- c(
-          tr("predvsreal", updateData$idioma),
-          tr("realValue", updateData$idioma),
-          tr("pred", updateData$idioma)
+          tr("predvsreal", codedioma$idioma),
+          tr("realValue", codedioma$idioma),
+          tr("pred", codedioma$idioma)
         )
         
         plot_real_prediction(datos.prueba[variable.predecir],prediccion.rlr,
-                             paste0(tr("rlr", updateData$idioma),"-",tipo),titulos)
+                             paste0(tr("rlr", codedioma$idioma),"-",tipo),titulos)
       }
       else{NULL}
     }, error = function(e){
@@ -333,7 +372,7 @@ mod_penalized_Regression_server <- function(input, output, session, updateData, 
   output$indexdfrlr <- renderTable({
     tryCatch({
       if(!is.null(modelos$rlr[[nombreModelo]])){
-        idioma <- updateData$idioma
+        idioma <- codedioma$idioma
         indices.rlr <- modelos$rlr[[nombreModelo]]$indices
         tabla.indicesPrecision(indices.rlr, updateData$decimals, idioma)
       }
@@ -350,7 +389,7 @@ mod_penalized_Regression_server <- function(input, output, session, updateData, 
   output$indexdfrlr2 <- renderTable({
     tryCatch({
       if(!is.null(modelos$rlr[[nombreModelo]])& !is.null(updateData$summary.var.pred)){
-        idioma <- updateData$idioma
+        idioma <- codedioma$idioma
         decimals <- updateData$decimals
         tabla.varpred.summary(updateData$summary.var.pred, decimals, idioma)
       }
@@ -362,6 +401,38 @@ mod_penalized_Regression_server <- function(input, output, session, updateData, 
     })
   },striped = TRUE, bordered = TRUE, spacing = 'l', 
   width = '100%', align = 'c')
+  
+  codigo.penalized.regression <- function() {
+    isolate({
+      datos.aprendizaje <- updateData$datos.aprendizaje
+      datos.prueba      <- updateData$datos.prueba
+      variable.predecir <- updateData$variable.predecir
+      alpha       <- as.numeric(input$alpha.rlr)
+      standardize <- as.logical(input$switch_scale_rlr)
+    })
+    
+    nombreModelo <- paste0(nombreBase, rlr_type(alpha))
+
+    #Model generate
+    codigo <- codeRlr(variable.predecir,alpha,standardize)
+    cod    <- paste0("### regpen\n", codigo)
+    
+    #Coefficients
+    codigo <- codeRlrCoeff(variable.predecir,
+                           nombreModelo,log.landa)
+    cod    <- paste0(cod, codigo)
+    #Prediccion
+    codigo <- codeRlrPred(nombreModelo,variable.predecir,
+                          log.landa)
+    cod    <- paste0(cod, codigo)
+    #Indices
+    codigo <- codeRlrIG(variable.predecir)
+    cod    <- paste0(cod, codigo)
+    
+    isolate(codedioma$code <- append(codedioma$code, cod))
+
+
+  }
 }
 
 ## To be copied in the UI

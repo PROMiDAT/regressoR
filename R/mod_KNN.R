@@ -72,7 +72,7 @@ mod_KNN_ui <- function(id){
 #' KNN Server Function
 #'
 #' @noRd 
-mod_KNN_server <- function(input, output, session,updateData, modelos){
+mod_KNN_server <- function(input, output, session,updateData, modelos, codedioma){
   ns <- session$ns
   
   nombreBase <- "modelo.knn."
@@ -101,7 +101,7 @@ mod_KNN_server <- function(input, output, session,updateData, modelos){
   
   # When the knn model is generated
   observeEvent(input$runKnn, {
-    if (validate_data(updateData, idioma = updateData$idioma)) { # Si se tiene los datos entonces :
+    if (validate_data(updateData, idioma = codedioma$idioma)) { # Si se tiene los datos entonces :
       knn_full()
     }
   })
@@ -176,7 +176,7 @@ mod_KNN_server <- function(input, output, session,updateData, modelos){
           datos.prueba <- updateData$datos.prueba
           real.val <- datos.prueba[updateData$variable.predecir]
         })
-        tb_predic(real.val, prediccion.knn, updateData$decimals, updateData$idioma)
+        tb_predic(real.val, prediccion.knn, updateData$decimals, codedioma$idioma)
       }
       else{NULL}
       
@@ -197,7 +197,7 @@ mod_KNN_server <- function(input, output, session,updateData, modelos){
           variable.predecir <- updateData$variable.predecir
           kernel <- input$kernel.knn
         })
-        idioma <- updateData$idioma
+        idioma <- codedioma$idioma
         
         codigo <- disp_models(nombreModelo, paste0(tr("knn", idioma),"-",kernel), variable.predecir)
         updateAceEditor(session, "fieldCodeKnnDisp", value = codigo)
@@ -224,7 +224,7 @@ mod_KNN_server <- function(input, output, session,updateData, modelos){
   output$indexdfknn <- renderTable({
     tryCatch({
       if(!is.null(modelos$knn[[nombreModelo]])){
-        idioma <- updateData$idioma
+        idioma <- codedioma$idioma
         indices.knn <- modelos$knn[[nombreModelo]]$indices
         tabla.indicesPrecision(indices.knn, updateData$decimals, idioma)
       }
@@ -241,7 +241,7 @@ mod_KNN_server <- function(input, output, session,updateData, modelos){
   output$indexdfknn2 <- renderTable({
     tryCatch({
       if(!is.null(modelos$knn[[nombreModelo]])& !is.null(updateData$summary.var.pred)){
-        idioma <- updateData$idioma
+        idioma <- codedioma$idioma
         decimals <- updateData$decimals
         tabla.varpred.summary(updateData$summary.var.pred, decimals, idioma)
       }

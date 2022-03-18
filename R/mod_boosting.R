@@ -77,7 +77,7 @@ mod_boosting_ui <- function(id){
 #' boosting Server Function
 #'
 #' @noRd 
-mod_boosting_server <- function(input, output, session,updateData, modelos){
+mod_boosting_server <- function(input, output, session,updateData, modelos, codedioma){
   ns <- session$ns
   
   nombreBase <- "modelo.boost."
@@ -98,7 +98,7 @@ mod_boosting_server <- function(input, output, session,updateData, modelos){
   
   # When the boosting model is generated
   observeEvent(input$runBoosting, {
-    if (validate_data(updateData, idioma = updateData$idioma)){ # Si se tiene los datos entonces :
+    if (validate_data(updateData, idioma = codedioma$idioma)){ # Si se tiene los datos entonces :
       boosting_full()
     }
   })
@@ -179,7 +179,7 @@ mod_boosting_server <- function(input, output, session,updateData, modelos){
         codigo <- paste0("boosting_importance_plot(", nombreModelo, ")")
         updateAceEditor(session, "fieldCodeBoostingPlotImport", value = codigo)
         
-        idioma <- updateData$idioma
+        idioma <- codedioma$idioma
         titulos <- c(
           tr("impVarRI", idioma),
           tr("RI", idioma),
@@ -205,7 +205,7 @@ mod_boosting_server <- function(input, output, session,updateData, modelos){
           datos.prueba <- updateData$datos.prueba
           real.val <- datos.prueba[updateData$variable.predecir]
         })
-        tb_predic(real.val, prediccion.boost, updateData$decimals, updateData$idioma)
+        tb_predic(real.val, prediccion.boost, updateData$decimals, codedioma$idioma)
       }
       else{NULL}
       
@@ -228,7 +228,7 @@ mod_boosting_server <- function(input, output, session,updateData, modelos){
           distribution <- input$tipo.boosting
         })
         
-        idioma <- updateData$idioma
+        idioma <- codedioma$idioma
         
         codigo <- disp_models(nombreModelo, paste0(tr("boost", idioma),"-",distribution), variable.predecir)
         updateAceEditor(session, "fieldCodeBoostingDisp", value = codigo)
@@ -254,7 +254,7 @@ mod_boosting_server <- function(input, output, session,updateData, modelos){
   output$indexdfb <- renderTable({
     tryCatch({
       if(!is.null(modelos$boost[[nombreModelo]])){
-        idioma <- updateData$idioma
+        idioma <- codedioma$idioma
         indices.boost<- modelos$boost[[nombreModelo]]$indices
         tabla.indicesPrecision(indices.boost, updateData$decimals, idioma)
       }
@@ -271,7 +271,7 @@ mod_boosting_server <- function(input, output, session,updateData, modelos){
   output$indexdfb2 <- renderTable({
     tryCatch({
       if(!is.null(modelos$boost[[nombreModelo]])& !is.null(updateData$summary.var.pred)){
-        idioma <- updateData$idioma
+        idioma <- codedioma$idioma
         decimals <- updateData$decimals
         tabla.varpred.summary(updateData$summary.var.pred, decimals, idioma)
       }

@@ -33,4 +33,4 @@ Description: Perform a supervised data analysis on a database through a 'shiny' 
 License: GPL (>=2)
 Encoding: UTF-8
 URL: https://www.promidat.com
-RoxygenNote: 7.1.1
+RoxygenNote: 7.1.2

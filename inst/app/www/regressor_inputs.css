@@ -63,6 +63,15 @@
     width: auto !important;
 }
 
+/* selectInput Posicionar Horizontal */
+.multiple-select-var{
+  float: right;
+  width: 300px;
+  margin-bottom: -3px;
+  margin-top: 4px;
+  font-size: 14px;
+  line-height: 0;
+}
 
 /* Color Inputs */
 .select-color {
@@ -73,6 +82,7 @@
   float: left;
   margin-bottom: -5px;
 }
+
 
 /* Run Button */
 

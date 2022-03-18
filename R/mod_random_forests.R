@@ -84,7 +84,7 @@ mod_random_forests_ui <- function(id){
 #' random_forests Server Function
 #'
 #' @noRd 
-mod_random_forests_server <- function(input, output, session,updateData, modelos){
+mod_random_forests_server <- function(input, output, session,updateData, modelos, codedioma){
   ns <- session$ns
   
   nombreModelo <- "modelo.rf"
@@ -108,7 +108,7 @@ mod_random_forests_server <- function(input, output, session,updateData, modelos
   
   
   observeEvent(input$runRf, {
-    if (validate_data(updateData, idioma = updateData$idioma)) { # Si se tiene los datos entonces :
+    if (validate_data(updateData, idioma = codedioma$idioma)) { # Si se tiene los datos entonces :
       rf_full()
     }
   })
@@ -177,7 +177,7 @@ mod_random_forests_server <- function(input, output, session,updateData, modelos
       if(!is.null(modelos$rf[[nombreModelo]])){
         
         modelo.rf <- modelos$rf[[nombreModelo]]$modelo
-        idioma <- updateData$idioma
+        idioma <- codedioma$idioma
         
         # Actualiza el codigo del grafico de rf
         codigo <- "importance_plot_rf(modelo.rf)"
@@ -207,7 +207,7 @@ mod_random_forests_server <- function(input, output, session,updateData, modelos
           datos.prueba <- updateData$datos.prueba
           real.val <- datos.prueba[updateData$variable.predecir]
         })
-        tb_predic(real.val, prediccion.rf, updateData$decimals, updateData$idioma)
+        tb_predic(real.val, prediccion.rf, updateData$decimals, codedioma$idioma)
       }
       else{NULL}
       
@@ -227,7 +227,7 @@ mod_random_forests_server <- function(input, output, session,updateData, modelos
           datos.prueba <- updateData$datos.prueba
           variable.predecir <- updateData$variable.predecir
         })
-        idioma <- updateData$idioma
+        idioma <- codedioma$idioma
         
         codigo <- disp_models(nombreModelo, tr("rf", idioma), variable.predecir)
         updateAceEditor(session, "fieldCodeRfDisp", value = codigo)
@@ -253,7 +253,7 @@ mod_random_forests_server <- function(input, output, session,updateData, modelos
   output$indexdfrf <- renderTable({
     tryCatch({
       if(!is.null(modelos$rf[[nombreModelo]])){
-        idioma <- updateData$idioma
+        idioma <- codedioma$idioma
         indices.rf <- modelos$rf[[nombreModelo]]$indices
         tabla.indicesPrecision(indices.rf, updateData$decimals, idioma)
       }
@@ -270,7 +270,7 @@ mod_random_forests_server <- function(input, output, session,updateData, modelos
   output$indexdfrf2 <- renderTable({
     tryCatch({
       if(!is.null(modelos$rf[[nombreModelo]])& !is.null(updateData$summary.var.pred)){
-        idioma <- updateData$idioma
+        idioma <- codedioma$idioma
         decimals <- updateData$decimals
         tabla.varpred.summary(updateData$summary.var.pred, decimals, idioma)
       }
