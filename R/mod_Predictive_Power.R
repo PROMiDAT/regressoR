@@ -37,7 +37,7 @@ mod_Predictive_Power_ui <- function(id){
 #' Predictive_Power Server Function
 #'
 #' @noRd 
-mod_Predictive_Power_server <- function(input, output, session, updateData, codedioma){
+mod_Predictive_Power_server <- function(input, output, session, updateData){
   ns <- session$ns
   # Show the graph of numerical predictive power
   output$plot_pairs_poder <- renderPlot({
@@ -48,7 +48,7 @@ mod_Predictive_Power_server <- function(input, output, session, updateData, code
         if(ncol(var.numericas(updateData$datos)) <= 25){
           pairs_power(updateData$datos, decimals = updateData$decimals)
         }else{
-          showNotification(tr("bigPlot",codedioma$idioma), duration = 10, type = "message")
+          showNotification(tr("bigPlot",updateData$idioma), duration = 10, type = "message")
           NULL
         }
       }else{

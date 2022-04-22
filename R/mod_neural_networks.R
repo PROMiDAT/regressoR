@@ -87,7 +87,7 @@ mod_neural_networks_ui <- function(id){
 #' neural_networks Server Function
 #'
 #' @noRd 
-mod_neural_networks_server <- function(input, output, session,updateData, modelos, codedioma){
+mod_neural_networks_server <- function(input, output, session,updateData, modelos){
   ns <- session$ns
   
   nombreModelo <- "modelo.nn"
@@ -131,7 +131,7 @@ mod_neural_networks_server <- function(input, output, session,updateData, modelo
   
   # When the nn model is generated
   observeEvent(input$runNn, {
-    if (validate_data(updateData, idioma = codedioma$idioma)) { # Si se tiene los datos entonces :
+    if (validate_data(updateData, idioma = updateData$idioma)) { # Si se tiene los datos entonces :
       nn_full()
     }
   })
@@ -243,7 +243,7 @@ mod_neural_networks_server <- function(input, output, session,updateData, modelo
           datos.prueba <- updateData$datos.prueba
           real.val <- datos.prueba[updateData$variable.predecir]
         })
-        tb_predic(real.val, prediccion.nn, updateData$decimals, codedioma$idioma)
+        tb_predic(real.val, prediccion.nn, updateData$decimals, updateData$idioma)
       }
       else{NULL}
       
@@ -264,7 +264,7 @@ mod_neural_networks_server <- function(input, output, session,updateData, modelo
           variable.predecir <- updateData$variable.predecir
         })
         
-        idioma <- codedioma$idioma
+        idioma <- updateData$idioma
         
         codigo <- disp_models(nombreModelo, tr("nn", idioma), variable.predecir)
         updateAceEditor(session, "fieldCodeNnDisp", value = codigo)
@@ -290,7 +290,7 @@ mod_neural_networks_server <- function(input, output, session,updateData, modelo
   output$indexdfnn <- renderTable({
     tryCatch({
       if(!is.null(modelos$nn[[nombreModelo]])){
-        idioma <- codedioma$idioma
+        idioma <- updateData$idioma
         indices.nn <- modelos$nn[[nombreModelo]]$indices
         tabla.indicesPrecision(indices.nn, updateData$decimals, idioma)
       }
@@ -307,7 +307,7 @@ mod_neural_networks_server <- function(input, output, session,updateData, modelo
   output$indexdfnn2 <- renderTable({
     tryCatch({
       if(!is.null(modelos$nn[[nombreModelo]])& !is.null(updateData$summary.var.pred)){
-        idioma <- codedioma$idioma
+        idioma <- updateData$idioma
         decimals <- updateData$decimals
         tabla.varpred.summary(updateData$summary.var.pred, decimals, idioma)
       }

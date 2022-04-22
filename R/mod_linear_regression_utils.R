@@ -1,4 +1,4 @@
-#' Rl_model
+#' rl_model
 #' 
 #' @description generates a linear regression model.
 #'
@@ -32,6 +32,7 @@ rl_model <- function(data, variable.pred){
 #' 
 rl_prediction <- function(model, test.data) {
   return(predict(model,test.data))
+  #return(paste0(pred.var, " <- predict(",model.var,", ",data,")"))
 }
 
 #' rl_coeff
@@ -56,25 +57,32 @@ rl_coeff <- function(modelo){
   }
   return(NULL)
   
+  # paste0("summ <- summary(",model.var,")\n",
+  #        "df.rl <- as.data.frame(summ$coefficients)\n",
+  #        "df.rl <- cbind(df.rl,  Importance = symnum(summ$coefficients[,4], corr = FALSE, na = FALSE, 
+  #                                          cutpoints = c(0, 0.001, 0.01, 0.05, 0.1, 1), 
+  #                                          symbols = c('***', '**', '*', '.', ' ')))\n",
+  #        "df.rl <- as.data.frame(df.rl)\n",
+  #        "r2    <- summ$r.square\n")
 }
 
 #------------------------------------CODE---------------------------------------
 
 codeRl <- function(variable.predecir){
-  return(paste0("rl_model(datos.prueba, '",variable.predecir,"')\n"))
+  return(paste0("rl_model(data, '",variable.predecir,"')"))
 }
 
 codeRlCoef <- function(nombreModelo = "modelo.rl"){
   return(paste0("information <- rl_coeff(",nombreModelo,")\n",
-                "information$df.rl[,c(1,4)]\n"))
+                "information$df.rl[,c(1,4)]"))
 }
 
 codeRlPred <- function(nombreModelo = "rl.model"){
-  return(paste0("rl_prediction(model = ", nombreModelo, ", datos.prueba)\n"))
+  return(paste0("rl_prediction(model = ", nombreModelo, ", test.data)"))
 }
 
 codeRlIG <- function(variable.predecir){
-  return(paste0("general_indices(datos.prueba[,'",variable.predecir,"'], prediccion.rl)\n"))
+  return(paste0("general_indices(test.data[,'",variable.predecir,"'], prediccion.rl)"))
 }
 
 
@@ -93,5 +101,5 @@ codeRlIG <- function(variable.predecir){
 #' 
 disp_models <- function(prediction, model_name, var_pred){
   
-  paste0("plot_real_prediction(datos.prueba['",var_pred,"'], ", prediction,", '",model_name,"')")
+  paste0("plot_real_prediction(test.data['",var_pred,"'], ", prediction,", '",model_name,"')")
 }

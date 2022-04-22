@@ -73,7 +73,7 @@ mod_SVM_ui <- function(id){
 #' SVM Server Function
 #'
 #' @noRd 
-mod_SVM_server <- function(input, output, session,updateData, modelos, codedioma){
+mod_SVM_server <- function(input, output, session,updateData, modelos){
   ns <- session$ns
   
   nombreBase <- "modelo.svm."
@@ -90,7 +90,7 @@ mod_SVM_server <- function(input, output, session,updateData, modelos, codedioma
   
   # When the knn model is generated
   observeEvent(input$runSvm, {
-    if (validate_data(updateData, idioma = codedioma$idioma)) { # Si se tiene los datos entonces :
+    if (validate_data(updateData, idioma = updateData$idioma)) { # Si se tiene los datos entonces :
       svm_full()
     }
   })
@@ -157,7 +157,7 @@ mod_SVM_server <- function(input, output, session,updateData, modelos, codedioma
           datos.prueba <- updateData$datos.prueba
           real.val <- datos.prueba[updateData$variable.predecir]
         })
-        tb_predic(real.val, prediccion.svm, updateData$decimals, codedioma$idioma)
+        tb_predic(real.val, prediccion.svm, updateData$decimals, updateData$idioma)
       }
       else{NULL}
       
@@ -179,7 +179,7 @@ mod_SVM_server <- function(input, output, session,updateData, modelos, codedioma
           variable.predecir <- updateData$variable.predecir
           kernel <- input$kernel.svm
         })
-        idioma <- codedioma$idioma
+        idioma <- updateData$idioma
         
         codigo <- disp_models(nombreModelo, paste0(tr("svm", idioma),"-",kernel), variable.predecir)
         updateAceEditor(session, "fieldCodeSvmDisp", value = codigo)
@@ -205,7 +205,7 @@ mod_SVM_server <- function(input, output, session,updateData, modelos, codedioma
   output$indexdfsvm <- renderTable({
     tryCatch({
       if(!is.null(modelos$svm[[nombreModelo]])){
-        idioma <- codedioma$idioma
+        idioma <- updateData$idioma
         indices.svm <- modelos$svm[[nombreModelo]]$indices
         tabla.indicesPrecision(indices.svm, updateData$decimals, idioma)
       }
@@ -222,7 +222,7 @@ mod_SVM_server <- function(input, output, session,updateData, modelos, codedioma
   output$indexdfsvm2 <- renderTable({
     tryCatch({
       if(!is.null(modelos$svm[[nombreModelo]])& !is.null(updateData$summary.var.pred)){
-        idioma <- codedioma$idioma
+        idioma <- updateData$idioma
         decimals <- updateData$decimals
         tabla.varpred.summary(updateData$summary.var.pred, decimals, idioma)
       }

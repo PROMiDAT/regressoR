@@ -220,7 +220,7 @@ mod_new_data_predictions_ui <- function(id){
 #' new_data_predictions Server Function
 #' @keywords internal
 #' 
-mod_new_data_predictions_server <- function(input, output, session, updateData, new.data, codedioma){
+mod_new_data_predictions_server <- function(input, output, session, updateData, new.data){
   ns <- session$ns
   
   observeEvent(input$btn_next1,{
@@ -433,8 +433,8 @@ mod_new_data_predictions_server <- function(input, output, session, updateData, 
   updateDataTable1_2 <- reactive({
     datos  <- new.data$datos.train
     tipos  <- c(
-      tr("numerico",   isolate(codedioma$idioma)),
-      tr("categorico", isolate(codedioma$idioma))
+      tr("numerico",   isolate(updateData$idioma)),
+      tr("categorico", isolate(updateData$idioma))
     )
     
     tryCatch({
@@ -478,7 +478,7 @@ mod_new_data_predictions_server <- function(input, output, session, updateData, 
   # Update Transform Table1
   output$transData1 <- renderUI({
     datos  <- new.data$originales.train
-    idioma <- codedioma$idioma
+    idioma <- updateData$idioma
     
     res <- list(fluidRow(
       column(4, tags$span(tags$b("Variable"))),
@@ -561,7 +561,7 @@ mod_new_data_predictions_server <- function(input, output, session, updateData, 
         print(new.data$modelo)
       }
       else{
-        cat(tr("noModel", codedioma$idioma))
+        cat(tr("noModel", updateData$idioma))
         updateAceEditor(session, "fieldPredNuevos", value = "")
       }
     }, error = function(e){
@@ -755,8 +755,8 @@ mod_new_data_predictions_server <- function(input, output, session, updateData, 
   output$tabladatos3 <- DT::renderDataTable({
     datos  <- new.data$nuevos
     tipos  <- c(
-      tr("numerico",   isolate(codedioma$idioma)),
-      tr("categorico", isolate(codedioma$idioma))
+      tr("numerico",   isolate(updateData$idioma)),
+      tr("categorico", isolate(updateData$idioma))
     )
     
     tryCatch({

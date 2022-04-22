@@ -7,9 +7,9 @@
 app_server <- function( input, output, session ) {
 
   options(shiny.maxRequestSize = 209715200, width = 200, # 209715200 = 200 * 1024^2
-          DT.options = list(aLengthMenu = c(10, 30, 50), iDisplayLength = 10, 
+          DT.options = list(aLengthMenu = c(10, 30, 50), iDisplayLength = 10, scrollX = TRUE, 
                             language = list(search = HTML('<i class="fa fa-search"></i>'),
-                                            emptyTable = "", zeroRecords = "",
+                                            info = "", emptyTable = "", zeroRecords = "",
                                             paginate = list("previous" = HTML('<i class="fa fa-backward"></i>'),
                                                             "next" = HTML('<i class="fa fa-forward"></i>'),
                                                             "first" =HTML('<i class="fa fa-fast-backward"></i>'),
@@ -18,16 +18,14 @@ app_server <- function( input, output, session ) {
   
   # REACTIVE VALUES -------------------------------------------------------------------------------------------------------
   #updateData always has the same values of the global variables(datos, datos.prueba, datos.aprendizaje).
-  updateData <- reactiveValues(originales   = NULL, datos = NULL, 
+  updateData <- reactiveValues(originales = NULL, datos = NULL, 
                                datos.prueba = NULL, datos.aprendizaje = NULL, 
-                               variable.predecir = NULL, summary.var.pred = NULL, decimals = 2)
+                               variable.predecir = NULL, summary.var.pred = NULL,
+                               idioma = "es", decimals = 2)
   
-  codedioma <- reactiveValues(idioma = "es",
-                              code   = list())
-  
-  modelos    <-  reactiveValues(rl  = NULL, rlr   = NULL, dt  = NULL, 
-                                rf  = NULL, boost = NULL, knn = NULL, 
-                                svm = NULL, rd    = NULL, nn  = NULL)
+  modelos    <-  reactiveValues(rl = NULL, rlr= NULL, dt = NULL, 
+                                rf = NULL, boost = NULL, knn = NULL, 
+                                svm = NULL, rd = NULL, nn = NULL)
   
   new.data <- reactiveValues(originales.train = NULL, datos.train = NULL, variable.predecir = NULL,
                              nuevos = NULL, modelo = NULL, prediccion = NULL)
@@ -62,11 +60,12 @@ app_server <- function( input, output, session ) {
   
   # CHANGE LANGUAGE -------------------------------------------------------------------------------------------------------
   
-  #' Update on Language
+  # When the user changes the language
   observeEvent(input$idioma, {
-    codedioma$idioma = input$idioma
-    etiquetas <- c(readeR::labels_readeR(), cambiar.labels())
-    updateLabelInput(session, etiquetas, tr(etiquetas, input$idioma))
+    if(updateData$idioma != input$idioma){
+      updateData$idioma <- input$idioma
+    }
+    updateLabelInput(session, cambiar.labels(), tr(cambiar.labels(), input$idioma))
   })
   
   observeEvent(input$decimals_confg,{
@@ -86,37 +85,6 @@ app_server <- function( input, output, session ) {
   })
   
   
-  # Update Code
-  observeEvent(c(codedioma$code, input$idioma), {
-    codigo <- codedioma$code
-    lg     <- input$idioma
-    
-    keys <- c(
-      'doccarga', 'doctt', 'doccv', 'docresumen', 'dochist', 'docqq', 
-      'docnormal', 'docdisp', 'docdistnum', 'docdistcat', 'doccor',
-      'docrename', 'doctrans', 'doceliminar', 'distpred', 'reglin')
-    
-    for (k in keys) {
-      codigo <- gsub(k, tr(k, idioma = lg), codigo, fixed = T)
-    }
-    
-    codigo.completo <- paste0(
-      "library(XLConnect)\n", "library(caret)\n",
-      "library(traineR)\n", "library(xgboost)\n",
-      "library(echarts4r)\n", "library(readeR)\n\n"
-    )
-    for (cod in codigo) {
-      codigo.completo <- paste0(codigo.completo, "\n", cod)
-    }
-    updateAceEditor(session, "fieldCode", value = codigo.completo)
-  })
-  
-  output$btn_code <- downloadHandler(
-    filename = "codigo.R",
-    content = function(con) {
-      write(input$fieldCode, con)
-    }
-  )
   
   # END THE SESSION -------------------------------------------------------------------------------------------------------
   
@@ -127,37 +95,23 @@ app_server <- function( input, output, session ) {
   
   
   ###################################  Modules  ###############################
-  #Carga de Datos
-  readeR::mod_carga_datos_server("carga_datos_ui_1", updateData, modelos, codedioma, "regressoR")
-  
-  #Estadísticas Básicas
-  readeR::mod_r_numerico_server("r_numerico_ui_1",         updateData, codedioma)
-  readeR::mod_normal_server("normal_ui_1",                 updateData, codedioma)
-  readeR::mod_dispersion_server("dispersion_ui_1",         updateData, codedioma)
-  readeR::mod_distribuciones_server("distribuciones_ui_1", updateData, codedioma)
-  readeR::mod_correlacion_server("correlacion_ui_1",       updateData, codedioma)
-  
-  #callModule(mod_carga_datos_server,"carga_datos_ui_1",updateData, modelos, codedioma)
-  # callModule(mod_r_numerico_server, "r_numerico_ui_1",updateData)
-  # callModule(mod_normal_server, "normal_ui_1",updateData)
-  # callModule(mod_dispersion_server, "dispersion_ui_1", updateData)
-  # callModule(mod_distribuciones_server, "distribuciones_ui_1", updateData)
-  # callModule(mod_correlacion_server, "correlacion_ui_1", updateData)
-  callModule(mod_Predictive_Power_server, "Predictive_Power_ui_1", updateData, codedioma)
-  
-  callModule(mod_linear_regression_server,    "linear_regression_ui_1",    updateData, modelos, codedioma)
-  callModule(mod_penalized_Regression_server, "penalized_Regression_ui_1", updateData, modelos, codedioma)
-  callModule(mod_regression_trees_server,     "regression_trees_ui_1",     updateData, modelos, codedioma)
-  callModule(mod_random_forests_server,       "random_forests_ui_1",       updateData, modelos, codedioma)
-  callModule(mod_boosting_server,             "boosting_ui_1",             updateData, modelos, codedioma)
-  callModule(mod_KNN_server,                  "KNN_ui_1",                  updateData, modelos, codedioma)
-  callModule(mod_SVM_server,                  "SVM_ui_1",                  updateData, modelos, codedioma)
-  callModule(mod_dimension_reduction_server,  "dimension_reduction_ui_1",  updateData, modelos, codedioma)
-  callModule(mod_neural_networks_server,      "neural_networks_ui_1",      updateData, modelos, codedioma)
-  
-  callModule(mod_model_comparison_server,     "model_comparison_ui_1",     updateData, modelos, codedioma)
-  
-  callModule(mod_new_data_predictions_server, "new_data_predictions_ui_1", updateData, new.data, codedioma)
-  
-  callModule(mod_information_page_server,     "information_page_ui_1", codedioma)
+  callModule(mod_carga_datos_server,"carga_datos_ui_1",updateData, modelos)
+  callModule(mod_r_numerico_server, "r_numerico_ui_1",updateData)
+  callModule(mod_normal_server, "normal_ui_1",updateData)
+  callModule(mod_dispersion_server, "dispersion_ui_1", updateData)
+  callModule(mod_distribuciones_server, "distribuciones_ui_1", updateData)
+  callModule(mod_correlacion_server, "correlacion_ui_1", updateData)
+  callModule(mod_Predictive_Power_server, "Predictive_Power_ui_1", updateData)
+  callModule(mod_linear_regression_server, "linear_regression_ui_1",updateData,modelos)
+  callModule(mod_penalized_Regression_server, "penalized_Regression_ui_1",updateData, modelos)
+  callModule(mod_regression_trees_server, "regression_trees_ui_1",updateData, modelos)
+  callModule(mod_random_forests_server, "random_forests_ui_1",updateData, modelos)
+  callModule(mod_boosting_server, "boosting_ui_1",updateData, modelos)
+  callModule(mod_KNN_server, "KNN_ui_1",updateData, modelos)
+  callModule(mod_SVM_server, "SVM_ui_1",updateData, modelos)
+  callModule(mod_dimension_reduction_server, "dimension_reduction_ui_1",updateData, modelos)
+  callModule(mod_neural_networks_server, "neural_networks_ui_1",updateData, modelos)
+  callModule(mod_model_comparison_server, "model_comparison_ui_1",updateData,modelos)
+  callModule(mod_new_data_predictions_server, "new_data_predictions_ui_1", updateData, new.data)
+  callModule(mod_information_page_server, "information_page_ui_1")
 }

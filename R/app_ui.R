@@ -114,6 +114,7 @@ app_ui <- function(request) {
     dashboardPage(
       title="PROMiDAT - RegressoR",
       shinydashboardPlus::dashboardHeader(
+        controlbarIcon = icon("cogs"),
         title = HTML(paste0(
           '<span class = "logo-lg">
             <a href = "https://promidat.com" target = "_blank">
@@ -121,60 +122,32 @@ app_ui <- function(request) {
             </a>
           </span>',
           '<img src= "img/logo_small.png" height = 50%, width = "120%">'
-        )), controlbarIcon = icon("cogs")
+        ))
       ),
       dashboardSidebar(mi.menu),
       dashboardBody(mi.head,
                     load.page,
                     tabItems(
-                      tabItem(tabName = "cargar",  
-                              readeR::mod_carga_datos_ui("carga_datos_ui_1", labelInput("data"))),
-                      tabItem(tabName = "resumen",  
-                              readeR::mod_r_numerico_ui("r_numerico_ui_1")),
-                      tabItem(tabName = "normalidad",  
-                              readeR:: mod_normal_ui("normal_ui_1")),
-                      tabItem(tabName = "dispersion",  
-                              readeR::mod_dispersion_ui("dispersion_ui_1")),
-                      tabItem(tabName = "distribucion",  
-                              readeR::mod_distribuciones_ui("distribuciones_ui_1")),
-                      tabItem(tabName = "correlacion",  
-                              readeR::mod_correlacion_ui("correlacion_ui_1")),
-                      tabItem(tabName = "poderPred",  
-                              mod_Predictive_Power_ui("Predictive_Power_ui_1")),
-                      tabItem(tabName = "rl",  
-                              mod_linear_regression_ui("linear_regression_ui_1")),
-                      tabItem(tabName = "rlr",  
-                              mod_penalized_Regression_ui("penalized_Regression_ui_1")),
-                      tabItem(tabName = "dt",  
-                              mod_regression_trees_ui("regression_trees_ui_1")),
-                      tabItem(tabName = "rf",  
-                              mod_random_forests_ui("random_forests_ui_1")),
-                      tabItem(tabName = "boosting",  
-                              mod_boosting_ui("boosting_ui_1")),
-                      tabItem(tabName = "knn",  
-                              mod_KNN_ui("KNN_ui_1")),
-                      tabItem(tabName = "svm",  
-                              mod_SVM_ui("SVM_ui_1")),
-                      tabItem(tabName = "rd",  
-                              mod_dimension_reduction_ui("dimension_reduction_ui_1")),
-                      tabItem(tabName = "nn",  
-                              mod_neural_networks_ui("neural_networks_ui_1")),
-                      tabItem(tabName = "comparar",  
-                              mod_model_comparison_ui("model_comparison_ui_1")),
-                      tabItem(tabName = "predNuevos",  
-                              mod_new_data_predictions_ui("new_data_predictions_ui_1")),
-                      tabItem(tabName = "acercaDe",  
-                              mod_information_page_ui("information_page_ui_1"))
-                    )),
-      shinydashboardPlus::dashboardControlbar(
-        width = 500,
-        div(
-          style = "margin-right: 15px; margin-left: 15px;",
-          h3(labelInput('code')), hr(),
-          codigo.monokai("fieldCode", height = "70vh"),
-          downloadButton("btn_code", NULL, style = "width: 100%;")
-        )
-      )
+                      tabItem(tabName = "cargar",  mod_carga_datos_ui("carga_datos_ui_1")),
+                      tabItem(tabName = "resumen",  mod_r_numerico_ui("r_numerico_ui_1")),
+                      tabItem(tabName = "normalidad",  mod_normal_ui("normal_ui_1")),
+                      tabItem(tabName = "dispersion",  mod_dispersion_ui("dispersion_ui_1")),
+                      tabItem(tabName = "distribucion",  mod_distribuciones_ui("distribuciones_ui_1")),
+                      tabItem(tabName = "correlacion",  mod_correlacion_ui("correlacion_ui_1")),
+                      tabItem(tabName = "poderPred",  mod_Predictive_Power_ui("Predictive_Power_ui_1")),
+                      tabItem(tabName = "rl",  mod_linear_regression_ui("linear_regression_ui_1")),
+                      tabItem(tabName = "rlr",  mod_penalized_Regression_ui("penalized_Regression_ui_1")),
+                      tabItem(tabName = "dt",  mod_regression_trees_ui("regression_trees_ui_1")),
+                      tabItem(tabName = "rf",  mod_random_forests_ui("random_forests_ui_1")),
+                      tabItem(tabName = "boosting",  mod_boosting_ui("boosting_ui_1")),
+                      tabItem(tabName = "knn",  mod_KNN_ui("KNN_ui_1")),
+                      tabItem(tabName = "svm",  mod_SVM_ui("SVM_ui_1")),
+                      tabItem(tabName = "rd",  mod_dimension_reduction_ui("dimension_reduction_ui_1")),
+                      tabItem(tabName = "nn",  mod_neural_networks_ui("neural_networks_ui_1")),
+                      tabItem(tabName = "comparar",  mod_model_comparison_ui("model_comparison_ui_1")),
+                      tabItem(tabName = "predNuevos",  mod_new_data_predictions_ui("new_data_predictions_ui_1")),
+                      tabItem(tabName = "acercaDe",  mod_information_page_ui("information_page_ui_1"))
+                    ))
     )
     
   )

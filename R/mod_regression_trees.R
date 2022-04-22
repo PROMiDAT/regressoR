@@ -80,7 +80,7 @@ mod_regression_trees_ui <- function(id){
 #' regression_trees Server Function
 #'
 #' @noRd 
-mod_regression_trees_server <- function(input, output, session,updateData, modelos, codedioma){
+mod_regression_trees_server <- function(input, output, session,updateData, modelos){
   ns <- session$ns
   
   nombreModelo <- "modelo.dt"
@@ -97,7 +97,7 @@ mod_regression_trees_server <- function(input, output, session,updateData, model
   
   #  When the dt model is generated
   observeEvent(input$runDt, {
-    if (validate_data(updateData, idioma = codedioma$idioma)) { # Si se tiene los datos entonces :
+    if (validate_data(updateData, idioma = updateData$idioma)) { # Si se tiene los datos entonces :
       dt_full()
     }
   })
@@ -186,7 +186,7 @@ mod_regression_trees_server <- function(input, output, session,updateData, model
           datos.prueba <- updateData$datos.prueba
           real.val <- datos.prueba[updateData$variable.predecir]
         })
-        tb_predic(real.val, prediccion.dt, updateData$decimals, codedioma$idioma)
+        tb_predic(real.val, prediccion.dt, updateData$decimals, updateData$idioma)
       }
       else{NULL}
       
@@ -207,16 +207,16 @@ mod_regression_trees_server <- function(input, output, session,updateData, model
           variable.predecir <- updateData$variable.predecir
         })
         
-        codigo <- disp_models("prediccion.dt", tr("dt",codedioma$idioma), variable.predecir)
+        codigo <- disp_models("prediccion.dt", tr("dt",updateData$idioma), variable.predecir)
         updateAceEditor(session, "fieldCodeDtDisp", value = codigo)
         
         titulos <- c(
-          tr("predvsreal", codedioma$idioma),
-          tr("realValue", codedioma$idioma),
-          tr("pred", codedioma$idioma)
+          tr("predvsreal", updateData$idioma),
+          tr("realValue", updateData$idioma),
+          tr("pred", updateData$idioma)
         )
         
-        plot_real_prediction(datos.prueba[variable.predecir],prediccion.dt,tr("dt", codedioma$idioma),titulos)
+        plot_real_prediction(datos.prueba[variable.predecir],prediccion.dt,tr("dt", updateData$idioma),titulos)
       }
       else{NULL}
     },
@@ -255,7 +255,7 @@ mod_regression_trees_server <- function(input, output, session,updateData, model
   output$indexdfdt <- renderTable({
     tryCatch({
       if(!is.null(modelos$dt[[nombreModelo]])){
-        idioma <- codedioma$idioma
+        idioma <- updateData$idioma
         indices.dt <- modelos$dt[[nombreModelo]]$indices
         tabla.indicesPrecision(indices.dt, updateData$decimals, idioma)
       }
@@ -272,7 +272,7 @@ mod_regression_trees_server <- function(input, output, session,updateData, model
   output$indexdfdt2 <- renderTable({
     tryCatch({
       if(!is.null(modelos$dt[[nombreModelo]])& !is.null(updateData$summary.var.pred)){
-        idioma <- codedioma$idioma
+        idioma <- updateData$idioma
         decimals <- updateData$decimals
         tabla.varpred.summary(updateData$summary.var.pred, decimals, idioma)
       }

@@ -269,22 +269,22 @@ e_coeff_landa <- function(cv.glm, log.lambda = NULL, titles = c("Coeficientes","
 
 #------------------------------------CODE---------------------------------------
 codeRlr <- function(variable.predecir, alpha, standardize){
-  return(paste0("rlr_model(datos.aprendizaje, '",variable.predecir,"', alpha = ",alpha, ", standardize = ",standardize,")\n"))
+  return(paste0("rlr_model(data, '",variable.predecir,"', alpha = ",alpha, ", standardize = ",standardize,")"))
 }
 
 codeRlrCoeff <- function(variable.predecir, nombreModelo, log.lambda = NULL){
   param.lambda <- ifelse(is.null(log.lambda),"",paste0(", log.lambda = ",log.lambda))
-  return(paste0("coef_lambda(datos.aprendizaje, '", variable.predecir,"', model = ",nombreModelo,
-                param.lambda, ")\n"))
+  return(paste0("coef_lambda(data, '", variable.predecir,"', model = ",nombreModelo,
+                param.lambda, ")"))
 }
 
 
 codeRlrPred <- function(nombreModelo, variable.predecir, log.lambda = NULL){
   param.lambda <- ifelse(is.null(log.lambda),"",paste0(", log.lambda = ",log.lambda))
-  return(paste0("rlr_prediction(model = ",nombreModelo, ", datos.prueba, " , "'", variable.predecir,"'",param.lambda, ")\n"))
+  return(paste0("rlr_prediction(model = ",nombreModelo, ", test.data, " , "'", variable.predecir,"'",param.lambda, ")"))
 }
 
 
 codeRlrIG <- function(variable.predecir){
-  return(paste0("general_indices(datos.prueba[,'",variable.predecir,"'], prediccion.rlr)\n"))
+  return(paste0("general_indices(test.data[,'",variable.predecir,"'], prediccion.rlr)"))
 }

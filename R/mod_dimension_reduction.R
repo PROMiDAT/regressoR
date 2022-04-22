@@ -97,7 +97,7 @@ mod_dimension_reduction_ui <- function(id){
 #' dimension_reduction Server Function
 #'
 #' @noRd 
-mod_dimension_reduction_server <- function(input, output, session,updateData, modelos, codedioma){
+mod_dimension_reduction_server <- function(input, output, session,updateData, modelos){
   ns <- session$ns
   
   nombreBase <- "modelo.rd."
@@ -121,7 +121,7 @@ mod_dimension_reduction_server <- function(input, output, session,updateData, mo
   })
   
   observeEvent(input$runRd, {
-    if (validate_data(updateData, idioma = codedioma$idioma)) { # Si se tiene los datos entonces :
+    if (validate_data(updateData, idioma = updateData$idioma)) { # Si se tiene los datos entonces :
       rd_full()
     }
   })
@@ -205,7 +205,7 @@ mod_dimension_reduction_server <- function(input, output, session,updateData, mo
     tryCatch({
       if(!is.null(modelos$rd[[nombreModelo]])){
         modelo.rd <- modelos$rd[[nombreModelo]]$modelo
-        idioma <- codedioma$idioma
+        idioma <- updateData$idioma
         
         # Actualizar el código en el AceEditor
         codigo <- paste0("plot_RMSE(",nombreModelo, ", ncomp = ", ncomp ,")")
@@ -233,7 +233,7 @@ mod_dimension_reduction_server <- function(input, output, session,updateData, mo
       if(!is.null(modelos$rd[[nombreModelo]])){
         
         modelo.rd <- modelos$rd[[nombreModelo]]$modelo
-        idioma <- codedioma$idioma
+        idioma <- updateData$idioma
         
         # Se actualiza el codigo
         codigo <- paste0("plot_pred_rd(",nombreModelo, ", ncomp = ", ncomp ,")")
@@ -260,7 +260,7 @@ mod_dimension_reduction_server <- function(input, output, session,updateData, mo
     tryCatch({
       if(!is.null(modelos$rd[[nombreModelo]])){
         modelo.rd <- modelos$rd[[nombreModelo]]$modelo
-        idioma <- codedioma$idioma
+        idioma <- updateData$idioma
         
         # Se actualiza el codigo del plot
         codigo <- paste0("plot_var_pred_rd(",nombreModelo, ", ncomp = ", ncomp ,")")
@@ -291,7 +291,7 @@ mod_dimension_reduction_server <- function(input, output, session,updateData, mo
           datos.prueba <- updateData$datos.prueba
           real.val <- datos.prueba[updateData$variable.predecir]
         })
-        tb_predic(real.val, prediccion.rd, updateData$decimals, codedioma$idioma)
+        tb_predic(real.val, prediccion.rd, updateData$decimals, updateData$idioma)
       }
       else{NULL}
       
@@ -315,7 +315,7 @@ mod_dimension_reduction_server <- function(input, output, session,updateData, mo
           variable.predecir <- updateData$variable.predecir
           modo.rd <- input$modo.rd
         })
-        idioma <- codedioma$idioma
+        idioma <- updateData$idioma
         
         model.name <- paste0(tr("rd", idioma), "-", rd_type(modo.rd))
         codigo <- disp_models(nombreModelo, model.name, variable.predecir)
@@ -342,7 +342,7 @@ mod_dimension_reduction_server <- function(input, output, session,updateData, mo
   output$indexdfrd <- renderTable({
     tryCatch({
       if(!is.null(modelos$rd[[nombreModelo]])){
-        idioma <- codedioma$idioma
+        idioma <- updateData$idioma
         indices.rd <- modelos$rd[[nombreModelo]]$indices
         tabla.indicesPrecision(indices.rd, updateData$decimals, idioma)
       }
@@ -359,7 +359,7 @@ mod_dimension_reduction_server <- function(input, output, session,updateData, mo
   output$indexdfrd2 <- renderTable({
     tryCatch({
       if(!is.null(modelos$rd[[nombreModelo]])& !is.null(updateData$summary.var.pred)){
-        idioma <- codedioma$idioma
+        idioma <- updateData$idioma
         decimals <- updateData$decimals
         tabla.varpred.summary(updateData$summary.var.pred, decimals, idioma)
       }

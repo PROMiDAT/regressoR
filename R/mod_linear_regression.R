@@ -65,99 +65,80 @@ mod_linear_regression_ui <- function(id){
 #' linear_regression Server Function
 #'
 #' @noRd 
-mod_linear_regression_server <- function(input, output, session, updateData, modelos, codedioma){
+mod_linear_regression_server <- function(input, output, session, updateData, modelos){
   ns <- session$ns
   
   nombreModelo <- "modelo.rl"
   df.rl <- NULL
-  r2    <- NULL
+  r2 <- NULL
   
   return.rl.default.values <- function(){
     df.rl <<- NULL
-    r2    <<- NULL
+    r2 <<- NULL
   }
   
-# 
-#   observeEvent(updateData$datos.aprendizaje,{
-#     #Change to default values
-#     return.rl.default.values()
-#     #No hace falta isolate. observeEvent evalua la expresión en un isolate
-#     if(validate_data(updateData,idioma = codedioma$idioma)){
-#       #rl_full()
-#     }
-#   })
-#   
-#   observeEvent(input$runRl,{
-#     #No hace falta isolate. observeEvent evalua la expresión en un isolate
-#     if(validate_data(updateData,idioma = codedioma$idioma)){
-#       rl_full()
-#     }
-#   })
-  # 
-  # # Execute model, prediction and indices
-  # rl_full <- function(){
-  #   tryCatch({
-  #     shinyjs::runjs(code = "generating_model = true")
-  #     
-  #     isolate({
-  #       datos.aprendizaje <- updateData$datos.aprendizaje
-  #       datos.prueba      <- updateData$datos.prueba
-  #       variable.predecir <- updateData$variable.predecir
-  #     })
-  #     
-  #     #Model generate
-  #     modelo.rl <- rl_model(datos.aprendizaje,variable.predecir)
-  # 
-  #     #Coefficients
-  #     model.information <- rl_coeff(modelo.rl)
-  #     df.rl <<- model.information$df.rl
-  #     r2    <<- model.information$r2
-  #     #Prediccion
-  #     prediccion.rl <- rl_prediction(modelo.rl, datos.prueba)
-  #     #Indices
-  #     indices.rl <- general_indices(datos.prueba[,variable.predecir], prediccion.rl)
-  #     #codigo.linear.regression()
-  #     #isolamos para que no entre en un ciclo en el primer renderPrint
-  #     isolate(modelos$rl[[nombreModelo]] <- list(modelo = modelo.rl, prediccion = prediccion.rl, indices = indices.rl, 
-  #                                                id = NULL))
-  #   }, error = function(e){
-  #     isolate(modelos$rl[[nombreModelo]] <- NULL)
-  #     showNotification(paste0("Error (RL-00) : ",e), duration = 10, type = "error")
-  #   },
-  #   finally = {
-  #     shinyjs::runjs(code = "generating_model = false")
-  #   })
-  #   
-  # }
+
+  observeEvent(updateData$datos.aprendizaje,{
+    #Change to default values
+    return.rl.default.values()
+  })
   
+  observeEvent(input$runRl,{
+    #No hace falta isolate. observeEvent evalua la expresión en un isolate
+    if(validate_data(updateData,idioma = updateData$idioma)){
+      rl_full()
+    }
+  })
   
-  #Update model tab
-  output$txtRl <- renderPrint({
-    input$runRl
+  # Execute model, prediction and indices
+  rl_full <- function(){
     tryCatch({
-      codigo.linear.regression()
+      shinyjs::runjs(code = "generating_model = true")
+      
       isolate({
         datos.aprendizaje <- updateData$datos.aprendizaje
-        datos.prueba      <- updateData$datos.prueba
+        datos.prueba <- updateData$datos.prueba
         variable.predecir <- updateData$variable.predecir
       })
       
       #Model generate
       modelo.rl <- rl_model(datos.aprendizaje,variable.predecir)
+      updateAceEditor(session, "fieldCodeRl", value = codeRl(variable.predecir))
       
       #Coefficients
       model.information <- rl_coeff(modelo.rl)
       df.rl <<- model.information$df.rl
-      r2    <<- model.information$r2
+      r2 <<- model.information$r2
+      updateAceEditor(session, "fieldCodeRlCoef", value = codeRlCoef())
       #Prediccion
       prediccion.rl <- rl_prediction(modelo.rl, datos.prueba)
+      updateAceEditor(session, "fieldCodeRlPred", value = codeRlPred(nombreModelo))
       #Indices
       indices.rl <- general_indices(datos.prueba[,variable.predecir], prediccion.rl)
+      updateAceEditor(session, "fieldCodeRlIG", value = codeRlIG(variable.predecir))
+      
       #isolamos para que no entre en un ciclo en el primer renderPrint
       isolate(modelos$rl[[nombreModelo]] <- list(modelo = modelo.rl, prediccion = prediccion.rl, indices = indices.rl, 
                                                  id = NULL))
-      
+    }, error = function(e){
+      isolate(modelos$rl[[nombreModelo]] <- NULL)
+      showNotification(paste0("Error (RL-00) : ",e), duration = 10, type = "error")
+    },
+    finally = {
+      shinyjs::runjs(code = "generating_model = false")
+    })
+    
+  }
+  
+  
+  #Update model tab
+  output$txtRl <- renderPrint({
+    tryCatch({
+      if(!is.null(modelos$rl[[nombreModelo]])){
+        modelo.rl <- modelos$rl[[nombreModelo]]$modelo
         print(summary(modelo.rl))
+      }
+      else{NULL}
     }, error = function(e){
       showNotification(paste0("Error (RL-01) : ",e), duration = 10, type = "error")
       NULL
@@ -169,7 +150,7 @@ mod_linear_regression_server <- function(input, output, session, updateData, mod
     tryCatch({
       if(!is.null(df.rl) && !is.null(modelos$rl[[nombreModelo]])){
         dttable.custom(data.frame(row.names = row.names(df.rl), coeff = df.rl[,1]), 
-                       decimals = updateData$decimals,translatable = TRUE, language = isolate(codedioma$idioma))
+                       decimals = updateData$decimals,translatable = TRUE, language = isolate(updateData$idioma))
       }
       else{NULL}
     }, error = function(e){
@@ -187,9 +168,9 @@ mod_linear_regression_server <- function(input, output, session, updateData, mod
         prediccion.rl <- modelos$rl[[nombreModelo]]$prediccion
         isolate({
           datos.prueba <- updateData$datos.prueba
-          real.val     <- datos.prueba[updateData$variable.predecir]
+          real.val <- datos.prueba[updateData$variable.predecir]
         })
-        tb_predic(real.val, prediccion.rl, updateData$decimals,codedioma$idioma)
+        tb_predic(real.val, prediccion.rl, updateData$decimals,updateData$idioma)
       }
       else{NULL}
       
@@ -207,21 +188,19 @@ mod_linear_regression_server <- function(input, output, session, updateData, mod
       if(!is.null(modelos$rl[[nombreModelo]])){
         prediccion.rl <- modelos$rl[[nombreModelo]]$prediccion
         isolate({
-          datos.prueba      <- updateData$datos.prueba
+          datos.prueba <- updateData$datos.prueba
           variable.predecir <- updateData$variable.predecir
         })
-        codigo <- disp_models("prediccion.rl", tr("rl",codedioma$idioma), variable.predecir)
-        cod    <- paste0("### gcoeff\n",codigo)
-        
-        isolate(codedioma$code <- append(codedioma$code, cod))
+        codigo <- disp_models("prediccion.rl", tr("rl",updateData$idioma), variable.predecir)
+        updateAceEditor(session, "fieldCodeRlDisp", value = codigo)
         
         titulos <- c(
-          tr("predvsreal", codedioma$idioma),
-          tr("realValue", codedioma$idioma),
-          tr("pred", codedioma$idioma)
+          tr("predvsreal", updateData$idioma),
+          tr("realValue", updateData$idioma),
+          tr("pred", updateData$idioma)
         )
         
-        plot_real_prediction(datos.prueba[variable.predecir],prediccion.rl,tr("rl",codedioma$idioma),titulos)
+        plot_real_prediction(datos.prueba[variable.predecir],prediccion.rl,tr("rl",updateData$idioma),titulos)
       }
       else{NULL}
     },
@@ -236,12 +215,12 @@ mod_linear_regression_server <- function(input, output, session, updateData, mod
   output$indexdfrl <- renderTable({
     tryCatch({
       if(!is.null(modelos$rl[[nombreModelo]])){
-        idioma     <- codedioma$idioma
+        idioma <- updateData$idioma
         indices.rl <- modelos$rl[[nombreModelo]]$indices
         df <- cbind(as.data.frame(indices.rl), r2)
         df <- df[,c(1,2,3,5,4)]
         colnames(df) <- c(tr("RMSE",idioma), tr("MAE",idioma),
-                          tr("ER",idioma),   tr("R2",idioma),
+                          tr("ER",idioma), tr("R2",idioma),
                           tr("correlacion", idioma))
 
         df <- round(df,updateData$decimals)
@@ -261,10 +240,10 @@ mod_linear_regression_server <- function(input, output, session, updateData, mod
   
   output$indexdfrl2 <- renderTable({
     tryCatch({
-      if(!is.null(modelos$rl[[nombreModelo]])){
-        idioma   <- codedioma$idioma
+      if(!is.null(modelos$rl[[nombreModelo]]) & !is.null(updateData$summary.var.pred)){
+        idioma <- updateData$idioma
         decimals <- updateData$decimals
-        tabla.varpred.summary(summary_indices(updateData$datos.prueba[,updateData$variable.predecir]), decimals, idioma)
+        tabla.varpred.summary(updateData$summary.var.pred, decimals, idioma)
       }
       else{NULL}
     }
@@ -274,30 +253,6 @@ mod_linear_regression_server <- function(input, output, session, updateData, mod
     })
   },striped = TRUE, bordered = TRUE, spacing = 'l', 
   width = '100%',align = 'c')
-  
-  codigo.linear.regression <- function() {
-    isolate({
-      datos.aprendizaje <- updateData$datos.aprendizaje
-      datos.prueba      <- updateData$datos.prueba
-      variable.predecir <- updateData$variable.predecir
-    })
-    
-    #Model generate
-    codigo <- codeRl(variable.predecir)
-    cod    <- paste0("### reglin\n", codigo)
-    
-    #Coefficients
-    codigo <- codeRlCoef()
-    cod    <- paste0(cod, codigo)
-    #Prediccion
-    codigo <- codeRlPred()
-    cod    <- paste0(cod, codigo)
-    #Indices
-    codigo <- codeRlIG(variable.predecir)
-    cod    <- paste0(cod, codigo)
-    
-    isolate(codedioma$code <- append(codedioma$code, cod))
-  }
   
 }
     
