@@ -39,7 +39,7 @@ svm_model <- function(data, variable.pred, scale = TRUE, kernel = "linear"){
 #' 
 svm_prediction <- function(model, test.data){
   if(!is.null(test.data) && !is.null(model)){
-    return(predict(model,test.data))
+    return(predict(model,test.data, na.action = na.pass))
   }
   return(NULL)
   

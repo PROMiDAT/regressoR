@@ -688,7 +688,11 @@ mod_new_data_predictions_server <- function(input, output, session, updateData, 
                                   gen.code <- codeNn(variable.predecir, hidden, threshold, stepmax)
                                   nn_model(datos.aprendizaje,variable.predecir, hidden, threshold, stepmax)
                                 })
-      
+      # variable.predecir <<- input$sel.predic.var.nuevos
+      # datos.aprendizaje <<- new.data$datos.train
+      # modelo.seleccionado  <<- input$selectModelsPred
+      # modelo_svm <<- new.data$modelo
+      # prediccion <<- new.data$prediccion
       
       updateAceEditor(session, "fieldPredNuevos", value = gen.code)
       
@@ -742,6 +746,8 @@ mod_new_data_predictions_server <- function(input, output, session, updateData, 
       } else {
         #Todo correcto
         shinyjs::show("btn_next4",anim = TRUE)
+        #datos.prueba <<- new.data$nuevos
+        
       }
     }, error = function(e) {
       showNotification(paste0(tr("errorSeg"), e), type = "error")
