@@ -28,6 +28,9 @@ general_indices <- function(real, prediccion) {
   return(indices)
 }
 
+rmse = function(real, prediccion) {
+  return(sqrt(mean((real - prediccion) ^ 2)))
+}
 
 tabla.indicesPrecision <- function(indices, decimals = NULL, idioma){
   df <- as.data.frame(indices)

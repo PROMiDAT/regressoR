@@ -23,6 +23,8 @@ mod_KNN_ui <- function(id){
                           codigo.monokai(ns("fieldCodeKnn"), height = "7vh"))
   
   knn.code <- list(h3(labelInput("codigo")), hr(style = "margin-top: 0px;"),
+                   conditionalPanel("input.BoxKnn == 'tabKknRmseK'",
+                                    codigo.monokai(ns("fieldCodeKnnRMSE"), height = "7vh"),ns = ns),
                    conditionalPanel("input.BoxKnn == 'tabKknPred'",
                                     codigo.monokai(ns("fieldCodeKnnPred"), height = "7vh"),ns = ns),
                    conditionalPanel("input.BoxKnn == 'tabKknDisp'",
@@ -46,6 +48,9 @@ mod_KNN_ui <- function(id){
   prediccion.knn.panel <- tabPanel(title = labelInput("predm"), value = "tabKknPred",
                                    withLoader(DT::dataTableOutput(ns("knnPrediTable")),type = "html", loader = "loader4"))
   
+  rmse.knn.panel <- tabPanel(title = labelInput("RMSE"), value = "tabKknRMSE",
+                                   withLoader(echarts4rOutput(ns('plot_knn_rmse'),height = "75vh"),type = "html", loader = "loader4"))
+  
   disp.knn.panel <- tabPanel(title = labelInput("dispersion"), value = "tabKknDisp",
                              withLoader(echarts4rOutput(ns('plot_knn_disp'),height = "75vh"),type = "html", loader = "loader4"))
   
@@ -61,6 +66,7 @@ mod_KNN_ui <- function(id){
                       tabBoxPrmdt(id = ns("BoxKnn"), opciones = tabs.options,
                              generate.knn.panel,
                              prediccion.knn.panel,
+                             rmse.knn.panel,
                              disp.knn.panel,
                              general.index.knn.panel))
   
@@ -182,6 +188,28 @@ mod_KNN_server <- function(input, output, session,updateData, modelos){
       
     }, error = function(e){
       showNotification(paste0("Error (KNN-02) : ", e), duration = 10, type = "error")
+      NULL
+    })
+  }, server = F)
+  
+  # Update rmse tab
+  output$plot_knn_rmse <- DT::renderDataTable({
+    tryCatch({
+      if(!is.null(modelos$knn[[nombreModelo]])){
+        isolate({
+          train <- updateData$datos.aprendizaje
+          test  <- updateData$datos.prueba
+          variable.pred <- updateData$variable.predecir
+        })
+        df2 <- rmse_k_values(train = train, 
+                      test = test, variable.pred = variable.pred)
+        result <- plot_RMSEK(datos = df2 , modelo.knn = modelos$knn[[nombreModelo]]$modelo)
+        result
+      }
+      else{NULL}
+      
+    }, error = function(e){
+      showNotification(paste0("Error (KNN-03) : ", e), duration = 10, type = "error")
       NULL
     })
   }, server = F)
