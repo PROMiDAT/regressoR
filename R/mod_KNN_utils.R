@@ -24,9 +24,9 @@ kkn_model <- function(data, variable.pred, scale = TRUE, k = 7, kernel = "rectan
     modelo.knn <- kknn::train.kknn(form, data = data, scale = scale, ks = k, kernel = kernel, distance = distance)
     #Cambiamos la forma en que va aparecer el call
     modelo.knn$call$formula <- form
-    modelo.knn$call$ks <- k
+    modelo.knn$call$ks      <- k
     modelo.knn$call$kernel <- kernel
-    modelo.knn$call$scale <- scale
+    modelo.knn$call$scale  <- scale
     modelo.knn$call$distance <- distance
     return(modelo.knn)
   }
@@ -107,7 +107,6 @@ make_knn_pred = function(train, test, variable.pred, k = 7,  scale = TRUE, kerne
     form  <- formula(paste0(variable.pred,"~."))
     modelo.knn <- kknn::train.kknn(form, data = train, scale = scale, ks = k, kernel = kernel, distance = distance)
     prediccion.knn <- kkn_prediction(modelo.knn, test)
-    rmse(test[,variable.pred], prediccion.knn)
     return(rmse(test[,variable.pred], prediccion.knn))
   }
   return(NULL)
@@ -136,8 +135,8 @@ plot_RMSEK <- function(datos , modelo.knn = NULL, titles = c("RMSE Segun Numero 
   # best_k <- modelo.knn$best.parameters$k
   # best_rmse <- df[best_k,2]
   df = datos
-  best_k <- df[which(df2$`Fit?` == "Best"),1]
-  best_rmse <- df[which(df2$`Fit?` == "Best"),2]
+  best_k <- df[which(df$`Fit?` == "Best"),1]
+  best_rmse <- df[which(df$`Fit?` == "Best"),2]
   #Coordenadas para los puntos
   x_y.RMSE <- list()
   for (i in 1:dim(df)[1]) {

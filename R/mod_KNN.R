@@ -120,11 +120,11 @@ mod_KNN_server <- function(input, output, session,updateData, modelos){
       
       isolate({
         datos.aprendizaje <- updateData$datos.aprendizaje
-        datos.prueba <- updateData$datos.prueba
+        datos.prueba      <- updateData$datos.prueba
         variable.predecir <- updateData$variable.predecir
-        scale <- as.logical(input$switch_scale_knn)
+        scale  <- as.logical(input$switch_scale_knn)
         kernel <- input$kernel.knn
-        k <- input$k.knn
+        k      <- input$k.knn
         distance <- input$distance.knn
       })
       
@@ -193,18 +193,21 @@ mod_KNN_server <- function(input, output, session,updateData, modelos){
   }, server = F)
   
   # Update rmse tab
-  output$plot_knn_rmse <- DT::renderDataTable({
+  output$plot_knn_rmse <- renderEcharts4r({
     tryCatch({
       if(!is.null(modelos$knn[[nombreModelo]])){
         isolate({
           train <- updateData$datos.aprendizaje
           test  <- updateData$datos.prueba
           variable.pred <- updateData$variable.predecir
+          scale  <- as.logical(input$switch_scale_knn)
+          kernel <- input$kernel.knn
+          distance <- input$distance.knn
         })
         df2 <- rmse_k_values(train = train, 
-                      test = test, variable.pred = variable.pred)
-        result <- plot_RMSEK(datos = df2 , modelo.knn = modelos$knn[[nombreModelo]]$modelo)
-        result
+                      test = test, variable.pred = variable.pred, scale=scale, kernel=kernel, distance=distance)
+        plot_RMSEK(datos = df2 , modelo.knn = modelos$knn[[nombreModelo]]$modelo)
+        
       }
       else{NULL}
       
@@ -212,7 +215,7 @@ mod_KNN_server <- function(input, output, session,updateData, modelos){
       showNotification(paste0("Error (KNN-03) : ", e), duration = 10, type = "error")
       NULL
     })
-  }, server = F)
+  })
   
   
   # Update Dispersion Tab

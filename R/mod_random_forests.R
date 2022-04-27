@@ -11,15 +11,19 @@ mod_random_forests_ui <- function(id){
   
   ns <- NS(id)
   
-  rf.options <- list(conditionalPanel("input.BoxRf != 'tabRfRules'",
+  rf.options <- list(conditionalPanel("input.BoxRf == 'tabRfModelo'",
                                       options.run(ns("runRf")), tags$hr(style = "margin-top: 0px;"),
                                       fluidRow(column(numericInput(ns("ntree.rf"), labelInput("numTree"), 20, width = "100%", min = 0), width = 5),
                                                column(numericInput(ns("mtry.rf"),labelInput("numVars"),1, width = "100%", min = 1), width=5)), ns = ns),
+                     conditionalPanel("input.BoxRf == 'tabRfNtree'", tags$hr(style = "margin-top: 0px;"),
+                                      fluidRow(column(numericInput(ns("best.ntree.rf"), labelInput("numTree"), 20, width = "100%", min = 0), width = 5),
+                                               ), ns = ns),                   
                      conditionalPanel("input.BoxRf == 'tabRfRules'",
                                       numericInput(ns("rules.rf.n"),labelInput("ruleNumTree"),1, width = "25%", min = 1),ns = ns))
   
   rf.code.config <- list(h3(labelInput("codigo")), hr(style = "margin-top: 0px;"),
                          conditionalPanel("input.BoxRf == 'tabRfModelo'",codigo.monokai(ns("fieldCodeRf"), height = "7vh"), ns = ns),
+                         conditionalPanel("input.BoxRf == 'tabRfNtree'",codigo.monokai(ns("fieldCodeRf"), height = "7vh"), ns = ns),
                          conditionalPanel("input.BoxRf == 'tabRfRules'",codigo.monokai(ns("fieldCodeRfRules"), height = "7vh"), ns = ns))
   
   
@@ -40,8 +44,8 @@ mod_random_forests_ui <- function(id){
   tabs.options.Nogenerate <- tabsOptions(buttons = list(icon("code")), widths = c(100), heights = c(70),
                                          tabs.content = list(rf.code))
   
-  tabs.options <- list(conditionalPanel("input.BoxRf == 'tabRfModelo' || input.BoxRf == 'tabRfRules'",tabs.options.generate,ns = ns),
-                       conditionalPanel("input.BoxRf != 'tabRfModelo' && input.BoxRf != 'tabRfRules'",tabs.options.Nogenerate,ns = ns))
+  tabs.options <- list(conditionalPanel("input.BoxRf == 'tabRfModelo' || input.BoxRf == 'tabRfRules' || input.BoxRf == 'tabRfNtree'",tabs.options.generate,ns = ns),
+                       conditionalPanel("input.BoxRf != 'tabRfModelo' && input.BoxRf != 'tabRfRules' && input.BoxRf != 'tabRfNtree'",tabs.options.Nogenerate,ns = ns))
   
   generate.rf.panel <- tabPanel(title = labelInput("generatem"),value = "tabRfModelo",
                                 withLoader(verbatimTextOutput(ns("txtRf")),type = "html", loader = "loader4"))
@@ -66,11 +70,15 @@ mod_random_forests_ui <- function(id){
   rf.rules.panel <- tabPanel(title = labelInput("reglas"), value = "tabRfRules",
                              withLoader(verbatimTextOutput(ns("rulesRf")),type = "html", loader = "loader4"))
   
+  ntree.rf.panel <- tabPanel(title = labelInput("numTree"), value = "tabRfNtree",
+                             withLoader(echarts4rOutput(ns('plot_rf_ntree'),height = "75vh"),type = "html", loader = "loader4"))
+  
   page.rf <- tabItem(tabName = "rf",
                      tabBoxPrmdt(id = ns("BoxRf"), opciones = tabs.options,
                             generate.rf.panel,
                             plot.rf,
                             prediction.rf.panel,
+                            ntree.rf.panel,
                             disp.rf.panel,
                             general.index.rf.panel,
                             rf.rules.panel))
@@ -247,7 +255,31 @@ mod_random_forests_server <- function(input, output, session,updateData, modelos
       NULL
     })
   })
-  
+  # Update rmse tab
+  output$plot_rf_ntree <- renderEcharts4r({
+    tryCatch({
+      if(!is.null(modelos$rf[[nombreModelo]])){
+        
+          train <- updateData$datos.aprendizaje
+          test  <- updateData$datos.prueba
+          variable.pred <- updateData$variable.predecir
+          mtry <- input$mtry.rf
+          ntree <- input$best.ntree.rf 
+          
+        
+        df2 <- rf_ntree_values(train = train, ntree = c(1:ntree),
+                             test = test, variable.pred = variable.pred, mtry = mtry)
+        plot_RMSEK(datos = df2 ,titles = c("RMSE Segun Numero de Árboles",
+                                                                                           "Numero de Árboles","RMSE"))
+        
+      }
+      else{NULL}
+      
+    }, error = function(e){
+      showNotification(paste0("Error (RF-03) : ", e), duration = 10, type = "error")
+      NULL
+    })
+  })
   
   #Update Indices tab
   output$indexdfrf <- renderTable({

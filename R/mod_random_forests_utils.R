@@ -93,6 +93,34 @@ importance_plot_rf <- function(model.rf, titles = c("Importancia de Variables Se
 }
 
 
+make_rf_pred = function(train, test, variable.pred, ntree = 500, mtry = 1) {
+  if(!is.null(variable.pred) && !is.null(train)){
+    form  <- formula(paste0(variable.pred,"~."))
+    modelo.rf <- randomForest(form, data = train, ntree = ntree, mtry = mtry,
+                               importance = TRUE)
+    prediccion.rf <- rf_prediction(modelo.rf, test)
+    return(rmse(test[,variable.pred], prediccion.rf))
+  }
+  return(NULL)
+}
+
+rf_ntree_values <- function(train, test, variable.pred, ntree = c(1:20), mtry = 1) {
+  rf_rmse = sapply(ntree, make_rf_pred, 
+                    train = train, 
+                    test = test, variable.pred = variable.pred,  mtry = mtry)
+  best_ntree = ntree[which.min(rf_rmse)]
+  
+  # find overfitting, underfitting, and "best"" ntree
+  fit_status = ifelse(ntree < best_ntree, "Over", ifelse(ntree == best_ntree, "Best", "Under"))
+  rf_results = data.frame(
+    ntree,
+    round(rf_rmse, 2),
+    fit_status
+  )
+  colnames(rf_results) = c("ntree", "RMSE", "Fit?")
+  return(rf_results)
+}
+
 #------------------------------------CODE---------------------------------------
 codeRf <- function(variable.predecir, ntree, mtry){
   return(paste0("rf_model(data, '",variable.predecir,"', ntree = ",ntree, ", mtry = ", mtry, ")"))
