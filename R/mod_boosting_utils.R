@@ -113,6 +113,31 @@ calibrate_boosting <- function(data){
   return(NULL)
 }
 
+make_b_pred = function(train, test, variable.pred, ntree = 500, distribution = "gaussian", shrinkage = 0.1) {
+  if(!is.null(variable.pred) && !is.null(train)){
+    modelo.b <- boosting_model(train, variable.pred, n.trees = ntree, shrinkage = shrinkage ,distribution = distribution)
+    prediccion.b <- boosting_prediction(modelo.b, test, ntree )
+    return(rmse(test[,variable.pred], prediccion.b))
+  }
+  return(NULL)
+}
+
+b_ntree_values <- function(train, test, variable.pred, ntree = c(1:20), distribution = "gaussian", shrinkage = 0.1) {
+  b_rmse = sapply(ntree, make_b_pred, 
+                   train = train, 
+                   test = test, variable.pred = variable.pred, shrinkage = shrinkage ,distribution = distribution)
+  best_ntree = ntree[which.min(b_rmse)]
+  
+  # find overfitting, underfitting, and "best"" ntree
+  fit_status = ifelse(ntree < best_ntree, "Over", ifelse(ntree == best_ntree, "Best", "Under"))
+  b_results = data.frame(
+    ntree,
+    round(b_rmse, 2),
+    fit_status
+  )
+  colnames(b_results) = c("ntree", "RMSE", "Fit?")
+  return(b_results)
+}
 
 #------------------------------------CODE---------------------------------------
 codeBoost <- function(variable.predecir, n.trees, distribution, shrinkage){

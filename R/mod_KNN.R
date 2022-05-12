@@ -10,21 +10,24 @@
 mod_KNN_ui <- function(id){
   ns <- NS(id)
   
-  knn.options <- list(options.run(ns("runKnn")), tags$hr(style = "margin-top: 0px;"),
+  knn.options <- list(conditionalPanel("input.BoxKnn == 'tabKknModelo'",
+                                       options.run(ns("runKnn")), tags$hr(style = "margin-top: 0px;"),
                       fluidRow(column(numericInput(ns("k.knn"), labelInput("kv"), min = 1,step = 1, value = 7), width = 5),
                                column(selectInput(inputId = ns("kernel.knn"), label = labelInput("selkernel"),selected = "optimal",
                                                   choices = c("optimal", "rectangular", "triangular", "epanechnikov", "biweight",
                                                               "triweight", "cos","inv","gaussian")),width = 5)),
                       fluidRow(column(radioSwitch(id = ns("switch_scale_knn"), label = "escal",
                                                        names = c("si", "no")), width=5),
-                               column(width=5, numericInput(ns("distance.knn"), labelInput("distknn"), min = 1,step = 1, value = 2))) )
+                               column(width=5, numericInput(ns("distance.knn"), labelInput("distknn"), min = 1,step = 1, value = 2))), ns = ns),
+                      conditionalPanel("input.BoxKnn == 'tabKknRMSE'", tags$hr(style = "margin-top: 0px;"),
+                                       fluidRow(column(numericInput(ns("best.k.knn"), labelInput("kv"),min = 1,step = 1, value = 7), width = 5),
+                                       ), ns = ns))
   
   knn.code.config <- list(h3(labelInput("codigo")), hr(style = "margin-top: 0px;"),
-                          codigo.monokai(ns("fieldCodeKnn"), height = "7vh"))
+                          conditionalPanel("input.BoxKnn == 'tabKknModelo'", codigo.monokai(ns("fieldCodeKnn"), height = "7vh"), ns = ns),
+                          conditionalPanel("input.BoxKnn == 'tabKknRMSE'",codigo.monokai(ns("fieldCodeKRMSE"), height = "7vh"), ns = ns))
   
   knn.code <- list(h3(labelInput("codigo")), hr(style = "margin-top: 0px;"),
-                   conditionalPanel("input.BoxKnn == 'tabKknRmseK'",
-                                    codigo.monokai(ns("fieldCodeKnnRMSE"), height = "7vh"),ns = ns),
                    conditionalPanel("input.BoxKnn == 'tabKknPred'",
                                     codigo.monokai(ns("fieldCodeKnnPred"), height = "7vh"),ns = ns),
                    conditionalPanel("input.BoxKnn == 'tabKknDisp'",
@@ -39,8 +42,8 @@ mod_KNN_ui <- function(id){
   tabs.options.Nogenerate <- tabsOptions(buttons = list(icon("code")), widths = c(100), heights = c(70),
                                          tabs.content = list(knn.code))
   
-  tabs.options <- list(conditionalPanel("input.BoxKnn == 'tabKknModelo'",tabs.options.generate,ns = ns),
-                       conditionalPanel("input.BoxKnn != 'tabKknModelo'",tabs.options.Nogenerate,ns = ns))
+  tabs.options <- list(conditionalPanel("input.BoxKnn == 'tabKknModelo' || input.BoxKnn == 'tabKknRMSE'",tabs.options.generate,ns = ns),
+                       conditionalPanel("input.BoxKnn != 'tabKknModelo' && input.BoxKnn != 'tabKknRMSE'",tabs.options.Nogenerate,ns = ns))
   
   generate.knn.panel <- tabPanel(title = labelInput("generatem"), value = "tabKknModelo",
                                  withLoader(verbatimTextOutput(ns("txtknn")),type = "html", loader = "loader4"))
@@ -48,7 +51,7 @@ mod_KNN_ui <- function(id){
   prediccion.knn.panel <- tabPanel(title = labelInput("predm"), value = "tabKknPred",
                                    withLoader(DT::dataTableOutput(ns("knnPrediTable")),type = "html", loader = "loader4"))
   
-  rmse.knn.panel <- tabPanel(title = labelInput("RMSE"), value = "tabKknRMSE",
+  rmse.knn.panel <- tabPanel(title = labelInput("evolerror"), value = "tabKknRMSE",
                                    withLoader(echarts4rOutput(ns('plot_knn_rmse'),height = "75vh"),type = "html", loader = "loader4"))
   
   disp.knn.panel <- tabPanel(title = labelInput("dispersion"), value = "tabKknDisp",
@@ -204,9 +207,11 @@ mod_KNN_server <- function(input, output, session,updateData, modelos){
           kernel <- input$kernel.knn
           distance <- input$distance.knn
         })
-        df2 <- rmse_k_values(train = train, 
-                      test = test, variable.pred = variable.pred, scale=scale, kernel=kernel, distance=distance)
-        plot_RMSEK(datos = df2 , modelo.knn = modelos$knn[[nombreModelo]]$modelo)
+        k_value <- input$best.k.knn
+        df_plot <- rmse_k_values(train = train, k = c(1:k_value),
+                                 test  = test, variable.pred = variable.pred, 
+                                 scale = scale, kernel = kernel, distance = distance)
+        plot_RMSEK(datos = df_plot , modelo.knn = modelos$knn[[nombreModelo]]$modelo)
         
       }
       else{NULL}
