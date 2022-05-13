@@ -104,17 +104,15 @@ make_rf_pred = function(train, test, variable.pred, ntree = 500, mtry = 1) {
   return(NULL)
 }
 
-rf_ntree_values <- function(train, test, variable.pred, ntree = c(1:20), mtry = 1) {
-  rf_rmse = sapply(ntree, make_rf_pred, 
-                    train = train, 
-                    test = test, variable.pred = variable.pred,  mtry = mtry)
+rf_ntree_values <- function(model) {
+  ntree  = c(1:model$ntree)
+  rf_rmse = sqrt(model$mse)
   best_ntree = ntree[which.min(rf_rmse)]
-  
   # find overfitting, underfitting, and "best"" ntree
   fit_status = ifelse(ntree < best_ntree, "Over", ifelse(ntree == best_ntree, "Best", "Under"))
   rf_results = data.frame(
     ntree,
-    round(rf_rmse, 2),
+    round(rf_rmse, 10),
     fit_status
   )
   colnames(rf_results) = c("ntree", "RMSE", "Fit?")

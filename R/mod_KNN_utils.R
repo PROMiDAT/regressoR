@@ -28,6 +28,8 @@ kkn_model <- function(data, variable.pred, scale = TRUE, k = 7, kernel = "rectan
     modelo.knn$call$kernel <- kernel
     modelo.knn$call$scale  <- scale
     modelo.knn$call$distance <- distance
+    modelo <<-  modelo.knn
+    
     return(modelo.knn)
   }
   return(NULL)
@@ -165,7 +167,7 @@ plot_RMSEK <- function(datos , modelo.knn = NULL, titles = c("RMSE Segun Numero 
         data = x_y.RMSE,
         tooltip = list(formatter = e_JS(paste0(
           "function(params){
-          return('<b>",titles[2],": </b>' + params.value[0] + '<br /><b>",titles[3],": </b>' + params.value[1].toFixed(4))
+          return('<b>",titles[2],": </b>' + params.value[0] + '<br /><b>",titles[3],": </b>' + params.value[1].toFixed(8))
       }
     "))))
     )
@@ -181,7 +183,7 @@ plot_RMSEK <- function(datos , modelo.knn = NULL, titles = c("RMSE Segun Numero 
                             tooltip = list(formatter = e_JS(paste0("function(params){",
                                                                    "return('<b>K Value: </b>' + ",
                                                                    "Number.parseFloat(params.value) + ",
-                                                                   "'</br><b>RMSE Value: </b>' + Number.parseFloat(params.name).toFixed(3))}")))))
+                                                                   "'</br><b>RMSE Value: </b>' + Number.parseFloat(params.name).toFixed(8))}")))))
 }
 
 #------------------------------------CODE---------------------------------------

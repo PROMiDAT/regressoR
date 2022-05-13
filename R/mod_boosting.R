@@ -16,16 +16,12 @@ mod_boosting_ui <- function(id){
                     fluidRow(column(numericInput(ns("iter.boosting"), labelInput("numTree"), 20, width = "100%",min = 1), width = 5),
                              column(numericInput(ns("shrinkage.boosting"), labelInput("shrinkage"), 0.1, width = "100%",min = 0.01, step = 0.01), width=5)),
                     fluidRow(column(selectInput(inputId = ns("tipo.boosting"), label = labelInput("selectAlg"),selected = "gaussian",
-                                                choices =  c("gaussian", "laplace", "tdist")), width = 5)), ns = ns),
-                    conditionalPanel("input.BoxB == 'tabBRMSE'", tags$hr(style = "margin-top: 0px;"),
-                                     fluidRow(column(numericInput(ns("best.ntree.b"), labelInput("numTree"), 20, width = "100%", min = 0), width = 5),
-                                     ), ns = ns))
+                                                choices =  c("gaussian", "laplace", "tdist")), width = 5)), ns = ns)
+                    )
   
   b.code.config <- list(h3(labelInput("codigo")), hr(style = "margin-top: 0px;"),
                         conditionalPanel("input.BoxB == 'tabBModelo'",
-                                         codigo.monokai(ns("fieldCodeBoosting"), height = "7vh"), ns = ns),
-                        conditionalPanel("input.BoxB == 'tabBRMSE'",
-                                         codigo.monokai(ns("fieldCodeBRMSE"), height = "7vh"), ns = ns))
+                                         codigo.monokai(ns("fieldCodeBoosting"), height = "7vh"), ns = ns))
   
   
   b.code  <- list(h3(labelInput("codigo")), hr(style = "margin-top: 0px;"),
@@ -36,7 +32,9 @@ mod_boosting_ui <- function(id){
                   conditionalPanel("input.BoxB == 'tabBDisp'",
                                    codigo.monokai(ns("fieldCodeBoostingDisp"), height = "7vh"),ns = ns),
                   conditionalPanel("input.BoxB == 'tabBIndex'",
-                                   codigo.monokai(ns("fieldCodeBoostingIG"), height = "7vh"),ns = ns))
+                                   codigo.monokai(ns("fieldCodeBoostingIG"), height = "7vh"),ns = ns),
+                  conditionalPanel("input.BoxB == 'tabBRMSE'",
+                                   codigo.monokai(ns("fieldCodeBRMSE"), height = "7vh"), ns = ns))
   
   
   tabs.options.generate <- tabsOptions(buttons = list(icon("cog"), icon("code")), widths = c(50,100), heights = c(80,70),
@@ -45,8 +43,8 @@ mod_boosting_ui <- function(id){
   tabs.options.Nogenerate <- tabsOptions(buttons = list(icon("code")), widths = c(100), heights = c(70),
                                          tabs.content = list(b.code))
   
-  tabs.options <- list(conditionalPanel("input.BoxB == 'tabBModelo' || input.BoxB == 'tabBRMSE'",tabs.options.generate,ns = ns),
-                       conditionalPanel("input.BoxB != 'tabBModelo' != input.BoxB == 'tabBRMSE'",tabs.options.Nogenerate,ns = ns))
+  tabs.options <- list(conditionalPanel("input.BoxB == 'tabBModelo'",tabs.options.generate,ns = ns),
+                       conditionalPanel("input.BoxB != 'tabBModelo'",tabs.options.Nogenerate,ns = ns))
   
   generate.b.panel <- tabPanel(title = labelInput("generatem"), value = "tabBModelo",
                                withLoader(verbatimTextOutput(ns("txtBoosting")),type = "html", loader = "loader4"))
@@ -264,16 +262,7 @@ mod_boosting_server <- function(input, output, session,updateData, modelos){
   output$plot_b_rmse <- renderEcharts4r({
     tryCatch({
       if(!is.null(modelos$boost[[nombreModelo]])){
-        
-         train <- updateData$datos.aprendizaje
-         test  <- updateData$datos.prueba
-         variable.pred <- updateData$variable.predecir
-         n.trees       <- input$best.ntree.b
-         distribution  <- input$tipo.boosting
-         shrinkage     <- input$shrinkage.boosting
-         df_plot <- b_ntree_values(train = train, ntree = c(1:n.trees),
-                                   test = test,   variable.pred = variable.pred, 
-                                   distribution = distribution, shrinkage = shrinkage)
+        df_plot       <- b_ntree_values(modelos$boost[[nombreModelo]]$modelo)
         plot_RMSEK(datos = df_plot ,titles = c("RMSE Segun Numero de Árboles",
                                            "Numero de Árboles","RMSE"))
       }
