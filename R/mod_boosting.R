@@ -263,8 +263,7 @@ mod_boosting_server <- function(input, output, session,updateData, modelos){
     tryCatch({
       if(!is.null(modelos$boost[[nombreModelo]])){
         df_plot       <- b_ntree_values(modelos$boost[[nombreModelo]]$modelo)
-        plot_RMSEK(datos = df_plot ,titles = c("RMSE Segun Numero de Árboles",
-                                           "Numero de Árboles","RMSE"))
+        plot_RMSEK(datos = df_plot ,titles = get_title("RF", updateData$idioma))
       }
       else{NULL}
       

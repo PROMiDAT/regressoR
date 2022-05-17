@@ -15,7 +15,7 @@
 #' 
 #' @export
 #' 
-kkn_model <- function(data, variable.pred, scale = TRUE, k = 7, kernel = "rectangular", distance = 2){
+kkn_model <- function(data, variable.pred, scale = TRUE, k = 7, kernel = "optimal", distance = 2){
   #Revisar error de library/import
   #library("kknn")
   eval(parse(text = "library('kknn')"))
@@ -28,8 +28,7 @@ kkn_model <- function(data, variable.pred, scale = TRUE, k = 7, kernel = "rectan
     modelo.knn$call$kernel <- kernel
     modelo.knn$call$scale  <- scale
     modelo.knn$call$distance <- distance
-    modelo <<-  modelo.knn
-    
+
     return(modelo.knn)
   }
   return(NULL)
@@ -103,7 +102,7 @@ kkn_prediction <- function(model, test.data) {
   #return(paste0(pred.var," <- predict(",model.var,", ",data," %>% select(-`",variable.pred,"`))"))
 }
 
-make_knn_pred = function(train, test, variable.pred, k = 7,  scale = TRUE, kernel = "rectangular", distance = 2) {
+make_knn_pred = function(train, test, variable.pred, k = 7,  scale = TRUE, kernel = "optimal", distance = 2) {
   eval(parse(text = "library('kknn')"))
   if(!is.null(variable.pred) && !is.null(train)){
     form  <- formula(paste0(variable.pred,"~."))
@@ -114,7 +113,7 @@ make_knn_pred = function(train, test, variable.pred, k = 7,  scale = TRUE, kerne
   return(NULL)
 }
 
-rmse_k_values <- function(train, test, variable.pred, k = c(1:20),  scale = TRUE, kernel = "rectangular", distance = 2) {
+rmse_k_values <- function(train, test, variable.pred, k = c(1:20),  scale = TRUE, kernel = "optimal", distance = 2) {
   knn_rmse = sapply(k, make_knn_pred, 
                     train = train, 
                     test = test, variable.pred = variable.pred, scale = scale, kernel = kernel, distance = distance)
@@ -129,6 +128,16 @@ rmse_k_values <- function(train, test, variable.pred, k = c(1:20),  scale = TRUE
   )
   colnames(knn_results) = c("k", "RMSE", "Fit?")
   return(knn_results)
+}
+
+get_title <- function(id = "KNN", idioma){
+  if(id == "KNN")
+    return(c("RMSE Segun Numero de Vecinos",
+             "Numero de Vecinos","RMSE"))
+  if(id == "BOOST" || id == "RF")
+    return(c(paste0("RMSE Segun ", tr("numTree", idioma)),
+             tr("numTree", idioma),"RMSE"))
+  
 }
 plot_RMSEK <- function(datos , modelo.knn = NULL, titles = c("RMSE Segun Numero de Vecinos",
                                                 "Numero de Vecinos","RMSE")){
@@ -167,7 +176,7 @@ plot_RMSEK <- function(datos , modelo.knn = NULL, titles = c("RMSE Segun Numero 
         data = x_y.RMSE,
         tooltip = list(formatter = e_JS(paste0(
           "function(params){
-          return('<b>",titles[2],": </b>' + params.value[0] + '<br /><b>",titles[3],": </b>' + params.value[1].toFixed(8))
+          return('<b>",unlist(strsplit(titles[2], ":")),": </b>' + params.value[0] + '<br /><b>",titles[3],": </b>' + params.value[1].toFixed(8))
       }
     "))))
     )
