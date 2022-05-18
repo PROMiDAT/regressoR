@@ -31,10 +31,10 @@ mod_regression_trees_ui <- function(id){
                                    codigo.monokai(ns("fieldCodeDtRule"), height = "7vh"),ns = ns))
   
   
-  tabs.options.generate <- tabsOptions(buttons = list(icon("cog"), icon("code")), widths = c(50,100), heights = c(70,70),
+  tabs.options.generate <- tabsOptions( widths = c(50,100), heights = c(70,70),
                                        tabs.content = list(dt.options,dt.code.config))
   
-  tabs.options.Nogenerate <- tabsOptions(buttons = list(icon("code")), widths = c(100), heights = c(70),
+  tabs.options.Nogenerate <- tabsOptions( widths = c(100), heights = c(70),
                                          tabs.content = list(dt.code))
   
   tabs.options <- list(conditionalPanel("input.BoxDt == 'tabDtModelo'",tabs.options.generate,ns = ns),
@@ -95,18 +95,11 @@ mod_regression_trees_server <- function(input, output, session,updateData, model
   })
   
   
-  #  When the dt model is generated
-  observeEvent(input$runDt, {
-    if (validate_data(updateData, idioma = codedioma$idioma)) { # Si se tiene los datos entonces :
-      dt_full()
-    }
-  })
-  
-  # Execute model, prediction and indices
-  dt_full <- function() {
+  #Update model tab
+  output$txtDt <- renderPrint({
+    input$runDt
     tryCatch({
-      shinyjs::runjs(code = "generating_model = true")
-      
+      codigo.dt()
       isolate({
         datos.aprendizaje <- updateData$datos.aprendizaje
         datos.prueba <- updateData$datos.prueba
@@ -122,38 +115,18 @@ mod_regression_trees_server <- function(input, output, session,updateData, model
       modelo.dt <- dt_model(datos.aprendizaje, variable.predecir,
                             minsplit = minsplit,
                             maxdepth = maxdepth)
-      updateAceEditor(session, "fieldCodeDt", value = codeDt(variable.predecir,minsplit,maxdepth))
-      
+
       #Prediccion
       prediccion.dt <- dt_prediction(modelo.dt,datos.prueba)
-      updateAceEditor(session, "fieldCodeDtPred", value = codeDtPred(nombreModelo))
-      
+
       #Indices
       indices.dt <- general_indices(datos.prueba[,variable.predecir], prediccion.dt)
-      updateAceEditor(session, "fieldCodeDtIG", value = codeDtIG(variable.predecir))
-      
+
       #isolamos para que no entre en un ciclo en el primer renderPrint
       isolate(modelos$dt[[nombreModelo]] <- list(modelo = modelo.dt, prediccion = prediccion.dt, indices = indices.dt, 
                                                  id = NULL))
+      print(summary(modelo.dt))
       
-    }, error = function(e){
-      isolate(modelos$dt[[nombreModelo]] <- NULL)
-      showNotification(paste0("Error (DT-00) : ",e), duration = 10, type = "error")
-    },
-    finally = {
-      shinyjs::runjs(code = "generating_model = false")
-    })
-  }
-  
-  
-  #Update model tab
-  output$txtDt <- renderPrint({
-    tryCatch({
-      if(!is.null(modelos$dt[[nombreModelo]])){
-        modelo.dt <- modelos$dt[[nombreModelo]]$modelo
-        print(modelo.dt)
-      }
-      else{NULL}
     }, error = function(e){
       showNotification(paste0("Error (DT-01) : ",e), duration = 10, type = "error")
       NULL
@@ -165,7 +138,10 @@ mod_regression_trees_server <- function(input, output, session,updateData, model
   output$plot_dt <- renderPlot({
     tryCatch({
       if(!is.null(modelos$dt[[nombreModelo]])){
-        updateAceEditor(session, "fieldCodeDtPlot", value = codeDtPlot(nombreModelo))
+        codigo <- codeDtPlot(nombreModelo)
+        cod    <- paste0("### garbol\n",codigo)
+        
+        isolate(codedioma$code <- append(codedioma$code, cod))
         modelo.dt <- modelos$dt[[nombreModelo]]$modelo
         dt_plot(modelo.dt)
       }
@@ -208,7 +184,10 @@ mod_regression_trees_server <- function(input, output, session,updateData, model
         })
         
         codigo <- disp_models("prediccion.dt", tr("dt",codedioma$idioma), variable.predecir)
-        updateAceEditor(session, "fieldCodeDtDisp", value = codigo)
+        cod    <- paste0("### docdisp\n",codigo, "\n")
+        
+        isolate(codedioma$code <- append(codedioma$code, cod))
+        
         
         titulos <- c(
           tr("predvsreal", codedioma$idioma),
@@ -237,8 +216,11 @@ mod_regression_trees_server <- function(input, output, session,updateData, model
         
         modelo.dt <- modelos$dt[[nombreModelo]]$modelo
         
-        updateAceEditor(session, "fieldCodeDtRule", paste0("rpart.rules(model.dt, cover = TRUE,nn = TRUE , style = 'tall', digits=3,
-                            response.name ='",paste0("Rule Number - ", variable.predecir),"')"))
+        codigo <- paste0("rpart.rules(model.dt, cover = TRUE,nn = TRUE , style = 'tall', digits=3,
+                            response.name ='",paste0("Rule Number - ", variable.predecir),"')")
+        cod    <- paste0("### reglas\n",codigo, "\n")
+        
+        isolate(codedioma$code <- append(codedioma$code, cod))
         
         rpart.plot::rpart.rules(modelo.dt, cover = TRUE,nn = TRUE ,roundint=FALSE, style = "tall", digits=3, 
                                 response.name = paste0("Rule Number - ", variable.predecir))
@@ -271,10 +253,12 @@ mod_regression_trees_server <- function(input, output, session,updateData, model
   
   output$indexdfdt2 <- renderTable({
     tryCatch({
-      if(!is.null(modelos$dt[[nombreModelo]])& !is.null(updateData$summary.var.pred)){
+      if(!is.null(modelos$dt[[nombreModelo]])){
         idioma <- codedioma$idioma
         decimals <- updateData$decimals
-        tabla.varpred.summary(updateData$summary.var.pred, decimals, idioma)
+        tabla.varpred.summary(summary_indices(updateData$datos.prueba[,updateData$variable.predecir]),
+                              decimals, 
+                              idioma)
       }
       else{NULL}
     }
@@ -284,6 +268,31 @@ mod_regression_trees_server <- function(input, output, session,updateData, model
     })
   },striped = TRUE, bordered = TRUE, spacing = 'l', 
   width = '100%', align = 'c')
+  
+  
+  codigo.dt<- function() {
+    isolate({
+      variable.predecir <- updateData$variable.predecir
+      ms <- input$minsplit.dt
+      md <- input$maxdepth.dt
+    })
+    
+    minsplit <- ifelse(!is.numeric(ms), 20, ms)
+    maxdepth <- ifelse(!is.numeric(md), 15, md)
+    
+    #Model generate
+    codigo <- codeDt(variable.predecir,minsplit,maxdepth)
+    cod    <- paste0("### DT\n", codigo)
+    
+    #Prediccion
+    codigo <- codeDtPred(nombreModelo)
+    cod    <- paste0(cod, codigo)
+    #Indices
+    codigo <- codeDtIG(variable.predecir)
+    cod    <- paste0(cod, codigo)
+    
+    isolate(codedioma$code <- append(codedioma$code, cod))
+  }
   
 }
 

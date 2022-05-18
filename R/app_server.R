@@ -94,7 +94,8 @@ app_server <- function( input, output, session ) {
     keys <- c(
       'doccarga', 'doctt', 'doccv', 'docresumen', 'dochist', 'docqq', 
       'docnormal', 'docdisp', 'docdistnum', 'docdistcat', 'doccor',
-      'docrename', 'doctrans', 'doceliminar', 'distpred', 'reglin')
+      'docrename', 'doctrans', 'doceliminar', 'distpred', 'reglin', 'regpen', 'pares',
+      'gcoeff', 'posibLanda', 'garbol', 'DT', 'rf', 'reglas')
     
     for (k in keys) {
       codigo <- gsub(k, tr(k, idioma = lg), codigo, fixed = T)
@@ -136,28 +137,25 @@ app_server <- function( input, output, session ) {
   readeR::mod_dispersion_server("dispersion_ui_1",         updateData, codedioma)
   readeR::mod_distribuciones_server("distribuciones_ui_1", updateData, codedioma)
   readeR::mod_correlacion_server("correlacion_ui_1",       updateData, codedioma)
-  
-  #callModule(mod_carga_datos_server,"carga_datos_ui_1",updateData, modelos, codedioma)
-  # callModule(mod_r_numerico_server, "r_numerico_ui_1",updateData)
-  # callModule(mod_normal_server, "normal_ui_1",updateData)
-  # callModule(mod_dispersion_server, "dispersion_ui_1", updateData)
-  # callModule(mod_distribuciones_server, "distribuciones_ui_1", updateData)
-  # callModule(mod_correlacion_server, "correlacion_ui_1", updateData)
   callModule(mod_Predictive_Power_server, "Predictive_Power_ui_1", updateData, codedioma)
   
+  # Aprendizaje Supervisado
   callModule(mod_linear_regression_server,    "linear_regression_ui_1",    updateData, modelos, codedioma)
   callModule(mod_penalized_Regression_server, "penalized_Regression_ui_1", updateData, modelos, codedioma)
   callModule(mod_regression_trees_server,     "regression_trees_ui_1",     updateData, modelos, codedioma)
-  callModule(mod_random_forests_server,       "random_forests_ui_1",       updateData, modelos, codedioma)
-  callModule(mod_boosting_server,             "boosting_ui_1",             updateData, modelos, codedioma)
-  callModule(mod_KNN_server,                  "KNN_ui_1",                  updateData, modelos, codedioma)
-  callModule(mod_SVM_server,                  "SVM_ui_1",                  updateData, modelos, codedioma)
-  callModule(mod_dimension_reduction_server,  "dimension_reduction_ui_1",  updateData, modelos, codedioma)
-  callModule(mod_neural_networks_server,      "neural_networks_ui_1",      updateData, modelos, codedioma)
-  
-  callModule(mod_model_comparison_server,     "model_comparison_ui_1",     updateData, modelos, codedioma)
-  
-  callModule(mod_new_data_predictions_server, "new_data_predictions_ui_1", updateData, new.data, codedioma)
-  
-  callModule(mod_information_page_server,     "information_page_ui_1", codedioma)
+  #callModule(mod_random_forests_server,       "random_forests_ui_1",       updateData, modelos, codedioma)
+  # callModule(mod_boosting_server,             "boosting_ui_1",             updateData, modelos, codedioma)
+  # callModule(mod_KNN_server,                  "KNN_ui_1",                  updateData, modelos, codedioma)
+  # callModule(mod_SVM_server,                  "SVM_ui_1",                  updateData, modelos, codedioma)
+  # callModule(mod_dimension_reduction_server,  "dimension_reduction_ui_1",  updateData, modelos, codedioma)
+  # callModule(mod_neural_networks_server,      "neural_networks_ui_1",      updateData, modelos, codedioma)
+  # 
+  # # Comparaación de Individuos
+  # callModule(mod_model_comparison_server,     "model_comparison_ui_1",     updateData, modelos, codedioma)
+  # 
+  # # Predicción Ind. Nuevos
+  # callModule(mod_new_data_predictions_server, "new_data_predictions_ui_1", updateData, new.data, codedioma)
+  # 
+  # # About
+  # callModule(mod_information_page_server,     "information_page_ui_1", codedioma)
 }

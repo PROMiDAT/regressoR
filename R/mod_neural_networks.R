@@ -36,14 +36,14 @@ mod_neural_networks_ui <- function(id){
                   conditionalPanel("input.BoxNn == 'tabNnIndex'",
                                    codigo.monokai(ns("fieldCodeNnIG"), height = "7vh"),ns = ns))
   
-  tabs.nn <- tabsOptions(buttons = list(icon("cog"),icon("code")), widths = c(75,100), heights = c(95, 95),
+  tabs.nn <- tabsOptions(widths = c(75,100), heights = c(95, 95),
                          tabs.content = list(nn.options, nn.code))
   
   
-  tabs.options.generate <- tabsOptions(buttons = list(icon("cog"), icon("code")), widths = c(50,100), heights = c(80,70),
+  tabs.options.generate <- tabsOptions(widths = c(50,100), heights = c(80,70),
                                        tabs.content = list(nn.options,nn.code.config))
   
-  tabs.options.Nogenerate <- tabsOptions(buttons = list(icon("code")), widths = c(100), heights = c(70),
+  tabs.options.Nogenerate <- tabsOptions(widths = c(100), heights = c(70),
                                          tabs.content = list(nn.code))
   
   tabs.options <- list(conditionalPanel("input.BoxNn == 'tabNnModelo'",tabs.options.generate,ns = ns),

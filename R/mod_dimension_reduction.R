@@ -42,10 +42,10 @@ mod_dimension_reduction_ui <- function(id){
   
   
   
-  tabs.options.generate <- tabsOptions(buttons = list(icon("cog"), icon("code")), widths = c(50,100), heights = c(80,70),
+  tabs.options.generate <- tabsOptions(widths = c(50,100), heights = c(80,70),
                                        tabs.content = list(rd.options,rd.code.config))
   
-  tabs.options.Nogenerate <- tabsOptions(buttons = list(icon("code")), widths = c(100), heights = c(70),
+  tabs.options.Nogenerate <- tabsOptions(widths = c(100), heights = c(70),
                                          tabs.content = list(rd.code))
   
   tabs.options <- list(conditionalPanel("input.BoxRd == 'tabRdModelo'",tabs.options.generate,ns = ns),

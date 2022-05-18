@@ -44,10 +44,10 @@ mod_penalized_Regression_ui <- function(id){
                     conditionalPanel("input.BoxRlr == 'tabRlrIndex'",
                                      codigo.monokai(ns("fieldCodeRlrIG"),height = "7vh"),ns = ns))
   
-  tabs.options.generate <- tabsOptions(buttons = list(icon("cog"), icon("code")), widths = c(50,100), heights = c(80,70),
-                                       tabs.content = list(rlr.options,rlr.code.config))
+  tabs.options.generate <- tabsOptions(botones =  list(icon("cog")),
+                                       tabs.content = list(rlr.options))
   
-  tabs.options.Nogenerate <- tabsOptions(buttons = list(icon("code")), widths = c(100), heights = c(70),
+  tabs.options.Nogenerate <- tabsOptions(botones = list(icon("code")), widths = c(100), heights = c(70),
                                          tabs.content = list(rlr.code))
   
   tabs.options <- list(conditionalPanel("input.BoxRlr == 'tabRlrModelo'",tabs.options.generate,ns = ns),
@@ -102,9 +102,9 @@ mod_penalized_Regression_ui <- function(id){
 mod_penalized_Regression_server <- function(input, output, session, updateData, modelos, codedioma){
   ns <- session$ns
   
-  nombreBase <- "modelo.rlr."
+  nombreBase   <- "modelo.rlr."
   nombreModelo <- "modelo.rlr."
-  log.landa <- NULL
+  log.landa    <- NULL
   coefficients <- NULL
   
   return.rlr.default.values <- function(){
@@ -113,25 +113,10 @@ mod_penalized_Regression_server <- function(input, output, session, updateData, 
     updateNumericInput(session,"log_landa",value = 2)
     updateRadioSwitch(session,"permitir_landa","FALSE")
 
-    log.landa <<- NULL
+    log.landa    <<- NULL
     coefficients <<- NULL
   }
-  
-  # 
-  # observeEvent(updateData$datos.aprendizaje,{
-  #   return.rlr.default.values()
-  #   if (validate_data(updateData, idioma = codedioma$idioma)) { # If you have the data then :
-  #     rlr_full()
-  #   }
-  # })
-  # 
-  # # When the rlr model is generated
-  # observeEvent(input$runRlr, {
-  #   if (validate_data(updateData, idioma = codedioma$idioma)) { # If you have the data then :
-  #     rlr_full()
-  #   }
-  # })
-  
+
   # When user press enable or disable the lambda
   observeEvent(input$permitir_landa, {
     if (as.logical(input$permitir_landa)) {
@@ -140,55 +125,6 @@ mod_penalized_Regression_server <- function(input, output, session, updateData, 
       shinyjs::disable("log_landa")
     }
   })
-  
-  # Execute model, prediction and indices
-  rlr_full <- function(){
-    tryCatch({
-      shinyjs::runjs(code = "generating_model = true")
-      
-      isolate({
-        datos.aprendizaje <- updateData$datos.aprendizaje
-        datos.prueba <- updateData$datos.prueba
-        variable.predecir <- updateData$variable.predecir
-        alpha <- as.numeric(input$alpha.rlr)
-        standardize <- as.logical(input$switch_scale_rlr)
-      })
-
-      nombreModelo <<- paste0(nombreBase, rlr_type(alpha))
-      
-      #Model generate
-      modelo.rlr <- rlr_model(data = datos.aprendizaje, variable.pred = variable.predecir,
-                              alpha = alpha, standardize = standardize)
-
-      if (isolate(as.logical(input$permitir_landa) && !is.na(isolate(input$log_landa)))) {
-        log.landa <<- isolate(input$log_landa)
-      }
-      else{log.landa <<- NULL}
-      
-      # Coefficients
-      coefficients <<- coef_lambda(data = datos.aprendizaje, variable.pred = variable.predecir,
-                                   model = modelo.rlr, log.lambda = log.landa)
-
-      # Prediction
-      prediccion.rlr <- rlr_prediction(modelo.rlr, datos.prueba, variable.predecir,
-                                       log.lambda = log.landa)
-      
-      
-      #Indices
-      indices.rlr <- general_indices(datos.prueba[,variable.predecir], prediccion.rlr)
-
-      codigo.penalized.regression()
-      #isolamos para que no entre en un ciclo en el primer renderPrint
-      isolate(modelos$rlr[[nombreModelo]] <- list(modelo = modelo.rlr, prediccion = prediccion.rlr, indices = indices.rlr,
-                                                  id = rlr_type(alpha)))
-    }, error = function(e){
-      isolate(modelos$rlr[[nombreModelo]] <- NULL)
-      showNotification(paste0("Error (RLR-00) : ",e), duration = 10, type = "error")
-    },
-    finally = {
-      shinyjs::runjs(code = "generating_model = false")
-    })
-  }
   
   
   #Update model tab
@@ -208,8 +144,10 @@ mod_penalized_Regression_server <- function(input, output, session, updateData, 
       nombreModelo <<- paste0(nombreBase, rlr_type(alpha))
       
       #Model generate
-      modelo.rlr <- rlr_model(data = datos.aprendizaje, variable.pred = variable.predecir,
-                              alpha = alpha, standardize = standardize)
+      modelo.rlr <- rlr_model(data          = datos.aprendizaje, 
+                              variable.pred = variable.predecir,
+                              alpha         = alpha, 
+                              standardize   = standardize)
       
       if (isolate(as.logical(input$permitir_landa) && !is.na(isolate(input$log_landa)))) {
         log.landa <<- isolate(input$log_landa)
@@ -234,13 +172,16 @@ mod_penalized_Regression_server <- function(input, output, session, updateData, 
                                      prediccion.rlr)
       
       #isolamos para que no entre en un ciclo en el primer renderPrint
-      isolate(modelos$rlr[[nombreModelo]] <- list(modelo = modelo.rlr, prediccion = prediccion.rlr, indices = indices.rlr,
-                                                  id = rlr_type(alpha)))
+      isolate(modelos$rlr[[nombreModelo]] <- list(modelo     = modelo.rlr, 
+                                                  prediccion = prediccion.rlr, 
+                                                  indices  = indices.rlr,
+                                                  id       = rlr_type(alpha)))
       if(!is.null(modelos$rlr[[nombreModelo]])){
         modelos.rlr <- modelos$rlr[[nombreModelo]]$modelo
         print(modelos.rlr)
       }
       else{NULL}
+      
     }, error = function(e){
       showNotification(paste0("Error (RLR-01) : ",e), duration = 10, type = "error")
       NULL
@@ -252,17 +193,19 @@ mod_penalized_Regression_server <- function(input, output, session, updateData, 
     tryCatch({
       if(!is.null(modelos$rlr[[nombreModelo]])){
         titulos <- c(
-          tr("MSE", codedioma$idioma),
-          tr("lowCurve", codedioma$idioma),
-          tr("uppCurve", codedioma$idioma),
-          tr("selected", codedioma$idioma),
-          tr("automatico", codedioma$idioma),
+          tr("MSE",          codedioma$idioma),
+          tr("lowCurve",     codedioma$idioma),
+          tr("uppCurve",     codedioma$idioma),
+          tr("selected",     codedioma$idioma),
+          tr("automatico",   codedioma$idioma),
           tr("nonZeroCoeff", codedioma$idioma)
         )
         
         param.lambda <- ifelse(is.null(log.landa),"",paste0(", log.lambda = ",log.landa))
-        codigo <- paste0("e_posib_lambda(", nombreModelo, param.lambda, ")")
-        updateAceEditor(session, "fieldCodeRlrPosibLanda", value = codigo)
+        codigo       <- paste0("e_posib_lambda(", nombreModelo, param.lambda, ")")
+        cod          <- paste0("### posibLanda\n",codigo, "\n")
+        
+        isolate(codedioma$code <- append(codedioma$code, cod))
         
         e_posib_lambda(modelos$rlr[[nombreModelo]]$modelo, log.landa, titulos)
       }
@@ -280,8 +223,10 @@ mod_penalized_Regression_server <- function(input, output, session, updateData, 
     tryCatch({
       if(!is.null(modelos$rlr[[nombreModelo]])){
         param.lambda <- ifelse(is.null(log.landa),"",paste0(", log.lambda = ",log.landa))
-        codigo <- paste0("e_coeff_landa(", nombreModelo, param.lambda, ")")
-        updateAceEditor(session, "fieldCodeRlrCoeff_landa", value = codigo)
+        codigo       <- paste0("e_coeff_landa(", nombreModelo, param.lambda, ")")
+        cod    <- paste0("### gcoeff\n",codigo, "\n")
+        
+        isolate(codedioma$code <- append(codedioma$code, cod))
         
         titulos <- c(
           tr("coeff", codedioma$idioma),
@@ -303,8 +248,11 @@ mod_penalized_Regression_server <- function(input, output, session, updateData, 
   output$dtRlrCoeff <- DT::renderDataTable({
     tryCatch({
       if(!is.null(modelos$rlr[[nombreModelo]])){
-        dttable.custom(data.frame(row.names = row.names(coefficients),coeff = as.vector(coefficients)), 
-                       decimals = updateData$decimals,translatable = TRUE, language = isolate(codedioma$idioma))
+        dttable.custom(data.frame(row.names = row.names(coefficients),
+                                  coeff     = as.vector(coefficients)), 
+                       decimals     = updateData$decimals,
+                       translatable = TRUE, 
+                       language     = isolate(codedioma$idioma))
       }
       else{
         NULL
@@ -321,10 +269,12 @@ mod_penalized_Regression_server <- function(input, output, session, updateData, 
     tryCatch({
       if(!is.null(modelos$rlr[[nombreModelo]])){
         prediccion.rlr <- modelos$rlr[[nombreModelo]]$prediccion
+        
         isolate({
           datos.prueba <- updateData$datos.prueba
-          real.val <- datos.prueba[updateData$variable.predecir]
+          real.val     <- datos.prueba[updateData$variable.predecir]
         })
+        
         tb_predic(real.val, prediccion.rlr, updateData$decimals, codedioma$idioma)
       }
       else{NULL}
@@ -341,24 +291,32 @@ mod_penalized_Regression_server <- function(input, output, session, updateData, 
     tryCatch({
       if(!is.null(modelos$rlr[[nombreModelo]])){
         prediccion.rlr <- modelos$rlr[[nombreModelo]]$prediccion
-        isolate({
-          datos.prueba <- updateData$datos.prueba
-          variable.predecir <- updateData$variable.predecir
-          alpha <- as.numeric(input$alpha.rlr)
-        })
-        tipo <- rlr_type(alpha)
         
-        codigo <- disp_models(nombreModelo, paste0(tr("rlr", codedioma$idioma),"-",tipo), variable.predecir)
-        updateAceEditor(session, "fieldCodeRlrDisp", value = codigo)
+        isolate({
+          datos.prueba      <- updateData$datos.prueba
+          variable.predecir <- updateData$variable.predecir
+          alpha             <- as.numeric(input$alpha.rlr)
+        })
+        
+        tipo   <- rlr_type(alpha)
+        
+        codigo <- disp_models(nombreModelo, 
+                              paste0(tr("rlr", codedioma$idioma),"-",tipo), 
+                              variable.predecir)
+        cod    <- paste0("### docdisp\n",codigo, "\n")
+        
+        isolate(codedioma$code <- append(codedioma$code, cod))
         
         titulos <- c(
           tr("predvsreal", codedioma$idioma),
-          tr("realValue", codedioma$idioma),
-          tr("pred", codedioma$idioma)
+          tr("realValue",  codedioma$idioma),
+          tr("pred",       codedioma$idioma)
         )
         
-        plot_real_prediction(datos.prueba[variable.predecir],prediccion.rlr,
-                             paste0(tr("rlr", codedioma$idioma),"-",tipo),titulos)
+        plot_real_prediction(datos.prueba[variable.predecir],
+                             prediccion.rlr,
+                             paste0(tr("rlr", codedioma$idioma),"-",tipo),
+                             titulos)
       }
       else{NULL}
     }, error = function(e){
@@ -372,7 +330,7 @@ mod_penalized_Regression_server <- function(input, output, session, updateData, 
   output$indexdfrlr <- renderTable({
     tryCatch({
       if(!is.null(modelos$rlr[[nombreModelo]])){
-        idioma <- codedioma$idioma
+        idioma      <- codedioma$idioma
         indices.rlr <- modelos$rlr[[nombreModelo]]$indices
         tabla.indicesPrecision(indices.rlr, updateData$decimals, idioma)
       }
@@ -388,11 +346,13 @@ mod_penalized_Regression_server <- function(input, output, session, updateData, 
   
   output$indexdfrlr2 <- renderTable({
     tryCatch({
-      if(!is.null(modelos$rlr[[nombreModelo]])& !is.null(updateData$summary.var.pred)){
-        idioma <- codedioma$idioma
+      if(!is.null(modelos$rlr[[nombreModelo]])){
+        idioma   <- codedioma$idioma
         decimals <- updateData$decimals
-        tabla.varpred.summary(updateData$summary.var.pred, decimals, idioma)
-      }
+        tabla.varpred.summary(summary_indices(updateData$datos.prueba[,updateData$variable.predecir]),
+                              decimals, 
+                              idioma)
+        }
       else{NULL}
     }
     , error = function(e){

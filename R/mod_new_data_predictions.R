@@ -154,7 +154,7 @@ mod_new_data_predictions_ui <- function(id){
                         radioGroupMulti(id = ns("selectModelsPred"), label = "selectMod",
                                         c("rl","rlr","dt","rf","boost","knn","svm","rd","nn")))
   
-  tabs.models  <- tabsOptions(buttons = list(icon("code")), widths = c(100), heights = c(40),
+  tabs.models  <- tabsOptions( widths = c(100), heights = c(40),
                               tabs.content = list(list(codigo.monokai(ns("fieldPredNuevos"), height = "7vh"))))
   
   
@@ -192,7 +192,7 @@ mod_new_data_predictions_ui <- function(id){
   
   
   
-  tabs.models2  <- tabsOptions(buttons = list(icon("code")), widths = c(100), heights = c(40),
+  tabs.models2  <- tabsOptions( widths = c(100), heights = c(40),
                                tabs.content = list(codigo.monokai(ns("fieldCodePredPN"), height = "7vh")))
   
   prediccion.pred.panel <- div(id = ns("seccion5"), style= "display:none;",fluidRow(

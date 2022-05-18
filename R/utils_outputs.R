@@ -37,40 +37,6 @@ tabBoxPrmdt <- function (..., id = NULL, title = NULL, opciones = NULL) {
   content
 }
 
-#' tabsOptions
-#'
-#' @description create tabs options on panels.
-#' 
-#' @details this function only work correctly on the server side because they need the css and js file.
-#'
-#' @param buttons vector or list with icons of each tab.
-#' @param widths vector or list with widths of each tab.
-#' @param heights vector or list with heights of each tab.
-#' @param tabs.content list with the content of each tab.
-#'
-#' @return shiny.tag
-#' @noRd
-#' 
-tabsOptions <- function(buttons = list(icon("cog"), icon("terminal")), widths = c(50, 100),
-                        heights = c(100, 50), tabs.content = list("", "")){
-  res <- ""
-  codeButtons <- ""
-  cant <- length(buttons)
-  if(cant == 1) {widgets <- c("center")}
-  if(cant == 2) {widgets <- c("left", "right")}
-  if(cant == 3) {widgets <- c("left", "center", "right")}
-  if(cant == 4) {widgets <- c("left", "centerleft", "centeright", "right")}
-  if(cant == 5) {widgets <- c("left", "centerleft", "center", "centeright", "right")}
-  for(i in 1:cant){
-    res <- paste0(res, tags$div(class = paste0("box-option box-option-", widgets[i]),
-                                style = paste0("width:", widths[i], "%;height:", heights[i], "%;"),
-                                tabs.content[[i]]), "\n")
-    codeButtons <- paste0(codeButtons, "<button style='width:", 100/cant, "%' data-widget='",
-                          widgets[i], "'>", buttons[[i]], "</button>\n")
-  }
-  res <- paste0(res, tags$div(class = "btn-options", style = "position:relative;",width = "100%", HTML(codeButtons)))
-  return(tags$div(HTML(res)))
-}
 
 #' render_index_table
 #' 

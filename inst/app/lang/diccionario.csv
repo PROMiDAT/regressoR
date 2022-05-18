@@ -22,8 +22,10 @@ fallo;Falló;Failed
 rl;Regresión Lineal;Linear Regression
 reglin;Regresión Lineal;Linear Regression
 rlr;Regresión Penalizada;Penalized Regression
+regpen;Regresión Penalizada;Penalized Regression
 knn;K Vecinos Más Cercanos;K Nearest Neighbors
 dt;Árboles de Regresión;Regression Trees
+DT;Árboles de Regresión;Regression Trees
 rf;Bosques Aleatorios;Random Forests
 boost;Potenciación;Boosting
 svm;Soporte Vectorial;Support Vector Machines

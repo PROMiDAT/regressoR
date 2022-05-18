@@ -34,10 +34,10 @@ mod_random_forests_ui <- function(id){
                                     codigo.monokai(ns("fieldCodeRfIG"), height = "7vh"),ns = ns))
   
   
-  tabs.options.generate <- tabsOptions(buttons = list(icon("cog"), icon("code")), widths = c(50,100), heights = c(80,70),
+  tabs.options.generate <- tabsOptions( widths = c(50,100), heights = c(80,70),
                                        tabs.content = list(rf.options,rf.code.config))
   
-  tabs.options.Nogenerate <- tabsOptions(buttons = list(icon("code")), widths = c(100), heights = c(70),
+  tabs.options.Nogenerate <- tabsOptions(widths = c(100), heights = c(70),
                                          tabs.content = list(rf.code))
   
   tabs.options <- list(conditionalPanel("input.BoxRf == 'tabRfModelo' || input.BoxRf == 'tabRfRules'",tabs.options.generate,ns = ns),
@@ -269,10 +269,12 @@ mod_random_forests_server <- function(input, output, session,updateData, modelos
   
   output$indexdfrf2 <- renderTable({
     tryCatch({
-      if(!is.null(modelos$rf[[nombreModelo]])& !is.null(updateData$summary.var.pred)){
+      if(!is.null(modelos$rf[[nombreModelo]])){
         idioma <- codedioma$idioma
         decimals <- updateData$decimals
-        tabla.varpred.summary(updateData$summary.var.pred, decimals, idioma)
+        tabla.varpred.summary(summary_indices(updateData$datos.prueba[,updateData$variable.predecir]),
+                              decimals, 
+                              idioma)
       }
       else{NULL}
     }

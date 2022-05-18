@@ -10,47 +10,59 @@
 mod_linear_regression_ui <- function(id){
   ns <- NS(id)
 
-  rl.code  <- list(
-                   conditionalPanel("input.BoxRl == 'tabRlModelo'",
-                                    options.run(ns("runRl")), tags$hr(style = "margin-top: 0px;"),
-                                    codigo.monokai(ns("fieldCodeRl"),height = "7vh"),ns = ns),
-                   conditionalPanel("input.BoxRl != 'tabRlModelo'", 
-                                    h3(labelInput("codigo")), hr(style = "margin-top: 0px;"),ns = ns),
-                   conditionalPanel("input.BoxRl == 'tabRlCoef'",
-                                    codigo.monokai(ns("fieldCodeRlCoef"),height = "10vh"),ns = ns),
-                   conditionalPanel("input.BoxRl == 'tabRlPred'",
-                                    codigo.monokai(ns("fieldCodeRlPred"),height = "7vh"),ns = ns),
-                   conditionalPanel("input.BoxRl == 'tabRlDisp'",
-                                    codigo.monokai(ns("fieldCodeRlDisp"),height = "7vh"),ns = ns),
-                   conditionalPanel("input.BoxRl == 'tabRlIndex'",
-                                    codigo.monokai(ns("fieldCodeRlIG"),height = "7vh"),ns = ns))
+  opc_rl <- div(
+    conditionalPanel(
+      "input['linear_regression_ui_1-BoxRl'] == 'tabRlModelo'",
+      tabsOptions(heights = c(70), tabs.content = list(
+        list(
+          options.run(ns("runRl")), tags$hr(style = "margin-top: 0px;"))
+        
+      )))
+  )
+
+  generate.rl.panel <- tabPanel(title = labelInput("generatem"),
+                                value = "tabRlModelo",
+                                withLoader(verbatimTextOutput(ns("txtRl")),
+                                           type   = "html", 
+                                           loader = "loader4"))
   
-  tabs.rl  <- tabsOptions(buttons = list(icon("code")), widths = c(100), heights = c(70),
-                          tabs.content = list(rl.code))
+  coefficients.rl.panel <- tabPanel(title = labelInput("coeff"), 
+                                    value = "tabRlCoef",
+                                    withLoader(DT::dataTableOutput(ns("rlCoefTable")),
+                                               type   = "html", 
+                                               loader = "loader4"))
   
-  generate.rl.panel <- tabPanel(title = labelInput("generatem"),value = "tabRlModelo",
-                                withLoader(verbatimTextOutput(ns("txtRl")),type = "html", loader = "loader4"))
+  prediccion.rl.panel <- tabPanel(title = labelInput("predm"), 
+                                  value = "tabRlPred",
+                                  withLoader(DT::dataTableOutput(ns("rlPrediTable")),
+                                             type   = "html", 
+                                             loader = "loader4"))
   
-  coefficients.rl.panel <- tabPanel(title = labelInput("coeff"), value = "tabRlCoef",
-                                    withLoader(DT::dataTableOutput(ns("rlCoefTable")),type = "html", loader = "loader4"))
+  disp.rl.panel <- tabPanel(title = labelInput("dispersion"), 
+                            value = "tabRlDisp",
+                            withLoader(echarts4rOutput(ns('plot_rl_disp'),height = "75vh"),
+                                       type   = "html", 
+                                       loader = "loader4"))
   
-  prediccion.rl.panel <- tabPanel(title = labelInput("predm"), value = "tabRlPred",
-                                  withLoader(DT::dataTableOutput(ns("rlPrediTable")),type = "html", loader = "loader4"))
-  
-  disp.rl.panel <- tabPanel(title = labelInput("dispersion"), value = "tabRlDisp",
-                            withLoader(echarts4rOutput(ns('plot_rl_disp'),height = "75vh"),type = "html", loader = "loader4"))
-  
-  rl.general.index.panel <- tabPanel(title = labelInput("indices"), value = "tabRlIndex",
+  rl.general.index.panel <- tabPanel(title = labelInput("indices"), 
+                                     value = "tabRlIndex",
                                      br(),
-                                     fluidRow(withLoader(tableOutput(ns('indexdfrl')),type = "html", loader = "loader4")),
+                                     fluidRow(withLoader(tableOutput(ns('indexdfrl')),
+                                                         type   = "html", 
+                                                         loader = "loader4")),
                                      br(),
-                                     fluidRow(column(width = 12, align="center", tags$h3(labelInput("resumenVarPre")))),
+                                     fluidRow(column(width = 12, 
+                                                     align = "center", 
+                                                     tags$h3(labelInput("resumenVarPre")))),
                                      br(),
-                                     fluidRow(withLoader(tableOutput(ns('indexdfrl2')),type = "html", loader = "loader4")))
+                                     fluidRow(withLoader(tableOutput(ns('indexdfrl2')),
+                                                         type   = "html", 
+                                                         loader = "loader4")))
   
   
   page.rl <- tabItem(tabName = "rl",
-                     tabBoxPrmdt(id = ns("BoxRl"), opciones = tabs.rl,
+                     tabBoxPrmdt(id       = ns("BoxRl"), 
+                                 opciones = opc_rl,
                                  generate.rl.panel,
                                  coefficients.rl.panel,
                                  prediccion.rl.panel,
@@ -71,67 +83,8 @@ mod_linear_regression_server <- function(input, output, session, updateData, mod
   nombreModelo <- "modelo.rl"
   df.rl <- NULL
   r2    <- NULL
-  
-  return.rl.default.values <- function(){
-    df.rl <<- NULL
-    r2    <<- NULL
-  }
-  
-# 
-#   observeEvent(updateData$datos.aprendizaje,{
-#     #Change to default values
-#     return.rl.default.values()
-#     #No hace falta isolate. observeEvent evalua la expresión en un isolate
-#     if(validate_data(updateData,idioma = codedioma$idioma)){
-#       #rl_full()
-#     }
-#   })
-#   
-#   observeEvent(input$runRl,{
-#     #No hace falta isolate. observeEvent evalua la expresión en un isolate
-#     if(validate_data(updateData,idioma = codedioma$idioma)){
-#       rl_full()
-#     }
-#   })
-  # 
-  # # Execute model, prediction and indices
-  # rl_full <- function(){
-  #   tryCatch({
-  #     shinyjs::runjs(code = "generating_model = true")
-  #     
-  #     isolate({
-  #       datos.aprendizaje <- updateData$datos.aprendizaje
-  #       datos.prueba      <- updateData$datos.prueba
-  #       variable.predecir <- updateData$variable.predecir
-  #     })
-  #     
-  #     #Model generate
-  #     modelo.rl <- rl_model(datos.aprendizaje,variable.predecir)
-  # 
-  #     #Coefficients
-  #     model.information <- rl_coeff(modelo.rl)
-  #     df.rl <<- model.information$df.rl
-  #     r2    <<- model.information$r2
-  #     #Prediccion
-  #     prediccion.rl <- rl_prediction(modelo.rl, datos.prueba)
-  #     #Indices
-  #     indices.rl <- general_indices(datos.prueba[,variable.predecir], prediccion.rl)
-  #     #codigo.linear.regression()
-  #     #isolamos para que no entre en un ciclo en el primer renderPrint
-  #     isolate(modelos$rl[[nombreModelo]] <- list(modelo = modelo.rl, prediccion = prediccion.rl, indices = indices.rl, 
-  #                                                id = NULL))
-  #   }, error = function(e){
-  #     isolate(modelos$rl[[nombreModelo]] <- NULL)
-  #     showNotification(paste0("Error (RL-00) : ",e), duration = 10, type = "error")
-  #   },
-  #   finally = {
-  #     shinyjs::runjs(code = "generating_model = false")
-  #   })
-  #   
-  # }
-  
-  
-  #Update model tab
+
+  #Update model 
   output$txtRl <- renderPrint({
     input$runRl
     tryCatch({
@@ -149,15 +102,20 @@ mod_linear_regression_server <- function(input, output, session, updateData, mod
       model.information <- rl_coeff(modelo.rl)
       df.rl <<- model.information$df.rl
       r2    <<- model.information$r2
+      
       #Prediccion
       prediccion.rl <- rl_prediction(modelo.rl, datos.prueba)
+      
       #Indices
       indices.rl <- general_indices(datos.prueba[,variable.predecir], prediccion.rl)
+      
       #isolamos para que no entre en un ciclo en el primer renderPrint
-      isolate(modelos$rl[[nombreModelo]] <- list(modelo = modelo.rl, prediccion = prediccion.rl, indices = indices.rl, 
+      isolate(modelos$rl[[nombreModelo]] <- list(modelo     = modelo.rl, 
+                                                 prediccion = prediccion.rl, 
+                                                 indices    = indices.rl, 
                                                  id = NULL))
       
-        print(summary(modelo.rl))
+      print(summary(modelo.rl))
     }, error = function(e){
       showNotification(paste0("Error (RL-01) : ",e), duration = 10, type = "error")
       NULL
@@ -169,7 +127,9 @@ mod_linear_regression_server <- function(input, output, session, updateData, mod
     tryCatch({
       if(!is.null(df.rl) && !is.null(modelos$rl[[nombreModelo]])){
         dttable.custom(data.frame(row.names = row.names(df.rl), coeff = df.rl[,1]), 
-                       decimals = updateData$decimals,translatable = TRUE, language = isolate(codedioma$idioma))
+                       decimals     = updateData$decimals,
+                       translatable = TRUE, 
+                       language     = isolate(codedioma$idioma))
       }
       else{NULL}
     }, error = function(e){
@@ -185,10 +145,12 @@ mod_linear_regression_server <- function(input, output, session, updateData, mod
     tryCatch({
       if(!is.null(modelos$rl[[nombreModelo]])){
         prediccion.rl <- modelos$rl[[nombreModelo]]$prediccion
+        
         isolate({
           datos.prueba <- updateData$datos.prueba
           real.val     <- datos.prueba[updateData$variable.predecir]
         })
+        
         tb_predic(real.val, prediccion.rl, updateData$decimals,codedioma$idioma)
       }
       else{NULL}
@@ -206,12 +168,14 @@ mod_linear_regression_server <- function(input, output, session, updateData, mod
       
       if(!is.null(modelos$rl[[nombreModelo]])){
         prediccion.rl <- modelos$rl[[nombreModelo]]$prediccion
+        
         isolate({
           datos.prueba      <- updateData$datos.prueba
           variable.predecir <- updateData$variable.predecir
         })
+        
         codigo <- disp_models("prediccion.rl", tr("rl",codedioma$idioma), variable.predecir)
-        cod    <- paste0("### gcoeff\n",codigo)
+        cod    <- paste0("### docdisp\n",codigo, "\n")
         
         isolate(codedioma$code <- append(codedioma$code, cod))
         
@@ -221,7 +185,9 @@ mod_linear_regression_server <- function(input, output, session, updateData, mod
           tr("pred", codedioma$idioma)
         )
         
-        plot_real_prediction(datos.prueba[variable.predecir],prediccion.rl,tr("rl",codedioma$idioma),titulos)
+        plot_real_prediction(datos.prueba[variable.predecir], 
+                             prediccion.rl,tr("rl",codedioma$idioma),
+                             titulos)
       }
       else{NULL}
     },
@@ -238,8 +204,8 @@ mod_linear_regression_server <- function(input, output, session, updateData, mod
       if(!is.null(modelos$rl[[nombreModelo]])){
         idioma     <- codedioma$idioma
         indices.rl <- modelos$rl[[nombreModelo]]$indices
-        df <- cbind(as.data.frame(indices.rl), r2)
-        df <- df[,c(1,2,3,5,4)]
+        df         <- cbind(as.data.frame(indices.rl), r2)
+        df         <- df[,c(1,2,3,5,4)]
         colnames(df) <- c(tr("RMSE",idioma), tr("MAE",idioma),
                           tr("ER",idioma),   tr("R2",idioma),
                           tr("correlacion", idioma))
@@ -264,7 +230,9 @@ mod_linear_regression_server <- function(input, output, session, updateData, mod
       if(!is.null(modelos$rl[[nombreModelo]])){
         idioma   <- codedioma$idioma
         decimals <- updateData$decimals
-        tabla.varpred.summary(summary_indices(updateData$datos.prueba[,updateData$variable.predecir]), decimals, idioma)
+        tabla.varpred.summary(summary_indices(updateData$datos.prueba[,updateData$variable.predecir]),
+                              decimals, 
+                              idioma)
       }
       else{NULL}
     }
@@ -276,9 +244,8 @@ mod_linear_regression_server <- function(input, output, session, updateData, mod
   width = '100%',align = 'c')
   
   codigo.linear.regression <- function() {
+    
     isolate({
-      datos.aprendizaje <- updateData$datos.aprendizaje
-      datos.prueba      <- updateData$datos.prueba
       variable.predecir <- updateData$variable.predecir
     })
     
