@@ -98,20 +98,19 @@ kkn_prediction <- function(model, test.data) {
     return(predict(model,test.data))
   }
   return(NULL)
-  #return(paste0(pred.var," <- predict(",model.var,", ",data," %>% select(-`",variable.pred,"`))"))
 }
 
 
 #------------------------------------CODE---------------------------------------
 codeKnn <- function(variable.predecir, scale, k, kernel, distance){
   return(paste0("kkn_model(data, '",variable.predecir,"', scale = ",scale, ", k = ", k,
-                ", kernel = '",kernel,"', distance = ", distance, ")"))
+                ", kernel = '",kernel,"', distance = ", distance, ")\n"))
 }
 
 codeKnnPred <- function(nombreModelo = "knn.model"){
-  return(paste0("kkn_prediction(model = ", nombreModelo, ", test.data)"))
+  return(paste0("kkn_prediction(model = ", nombreModelo, ", test.data)\n"))
 }
 
 codeKnnIG <- function(variable.predecir){
-  return(paste0("general_indices(test.data[,'",variable.predecir,"'], prediccion.knn)"))
+  return(paste0("general_indices(test.data[,'",variable.predecir,"'], prediccion.knn)\n"))
 }

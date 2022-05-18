@@ -17,29 +17,13 @@ mod_boosting_ui <- function(id){
                     fluidRow(column(selectInput(inputId = ns("tipo.boosting"), label = labelInput("selectAlg"),selected = "gaussian",
                                                 choices =  c("gaussian", "laplace", "tdist")), width = 5)))
   
-  b.code.config <- list(h3(labelInput("codigo")), hr(style = "margin-top: 0px;"),
-                        codigo.monokai(ns("fieldCodeBoosting"), height = "7vh"))
+
+  
+  tabs.options.generate <- tabsOptions(widths = c(100), heights = c(80),
+                                       tabs.content = list(b.options))
   
   
-  b.code  <- list(h3(labelInput("codigo")), hr(style = "margin-top: 0px;"),
-                  conditionalPanel("input.BoxB == 'tabBImp'",
-                                   codigo.monokai(ns("fieldCodeBoostingPlotImport"), height = "7vh"),ns = ns),
-                  conditionalPanel("input.BoxB == 'tabBPred'",
-                                   codigo.monokai(ns("fieldCodeBoostingPred"), height = "7vh"),ns = ns),
-                  conditionalPanel("input.BoxB == 'tabBDisp'",
-                                   codigo.monokai(ns("fieldCodeBoostingDisp"), height = "7vh"),ns = ns),
-                  conditionalPanel("input.BoxB == 'tabBIndex'",
-                                   codigo.monokai(ns("fieldCodeBoostingIG"), height = "7vh"),ns = ns))
-  
-  
-  tabs.options.generate <- tabsOptions(widths = c(50,100), heights = c(80,70),
-                                       tabs.content = list(b.options,b.code.config))
-  
-  tabs.options.Nogenerate <- tabsOptions(widths = c(100), heights = c(70),
-                                         tabs.content = list(b.code))
-  
-  tabs.options <- list(conditionalPanel("input.BoxB == 'tabBModelo'",tabs.options.generate,ns = ns),
-                       conditionalPanel("input.BoxB != 'tabBModelo'",tabs.options.Nogenerate,ns = ns))
+  tabs.options <- list(conditionalPanel("input.BoxB == 'tabBModelo'",tabs.options.generate,ns = ns))
   
   generate.b.panel <- tabPanel(title = labelInput("generatem"), value = "tabBModelo",
                                withLoader(verbatimTextOutput(ns("txtBoosting")),type = "html", loader = "loader4"))
@@ -96,71 +80,44 @@ mod_boosting_server <- function(input, output, session,updateData, modelos, code
     return.boosting.default.values()
   })
   
-  # When the boosting model is generated
-  observeEvent(input$runBoosting, {
-    if (validate_data(updateData, idioma = codedioma$idioma)){ # Si se tiene los datos entonces :
-      boosting_full()
-    }
-  })
   
-
-  # Execute model, prediction and indices
-  boosting_full <- function() {
+  #Update model tab
+  output$txtBoosting <- renderPrint({
+    input$runBoosting
     tryCatch({
-      shinyjs::runjs(code = "generating_model = true")
-      
+      codigo.boosting()
       isolate({
         datos.aprendizaje <- updateData$datos.aprendizaje
-        datos.prueba <- updateData$datos.prueba
+        datos.prueba      <- updateData$datos.prueba
         variable.predecir <- updateData$variable.predecir
-        n.trees <- input$iter.boosting
+        n.trees      <- input$iter.boosting
         distribution <- input$tipo.boosting
-        shrinkage <- input$shrinkage.boosting
+        shrinkage    <- input$shrinkage.boosting
       })
       
       if(!is.null(calibrate_boosting(datos.aprendizaje))){
         nombreModelo <<- paste0(nombreBase, distribution)
-        
-        n.trees <- ifelse(!is.numeric(n.trees), 50, n.trees)
+        n.trees   <- ifelse(!is.numeric(n.trees), 50, n.trees)
         shrinkage <- ifelse(!is.numeric(shrinkage), 0.1, shrinkage)
         
         #Model generate
         modelo.boost <- boosting_model(datos.aprendizaje,variable.predecir, n.trees, distribution, shrinkage)
-        updateAceEditor(session, "fieldCodeBoosting", value = codeBoost(variable.predecir, n.trees, distribution, shrinkage))
-        
+
         #Prediccion
         prediccion.boost <- boosting_prediction(modelo.boost, datos.prueba, n.trees)
-        updateAceEditor(session, "fieldCodeBoostingPred", value = codeBoostPred(nombreModelo, n.trees))
-        
+
         #Indices
         indices.boost <- general_indices(datos.prueba[,variable.predecir], prediccion.boost)
-        updateAceEditor(session, "fieldCodeBoostingIG", value = codeBoostIG(variable.predecir))
-        
+
         #isolamos para que no entre en un ciclo en el primer renderPrint
         isolate(modelos$boost[[nombreModelo]] <- list(modelo = modelo.boost, prediccion = prediccion.boost, indices = indices.boost,
                                                       id = distribution))
+        print(modelo.boost)
       }
       else{
         isolate(modelos$boost[[nombreModelo]] <- NULL)
         showNotification(tr("ErrorBsize"), duration = 10, type = "error")
       }
-      
-    }, error = function(e){
-      isolate(modelos$boost[[nombreModelo]] <- NULL)
-      showNotification(paste0("Error (Boost-00) : ",e), duration = 10, type = "error")
-    },
-    finally = {shinyjs::runjs(code = "generating_model = false")})
-  }
-  
-  
-  #Update model tab
-  output$txtBoosting <- renderPrint({
-    tryCatch({
-      if(!is.null(modelos$boost[[nombreModelo]])){
-        modelo.boost <- modelos$boost[[nombreModelo]]$modelo
-        print(summary(modelo.boost, plotit = FALSE))
-      }
-      else{NULL}
     }, error = function(e){
       showNotification(paste0("Error (Boost-01) : ",e), duration = 10, type = "error")
       NULL
@@ -177,7 +134,9 @@ mod_boosting_server <- function(input, output, session,updateData, modelos, code
         
         # Cambia el codigo del grafico de importancia
         codigo <- paste0("boosting_importance_plot(", nombreModelo, ")")
-        updateAceEditor(session, "fieldCodeBoostingPlotImport", value = codigo)
+        cod    <- paste0("### varImp\n",codigo, "\n")
+        
+        isolate(codedioma$code <- append(codedioma$code, cod))
         
         idioma <- codedioma$idioma
         titulos <- c(
@@ -231,7 +190,9 @@ mod_boosting_server <- function(input, output, session,updateData, modelos, code
         idioma <- codedioma$idioma
         
         codigo <- disp_models(nombreModelo, paste0(tr("boost", idioma),"-",distribution), variable.predecir)
-        updateAceEditor(session, "fieldCodeBoostingDisp", value = codigo)
+        cod    <- paste0("### docdisp\n",codigo, "\n")
+        
+        isolate(codedioma$code <- append(codedioma$code, cod))
         
         titulos <- c(
           tr("predvsreal", idioma),
@@ -270,10 +231,12 @@ mod_boosting_server <- function(input, output, session,updateData, modelos, code
   
   output$indexdfb2 <- renderTable({
     tryCatch({
-      if(!is.null(modelos$boost[[nombreModelo]])& !is.null(updateData$summary.var.pred)){
+      if(!is.null(modelos$boost[[nombreModelo]])){
         idioma <- codedioma$idioma
         decimals <- updateData$decimals
-        tabla.varpred.summary(updateData$summary.var.pred, decimals, idioma)
+        tabla.varpred.summary(summary_indices(updateData$datos.prueba[,updateData$variable.predecir]),
+                              decimals, 
+                              idioma)
       }
       else{NULL}
     }
@@ -283,6 +246,42 @@ mod_boosting_server <- function(input, output, session,updateData, modelos, code
     })
   },striped = TRUE, bordered = TRUE, spacing = 'l', 
   width = '100%',align = 'c')
+  
+  
+  
+  # Execute model, prediction and indices
+  codigo.boosting <- function() {
+    tryCatch({
+      isolate({
+        variable.predecir <- updateData$variable.predecir
+        n.trees <- input$iter.boosting
+        distribution <- input$tipo.boosting
+        shrinkage <- input$shrinkage.boosting
+      })
+      
+        n.trees <- ifelse(!is.numeric(n.trees), 50, n.trees)
+        shrinkage <- ifelse(!is.numeric(shrinkage), 0.1, shrinkage)
+        
+        #Model generate
+        codigo <- codeBoost(variable.predecir, n.trees, distribution, shrinkage)
+        cod    <- paste0("### BOOST\n", codigo)
+        
+        #Prediccion
+        codigo <- codeBoostPred(nombreModelo, n.trees)
+        cod    <- paste0(cod, codigo)
+        #Indices
+        codigo <- codeBoostIG(variable.predecir)
+        cod    <- paste0(cod, codigo)
+        
+        isolate(codedioma$code <- append(codedioma$code, cod))
+        
+      
+      
+    }, error = function(e){
+      showNotification(paste0("Error (Boost-00) : ",e), duration = 10, type = "error")
+    })
+  }
+  
 }
 
 ## To be copied in the UI

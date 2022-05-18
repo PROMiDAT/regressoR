@@ -116,13 +116,13 @@ calibrate_boosting <- function(data){
 
 #------------------------------------CODE---------------------------------------
 codeBoost <- function(variable.predecir, n.trees, distribution, shrinkage){
-  return(paste0("boosting_model(data, '",variable.predecir,"', n.trees = ",n.trees, ", distribution = '", distribution, "', shrinkage = ",shrinkage, ")"))
+  return(paste0("boosting_model(data, '",variable.predecir,"', n.trees = ",n.trees, ", distribution = '", distribution, "', shrinkage = ",shrinkage, ")\n"))
 }
 
 codeBoostPred <- function(nombreModelo, n.trees){
-  return(paste0("boosting_prediction(model = ", nombreModelo, ", test.data, n.trees = ", n.trees, ")"))
+  return(paste0("boosting_prediction(model = ", nombreModelo, ", test.data, n.trees = ", n.trees, ")\n"))
 }
 
 codeBoostIG <- function(variable.predecir){
-  return(paste0("general_indices(test.data[,'",variable.predecir,"'], prediccion.boost)"))
+  return(paste0("general_indices(test.data[,'",variable.predecir,"'], prediccion.boost)\n"))
 }

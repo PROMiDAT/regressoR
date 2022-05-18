@@ -23,35 +23,11 @@ mod_penalized_Regression_ui <- function(id){
                                       radioSwitch(id = ns("permitir_landa"), label = "",
                                                   names = c("manual", "automatico"), val.def = FALSE))))
   
-  
-  rlr.code.config <- list(h3(labelInput("codigo")), hr(style = "margin-top: 0px;"),
-                          codigo.monokai(ns("fieldCodeRlr"), height = "7vh"))
-  
-  
-  rlr.code  <- list(fluidRow(column(width = 9, h3(labelInput("codigo")))),
-                    hr(style = "margin-top: 0px;"),
-                    conditionalPanel("input.BoxRlr == 'tabRlrPosibLanda'",
-                                     aceEditor(ns("fieldCodeRlrPosibLanda"), mode = "r", theme = "monokai",
-                                               value = "", height = "7vh", readOnly = F, autoComplete = "enabled"),ns = ns),
-                    conditionalPanel("input.BoxRlr == 'tabRlrCoeff_landa'",
-                                     codigo.monokai(ns("fieldCodeRlrCoeff_landa"), height = "7vh"),ns = ns),
-                    conditionalPanel("input.BoxRlr == 'tabRlrCoeff'",
-                                     codigo.monokai(ns("fieldCodeRlrCoeff"), height = "7vh"),ns = ns),
-                    conditionalPanel("input.BoxRlr == 'tabRlrPred'",
-                                     codigo.monokai(ns("fieldCodeRlrPred"), height = "7vh"),ns = ns),
-                    conditionalPanel("input.BoxRlr == 'tabRlrDisp'",
-                                     codigo.monokai(ns("fieldCodeRlrDisp"), height = "7vh"),ns = ns),
-                    conditionalPanel("input.BoxRlr == 'tabRlrIndex'",
-                                     codigo.monokai(ns("fieldCodeRlrIG"),height = "7vh"),ns = ns))
-  
-  tabs.options.generate <- tabsOptions(botones =  list(icon("cog")),
+  tabs.options.generate <- tabsOptions(botones =  list(icon("cog")), heights = c(70),
                                        tabs.content = list(rlr.options))
+
   
-  tabs.options.Nogenerate <- tabsOptions(botones = list(icon("code")), widths = c(100), heights = c(70),
-                                         tabs.content = list(rlr.code))
-  
-  tabs.options <- list(conditionalPanel("input.BoxRlr == 'tabRlrModelo'",tabs.options.generate,ns = ns),
-                       conditionalPanel("input.BoxRlr != 'tabRlrModelo'",tabs.options.Nogenerate,ns = ns))
+  tabs.options <- list(conditionalPanel("input.BoxRlr == 'tabRlrModelo'",tabs.options.generate,ns = ns))
   
   
   generate.rlr.panel <- tabPanel(title = labelInput("generatem"),value = "tabRlrModelo",

@@ -24,13 +24,19 @@ reglin;Regresión Lineal;Linear Regression
 rlr;Regresión Penalizada;Penalized Regression
 regpen;Regresión Penalizada;Penalized Regression
 knn;K Vecinos Más Cercanos;K Nearest Neighbors
+KNN;K Vecinos Más Cercanos;K Nearest Neighbors
 dt;Árboles de Regresión;Regression Trees
 DT;Árboles de Regresión;Regression Trees
 rf;Bosques Aleatorios;Random Forests
+RF;Bosques Aleatorios;Random Forests
 boost;Potenciación;Boosting
+BOOST;Potenciación;Boosting
 svm;Soporte Vectorial;Support Vector Machines
+SVM;Soporte Vectorial;Support Vector Machines
 nn;Redes Neuronales;Neural Networks
+NN;Redes Neuronales;Neural Networks
 xgb;XGPotenciación;XGBoosting
+XGB;XGPotenciación;XGBoosting
 reporte;Generar Reporte;Generate Report
 acercade;Acerca De;About
 cargar;Cargar;Load
@@ -256,6 +262,7 @@ nnWar;El modelo no converge con los parámetros actuales, intente modificarlos;T
 redPlot;Red Neuronal;Neural Network
 MSE;Error Cuadrático Medio;Mean Squared Error
 RMSE;Raíz Error Cuadrático Medio;Root Mean Squared Error
+Rmse;Raíz Error Cuadrático Medio;Root Mean Squared Error
 MAE;Error Absoluto Medio;Mean Absolute Error
 ER;Error Relativo (%);Relative Error (%)
 impVarA;Importancia de Variables Según el Porcentaje de Incremento del MSE;Importance of Variables According to Percentage Increase in Mean Square Error
@@ -282,6 +289,7 @@ errorcat;Se necesitan variables categóricas  para esta parte;You need categoric
 noModel;No se ha generado el modelo;The model has not been generated
 distknn;Distancia q:;q Distance:
 rd;Reducción de Dimensión;Dimension Reduction
+RD;Reducción de Dimensión;Dimension Reduction
 ncomp;Número de Componentes;Number of components
 RMSEComp;RMSE Según Número de Componentes;RMSE According to Number of Components
 RdPred;Varianza Explicada en Predictores;Variance Explained in Predictors

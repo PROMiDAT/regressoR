@@ -18,30 +18,12 @@ mod_random_forests_ui <- function(id){
                      conditionalPanel("input.BoxRf == 'tabRfRules'",
                                       numericInput(ns("rules.rf.n"),labelInput("ruleNumTree"),1, width = "25%", min = 1),ns = ns))
   
-  rf.code.config <- list(h3(labelInput("codigo")), hr(style = "margin-top: 0px;"),
-                         conditionalPanel("input.BoxRf == 'tabRfModelo'",codigo.monokai(ns("fieldCodeRf"), height = "7vh"), ns = ns),
-                         conditionalPanel("input.BoxRf == 'tabRfRules'",codigo.monokai(ns("fieldCodeRfRules"), height = "7vh"), ns = ns))
+  
+  tabs.options.generate <- tabsOptions( widths = c(100), heights = c(80),
+                                       tabs.content = list(rf.options))
   
   
-  rf.code  <- list(h3(labelInput("codigo")), hr(style = "margin-top: 0px;"),
-                   conditionalPanel("input.BoxRf == 'tabRfImp'",
-                                    codigo.monokai(ns("fieldCodeRfPlot"), height = "7vh"),ns = ns),
-                   conditionalPanel("input.BoxRf == 'tabRfPred'",
-                                    codigo.monokai(ns("fieldCodeRfPred"), height = "7vh"),ns = ns),
-                   conditionalPanel("input.BoxRf == 'tabRfDisp'",
-                                    codigo.monokai(ns("fieldCodeRfDisp"), height = "7vh"),ns = ns),
-                   conditionalPanel("input.BoxRf == 'tabRfIndex'",
-                                    codigo.monokai(ns("fieldCodeRfIG"), height = "7vh"),ns = ns))
-  
-  
-  tabs.options.generate <- tabsOptions( widths = c(50,100), heights = c(80,70),
-                                       tabs.content = list(rf.options,rf.code.config))
-  
-  tabs.options.Nogenerate <- tabsOptions(widths = c(100), heights = c(70),
-                                         tabs.content = list(rf.code))
-  
-  tabs.options <- list(conditionalPanel("input.BoxRf == 'tabRfModelo' || input.BoxRf == 'tabRfRules'",tabs.options.generate,ns = ns),
-                       conditionalPanel("input.BoxRf != 'tabRfModelo' && input.BoxRf != 'tabRfRules'",tabs.options.Nogenerate,ns = ns))
+  tabs.options <- list(conditionalPanel("input.BoxRf == 'tabRfModelo' || input.BoxRf == 'tabRfRules'",tabs.options.generate,ns = ns))
   
   generate.rf.panel <- tabPanel(title = labelInput("generatem"),value = "tabRfModelo",
                                 withLoader(verbatimTextOutput(ns("txtRf")),type = "html", loader = "loader4"))
@@ -107,63 +89,41 @@ mod_random_forests_server <- function(input, output, session,updateData, modelos
   })
   
   
-  observeEvent(input$runRf, {
-    if (validate_data(updateData, idioma = codedioma$idioma)) { # Si se tiene los datos entonces :
-      rf_full()
-    }
-  })
-  
-  
-  # Execute model, prediction and indices
-  rf_full <- function(){
-    tryCatch({
-      shinyjs::runjs(code = "generating_model = true")
-      
-      isolate({
-        datos.aprendizaje <- updateData$datos.aprendizaje
-        datos.prueba <- updateData$datos.prueba
-        variable.predecir <- updateData$variable.predecir
-        ntree <- input$ntree.rf
-        mtry <- input$mtry.rf
-      })
-      
-      #Validacion tamaño del mtry
-      tam <- ncol(datos.aprendizaje)
-      if(mtry >= tam){
-        mtry <- tam - 1
-        updateNumericInput(session, "mtry.rf", value = mtry)
-      }
-      
-      #Model generate
-      modelo.rf <- rf_model(datos.aprendizaje,variable.predecir, ntree, mtry)
-      updateAceEditor(session, "fieldCodeRf", value = codeRf(variable.predecir, ntree, mtry))
-      
-      #Prediccion
-      prediccion.rf <- rf_prediction(modelo.rf, datos.prueba)
-      updateAceEditor(session, "fieldCodeRfPred", value = codeRfPred(nombreModelo))
-      
-      #Indices
-      indices.rf <- general_indices(datos.prueba[,variable.predecir], prediccion.rf)
-      updateAceEditor(session, "fieldCodeRfIG", value = codeRfIG(variable.predecir))
-      
-      #isolamos para que no entre en un ciclo en el primer renderPrint
-      isolate(modelos$rf[[nombreModelo]] <- list(modelo = modelo.rf, prediccion = prediccion.rf, indices = indices.rf))
-      
-    }, error = function(e){
-      isolate(modelos$rf[[nombreModelo]] <- NULL)
-      showNotification(paste0("Error (RF-00) : ",e), duration = 10, type = "error")
-    },
-    finally = {shinyjs::runjs(code = "generating_model = false")})
-  }
   
   #Update model tab
   output$txtRf <- renderPrint({
+    input$runRf
     tryCatch({
-      if(!is.null(modelos$rf[[nombreModelo]])){
-        modelo.rf <- modelos$rf[[nombreModelo]]$modelo
+      codigo.rf()
+        isolate({
+          datos.aprendizaje <- updateData$datos.aprendizaje
+          datos.prueba      <- updateData$datos.prueba
+          variable.predecir <- updateData$variable.predecir
+          ntree <- input$ntree.rf
+          mtry  <- input$mtry.rf
+        })
+        
+        #Validacion tamaño del mtry
+        tam <- ncol(datos.aprendizaje)
+        if(mtry >= tam){
+          mtry <- tam - 1
+          updateNumericInput(session, "mtry.rf", value = mtry)
+        }
+        
+        #Model generate
+        modelo.rf <- rf_model(datos.aprendizaje,variable.predecir, ntree, mtry)
+
+        #Prediccion
+        prediccion.rf <- rf_prediction(modelo.rf, datos.prueba)
+
+        #Indices
+        indices.rf <- general_indices(datos.prueba[,variable.predecir], prediccion.rf)
+
+        #isolamos para que no entre en un ciclo en el primer renderPrint
+        isolate(modelos$rf[[nombreModelo]] <- list(modelo = modelo.rf, prediccion = prediccion.rf, indices = indices.rf))
+        
         print(modelo.rf)
-      }
-      else{NULL}
+     
     }, error = function(e){
       showNotification(paste0("Error (RF-01) : ",e), duration = 10, type = "error")
       NULL
@@ -230,7 +190,9 @@ mod_random_forests_server <- function(input, output, session,updateData, modelos
         idioma <- codedioma$idioma
         
         codigo <- disp_models(nombreModelo, tr("rf", idioma), variable.predecir)
-        updateAceEditor(session, "fieldCodeRfDisp", value = codigo)
+        cod    <- paste0("### docdisp\n",codigo, "\n")
+        
+        isolate(codedioma$code <- append(codedioma$code, cod))
         
         titulos <- c(
           tr("predvsreal", idioma),
@@ -294,7 +256,11 @@ mod_random_forests_server <- function(input, output, session,updateData, modelos
       n <- input$rules.rf.n
       if(!is.null(modelos$rf[[nombreModelo]]) && !is.na(n)){
         modelo.rf <- modelos$rf[[nombreModelo]]$modelo
-        updateAceEditor(session,"fieldCodeRfRules",paste0("printRandomForests(modelo.rf, ",n,", format='VB')"))
+        codigo <- paste0("printRandomForests(modelo.rf, ",n,", format='VB')")
+        cod    <- paste0("### reglas\n",codigo, "\n")
+        
+        isolate(codedioma$code <- append(codedioma$code, cod))
+        
         rulesRandomForest(modelo.rf, n, format='VB')
       }
       else{NULL}
@@ -304,6 +270,34 @@ mod_random_forests_server <- function(input, output, session,updateData, modelos
       NULL
     })
   })
+  
+  # Execute model, prediction and indices
+  codigo.rf <- function(){
+    tryCatch({
+      isolate({
+        variable.predecir <- updateData$variable.predecir
+        ntree <- input$ntree.rf
+        mtry <- input$mtry.rf
+      })
+      
+      #Model generate
+      codigo <- codeRf(variable.predecir, ntree, mtry)
+      cod    <- paste0("### RF\n", codigo)
+      
+      #Prediccion
+      codigo <- codeRfPred(nombreModelo)
+      cod    <- paste0(cod, codigo)
+      #Indices
+      codigo <- codeRfIG(variable.predecir)
+      cod    <- paste0(cod, codigo)
+      
+      isolate(codedioma$code <- append(codedioma$code, cod))
+      
+    }, error = function(e){
+      showNotification(paste0("Error (RF-00) : ",e), duration = 10, type = "error")
+    })
+  }
+  
 }
 
 ## To be copied in the UI

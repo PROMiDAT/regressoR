@@ -15,17 +15,15 @@
 #' 
 svm_model <- function(data, variable.pred, scale = TRUE, kernel = "linear"){
   if(!is.null(variable.pred) && !is.null(data)){
-    form <- formula(paste0(variable.pred,"~."))
+    form       <- formula(paste0(variable.pred,"~."))
     modelo.svm <- svm(form, data, scale = scale, kernel = kernel)
     #Cambiamos la forma en que va aparecer el call
     modelo.svm$call$formula <- paste0(variable.pred,"~.")
-    modelo.svm$call$kernel <- kernel
-    modelo.svm$call$scale <- scale
+    modelo.svm$call$kernel  <- kernel
+    modelo.svm$call$scale   <- scale
     return(modelo.svm)
   }
   return(NULL)
-  
-  #return(paste0(model.var," <- svm(`",variable.pred,"`~., data = ",data,", scale =",scale,", kernel = '",kernel,"')"))
 }
 
 #' svm_prediction
@@ -42,21 +40,19 @@ svm_prediction <- function(model, test.data){
     return(predict(model,test.data))
   }
   return(NULL)
-  
-  #return(paste0(pred.var," <- predict(",model.var," , ",data," %>% select(-`",variable.pred,"`))"))
 }
 
 
 
 #------------------------------------CODE---------------------------------------
 codeSvm <- function(variable.predecir, scale, kernel){
-  return(paste0("svm_model(data, '",variable.predecir,"', scale = ",scale, ", kernel = '",kernel,"')"))
+  return(paste0("svm_model(data, '",variable.predecir,"', scale = ",scale, ", kernel = '",kernel,"')\n"))
 }
 
 codeSvmPred <- function(nombreModelo = "svm.model"){
-  return(paste0("svm_prediction(model = ", nombreModelo, ", test.data)"))
+  return(paste0("svm_prediction(model = ", nombreModelo, ", test.data)\n"))
 }
 
 codeSvmIG <- function(variable.predecir){
-  return(paste0("general_indices(test.data[,'",variable.predecir,"'], prediccion.svm)"))
+  return(paste0("general_indices(test.data[,'",variable.predecir,"'], prediccion.svm)\n"))
 }

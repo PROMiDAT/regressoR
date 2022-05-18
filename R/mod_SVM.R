@@ -17,28 +17,13 @@ mod_SVM_ui <- function(id){
                                                                              names = c("si", "no"))),
                                                 column(width=5, selectInput(inputId = ns("kernel.svm"), label = labelInput("selkernel"), selected = "radial",
                                                                             choices =  c("linear", "polynomial", "radial", "sigmoid")))), ns = ns))
+
   
-  svm.code.config <- list(h3(labelInput("codigo")), hr(style = "margin-top: 0px;"),
-                          codigo.monokai(ns("fieldCodeSvm"), height = "7vh"))
-  
-  
-  svm.code <- list(h3(labelInput("codigo")), hr(style = "margin-top: 0px;"),
-                   conditionalPanel("input.BoxSvm == 'tabSvmDisp'",
-                                    codigo.monokai(ns("fieldCodeSvmDisp"), height = "7vh"), ns = ns),
-                   conditionalPanel("input.BoxSvm == 'tabSvmPred'",
-                                    codigo.monokai(ns("fieldCodeSvmPred"), height = "7vh"), ns = ns),
-                   conditionalPanel("input.BoxSvm == 'tabSvmIndex'",
-                                    codigo.monokai(ns("fieldCodeSvmIG"), height = "7vh"), ns = ns))
+  tabs.options.generate <- tabsOptions(widths = c(100), heights = c(70),
+                                       tabs.content = list(svm.options))
   
   
-  tabs.options.generate <- tabsOptions(widths = c(50,100), heights = c(70,70),
-                                       tabs.content = list(svm.options,svm.code.config))
-  
-  tabs.options.Nogenerate <- tabsOptions(widths = c(100), heights = c(70),
-                                         tabs.content = list(svm.code))
-  
-  tabs.options <- list(conditionalPanel("input.BoxSvm == 'tabSvmModelo'",tabs.options.generate,ns = ns),
-                       conditionalPanel("input.BoxSvm != 'tabSvmModelo'",tabs.options.Nogenerate,ns = ns))
+  tabs.options <- list(conditionalPanel("input.BoxSvm == 'tabSvmModelo'",tabs.options.generate,ns = ns))
   
   generate.svm.panel <- tabPanel(title = labelInput("generatem"), value = "tabSvmModelo",
                                  withLoader(verbatimTextOutput(ns("txtSvm")),type = "html", loader = "loader4"))
@@ -76,7 +61,7 @@ mod_SVM_ui <- function(id){
 mod_SVM_server <- function(input, output, session,updateData, modelos, codedioma){
   ns <- session$ns
   
-  nombreBase <- "modelo.svm."
+  nombreBase   <- "modelo.svm."
   nombreModelo <- "modelo.svm."
   
   return.svm.default.values <- function(){
@@ -87,24 +72,18 @@ mod_SVM_server <- function(input, output, session,updateData, modelos, codedioma
   observeEvent(updateData$datos.aprendizaje,{
     return.svm.default.values()
   })
+
   
-  # When the knn model is generated
-  observeEvent(input$runSvm, {
-    if (validate_data(updateData, idioma = codedioma$idioma)) { # Si se tiene los datos entonces :
-      svm_full()
-    }
-  })
-  
-  # Execute model, prediction and indices
-  svm_full <- function() {
+  #Update model tab
+  output$txtSvm <- renderPrint({
+    input$runSvm
     tryCatch({
-      shinyjs::runjs(code = "generating_model = true")
-      
+      codigo.svm()
       isolate({
         datos.aprendizaje <- updateData$datos.aprendizaje
-        datos.prueba <- updateData$datos.prueba
+        datos.prueba      <- updateData$datos.prueba
         variable.predecir <- updateData$variable.predecir
-        scale <- as.logical(input$switch_scale_svm)
+        scale  <- as.logical(input$switch_scale_svm)
         kernel <- input$kernel.svm
       })
       
@@ -112,35 +91,19 @@ mod_SVM_server <- function(input, output, session,updateData, modelos, codedioma
       
       #Model generate
       modelo.svm <- svm_model(datos.aprendizaje,variable.predecir, scale, kernel)
-      updateAceEditor(session, "fieldCodeSvm", value = codeSvm(variable.predecir,scale, kernel))
-      
+
       #Prediccion
       prediccion.svm <- svm_prediction(modelo.svm, datos.prueba)
-      updateAceEditor(session, "fieldCodeSvmPred", value = codeSvmPred(nombreModelo))
-      
+
       #Indices
       indices.svm <- general_indices(datos.prueba[,variable.predecir], prediccion.svm)
-      updateAceEditor(session, "fieldCodeSvmIG", value = codeSvmIG(variable.predecir))
-      
+
       #isolamos para que no entre en un ciclo en el primer renderPrint
-      isolate(modelos$svm[[nombreModelo]] <- list(modelo = modelo.svm, prediccion = prediccion.svm, indices = indices.svm, 
-                                                  id = kernel))
-    }, error = function(e){
-      isolate(modelos$svm[[nombreModelo]] <- NULL)
-      showNotification(paste0("Error (SVM-00) : ",e), duration = 10, type = "error")
-    },
-    finally = {shinyjs::runjs(code = "generating_model = false")})
-  }
-  
-  
-  #Update model tab
-  output$txtSvm <- renderPrint({
-    tryCatch({
-      if(!is.null(modelos$svm[[nombreModelo]])){
-        modelo.svm <- modelos$svm[[nombreModelo]]$modelo
-        print(modelo.svm)
-      }
-      else{NULL}
+      isolate(modelos$svm[[nombreModelo]] <- list(modelo     = modelo.svm, 
+                                                  prediccion = prediccion.svm, 
+                                                  indices = indices.svm, 
+                                                  id      = kernel))
+      print(modelo.svm)
     }, error = function(e){
       showNotification(paste0("Error (SVM-01) : ",e), duration = 10, type = "error")
       NULL
@@ -182,7 +145,9 @@ mod_SVM_server <- function(input, output, session,updateData, modelos, codedioma
         idioma <- codedioma$idioma
         
         codigo <- disp_models(nombreModelo, paste0(tr("svm", idioma),"-",kernel), variable.predecir)
-        updateAceEditor(session, "fieldCodeSvmDisp", value = codigo)
+        cod    <- paste0("### docdisp\n",codigo, "\n")
+        
+        isolate(codedioma$code <- append(codedioma$code, cod))
         
         titulos <- c(
           tr("predvsreal", idioma),
@@ -221,10 +186,12 @@ mod_SVM_server <- function(input, output, session,updateData, modelos, codedioma
   
   output$indexdfsvm2 <- renderTable({
     tryCatch({
-      if(!is.null(modelos$svm[[nombreModelo]])& !is.null(updateData$summary.var.pred)){
+      if(!is.null(modelos$svm[[nombreModelo]])){
         idioma <- codedioma$idioma
         decimals <- updateData$decimals
-        tabla.varpred.summary(updateData$summary.var.pred, decimals, idioma)
+        tabla.varpred.summary(summary_indices(updateData$datos.prueba[,updateData$variable.predecir]),
+                              decimals, 
+                              idioma)
       }
       else{NULL}
     }
@@ -234,6 +201,34 @@ mod_SVM_server <- function(input, output, session,updateData, modelos, codedioma
     })
   },striped = TRUE, bordered = TRUE, spacing = 'l', 
   width = '100%', align = 'c')
+  
+  # Execute model, prediction and indices
+  codigo.svm <- function() {
+    tryCatch({
+
+      isolate({
+        variable.predecir <- updateData$variable.predecir
+        scale  <- as.logical(input$switch_scale_svm)
+        kernel <- input$kernel.svm
+      })
+      
+      #Model generate
+      codigo <- codeSvm(variable.predecir,scale, kernel)
+      cod    <- paste0("### SVM\n", codigo)
+      
+      #Prediccion
+      codigo <- codeSvmPred(nombreModelo)
+      cod    <- paste0(cod, codigo)
+      #Indices
+      codigo <- codeSvmIG(variable.predecir)
+      cod    <- paste0(cod, codigo)
+      
+      isolate(codedioma$code <- append(codedioma$code, cod))
+      
+    }, error = function(e){
+      showNotification(paste0("Error (SVM-00) : ",e), duration = 10, type = "error")
+    })
+  }
   
 }
 

@@ -15,30 +15,11 @@ mod_regression_trees_ui <- function(id){
                      fluidRow(column(numericInput(ns("minsplit.dt"), labelInput("minsplit"), 20, width = "100%",min = 1), width = 5),
                               column(numericInput(ns("maxdepth.dt"), labelInput("maxdepth"), 15, width = "100%",min = 0, max = 30, step = 1),width = 5)))
   
-  dt.code.config <- list(h3(labelInput("codigo")), hr(style = "margin-top: 0px;"),
-                         codigo.monokai(ns("fieldCodeDt"), height = "7vh"))
   
-  dt.code <- list(h3(labelInput("codigo")), hr(style = "margin-top: 0px;"),
-                  conditionalPanel("input.BoxDt == 'tabDtPlot'",
-                                   codigo.monokai(ns("fieldCodeDtPlot"), height = "7vh"),ns = ns),
-                  conditionalPanel("input.BoxDt == 'tabDtPred'",
-                                   codigo.monokai(ns("fieldCodeDtPred"), height = "7vh"),ns = ns),
-                  conditionalPanel("input.BoxDt == 'tabDtDisp'",
-                                   codigo.monokai(ns("fieldCodeDtDisp"), height = "7vh"),ns = ns),
-                  conditionalPanel("input.BoxDt == 'tabDtIndex'",
-                                   codigo.monokai(ns("fieldCodeDtIG"), height = "7vh"),ns = ns),
-                  conditionalPanel("input.BoxDt == 'tabDtReglas'",
-                                   codigo.monokai(ns("fieldCodeDtRule"), height = "7vh"),ns = ns))
+  tabs.options.generate <- tabsOptions( widths = c(100), heights = c(70),
+                                       tabs.content = list(dt.options))
   
-  
-  tabs.options.generate <- tabsOptions( widths = c(50,100), heights = c(70,70),
-                                       tabs.content = list(dt.options,dt.code.config))
-  
-  tabs.options.Nogenerate <- tabsOptions( widths = c(100), heights = c(70),
-                                         tabs.content = list(dt.code))
-  
-  tabs.options <- list(conditionalPanel("input.BoxDt == 'tabDtModelo'",tabs.options.generate,ns = ns),
-                       conditionalPanel("input.BoxDt != 'tabDtModelo'",tabs.options.Nogenerate,ns = ns))
+  tabs.options <- list(conditionalPanel("input.BoxDt == 'tabDtModelo'",tabs.options.generate,ns = ns))
   
   generate.dt.panel <- tabPanel(title = labelInput("generatem"), value = "tabDtModelo",
                                 withLoader(verbatimTextOutput(ns("txtDt")),type = "html", loader = "loader4"))

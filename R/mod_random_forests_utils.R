@@ -95,13 +95,13 @@ importance_plot_rf <- function(model.rf, titles = c("Importancia de Variables Se
 
 #------------------------------------CODE---------------------------------------
 codeRf <- function(variable.predecir, ntree, mtry){
-  return(paste0("rf_model(data, '",variable.predecir,"', ntree = ",ntree, ", mtry = ", mtry, ")"))
+  return(paste0("rf_model(data, '",variable.predecir,"', ntree = ",ntree, ", mtry = ", mtry, ")\n"))
 }
 
 codeRfPred <- function(nombreModelo = "rf.model"){
-  return(paste0("rf_prediction(model = ", nombreModelo, ", test.data)"))
+  return(paste0("rf_prediction(model = ", nombreModelo, ", test.data)\n"))
 }
 
 codeRfIG <- function(variable.predecir){
-  return(paste0("general_indices(test.data[,'",variable.predecir,"'], prediccion.rf)"))
+  return(paste0("general_indices(test.data[,'",variable.predecir,"'], prediccion.rf)\n"))
 }

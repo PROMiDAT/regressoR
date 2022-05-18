@@ -20,36 +20,11 @@ mod_dimension_reduction_ui <- function(id){
                                column(width = 5, radioSwitch(id = ns("permitir_ncomp"), label = "",
                                                              names = c("manual", "automatico"), val.def = FALSE))))
   
-  
-  rd.code.config <- list(h3(labelInput("codigo")), hr(style = "margin-top: 0px;"),
-                         codigo.monokai(ns("fieldCodeRd"), height = "8vh"))
-  
-  
-  rd.code   <- list(fluidRow(column(width = 9,h3(labelInput("codigo")))),
-                    hr(style = "margin-top: 0px;"),
-                    conditionalPanel("input.BoxRd == 'tabRdRMSE'",
-                                     codigo.monokai(ns("fieldCodeRdRMSE"), height = "7vh"), ns = ns),
-                    conditionalPanel("input.BoxRd == 'tabRdPlotPred'",
-                                     codigo.monokai(ns("fieldCodeRdPlotPred"), height = "7vh"), ns = ns),
-                    conditionalPanel("input.BoxRd == 'tabRdPlotVarPred'",
-                                     codigo.monokai(ns("fieldCodeRdPlotVarPred"), height = "7vh"), ns = ns),
-                    conditionalPanel("input.BoxRd == 'tabRdPred'",
-                                     codigo.monokai(ns("fieldCodeRdPred"), height = "7vh"), ns = ns),
-                    conditionalPanel("input.BoxRd == 'tabRdDisp'",
-                                     codigo.monokai(ns("fieldCodeRdDisp"), height = "7vh"), ns = ns),
-                    conditionalPanel("input.BoxRd == 'tabRdIndex'",
-                                     codigo.monokai(ns("fieldCodeRdIG"), height = "7vh"), ns = ns))
+  tabs.options.generate <- tabsOptions(widths = c(100), heights = c(80),
+                                       tabs.content = list(rd.options))
   
   
-  
-  tabs.options.generate <- tabsOptions(widths = c(50,100), heights = c(80,70),
-                                       tabs.content = list(rd.options,rd.code.config))
-  
-  tabs.options.Nogenerate <- tabsOptions(widths = c(100), heights = c(70),
-                                         tabs.content = list(rd.code))
-  
-  tabs.options <- list(conditionalPanel("input.BoxRd == 'tabRdModelo'",tabs.options.generate,ns = ns),
-                       conditionalPanel("input.BoxRd != 'tabRdModelo'",tabs.options.Nogenerate,ns = ns))
+  tabs.options <- list(conditionalPanel("input.BoxRd == 'tabRdModelo'",tabs.options.generate,ns = ns))
   
   
   generate.rd.panel <- tabPanel(title = labelInput("generatem"),value = "tabRdModelo",
@@ -120,11 +95,6 @@ mod_dimension_reduction_server <- function(input, output, session,updateData, mo
     return.rd.default.values()
   })
   
-  observeEvent(input$runRd, {
-    if (validate_data(updateData, idioma = codedioma$idioma)) { # Si se tiene los datos entonces :
-      rd_full()
-    }
-  })
   
   
   # Habilitada o deshabilitada el número de componenetes 
@@ -137,16 +107,16 @@ mod_dimension_reduction_server <- function(input, output, session,updateData, mo
   })
   
   
-  # Execute model, prediction and indices
-  rd_full <- function(){
+  #Update model tab
+  output$txtRd <- renderPrint({
+    input$runRd
     tryCatch({
-      shinyjs::runjs(code = "generating_model = true")
-      
+      codigo.rd()
       isolate({
         datos.aprendizaje <- updateData$datos.aprendizaje
-        datos.prueba <- updateData$datos.prueba
+        datos.prueba      <- updateData$datos.prueba
         variable.predecir <- updateData$variable.predecir
-        scale <- as.logical(input$switch_scale_rd)
+        scale   <- as.logical(input$switch_scale_rd)
         modo.rd <- input$modo.rd
         
         ncomp <<- NULL
@@ -165,36 +135,19 @@ mod_dimension_reduction_server <- function(input, output, session,updateData, mo
         ncomp <<- modelo.rd$optimal.n.comp
         updateNumericInput(session,"ncomp.rd", value = ncomp)
       }
-      updateAceEditor(session, "fieldCodeRd", value = codeRd(variable.predecir,modo.rd, scale))
-      
+
       #Prediccion
       prediccion.rd <- rd_prediction(modelo.rd, datos.prueba, ncomp)
-      updateAceEditor(session, "fieldCodeRdPred", value = codeRdPred(nombreModelo, ncomp))
-      
+
       #Indices
       indices.rd <- general_indices(datos.prueba[,variable.predecir], prediccion.rd)
-      updateAceEditor(session, "fieldCodeRdIG", value = codeRdIG(variable.predecir))
-      
+
       #isolamos para que no entre en un ciclo en el primer renderPrint
       isolate(modelos$rd[[nombreModelo]] <- list(modelo = modelo.rd, prediccion = prediccion.rd, indices = indices.rd, 
                                                  id = rd_type(modo.rd)))
+      print(modelo.rd)
     }, error = function(e){
       isolate(modelos$rd[[nombreModelo]] <- NULL)
-      showNotification(paste0("Error (RD-00) : ",e), duration = 10, type = "error")
-    },
-    finally = {shinyjs::runjs(code = "generating_model = false")})
-  }
-  
-  
-  #Update model tab
-  output$txtRd <- renderPrint({
-    tryCatch({
-      if(!is.null(modelos$rd[[nombreModelo]])){
-        modelo.rd <- modelos$rd[[nombreModelo]]$modelo
-        print(summary(modelo.rd))
-      }
-      else{NULL}
-    }, error = function(e){
       showNotification(paste0("Error (RD-01) : ",e), duration = 10, type = "error")
       NULL
     })
@@ -209,7 +162,9 @@ mod_dimension_reduction_server <- function(input, output, session,updateData, mo
         
         # Actualizar el código en el AceEditor
         codigo <- paste0("plot_RMSE(",nombreModelo, ", ncomp = ", ncomp ,")")
-        updateAceEditor(session, "fieldCodeRdRMSE", value = codigo)
+        cod    <- paste0("### Rmse\n",codigo, "\n")
+        
+        isolate(codedioma$code <- append(codedioma$code, cod))
         
         titulos <- c(
           tr("RMSEComp", idioma),
@@ -237,7 +192,9 @@ mod_dimension_reduction_server <- function(input, output, session,updateData, mo
         
         # Se actualiza el codigo
         codigo <- paste0("plot_pred_rd(",nombreModelo, ", ncomp = ", ncomp ,")")
-        updateAceEditor(session, "fieldCodeRdPlotPred", value = codigo)
+        cod    <- paste0("### RdPred\n",codigo, "\n")
+        
+        isolate(codedioma$code <- append(codedioma$code, cod))
         
         titulos <- c(
           tr("RdPred", idioma),
@@ -264,7 +221,9 @@ mod_dimension_reduction_server <- function(input, output, session,updateData, mo
         
         # Se actualiza el codigo del plot
         codigo <- paste0("plot_var_pred_rd(",nombreModelo, ", ncomp = ", ncomp ,")")
-        updateAceEditor(session, "fieldCodeRdPlotVarPred", value = codigo)
+        cod    <- paste0("### RdVarPred\n",codigo, "\n")
+        
+        isolate(codedioma$code <- append(codedioma$code, cod))
         
         titulos <- c(
           tr("RdVarPred", idioma),
@@ -319,7 +278,9 @@ mod_dimension_reduction_server <- function(input, output, session,updateData, mo
         
         model.name <- paste0(tr("rd", idioma), "-", rd_type(modo.rd))
         codigo <- disp_models(nombreModelo, model.name, variable.predecir)
-        updateAceEditor(session, "fieldCodeRdDisp", value = codigo)
+        cod    <- paste0("### docdisp\n",codigo, "\n")
+        
+        isolate(codedioma$code <- append(codedioma$code, cod))
         
         titulos <- c(
           tr("predvsreal", idioma),
@@ -358,10 +319,12 @@ mod_dimension_reduction_server <- function(input, output, session,updateData, mo
   
   output$indexdfrd2 <- renderTable({
     tryCatch({
-      if(!is.null(modelos$rd[[nombreModelo]])& !is.null(updateData$summary.var.pred)){
+      if(!is.null(modelos$rd[[nombreModelo]])){
         idioma <- codedioma$idioma
         decimals <- updateData$decimals
-        tabla.varpred.summary(updateData$summary.var.pred, decimals, idioma)
+        tabla.varpred.summary(summary_indices(updateData$datos.prueba[,updateData$variable.predecir]),
+                              decimals, 
+                              idioma)
       }
       else{NULL}
     }
@@ -371,6 +334,36 @@ mod_dimension_reduction_server <- function(input, output, session,updateData, mo
     })
   },striped = TRUE, bordered = TRUE, spacing = 'l', 
   width = '100%', align = 'c')
+  
+  
+  # Execute model, prediction and indices
+  codigo.rd <- function(){
+    
+    tryCatch({
+      
+      isolate({
+        variable.predecir <- updateData$variable.predecir
+        scale   <- as.logical(input$switch_scale_rd)
+        modo.rd <- input$modo.rd
+        ncomp   <- input$ncomp.rd
+      })
+      #Model generate
+      codigo <- codeRd(variable.predecir,modo.rd, scale)
+      cod    <- paste0("### RD\n", codigo)
+      
+      #Prediccion
+      codigo <- codeRdPred(nombreModelo, ncomp)
+      cod    <- paste0(cod, codigo)
+      #Indices
+      codigo <- codeRdIG(variable.predecir)
+      cod    <- paste0(cod, codigo)
+      
+      isolate(codedioma$code <- append(codedioma$code, cod))
+      
+    }, error = function(e){
+      showNotification(paste0("Error (RD-00) : ",e), duration = 10, type = "error")
+    })
+  }
   
 }
 

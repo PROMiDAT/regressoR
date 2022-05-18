@@ -19,26 +19,12 @@ mod_KNN_ui <- function(id){
                                                        names = c("si", "no")), width=5),
                                column(width=5, numericInput(ns("distance.knn"), labelInput("distknn"), min = 1,step = 1, value = 2))) )
   
-  knn.code.config <- list(h3(labelInput("codigo")), hr(style = "margin-top: 0px;"),
-                          codigo.monokai(ns("fieldCodeKnn"), height = "7vh"))
   
-  knn.code <- list(h3(labelInput("codigo")), hr(style = "margin-top: 0px;"),
-                   conditionalPanel("input.BoxKnn == 'tabKknPred'",
-                                    codigo.monokai(ns("fieldCodeKnnPred"), height = "7vh"),ns = ns),
-                   conditionalPanel("input.BoxKnn == 'tabKknDisp'",
-                                    codigo.monokai(ns("fieldCodeKnnDisp"), height = "7vh"),ns = ns),
-                   conditionalPanel("input.BoxKnn == 'tabKknIndex'",
-                                    codigo.monokai(ns("fieldCodeKnnIG"), height = "7vh"),ns = ns))
+  tabs.options.generate <- tabsOptions(widths = c(100), heights = c(70),
+                                       tabs.content = list(knn.options))
   
   
-  tabs.options.generate <- tabsOptions(widths = c(50,100), heights = c(90,70),
-                                       tabs.content = list(knn.options,knn.code.config))
-  
-  tabs.options.Nogenerate <- tabsOptions(widths = c(100), heights = c(70),
-                                         tabs.content = list(knn.code))
-  
-  tabs.options <- list(conditionalPanel("input.BoxKnn == 'tabKknModelo'",tabs.options.generate,ns = ns),
-                       conditionalPanel("input.BoxKnn != 'tabKknModelo'",tabs.options.Nogenerate,ns = ns))
+  tabs.options <- list(conditionalPanel("input.BoxKnn == 'tabKknModelo'",tabs.options.generate,ns = ns))
   
   generate.knn.panel <- tabPanel(title = labelInput("generatem"), value = "tabKknModelo",
                                  withLoader(verbatimTextOutput(ns("txtknn")),type = "html", loader = "loader4"))
@@ -99,19 +85,11 @@ mod_KNN_server <- function(input, output, session,updateData, modelos, codedioma
   })
   
   
-  # When the knn model is generated
-  observeEvent(input$runKnn, {
-    if (validate_data(updateData, idioma = codedioma$idioma)) { # Si se tiene los datos entonces :
-      knn_full()
-    }
-  })
-  
-  
-  # Execute model, prediction and indices
-  knn_full <- function() {
+  #Update model tab
+  output$txtknn <- renderPrint({
+    input$runKnn
     tryCatch({
-      shinyjs::runjs(code = "generating_model = true")
-      
+      codigo.knn()
       isolate({
         datos.aprendizaje <- updateData$datos.aprendizaje
         datos.prueba <- updateData$datos.prueba
@@ -133,34 +111,17 @@ mod_KNN_server <- function(input, output, session,updateData, modelos, codedioma
       
       #Model generate
       modelo.knn <- kkn_model(datos.aprendizaje,variable.predecir, scale, k, kernel, distance)
-      updateAceEditor(session, "fieldCodeKnn", value = codeKnn(variable.predecir,scale, k, kernel, distance))
-      
+
       #Prediccion
       prediccion.knn <- kkn_prediction(modelo.knn, datos.prueba)
-      updateAceEditor(session, "fieldCodeKnnPred", value = codeKnnPred(nombreModelo))
-      
+
       #Indices
       indices.knn <- general_indices(datos.prueba[,variable.predecir], prediccion.knn)
-      updateAceEditor(session, "fieldCodeKnnIG", value = codeKnnIG(variable.predecir))
-      
+
       #isolamos para que no entre en un ciclo en el primer renderPrint
       isolate(modelos$knn[[nombreModelo]] <- list(modelo = modelo.knn, prediccion = prediccion.knn, indices = indices.knn,
                                                   id = kernel))
-    }, error = function(e){
-      isolate(modelos$knn[[nombreModelo]] <- NULL)
-      showNotification(paste0("Error (KNN-00) : ",e), duration = 10, type = "error")
-    },
-    finally = {shinyjs::runjs(code = "generating_model = false")})
-  }
-  
-  #Update model tab
-  output$txtknn <- renderPrint({
-    tryCatch({
-      if(!is.null(modelos$knn[[nombreModelo]])){
-        modelo.knn <- modelos$knn[[nombreModelo]]$modelo
-        print(modelo.knn)
-      }
-      else{NULL}
+      print(modelo.knn)
     }, error = function(e){
       showNotification(paste0("Error (KNN-01) : ",e), duration = 10, type = "error")
       NULL
@@ -200,7 +161,9 @@ mod_KNN_server <- function(input, output, session,updateData, modelos, codedioma
         idioma <- codedioma$idioma
         
         codigo <- disp_models(nombreModelo, paste0(tr("knn", idioma),"-",kernel), variable.predecir)
-        updateAceEditor(session, "fieldCodeKnnDisp", value = codigo)
+        cod    <- paste0("### docdisp\n",codigo, "\n")
+        
+        isolate(codedioma$code <- append(codedioma$code, cod))
         
         titulos <- c(
           tr("predvsreal", idioma),
@@ -240,10 +203,12 @@ mod_KNN_server <- function(input, output, session,updateData, modelos, codedioma
   
   output$indexdfknn2 <- renderTable({
     tryCatch({
-      if(!is.null(modelos$knn[[nombreModelo]])& !is.null(updateData$summary.var.pred)){
+      if(!is.null(modelos$knn[[nombreModelo]])){
         idioma <- codedioma$idioma
         decimals <- updateData$decimals
-        tabla.varpred.summary(updateData$summary.var.pred, decimals, idioma)
+        tabla.varpred.summary(summary_indices(updateData$datos.prueba[,updateData$variable.predecir]),
+                              decimals, 
+                              idioma)
       }
       else{NULL}
     }
@@ -253,6 +218,33 @@ mod_KNN_server <- function(input, output, session,updateData, modelos, codedioma
     })
   },striped = TRUE, bordered = TRUE, spacing = 'l', 
   width = '100%',align = 'c')
+  
+  # Execute model, prediction and indices
+  codigo.knn <- function() {
+    tryCatch({
+      
+      isolate({
+        variable.predecir <- updateData$variable.predecir
+        scale  <- as.logical(input$switch_scale_knn)
+        kernel <- input$kernel.knn
+        k      <- input$k.knn
+        distance <- input$distance.knn
+      })
+      #Model generate
+      codigo <- codeKnn(variable.predecir,scale, k, kernel, distance)
+      cod    <- paste0("### KNN\n", codigo)
+      #Prediccion
+      codigo <- codeKnnPred(nombreModelo)
+      cod    <- paste0(cod, codigo)
+      #Indices
+      codigo <- codeKnnIG(variable.predecir)
+      cod    <- paste0(cod, codigo)
+      isolate(codedioma$code <- append(codedioma$code, cod))
+      
+    }, error = function(e){
+      showNotification(paste0("Error (KNN-00) : ",e), duration = 10, type = "error")
+    })
+  }
   
 }
 
