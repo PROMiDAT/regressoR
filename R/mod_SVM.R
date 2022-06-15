@@ -87,13 +87,15 @@ mod_SVM_server <- function(input, output, session,updateData, modelos, codedioma
         kernel <- input$kernel.svm
       })
       
+      var    <- paste0(variable.predecir, "~.")
+      
       nombreModelo <<- paste0(nombreBase, kernel)
       
       #Model generate
-      modelo.svm <- svm_model(datos.aprendizaje,variable.predecir, scale, kernel)
+      modelo.svm <- traineR::train.svm(as.formula(var), data = datos.aprendizaje, scale = as.logical(scale), kernel = kernel)
 
       #Prediccion
-      prediccion.svm <- svm_prediction(modelo.svm, datos.prueba)
+      prediccion.svm <- predict(modelo.svm, datos.prueba)$prediction
 
       #Indices
       indices.svm <- general_indices(datos.prueba[,variable.predecir], prediccion.svm)

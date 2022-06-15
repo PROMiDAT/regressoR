@@ -1,48 +1,26 @@
-# SVM PAGE ----------------------------------------------------------------------------------------------------------------
-
-#' svm_model
-#' 
-#' @description generates a support vector machines model.
-#'
-#' @param data dataframe
-#' @param variable.pred the name of the variable to be predicted.
-#' @param scale the scale parameter of the model.
-#' @param kernel string. The kernel parameter of the model.
-#'
-#' @seealso \code{\link[e1071]{svm}}
-#'
-#' @export
-#' 
-svm_model <- function(data, variable.pred, scale = TRUE, kernel = "linear"){
-  if(!is.null(variable.pred) && !is.null(data)){
-    form       <- formula(paste0(variable.pred,"~."))
-    modelo.svm <- svm(form, data, scale = scale, kernel = kernel)
-    #Cambiamos la forma en que va aparecer el call
-    modelo.svm$call$formula <- paste0(variable.pred,"~.")
-    modelo.svm$call$kernel  <- kernel
-    modelo.svm$call$scale   <- scale
-    return(modelo.svm)
-  }
-  return(NULL)
-}
-
-#' svm_prediction
-#' 
-#' @description generates the prediction of the support vector machine model.
-#' 
-#' @param model a support vector machine model(svm).
-#' @param test.data dataframe.
-#'
-#' @export
-#' 
-svm_prediction <- function(model, test.data){
-  if(!is.null(test.data) && !is.null(model)){
-    return(predict(model,test.data))
-  }
-  return(NULL)
-}
-
-
+# # SVM PAGE ----------------------------------------------------------------------------------------------------------------
+# 
+# svm_model <- function(data, variable.pred, scale = TRUE, kernel = "linear"){
+#   if(!is.null(variable.pred) && !is.null(data)){
+#     form       <- formula(paste0(variable.pred,"~."))
+#     modelo.svm <- svm(form, data, scale = scale, kernel = kernel)
+#     #Cambiamos la forma en que va aparecer el call
+#     modelo.svm$call$formula <- paste0(variable.pred,"~.")
+#     modelo.svm$call$kernel  <- kernel
+#     modelo.svm$call$scale   <- scale
+#     return(modelo.svm)
+#   }
+#   return(NULL)
+# }
+# 
+# svm_prediction <- function(model, test.data){
+#   if(!is.null(test.data) && !is.null(model)){
+#     return(predict(model,test.data))
+#   }
+#   return(NULL)
+# }
+# 
+# 
 
 #------------------------------------CODE---------------------------------------
 codeSvm <- function(variable.predecir, scale, kernel){

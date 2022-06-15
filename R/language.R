@@ -25,7 +25,7 @@ cambiar.labels <- function(){
     "automatico","log_landa","shrinkage","resumenVarPre", "R2", "distknn",
     "ncomp", "rd", "RdPred", "RdVarPred", "errRDnCom", "RMSE","eliminar", "imputar",
     "selcolbar","selcolline","selcolpoint","selcolline","tasim","pvalue","asimetria","sigue",
-    "atipicos")
+    "atipicos", 'cargarComp')
 }
 
 
@@ -87,12 +87,11 @@ dropNulls <- function (x) {
 #     message = list(ids = labelid, values = sentvalue))
 # }
 
-
 # 
-# crear.traslation <- function() {
-#   library(plyr)
-#   archivo <- read.table("diccionario.csv", header = TRUE, sep = ";", as.is = TRUE)
-#   translation <- dlply(archivo , .(key), function(s) key = as.list(s))
 # 
-#   save(translation, file = "translation.bin")
-# }
+# crear.traslation <- function() { 
+#   library(plyr) 
+#   archivo <-read.table("diccionario.csv", header = TRUE, sep = ";", as.is = TRUE)
+# translation <- dlply(archivo , .(key), function(s) key = as.list(s))
+# 
+# save(translation, file = "translation.bin") }

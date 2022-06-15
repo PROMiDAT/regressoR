@@ -13,6 +13,7 @@ variable;Variable;Variable
 poderpred;Poder Predictivo;Predictive Power
 aprendizaje;Aprendizaje Supervisado;Supervised Learning
 comparacion;Comparación de Modelos;Model Comparison
+cargarComp;Cargar Tabla Completa;Load Full Data
 predicnuevos;Predicción Individuos Nuevos;Predict New Cases
 pred;Predicción;Prediction
 eliminar;Eliminar;Delete

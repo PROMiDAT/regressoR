@@ -17,6 +17,8 @@ app_server <- function( input, output, session ) {
   
   
   # REACTIVE VALUES -------------------------------------------------------------------------------------------------------
+  eval(parse(text = "library('traineR')"))
+  
   #updateData always has the same values of the global variables(datos, datos.prueba, datos.aprendizaje).
   updateData <- reactiveValues(originales   = NULL, datos = NULL, 
                                datos.prueba = NULL, datos.aprendizaje = NULL, 
@@ -29,9 +31,17 @@ app_server <- function( input, output, session ) {
                                 rf  = NULL, boost = NULL, knn = NULL, 
                                 svm = NULL, rd    = NULL, nn  = NULL)
   
-  new.data <- reactiveValues(originales.train = NULL, datos.train = NULL, variable.predecir = NULL,
-                             nuevos = NULL, modelo = NULL, prediccion = NULL)
+  newCases   <-     rv(originales        = NULL, 
+                       datos.prueba      = NULL, 
+                       datos.aprendizaje = NULL,
+                       m.seleccionado    = NULL,
+                       modelo            = NULL,
+                       prediccion        = NULL,
+                       variable.predecir = NULL)
   
+  updateData2 <- reactiveValues(originales   = NULL, datos = NULL, 
+                               datos.prueba  = NULL, datos.aprendizaje = NULL, 
+                               variable.predecir = NULL, decimals = 2)
   
   
   # Enable/disable on load data
@@ -74,14 +84,17 @@ app_server <- function( input, output, session ) {
     if(is.numeric(n)){
       if(n >= 0 & n <= 20){
         updateData$decimals <- n
+        updateData2$decimals <- n
       }
       else{
         updateNumericInput(session,inputId = "decimals_confg",value = 2)
         updateData$decimals <- 2
+        updateData2$decimals <- 2
       }
     }
     else{
       updateData$decimals <- 2
+      updateData2$decimals <- 2
     }
   })
   
@@ -96,7 +109,7 @@ app_server <- function( input, output, session ) {
       'docnormal', 'docdisp', 'docdistnum', 'docdistcat', 'doccor',
       'docrename', 'doctrans', 'doceliminar', 'distpred', 'reglin', 'regpen', 'pares',
       'gcoeff', 'posibLanda', 'garbol', 'DT', 'RF', 'reglas', 'BOOST', 'varImp', 'KNN', 
-      'SVM', 'RD', 'RdVarPred', 'RdPred', 'Rmse')
+      'SVM', 'RD', 'RdVarPred', 'RdPred', 'Rmse', 'NN', 'redPlot')
     
     for (k in keys) {
       codigo <- gsub(k, tr(k, idioma = lg), codigo, fixed = T)
@@ -131,6 +144,7 @@ app_server <- function( input, output, session ) {
   ###################################  Modules  ###############################
   #Carga de Datos
   readeR::mod_carga_datos_server("carga_datos_ui_1", updateData, modelos, codedioma, "regressoR")
+  readeR::mod_carga_datos_server("carga_datos_ui_2", updateData2, NULL, codedioma, "discoveR")
   
   #Estadísticas Básicas
   readeR::mod_r_numerico_server("r_numerico_ui_1",         updateData, codedioma)
@@ -149,14 +163,14 @@ app_server <- function( input, output, session ) {
   callModule(mod_KNN_server,                  "KNN_ui_1",                  updateData, modelos, codedioma)
   callModule(mod_SVM_server,                  "SVM_ui_1",                  updateData, modelos, codedioma)
   callModule(mod_dimension_reduction_server,  "dimension_reduction_ui_1",  updateData, modelos, codedioma)
-  # callModule(mod_neural_networks_server,      "neural_networks_ui_1",      updateData, modelos, codedioma)
-  # 
-  # # Comparaación de Individuos
-  # callModule(mod_model_comparison_server,     "model_comparison_ui_1",     updateData, modelos, codedioma)
-  # 
-  # # Predicción Ind. Nuevos
-  # callModule(mod_new_data_predictions_server, "new_data_predictions_ui_1", updateData, new.data, codedioma)
-  # 
-  # # About
-  # callModule(mod_information_page_server,     "information_page_ui_1", codedioma)
+  callModule(mod_neural_networks_server,      "neural_networks_ui_1",      updateData, modelos, codedioma)
+
+  # Comparaación de Individuos
+  callModule(mod_model_comparison_server,     "model_comparison_ui_1",     updateData, modelos, codedioma)
+
+  # Predicción Ind. Nuevos
+  callModule(mod_new_data_predictions_server, "new_data_predictions_ui_1", newCases, updateData2, codedioma)
+
+  # About
+  callModule(mod_information_page_server,     "information_page_ui_1", codedioma)
 }

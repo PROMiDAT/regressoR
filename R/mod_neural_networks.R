@@ -22,32 +22,12 @@ mod_neural_networks_ui <- function(id){
                                                                               min = 1, step = 1, value = 2),
                                                                  class = "mini-numeric-select"))))
   
-  nn.code.config <- list(h3(labelInput("codigo")), hr(style = "margin-top: 0px;"),
-                         codigo.monokai(ns("fieldCodeNn"), height = "7vh"))
+  
+  tabs.options.generate <- tabsOptions(widths = c(100), heights = c(80),
+                                       tabs.content = list(nn.options))
   
   
-  nn.code <- list(h3(labelInput("codigo")), hr(style = "margin-top: 0px;"),
-                  conditionalPanel("input.BoxNn == 'tabNnPlot'",
-                                   codigo.monokai(ns("fieldCodeNnPlot"), height = "7vh"),ns = ns),
-                  conditionalPanel("input.BoxNn == 'tabNnPred'",
-                                   codigo.monokai(ns("fieldCodeNnPred"), height = "7vh"),ns = ns),
-                  conditionalPanel("input.BoxNn == 'tabNnDisp'",
-                                   codigo.monokai(ns("fieldCodeNnDisp"), height = "7vh"),ns = ns),
-                  conditionalPanel("input.BoxNn == 'tabNnIndex'",
-                                   codigo.monokai(ns("fieldCodeNnIG"), height = "7vh"),ns = ns))
-  
-  tabs.nn <- tabsOptions(widths = c(75,100), heights = c(95, 95),
-                         tabs.content = list(nn.options, nn.code))
-  
-  
-  tabs.options.generate <- tabsOptions(widths = c(50,100), heights = c(80,70),
-                                       tabs.content = list(nn.options,nn.code.config))
-  
-  tabs.options.Nogenerate <- tabsOptions(widths = c(100), heights = c(70),
-                                         tabs.content = list(nn.code))
-  
-  tabs.options <- list(conditionalPanel("input.BoxNn == 'tabNnModelo'",tabs.options.generate,ns = ns),
-                       conditionalPanel("input.BoxNn != 'tabNnModelo'",tabs.options.Nogenerate,ns = ns))
+  tabs.options <- list(conditionalPanel("input.BoxNn == 'tabNnModelo'",tabs.options.generate,ns = ns))
   
   
   plot.nn <- tabPanel(title = labelInput("redPlot"), value = "tabNnPlot",
@@ -94,9 +74,9 @@ mod_neural_networks_server <- function(input, output, session,updateData, modelo
   
   
   return.nn.default.values <- function(){
-    updateSliderInput(session, "cant.capas.nn", value = 2)
-    updateNumericInput(session, "threshold.nn", value = 0.1)
-    updateNumericInput(session, "stepmax.nn", value = 5000)
+    updateSliderInput(session,  "cant.capas.nn", value = 2)
+    updateNumericInput(session, "threshold.nn",  value = 0.1)
+    updateNumericInput(session, "stepmax.nn",    value = 5000)
     updateLayers()
   }
   
@@ -114,7 +94,7 @@ mod_neural_networks_server <- function(input, output, session,updateData, modelo
   updateLayers <- function(){
     isolate({
       datos.aprendizaje <- updateData$datos.aprendizaje
-      cant.capas <- input$cant.capas.nn
+      cant.capas        <- input$cant.capas.nn
     })
     if(!is.null(datos.aprendizaje) && !is.null(input$cant.capas.nn)){
       for (i in 1:10) {
@@ -129,75 +109,52 @@ mod_neural_networks_server <- function(input, output, session,updateData, modelo
     }
   }
   
-  # When the nn model is generated
-  observeEvent(input$runNn, {
-    if (validate_data(updateData, idioma = codedioma$idioma)) { # Si se tiene los datos entonces :
-      nn_full()
-    }
-  })
-  
-  # Execute model, prediction and indices
-  nn_full <- function() {
-    
-    tryCatch({
-      shinyjs::runjs(code = "generating_model = true")
-      
-      isolate({
-        datos.aprendizaje <- updateData$datos.aprendizaje
-        datos.prueba <- updateData$datos.prueba
-        variable.predecir <- updateData$variable.predecir
-        threshold <- input$threshold.nn
-        stepmax <- input$stepmax.nn
-        cant.capas <- input$cant.capas.nn
-      })
-      
-      threshold <- ifelse(threshold == 0, 0.01, threshold)
-      stepmax <- ifelse(stepmax < 100, 100, stepmax)
-      hidden <- c(input$nn.cap.1,input$nn.cap.2,input$nn.cap.3,input$nn.cap.4,
-                  input$nn.cap.5,input$nn.cap.6,input$nn.cap.7,input$nn.cap.8,
-                  input$nn.cap.9,input$nn.cap.10)
-      hidden <- hidden[1:cant.capas]
-      
-      #Model generate
-      modelo.nn <- nn_model(datos.aprendizaje,variable.predecir, hidden, threshold, stepmax)
-      updateAceEditor(session, "fieldCodeNn", value = codeNn(variable.predecir, hidden, threshold, stepmax))
-      
-      #Prediccion
-      prediccion.nn <- nn_prediction(modelo.nn, datos.prueba)
-      updateAceEditor(session, "fieldCodeNnPred", value = codeNnPred(nombreModelo))
-      
-      #Indices
-      indices.nn <- general_indices(datos.prueba[,variable.predecir], prediccion.nn)
-      updateAceEditor(session, "fieldCodeNnIG", value = codeNnIG(variable.predecir))
-      
-      #isolamos para que no entre en un ciclo en el primer renderPrint
-      isolate(modelos$nn[[nombreModelo]] <- list(modelo = modelo.nn, prediccion = prediccion.nn, indices = indices.nn))
-      
-    }, error = function(e){
-      isolate(modelos$nn[[nombreModelo]] <- NULL)
-      showNotification(paste0("Error (NN-00) : ",e), duration = 10, type = "error")
-      
-    },warning = function(w){
-      isolate(modelos$nn[[nombreModelo]] <- NULL)
-      showNotification(paste0(tr("nnWar")," (NN-00) : ",w), duration = 10, type = "warning")
-    },
-    finally = {
-      shinyjs::runjs(code = "generating_model = false")
-    })
-  }
   
   
   #Update model tab
   output$txtnn <- renderPrint({
+    input$runNn
     tryCatch({
-      if(!is.null(modelos$nn[[nombreModelo]])){
-        modelo.nn <- modelos$nn[[nombreModelo]]$modelo
-        print(modelo.nn)
-      }
-      else{NULL}
+      codigo.nn()
+      isolate({
+        datos.aprendizaje <- updateData$datos.aprendizaje
+        datos.prueba      <- updateData$datos.prueba
+        variable.predecir <- updateData$variable.predecir
+        threshold  <- input$threshold.nn
+        stepmax    <- input$stepmax.nn
+        cant.capas <- input$cant.capas.nn
+      })
+      
+      threshold <- ifelse(threshold == 0, 0.01, threshold)
+      stepmax   <- ifelse(stepmax < 100, 100, stepmax)
+      hidden    <- c(input$nn.cap.1,input$nn.cap.2,input$nn.cap.3,input$nn.cap.4,
+                     input$nn.cap.5,input$nn.cap.6,input$nn.cap.7,input$nn.cap.8,
+                     input$nn.cap.9,input$nn.cap.10)
+      hidden    <- hidden[1:cant.capas]
+      
+      #Model generate
+      modelo.nn     <- nn_model(datos.aprendizaje,variable.predecir, hidden, threshold, stepmax)
+
+      #Prediccion
+      prediccion.nn <- nn_prediction(modelo.nn, datos.prueba)
+
+      #Indices
+      indices.nn    <- general_indices(datos.prueba[,variable.predecir], prediccion.nn)
+
+      #isolamos para que no entre en un ciclo en el primer renderPrint
+      isolate(modelos$nn[[nombreModelo]] <- list(modelo     = modelo.nn, 
+                                                 prediccion = prediccion.nn, 
+                                                 indices    = indices.nn))
+      print(modelo.nn)
+      
     }, error = function(e){
+      isolate(modelos$nn[[nombreModelo]] <- NULL)
       showNotification(paste0("Error (NN-01) : ",e), duration = 10, type = "error")
       NULL
+      
+    },warning = function(w){
+      isolate(modelos$nn[[nombreModelo]] <- NULL)
+      showNotification(paste0(tr("nnWar")," (NN-01) : ",w), duration = 10, type = "warning")
     })
   })
   
@@ -207,16 +164,19 @@ mod_neural_networks_server <- function(input, output, session,updateData, modelo
     tryCatch({
       if(!is.null(modelos$nn[[nombreModelo]])){
         isolate({
-          modelo.nn <- modelos$nn[[nombreModelo]]$modelo
+          modelo.nn  <- modelos$nn[[nombreModelo]]$modelo
           cant.capas <- input$cant.capas.nn
-          hidden <- c(input$nn.cap.1,input$nn.cap.2,input$nn.cap.3,input$nn.cap.4,
-                      input$nn.cap.5,input$nn.cap.6,input$nn.cap.7,input$nn.cap.8,
-                      input$nn.cap.9,input$nn.cap.10)
+          hidden     <- c(input$nn.cap.1,input$nn.cap.2,input$nn.cap.3,input$nn.cap.4,
+                          input$nn.cap.5,input$nn.cap.6,input$nn.cap.7,input$nn.cap.8,
+                          input$nn.cap.9,input$nn.cap.10)
           hidden <- hidden[1:cant.capas]
         })
         
         #Cambia el codigo del grafico del árbol
-        updateAceEditor(session, "fieldCodeNnPlot", value = paste0("nn_plot(", nombreModelo, ")"))
+        codigo <- paste0("nn_plot(", nombreModelo, ")")
+        cod    <- paste0("### redPlot\n",codigo, "\n")
+        
+        isolate(codedioma$code <- append(codedioma$code, cod))
         
         if(cant.capas * sum(hidden) <= 1000 & ncol(modelo.nn$covariate) <= 25){
           nn_plot(modelo.nn)
@@ -241,7 +201,7 @@ mod_neural_networks_server <- function(input, output, session,updateData, modelo
         prediccion.nn <- modelos$nn[[nombreModelo]]$prediccion
         isolate({
           datos.prueba <- updateData$datos.prueba
-          real.val <- datos.prueba[updateData$variable.predecir]
+          real.val     <- datos.prueba[updateData$variable.predecir]
         })
         tb_predic(real.val, prediccion.nn, updateData$decimals, codedioma$idioma)
       }
@@ -260,14 +220,16 @@ mod_neural_networks_server <- function(input, output, session,updateData, modelo
       if(!is.null(modelos$nn[[nombreModelo]])){
         prediccion.nn <- modelos$nn[[nombreModelo]]$prediccion
         isolate({
-          datos.prueba <- updateData$datos.prueba
+          datos.prueba      <- updateData$datos.prueba
           variable.predecir <- updateData$variable.predecir
         })
         
         idioma <- codedioma$idioma
         
         codigo <- disp_models(nombreModelo, tr("nn", idioma), variable.predecir)
-        updateAceEditor(session, "fieldCodeNnDisp", value = codigo)
+        cod    <- paste0("### docdisp\n",codigo, "\n")
+        
+        isolate(codedioma$code <- append(codedioma$code, cod))
         
         titulos <- c(
           tr("predvsreal", idioma),
@@ -290,7 +252,7 @@ mod_neural_networks_server <- function(input, output, session,updateData, modelo
   output$indexdfnn <- renderTable({
     tryCatch({
       if(!is.null(modelos$nn[[nombreModelo]])){
-        idioma <- codedioma$idioma
+        idioma     <- codedioma$idioma
         indices.nn <- modelos$nn[[nombreModelo]]$indices
         tabla.indicesPrecision(indices.nn, updateData$decimals, idioma)
       }
@@ -306,10 +268,12 @@ mod_neural_networks_server <- function(input, output, session,updateData, modelo
   
   output$indexdfnn2 <- renderTable({
     tryCatch({
-      if(!is.null(modelos$nn[[nombreModelo]])& !is.null(updateData$summary.var.pred)){
-        idioma <- codedioma$idioma
+      if(!is.null(modelos$nn[[nombreModelo]])){
+        idioma   <- codedioma$idioma
         decimals <- updateData$decimals
-        tabla.varpred.summary(updateData$summary.var.pred, decimals, idioma)
+        tabla.varpred.summary(summary_indices(updateData$datos.prueba[,updateData$variable.predecir]),
+                              decimals, 
+                              idioma)
       }
       else{NULL}
     }
@@ -319,6 +283,38 @@ mod_neural_networks_server <- function(input, output, session,updateData, modelo
     })
   },striped = TRUE, bordered = TRUE, spacing = 'l', 
   width = '100%', align = 'c')
+  
+  # Execute model, prediction and indices
+  codigo.nn <- function() {
+    
+    tryCatch({
+      
+      isolate({
+        variable.predecir <- updateData$variable.predecir
+        threshold  <- input$threshold.nn
+        stepmax    <- input$stepmax.nn
+        cant.capas <- input$cant.capas.nn
+      })
+      
+      threshold <- ifelse(threshold == 0, 0.01, threshold)
+      stepmax <- ifelse(stepmax < 100, 100, stepmax)
+      hidden <- c(input$nn.cap.1,input$nn.cap.2,input$nn.cap.3,input$nn.cap.4,
+                  input$nn.cap.5,input$nn.cap.6,input$nn.cap.7,input$nn.cap.8,
+                  input$nn.cap.9,input$nn.cap.10)
+      hidden <- hidden[1:cant.capas]
+      #Model generate
+      codigo <- codeNn(variable.predecir, hidden, threshold, stepmax)
+      cod    <- paste0("### NN\n", codigo)
+      #Prediccion
+      codigo <- codeNnPred(nombreModelo)
+      cod    <- paste0(cod, codigo)
+      #Indices
+      codigo <- codeNnIG(variable.predecir)
+      cod    <- paste0(cod, codigo)
+      isolate(codedioma$code <- append(codedioma$code, cod))
+      
+    })
+  }
   
 }
 

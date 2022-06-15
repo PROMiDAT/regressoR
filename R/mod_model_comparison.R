@@ -32,15 +32,15 @@ mod_model_comparison_server <- function(input, output, session, updateData, mode
   output$TablaComp <- DT::renderDataTable({
     tryCatch({
       idioma <- codedioma$idioma
-      df <- data.frame()
+      df     <- data.frame()
       for(modelName in names(modelos)){
         if(!is.null(modelos[[modelName]])){
           for (subModelName in names(modelos[[modelName]])) {
-            modelo <- modelos[[modelName]][[subModelName]]
+            modelo     <- modelos[[modelName]][[subModelName]]
             nombreFila <- paste0(tr(modelName, idioma),
                                  ifelse(is.null(modelo$id),"",paste0("-",modelo$id)))
             df.aux <- data.frame(modelo$indices,row.names = nombreFila)
-            df <- rbind.data.frame(df,df.aux)
+            df     <- rbind.data.frame(df,df.aux)
           }
         }
       }

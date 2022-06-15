@@ -101,13 +101,13 @@ nn_plot <- function(model){
 
 #------------------------------------CODE---------------------------------------
 codeNn <- function(variable.predecir, hidden, threshold, stepmax){
-  return(paste0("nn_model(data, '",variable.predecir,"', hidden = ",as_string_c(hidden,quote = FALSE), ", threshold = ", threshold, ", stepmax = ",stepmax, ")"))
+  return(paste0("nn_model(data, '",variable.predecir,"', hidden = ",as_string_c(hidden,quote = FALSE), ", threshold = ", threshold, ", stepmax = ",stepmax, ")\n"))
 }
 
 codeNnPred <- function(nombreModelo = "nn.model"){
-  return(paste0("nn_prediction(model = ", nombreModelo, ", test.data)"))
+  return(paste0("nn_prediction(model = ", nombreModelo, ", test.data)\n"))
 }
 
 codeNnIG <- function(variable.predecir){
-  return(paste0("general_indices(test.data[,'",variable.predecir,"'], prediccion.nn)"))
+  return(paste0("general_indices(test.data[,'",variable.predecir,"'], prediccion.nn)\n"))
 }

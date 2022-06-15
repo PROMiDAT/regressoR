@@ -92,11 +92,11 @@ mod_KNN_server <- function(input, output, session,updateData, modelos, codedioma
       codigo.knn()
       isolate({
         datos.aprendizaje <- updateData$datos.aprendizaje
-        datos.prueba <- updateData$datos.prueba
+        datos.prueba      <- updateData$datos.prueba
         variable.predecir <- updateData$variable.predecir
-        scale <- as.logical(input$switch_scale_knn)
+        scale  <- as.logical(input$switch_scale_knn)
         kernel <- input$kernel.knn
-        k <- input$k.knn
+        k        <- input$k.knn
         distance <- input$distance.knn
       })
       
@@ -108,18 +108,19 @@ mod_KNN_server <- function(input, output, session,updateData, modelos, codedioma
         k <- tam - 2
         updateNumericInput(session, "k.knn", value = tam - 2)
       }
+      var    <- paste0(variable.predecir, "~.")
       
       #Model generate
-      modelo.knn <- kkn_model(datos.aprendizaje,variable.predecir, scale, k, kernel, distance)
-
+      modelo.knn <- traineR::train.knn(as.formula(var), data = datos.aprendizaje, scale = as.logical(scale), 
+                                      kernel = kernel, kmax = k, distance = distance )
       #Prediccion
-      prediccion.knn <- kkn_prediction(modelo.knn, datos.prueba)
+      prediccion.knn <- predict(modelo.knn, datos.prueba)
 
       #Indices
-      indices.knn <- general_indices(datos.prueba[,variable.predecir], prediccion.knn)
+      indices.knn <- general_indices(datos.prueba[,variable.predecir], prediccion.knn$prediction)
 
       #isolamos para que no entre en un ciclo en el primer renderPrint
-      isolate(modelos$knn[[nombreModelo]] <- list(modelo = modelo.knn, prediccion = prediccion.knn, indices = indices.knn,
+      isolate(modelos$knn[[nombreModelo]] <- list(modelo = modelo.knn, prediccion = prediccion.knn$prediction, indices = indices.knn,
                                                   id = kernel))
       print(modelo.knn)
     }, error = function(e){
