@@ -1,36 +1,20 @@
 # RF PAGE ------------------------------------------------------------------------------------------------------------
 
-#' rf_model
-#' 
-#' @description generates a random forest model.
-#'
-#' @param data dataframe
-#' @param variable.pred the name of the variable to be predicted.
-#' @param ntree the ntree parameter of the model.
-#' @param mtry the mtry parameter of the model.
-#'
-#' @seealso \code{\link[randomForest]{randomForest}}
-#'
-#' @export
-#'
 rf_model <- function(data, variable.pred, ntree = 500, mtry = 1){
   if(!is.null(variable.pred) && !is.null(data)){
     form <- formula(paste0(variable.pred,"~."))
-    modelo.rf <- randomForest(form, data = data, ntree = ntree, mtry = mtry,
+    modelo.rf <- train.randomForest(form, data = data, ntree = ntree, mtry = mtry,
                               importance = TRUE)
     # Guardamos los datos dentro del modelo para utilizar 
     #la función printRandomForest() en Utilities
     modelo.rf$datos <- data
     #Cambiamos la forma en que va aparecer el call
     modelo.rf$call$formula <- form
-    modelo.rf$call$ntree <- ntree
-    modelo.rf$call$mtry <- mtry
+    modelo.rf$call$ntree   <- ntree
+    modelo.rf$call$mtry    <- mtry
     return(modelo.rf)
   }
   return(NULL)
-  # codigo <- paste0(model.var," <- randomForest(`",variable.pred,"`~., data = ",data,",importance = TRUE,",
-  #                  " ntree =",ntree,",mtry =",mtry,")")
-  # return(codigo)
 }
 
 #' rf_prediction
@@ -44,7 +28,7 @@ rf_model <- function(data, variable.pred, ntree = 500, mtry = 1){
 #'
 rf_prediction <- function(model, test.data){
   if(!is.null(test.data) && !is.null(model)){
-    return(predict(model,test.data))
+    return(predict(model,test.data)$prediction)
   }
   return(NULL)
   #return(paste0(pred.var," <- predict(",model.var,", ",data," %>% select(-`",variable.pred,"`))"))
@@ -92,6 +76,32 @@ importance_plot_rf <- function(model.rf, titles = c("Importancia de Variables Se
     e_show_loading()
 }
 
+
+make_rf_pred = function(train, test, variable.pred, ntree = 500, mtry = 1) {
+  if(!is.null(variable.pred) && !is.null(train)){
+    form  <- formula(paste0(variable.pred,"~."))
+    modelo.rf <- train.randomForest(form, data = train, ntree = ntree, mtry = mtry,
+                                    importance = TRUE)
+    prediccion.rf <- rf_prediction(modelo.rf, test)$prediction
+    return(rmse(test[,variable.pred], prediccion.rf))
+  }
+  return(NULL)
+}
+
+rf_ntree_values <- function(model) {
+  ntree  = c(1:model$ntree)
+  rf_rmse = sqrt(model$mse)
+  best_ntree = ntree[which.min(rf_rmse)]
+  # find overfitting, underfitting, and "best"" ntree
+  fit_status = ifelse(ntree < best_ntree, "Over", ifelse(ntree == best_ntree, "Best", "Under"))
+  rf_results = data.frame(
+    ntree,
+    round(rf_rmse, 10),
+    fit_status
+  )
+  colnames(rf_results) = c("ntree", "RMSE", "Fit?")
+  return(rf_results)
+}
 
 #------------------------------------CODE---------------------------------------
 codeRf <- function(variable.predecir, ntree, mtry){

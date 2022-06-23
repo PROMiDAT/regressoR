@@ -42,11 +42,14 @@ mod_KNN_ui <- function(id){
                                       fluidRow(column(width = 12, align="center", tags$h3(labelInput("resumenVarPre")))),
                                       br(),
                                       fluidRow(withLoader(tableOutput(ns('indexdfknn2')),type = "html", loader = "loader4")))
+  rmse.knn.panel <- tabPanel(title = labelInput("RMSE"), value = "tabKknRMSE",
+                             withLoader(echarts4rOutput(ns('plot_knn_rmse'),height = "75vh"),type = "html", loader = "loader4"))
   
   page.knn <- tabItem(tabName = "knn",
                       tabBoxPrmdt(id = ns("BoxKnn"), opciones = tabs.options,
                              generate.knn.panel,
                              prediccion.knn.panel,
+                             rmse.knn.panel,
                              disp.knn.panel,
                              general.index.knn.panel))
   
@@ -148,6 +151,32 @@ mod_KNN_server <- function(input, output, session,updateData, modelos, codedioma
     })
   }, server = F)
   
+  # Update rmse tab
+  output$plot_knn_rmse <- renderEcharts4r({
+    tryCatch({
+      if(!is.null(modelos$knn[[nombreModelo]])){
+        isolate({
+          train <- updateData$datos.aprendizaje
+          test  <- updateData$datos.prueba
+          variable.pred <- updateData$variable.predecir
+          scale  <- as.logical(input$switch_scale_knn)
+          kernel <- input$kernel.knn
+          distance <- input$distance.knn
+        })
+        k_value <- input$k.knn
+        df_plot <- rmse_k_values(train = train, k = c(1:k_value),
+                                 test  = test, variable.pred = variable.pred, 
+                                 scale = scale, kernel = kernel, distance = distance)
+        plot_RMSEK(datos = df_plot , modelo.knn = modelos$knn[[nombreModelo]]$modelo)
+        
+      }
+      else{NULL}
+      
+    }, error = function(e){
+      showNotification(paste0("Error (KNN-03) : ", e), duration = 10, type = "error")
+      NULL
+    })
+  })
   
   # Update Dispersion Tab
   output$plot_knn_disp <- renderEcharts4r({

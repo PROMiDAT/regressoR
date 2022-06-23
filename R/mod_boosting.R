@@ -44,12 +44,15 @@ mod_boosting_ui <- function(id){
                                     fluidRow(column(width = 12, align="center", tags$h3(labelInput("resumenVarPre")))),
                                     br(),
                                     fluidRow(withLoader(tableOutput(ns('indexdfb2')),type = "html", loader = "loader4")))
+  ntree.b.panel <- tabPanel(title = labelInput("evolerror"), value = "tabBRMSE",
+                            withLoader(echarts4rOutput(ns('plot_b_rmse'),height = "75vh"),type = "html", loader = "loader4"))
   
   pagina.boosting <- tabItem(tabName = "boosting",
                              tabBoxPrmdt(id = ns("BoxB"), opciones = tabs.options,
                                     generate.b.panel,
                                     plot.boosting.import,
                                     prediction.b.panel,
+                                    ntree.b.panel,
                                     disp.boosting.panel,
                                     general.index.b.panel))
   
@@ -175,6 +178,20 @@ mod_boosting_server <- function(input, output, session,updateData, modelos, code
   }, server = F)
   
   
+  # Update rmse tab
+  output$plot_b_rmse <- renderEcharts4r({
+    tryCatch({
+      if(!is.null(modelos$boost[[nombreModelo]])){
+        df_plot       <- b_ntree_values(modelos$boost[[nombreModelo]]$modelo)
+        plot_RMSEK(datos = df_plot ,titles = get_title("RF", codedioma$idioma))
+      }
+      else{NULL}
+      
+    }, error = function(e){
+      showNotification(paste0("Error (B-04) : ", e), duration = 10, type = "error")
+      NULL
+    })
+  })
   
   # Update Dispersion Tab
   output$plot_boosting_disp <- renderEcharts4r({

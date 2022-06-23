@@ -123,15 +123,18 @@ mod_neural_networks_server <- function(input, output, session,updateData, modelo
         threshold  <- input$threshold.nn
         stepmax    <- input$stepmax.nn
         cant.capas <- input$cant.capas.nn
+        
+        hidden    <- c(isolate(input$nn.cap.1),isolate(input$nn.cap.2),
+                       isolate(input$nn.cap.3),isolate(input$nn.cap.4),
+                       isolate(input$nn.cap.5),isolate(input$nn.cap.6),
+                       isolate(input$nn.cap.7),isolate(input$nn.cap.8),
+                       isolate(input$nn.cap.9),isolate(input$nn.cap.10))
+        
       })
       
       threshold <- ifelse(threshold == 0, 0.01, threshold)
       stepmax   <- ifelse(stepmax < 100, 100, stepmax)
-      hidden    <- c(input$nn.cap.1,input$nn.cap.2,input$nn.cap.3,input$nn.cap.4,
-                     input$nn.cap.5,input$nn.cap.6,input$nn.cap.7,input$nn.cap.8,
-                     input$nn.cap.9,input$nn.cap.10)
       hidden    <- hidden[1:cant.capas]
-      
       #Model generate
       modelo.nn     <- nn_model(datos.aprendizaje,variable.predecir, hidden, threshold, stepmax)
 
@@ -294,13 +297,14 @@ mod_neural_networks_server <- function(input, output, session,updateData, modelo
         threshold  <- input$threshold.nn
         stepmax    <- input$stepmax.nn
         cant.capas <- input$cant.capas.nn
+        hidden <- c(input$nn.cap.1,input$nn.cap.2,input$nn.cap.3,input$nn.cap.4,
+                    input$nn.cap.5,input$nn.cap.6,input$nn.cap.7,input$nn.cap.8,
+                    input$nn.cap.9,input$nn.cap.10)
       })
       
       threshold <- ifelse(threshold == 0, 0.01, threshold)
       stepmax <- ifelse(stepmax < 100, 100, stepmax)
-      hidden <- c(input$nn.cap.1,input$nn.cap.2,input$nn.cap.3,input$nn.cap.4,
-                  input$nn.cap.5,input$nn.cap.6,input$nn.cap.7,input$nn.cap.8,
-                  input$nn.cap.9,input$nn.cap.10)
+
       hidden <- hidden[1:cant.capas]
       #Model generate
       codigo <- codeNn(variable.predecir, hidden, threshold, stepmax)

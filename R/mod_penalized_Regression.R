@@ -119,30 +119,27 @@ mod_penalized_Regression_server <- function(input, output, session, updateData, 
       
       nombreModelo <<- paste0(nombreBase, rlr_type(alpha))
       
+      
       #Model generate
-      modelo.rlr <- rlr_model(data          = datos.aprendizaje, 
-                              variable.pred = variable.predecir,
-                              alpha         = alpha, 
-                              standardize   = standardize)
-      
+      modelo.rlr <- rlr_model(data = datos.aprendizaje, variable.pred = variable.predecir,
+                               alpha = alpha, standardize = standardize)
+
       if (isolate(as.logical(input$permitir_landa) && !is.na(isolate(input$log_landa)))) {
-        log.landa <<- isolate(input$log_landa)
+        log.landa <- isolate(input$log_landa)
       }
-      else{log.landa <<- NULL}
-      
+      else{
+        log.landa <- NULL
+        }
       # Coefficients
-      coefficients <<- coef_lambda(data          = datos.aprendizaje, 
+      coefficients <- coef_lambda(data          = datos.aprendizaje, 
                                    variable.pred = variable.predecir,
                                    model         = modelo.rlr, 
                                    log.lambda    = log.landa)
-      
       # Prediction
       prediccion.rlr <- rlr_prediction(modelo.rlr, 
                                        datos.prueba, 
                                        variable.predecir,
                                        log.lambda = log.landa)
-      
-      
       #Indices
       indices.rlr <- general_indices(datos.prueba[,variable.predecir], 
                                      prediccion.rlr)

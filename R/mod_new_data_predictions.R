@@ -155,7 +155,7 @@ mod_new_data_predictions_server <- function(input, output, session, newCases, up
     newCases$prediccion        <- NULL
     codigo                     <- ""
     cont                       <- 1
-    
+    sub <- "modelo.nuevos <<- "
     tryCatch({
       var    <- paste0(variable, "~.")
       codigo <- switch (m.seleccionado ,
@@ -168,35 +168,36 @@ mod_new_data_predictions_server <- function(input, output, session, newCases, up
                                                                kernel = kernel, kmax = k.value, distance = distance ))
                           gen.code <- codeKnn(variable, scales, k.value, kernel,distance)
                           
-                          isolate(codedioma$code <- append(codedioma$code, gen.code))
+                          isolate(codedioma$code <- append(codedioma$code, paste0(sub, gen.code)))
                           isolate(modelo)
                         },
                         dt    = {
                           minsplit<-isolate(input$minsplit.dt.pred)
                           maxdepth<-isolate(input$maxdepth.dt.pred)
                           isolate(modelo  <- traineR::train.rpart(as.formula(var), data = train,
-                                                                  control = rpart.control(minsplit = minsplit, maxdepth = maxdepth)))
+                                                                  control = rpart.control(minsplit = minsplit, maxdepth = maxdepth), model = TRUE))
                           
-                          isolate(codedioma$code <- append(codedioma$code, codeDt(variable,
+                          isolate(codedioma$code <- append(codedioma$code, paste0(sub, codeDt(variable,
                                                                                         minsplit = minsplit,
-                                                                                        maxdepth = maxdepth)))
+                                                                                        maxdepth = maxdepth))))
                           isolate(modelo)
                         },
                         rf    = {
                           mtry   <- isolate(input$mtry.rf.pred)
                           ntree  <- isolate(input$ntree.rf.pred)
                           isolate(modelo <- traineR::train.randomForest(as.formula(var), data = train, mtry = mtry, ntree = ntree, importance = TRUE))
-                          
-                          isolate(codedioma$code <- append(codedioma$code, codeRf(variable,
-                                                                                        ntree = ntree,
-                                                                                        mtry  = mtry)))
+                          gen.code <- codeRf(variable,
+                                             ntree = ntree,
+                                             mtry  = mtry)
+                          isolate(codedioma$code <- append(codedioma$code,  paste0(sub, gen.code)))
                           isolate(modelo)
                         },
                         svm   = {
                           scales <- isolate(input$switch.scale.svm.pred)
                           k      <- isolate(input$kernel.svm.pred)
                           isolate(modelo <- traineR::train.svm(as.formula(var), data = train, scale = as.logical(scales), kernel = k))
-                          isolate(codedioma$code <- append(codedioma$code, codeSvm(variable, scales, k)))
+                          gen.code <- codeSvm(variable, scales, k)
+                          isolate(codedioma$code <- append(codedioma$code,  paste0(sub, gen.code)))
                           isolate(modelo)
                         },
                         
@@ -206,7 +207,7 @@ mod_new_data_predictions_server <- function(input, output, session, newCases, up
                             distribution <- isolate(input$tipo_boosting)
                             shrinkage    <- isolate(input$shrinkage_boosting)
                             gen.code     <- codeBoost(variable, n.trees, distribution, shrinkage)
-                            isolate(codedioma$code <- append(codedioma$code, gen.code))
+                            isolate(codedioma$code <- append(codedioma$code,  paste0(sub, gen.code)))
                             isolate(modelo <- boosting_model(train,variable, n.trees, distribution, shrinkage))
                             isolate(modelo)
                             
@@ -235,7 +236,7 @@ mod_new_data_predictions_server <- function(input, output, session, newCases, up
                             hidden    = capas.np))
                           gen.code <- codeNn(variable, capas.np, threshold, stepmax)
                           
-                          isolate(codedioma$code <- append(codedioma$code, gen.code))
+                          isolate(codedioma$code <- append(codedioma$code,  paste0(sub, gen.code)))
                           isolate(modelo)
                         },
                         rl   = {
@@ -249,7 +250,7 @@ mod_new_data_predictions_server <- function(input, output, session, newCases, up
                           isolate(modelo <- rlr_model(data = train, variable.pred = variable,
                                                        alpha = alpha, standardize =  as.logical(scales)))
                           gen.code <- codeRlr(variable, alpha,  as.logical(scales))
-                          isolate(codedioma$code <- append(codedioma$code, gen.code))
+                          isolate(codedioma$code <- append(codedioma$code,  paste0(sub, gen.code)))
                           isolate(modelo)
                         },
                         
@@ -271,6 +272,7 @@ mod_new_data_predictions_server <- function(input, output, session, newCases, up
                             updateNumericInput(session,"ncomp_rd", value = ncomp)
                           }
                           isolate(modelo$ncomp_rd <- ncomp)
+                          isolate(codedioma$code <- append(codedioma$code,  paste0(sub, gen.code)))
                           isolate(modelo)
                         }
       )
@@ -468,12 +470,22 @@ mod_new_data_predictions_server <- function(input, output, session, newCases, up
       )
       tryCatch({
         if(sel == "svm")
-          pred                <- predict(model, test[,-which(colnames(test) == vari)])       
-        else
+          pred                <- predict(model, test[,-which(colnames(test) == vari)])
+        if(sel == "rd")
+          pred                <- rd_prediction(model, test, isolate(input$ncomp_rd))
+        if(sel == "rlr")
+          pred                <- rlr_prediction(model, 
+                                                test, 
+                                                vari)
+        if(sel %not_in%  c("rlr", "svm", "rd") )
           pred                <- predict(model, test)
         
         datos               <- test
-        datos[,vari]        <- pred$prediction
+        if(sel %in%  c("rlr", "rl", "rd", "boost"))
+          datos[,vari]        <- as.numeric(pred)
+        if(sel %not_in%  c("rlr", "rl", "rd", "boost"))
+          datos[,vari]        <- pred$prediction
+        
         newCases$prediccion <- pred
         nombre.columnas <- c("ID", colnames(datos))
         isolate(codedioma$code <- append(codedioma$code, "predic.nuevos <<- predict(modelo.nuevos, datos.prueba.completos, type = 'class')"))

@@ -77,7 +77,6 @@ rd_type <- function(mode.rd = 0){
 }
 
 
-
 #' plot_RMSE
 #' 
 #' @description graph the root mean square error of cross validation according to components used.

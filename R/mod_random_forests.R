@@ -48,11 +48,15 @@ mod_random_forests_ui <- function(id){
   rf.rules.panel <- tabPanel(title = labelInput("reglas"), value = "tabRfRules",
                              withLoader(verbatimTextOutput(ns("rulesRf")),type = "html", loader = "loader4"))
   
+  ntree.rf.panel <- tabPanel(title = labelInput("evolerror"), value = "tabRfRMSE",
+                             withLoader(echarts4rOutput(ns('plot_rf_rmse'),height = "75vh"),type = "html", loader = "loader4"))
+  
   page.rf <- tabItem(tabName = "rf",
                      tabBoxPrmdt(id = ns("BoxRf"), opciones = tabs.options,
                             generate.rf.panel,
                             plot.rf,
                             prediction.rf.panel,
+                            ntree.rf.panel,
                             disp.rf.panel,
                             general.index.rf.panel,
                             rf.rules.panel))
@@ -137,7 +141,7 @@ mod_random_forests_server <- function(input, output, session,updateData, modelos
       if(!is.null(modelos$rf[[nombreModelo]])){
         
         modelo.rf <- modelos$rf[[nombreModelo]]$modelo
-        idioma <- codedioma$idioma
+        idioma    <- codedioma$idioma
         
         # Actualiza el codigo del grafico de rf
         codigo <- "importance_plot_rf(modelo.rf)"
@@ -165,7 +169,7 @@ mod_random_forests_server <- function(input, output, session,updateData, modelos
         prediccion.rf <- modelos$rf[[nombreModelo]]$prediccion
         isolate({
           datos.prueba <- updateData$datos.prueba
-          real.val <- datos.prueba[updateData$variable.predecir]
+          real.val     <- datos.prueba[updateData$variable.predecir]
         })
         tb_predic(real.val, prediccion.rf, updateData$decimals, codedioma$idioma)
       }
@@ -177,6 +181,20 @@ mod_random_forests_server <- function(input, output, session,updateData, modelos
     })
   }, server = F)
   
+  # Update rmse tab
+  output$plot_rf_rmse <- renderEcharts4r({
+    tryCatch({
+      if(!is.null(modelos$rf[[nombreModelo]])){
+        df_plot <- rf_ntree_values(modelos$rf[[nombreModelo]]$modelo)
+        plot_RMSEK(datos = df_plot ,titles = get_title("RF", codedioma$idioma))
+      }
+      else{NULL}
+      
+    }, error = function(e){
+      showNotification(paste0("Error (RF-03) : ", e), duration = 10, type = "error")
+      NULL
+    })
+  })
   
   # Update Dispersion Tab
   output$plot_rf_disp <- renderEcharts4r({

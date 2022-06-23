@@ -4,8 +4,6 @@
 #' DO NOT REMOVE.
 #' @import shiny
 #' @import rlang
-#' @import gbm
-#' @import rpart
 #' @import glmnet
 #' @import shinyAce
 #' @import rpart.plot
@@ -18,9 +16,7 @@
 #' @importFrom shinydashboardPlus dashboardPage dashboardHeader dashboardSidebar
 #' @importFrom graphics hist abline lines pairs par points polygon rect smoothScatter strwidth text
 #' @importFrom DT tableHeader formatStyle
-#' @importFrom randomForest randomForest
 #' @importFrom pls pcr plsr MSEP RMSEP explvar R2 mvrValstats
-#' @importFrom neuralnet neuralnet compute
 #' @rawNamespace import(shinydashboard, except = c(dashboardHeader,dashboardPage,dashboardSidebar))
 #' @rawNamespace import(shinyjs, except = c(runExample,colourInput))
 #' @keywords internal

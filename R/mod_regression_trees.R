@@ -83,7 +83,7 @@ mod_regression_trees_server <- function(input, output, session,updateData, model
       codigo.dt()
       isolate({
         datos.aprendizaje <- updateData$datos.aprendizaje
-        datos.prueba <- updateData$datos.prueba
+        datos.prueba      <- updateData$datos.prueba
         variable.predecir <- updateData$variable.predecir
         ms <- input$minsplit.dt
         md <- input$maxdepth.dt
@@ -92,13 +92,14 @@ mod_regression_trees_server <- function(input, output, session,updateData, model
       minsplit <- ifelse(!is.numeric(ms), 20, ms)
       maxdepth <- ifelse(!is.numeric(md), 15, md)
       
+      var    <- paste0(variable.predecir, "~.")
+      
       # Model Generate
-      modelo.dt <- dt_model(datos.aprendizaje, variable.predecir,
-                            minsplit = minsplit,
-                            maxdepth = maxdepth)
+      modelo.dt <- train.rpart(as.formula(var), data = datos.aprendizaje,
+                               control = rpart.control(minsplit = minsplit, maxdepth = maxdepth), model = TRUE)
 
       #Prediccion
-      prediccion.dt <- dt_prediction(modelo.dt,datos.prueba)
+      prediccion.dt <- predict(modelo.dt,datos.prueba)$prediction
 
       #Indices
       indices.dt <- general_indices(datos.prueba[,variable.predecir], prediccion.dt)
