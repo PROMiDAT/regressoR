@@ -488,7 +488,7 @@ mod_new_data_predictions_server <- function(input, output, session, newCases, up
         
         newCases$prediccion <- pred
         nombre.columnas <- c("ID", colnames(datos))
-        isolate(codedioma$code <- append(codedioma$code, "predic.nuevos <<- predict(modelo.nuevos, datos.prueba.completos, type = 'class')"))
+        isolate(codedioma$code <- append(codedioma$code, "predic.nuevos <<- predict(modelo.nuevos, datos.prueba.completos)"))
         tipo.columnas <- sapply(colnames(datos), function(i)
           ifelse(class(datos[,i]) %in% c("numeric", "integer"),
                  paste0("<span data-id='numerico'><i class='fa fa-sort-numeric-up wrapper-tag'></i><br>", tipos[1], "</span>"),

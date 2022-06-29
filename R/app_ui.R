@@ -106,7 +106,7 @@ app_ui <- function(request) {
     golem_add_external_resources(),
     # List the first level UI elements here 
     dashboardPage(
-      title="PROMiDAT - RegressoR",
+      title="PROMiDAT - regressoR",
       shinydashboardPlus::dashboardHeader(
         title = HTML(paste0(
           '<span class = "logo-lg">
