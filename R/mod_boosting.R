@@ -141,7 +141,7 @@ mod_boosting_server <- function(input, output, session,updateData, modelos, code
         
         isolate(codedioma$code <- append(codedioma$code, cod))
         
-        idioma <- codedioma$idioma
+        idioma  <- codedioma$idioma
         titulos <- c(
           tr("impVarRI", idioma),
           tr("RI", idioma),
@@ -165,7 +165,7 @@ mod_boosting_server <- function(input, output, session,updateData, modelos, code
         prediccion.boost <- modelos$boost[[nombreModelo]]$prediccion
         isolate({
           datos.prueba <- updateData$datos.prueba
-          real.val <- datos.prueba[updateData$variable.predecir]
+          real.val     <- datos.prueba[updateData$variable.predecir]
         })
         tb_predic(real.val, prediccion.boost, updateData$decimals, codedioma$idioma)
       }
@@ -199,9 +199,9 @@ mod_boosting_server <- function(input, output, session,updateData, modelos, code
       if(!is.null(modelos$boost[[nombreModelo]])){
         prediccion.boost <- modelos$boost[[nombreModelo]]$prediccion
         isolate({
-          datos.prueba <- updateData$datos.prueba
+          datos.prueba      <- updateData$datos.prueba
           variable.predecir <- updateData$variable.predecir
-          distribution <- input$tipo.boosting
+          distribution      <- input$tipo.boosting
         })
         
         idioma <- codedioma$idioma
@@ -232,8 +232,8 @@ mod_boosting_server <- function(input, output, session,updateData, modelos, code
   output$indexdfb <- renderTable({
     tryCatch({
       if(!is.null(modelos$boost[[nombreModelo]])){
-        idioma <- codedioma$idioma
-        indices.boost<- modelos$boost[[nombreModelo]]$indices
+        idioma        <- codedioma$idioma
+        indices.boost <- modelos$boost[[nombreModelo]]$indices
         tabla.indicesPrecision(indices.boost, updateData$decimals, idioma)
       }
       else{NULL}
@@ -249,7 +249,7 @@ mod_boosting_server <- function(input, output, session,updateData, modelos, code
   output$indexdfb2 <- renderTable({
     tryCatch({
       if(!is.null(modelos$boost[[nombreModelo]])){
-        idioma <- codedioma$idioma
+        idioma   <- codedioma$idioma
         decimals <- updateData$decimals
         tabla.varpred.summary(summary_indices(updateData$datos.prueba[,updateData$variable.predecir]),
                               decimals, 
@@ -271,12 +271,12 @@ mod_boosting_server <- function(input, output, session,updateData, modelos, code
     tryCatch({
       isolate({
         variable.predecir <- updateData$variable.predecir
-        n.trees <- input$iter.boosting
+        n.trees      <- input$iter.boosting
         distribution <- input$tipo.boosting
-        shrinkage <- input$shrinkage.boosting
+        shrinkage    <- input$shrinkage.boosting
       })
       
-        n.trees <- ifelse(!is.numeric(n.trees), 50, n.trees)
+        n.trees   <- ifelse(!is.numeric(n.trees), 50, n.trees)
         shrinkage <- ifelse(!is.numeric(shrinkage), 0.1, shrinkage)
         
         #Model generate

@@ -61,7 +61,7 @@ rl_coeff <- function(modelo){
 #------------------------------------CODE---------------------------------------
 
 codeRl <- function(variable.predecir){
-  return(paste0("rl_model(datos.prueba, '",variable.predecir,"')\n"))
+  return(paste0("modelo.rl <- lm(",variable.predecir,"~.,data = datos.aprendizaje)\n"))
 }
 
 codeRlCoef <- function(nombreModelo = "modelo.rl"){
@@ -69,8 +69,8 @@ codeRlCoef <- function(nombreModelo = "modelo.rl"){
                 "information$df.rl[,c(1,4)]\n"))
 }
 
-codeRlPred <- function(nombreModelo = "rl.model"){
-  return(paste0("rl_prediction(model = ", nombreModelo, ", datos.prueba)\n"))
+codeRlPred <- function(nombreModelo = "modelo.rl"){
+  return(paste0("prediccion.rl <- predict(", nombreModelo, ", datos.prueba)\n"))
 }
 
 codeRlIG <- function(variable.predecir){

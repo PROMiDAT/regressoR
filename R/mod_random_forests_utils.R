@@ -105,13 +105,13 @@ rf_ntree_values <- function(model) {
 
 #------------------------------------CODE---------------------------------------
 codeRf <- function(variable.predecir, ntree, mtry){
-  return(paste0("rf_model(data, '",variable.predecir,"', ntree = ",ntree, ", mtry = ", mtry, ")\n"))
+  return(paste0("modelo.rf <- (",variable.predecir,"~., data = datos.aprendizaje, ntree = ",ntree, ", mtry = ", mtry, ")\n"))
 }
 
-codeRfPred <- function(nombreModelo = "rf.model"){
-  return(paste0("rf_prediction(model = ", nombreModelo, ", test.data)\n"))
+codeRfPred <- function(nombreModelo = "modelo.rf"){
+  return(paste0("prediccion.rf <- predict(modelo.rf, datos.prueba)\n"))
 }
 
 codeRfIG <- function(variable.predecir){
-  return(paste0("general_indices(test.data[,'",variable.predecir,"'], prediccion.rf)\n"))
+  return(paste0("general_indices(datos.prueba[,'",variable.predecir,"'], prediccion.rf)\n"))
 }

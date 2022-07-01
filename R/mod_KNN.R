@@ -111,11 +111,11 @@ mod_KNN_server <- function(input, output, session,updateData, modelos, codedioma
         k <- tam - 2
         updateNumericInput(session, "k.knn", value = tam - 2)
       }
-      var    <- paste0(variable.predecir, "~.")
+      var    <- as.formula(paste0(variable.predecir, "~."))
       
       #Model generate
-      modelo.knn <- traineR::train.knn(as.formula(var), data = datos.aprendizaje, scale = as.logical(scale), 
-                                      kernel = kernel, kmax = k, distance = distance )
+      modelo.knn <- traineR::train.knn(var, data = datos.aprendizaje, scale = as.logical(scale), 
+                                      kernel = kernel, ks = k, distance = distance )
       #Prediccion
       prediccion.knn <- predict(modelo.knn, datos.prueba)
 
@@ -123,10 +123,18 @@ mod_KNN_server <- function(input, output, session,updateData, modelos, codedioma
       indices.knn <- general_indices(datos.prueba[,variable.predecir], prediccion.knn$prediction)
 
       #isolamos para que no entre en un ciclo en el primer renderPrint
-      isolate(modelos$knn[[nombreModelo]] <- list(modelo = modelo.knn, prediccion = prediccion.knn$prediction, indices = indices.knn,
-                                                  id = kernel))
+      isolate(modelos$knn[[nombreModelo]] <- list(modelo = modelo.knn, prediccion = prediccion.knn$prediction, 
+                                                  indices = indices.knn, id = kernel))
+      #Cambiamos la forma en que va aparecer el call
+      modelo.knn$call$formula  <- var
+      modelo.knn$call$ks       <- k
+      modelo.knn$call$kernel   <- kernel
+      modelo.knn$call$scale    <- scale
+      modelo.knn$call$distance <- distance
+      
       print(modelo.knn)
     }, error = function(e){
+      isolate(modelos$knn[[nombreModelo]] <- NULL)
       showNotification(paste0("Error (KNN-01) : ",e), duration = 10, type = "error")
       NULL
     })
@@ -159,8 +167,8 @@ mod_KNN_server <- function(input, output, session,updateData, modelos, codedioma
           train <- updateData$datos.aprendizaje
           test  <- updateData$datos.prueba
           variable.pred <- updateData$variable.predecir
-          scale  <- as.logical(input$switch_scale_knn)
-          kernel <- input$kernel.knn
+          scale    <- as.logical(input$switch_scale_knn)
+          kernel   <- input$kernel.knn
           distance <- input$distance.knn
         })
         k_value <- input$k.knn
@@ -184,13 +192,13 @@ mod_KNN_server <- function(input, output, session,updateData, modelos, codedioma
       if(!is.null(modelos$knn[[nombreModelo]])){
         prediccion.knn <- modelos$knn[[nombreModelo]]$prediccion
         isolate({
-          datos.prueba <- updateData$datos.prueba
+          datos.prueba      <- updateData$datos.prueba
           variable.predecir <- updateData$variable.predecir
-          kernel <- input$kernel.knn
+          kernel            <- input$kernel.knn
         })
         idioma <- codedioma$idioma
         
-        codigo <- disp_models(nombreModelo, paste0(tr("knn", idioma),"-",kernel), variable.predecir)
+        codigo <- disp_models("modelo.knn", paste0(tr("knn", idioma),"-",kernel), variable.predecir)
         cod    <- paste0("### docdisp\n",codigo, "\n")
         
         isolate(codedioma$code <- append(codedioma$code, cod))
@@ -264,7 +272,7 @@ mod_KNN_server <- function(input, output, session,updateData, modelos, codedioma
       codigo <- codeKnn(variable.predecir,scale, k, kernel, distance)
       cod    <- paste0("### KNN\n", codigo)
       #Prediccion
-      codigo <- codeKnnPred(nombreModelo)
+      codigo <- codeKnnPred()
       cod    <- paste0(cod, codigo)
       #Indices
       codigo <- codeKnnIG(variable.predecir)

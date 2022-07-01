@@ -92,10 +92,10 @@ mod_regression_trees_server <- function(input, output, session,updateData, model
       minsplit <- ifelse(!is.numeric(ms), 20, ms)
       maxdepth <- ifelse(!is.numeric(md), 15, md)
       
-      var    <- paste0(variable.predecir, "~.")
+      var    <- as.formula(paste0(variable.predecir, "~."))
       
       # Model Generate
-      modelo.dt <- train.rpart(as.formula(var), data = datos.aprendizaje,
+      modelo.dt <- train.rpart(var, data = datos.aprendizaje,
                                control = rpart.control(minsplit = minsplit, maxdepth = maxdepth), model = TRUE)
 
       #Prediccion
@@ -107,9 +107,14 @@ mod_regression_trees_server <- function(input, output, session,updateData, model
       #isolamos para que no entre en un ciclo en el primer renderPrint
       isolate(modelos$dt[[nombreModelo]] <- list(modelo = modelo.dt, prediccion = prediccion.dt, indices = indices.dt, 
                                                  id = NULL))
+      modelo.dt$call$formula   <- var
+      modelo.dt$call$control$minsplit <- minsplit
+      modelo.dt$call$control$maxdepth <- maxdepth
       print(summary(modelo.dt))
       
     }, error = function(e){
+      isolate(modelos$dt[[nombreModelo]] <- NULL)
+      
       showNotification(paste0("Error (DT-01) : ",e), duration = 10, type = "error")
       NULL
     })

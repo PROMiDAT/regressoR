@@ -156,6 +156,7 @@ mod_penalized_Regression_server <- function(input, output, session, updateData, 
       else{NULL}
       
     }, error = function(e){
+      isolate(modelos$rlr[[nombreModelo]] <- NULL)
       showNotification(paste0("Error (RLR-01) : ",e), duration = 10, type = "error")
       NULL
     })

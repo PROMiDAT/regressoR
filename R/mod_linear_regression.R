@@ -94,9 +94,9 @@ mod_linear_regression_server <- function(input, output, session, updateData, mod
         datos.prueba      <- updateData$datos.prueba
         variable.predecir <- updateData$variable.predecir
       })
-      
+      form <- formula(paste0(variable.predecir,"~."))
       #Model generate
-      modelo.rl <- rl_model(datos.aprendizaje,variable.predecir)
+      modelo.rl <- lm(formula = form, data = datos.aprendizaje)
       
       #Coefficients
       model.information <- rl_coeff(modelo.rl)
@@ -114,9 +114,12 @@ mod_linear_regression_server <- function(input, output, session, updateData, mod
                                                  prediccion = prediccion.rl, 
                                                  indices    = indices.rl, 
                                                  id = NULL))
+      #Cambiamos la forma en que va aparecer el call
+      modelo.rl$call$formula <- form
       
       print(summary(modelo.rl))
     }, error = function(e){
+      isolate(modelos$rl[[nombreModelo]] <- NULL)
       showNotification(paste0("Error (RL-01) : ",e), duration = 10, type = "error")
       NULL
     })

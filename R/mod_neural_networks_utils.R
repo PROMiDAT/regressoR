@@ -11,7 +11,7 @@ nn_model <- function(data, variable.pred, hidden = c(2), threshold = 0.1, stepma
     modelo.nn$call$formula <- form
     modelo.nn$call$hidden <- hidden
     modelo.nn$call$threshold <- threshold
-    modelo.nn$call$stepmax <- stepmax
+    modelo.nn$call$stepmax   <- stepmax
 
     return(modelo.nn)
   }
@@ -66,13 +66,13 @@ nn_plot <- function(model){
 
 #------------------------------------CODE---------------------------------------
 codeNn <- function(variable.predecir, hidden, threshold, stepmax){
-  return(paste0("nn_model(data, '",variable.predecir,"', hidden = ",as_string_c(hidden,quote = FALSE), ", threshold = ", threshold, ", stepmax = ",stepmax, ")\n"))
+  return(paste0("modelo.nn <- train.neuralnet(",variable.predecir,"~., data = datos.aprendizaje, hidden = ",as_string_c(hidden,quote = FALSE), ", threshold = ", threshold, ", stepmax = ",stepmax, ")\n"))
 }
 
 codeNnPred <- function(nombreModelo = "nn.model"){
-  return(paste0("nn_prediction(model = ", nombreModelo, ", test.data)\n"))
+  return(paste0("prediccion.nn <- predict(modelo.nn, datos.prueba)\n"))
 }
 
 codeNnIG <- function(variable.predecir){
-  return(paste0("general_indices(test.data[,'",variable.predecir,"'], prediccion.nn)\n"))
+  return(paste0("general_indices(datos.prueba[,'",variable.predecir,"'], prediccion.nn)\n"))
 }

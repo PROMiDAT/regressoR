@@ -14,52 +14,63 @@ mod_random_forests_ui <- function(id){
   rf.options <- list(conditionalPanel("input.BoxRf != 'tabRfRules'",
                                       options.run(ns("runRf")), tags$hr(style = "margin-top: 0px;"),
                                       fluidRow(column(numericInput(ns("ntree.rf"), labelInput("numTree"), 20, width = "100%", min = 0), width = 5),
-                                               column(numericInput(ns("mtry.rf"),labelInput("numVars"),1, width = "100%", min = 1), width=5)), ns = ns),
+                                               column(numericInput(ns("mtry.rf"), labelInput("numVars"),1, width = "100%", min = 1), width = 5)), ns = ns),
                      conditionalPanel("input.BoxRf == 'tabRfRules'",
-                                      numericInput(ns("rules.rf.n"),labelInput("ruleNumTree"),1, width = "25%", min = 1),ns = ns))
+                                      numericInput(ns("rules.rf.n"),labelInput("ruleNumTree"),1, width = "25%", min = 1), ns = ns))
   
   
   tabs.options.generate <- tabsOptions( widths = c(100), heights = c(80),
                                        tabs.content = list(rf.options))
   
   
-  tabs.options <- list(conditionalPanel("input.BoxRf == 'tabRfModelo' || input.BoxRf == 'tabRfRules'",tabs.options.generate,ns = ns))
+  tabs.options <- list(conditionalPanel("input.BoxRf == 'tabRfModelo' || input.BoxRf == 'tabRfRules'", tabs.options.generate, ns = ns))
   
-  generate.rf.panel <- tabPanel(title = labelInput("generatem"),value = "tabRfModelo",
-                                withLoader(verbatimTextOutput(ns("txtRf")),type = "html", loader = "loader4"))
+  generate.rf.panel <- tabPanel(title = labelInput("generatem"), 
+                                value = "tabRfModelo",
+                                withLoader(verbatimTextOutput(ns("txtRf")), type = "html", loader = "loader4"))
   
-  plot.rf <- tabPanel(title = labelInput("varImp"), value = "tabRfImp",
-                      withLoader(echarts4rOutput(ns('plot_rf'),height = "75vh"),type = "html", loader = "loader4"))
+  plot.rf <- tabPanel(title = labelInput("varImp"), 
+                      value = "tabRfImp",
+                      withLoader(echarts4rOutput(ns('plot_rf'), height = "75vh"), type = "html", loader = "loader4"))
   
-  prediction.rf.panel <- tabPanel(title = labelInput("predm"), value = "tabRfPred",
-                                  withLoader(DT::dataTableOutput(ns("rfPrediTable")),type = "html", loader = "loader4"))
+  prediction.rf.panel <- tabPanel(title = labelInput("predm"), 
+                                  value = "tabRfPred",
+                                  withLoader(DT::dataTableOutput(ns("rfPrediTable")), type = "html", loader = "loader4"))
   
-  disp.rf.panel <- tabPanel(title = labelInput("dispersion"), value = "tabRfDisp",
-                            withLoader(echarts4rOutput(ns('plot_rf_disp'),height = "75vh"),type = "html", loader = "loader4"))
+  disp.rf.panel <- tabPanel(title = labelInput("dispersion"), 
+                            value = "tabRfDisp",
+                            withLoader(echarts4rOutput(ns('plot_rf_disp'),height = "75vh"), type = "html", loader = "loader4"))
   
   general.index.rf.panel <- tabPanel(title = labelInput("indices"), value = "tabRfIndex",
                                      br(),
-                                     fluidRow(withLoader(tableOutput(ns('indexdfrf')),type = "html", loader = "loader4")),
+                                     fluidRow(withLoader(tableOutput(ns('indexdfrf')), type = "html", loader = "loader4")),
                                      br(),
                                      fluidRow(column(width = 12, align="center", tags$h3(labelInput("resumenVarPre")))),
                                      br(),
-                                     fluidRow(withLoader(tableOutput(ns('indexdfrf2')),type = "html", loader = "loader4")))
+                                     fluidRow(withLoader(tableOutput(ns('indexdfrf2')), type = "html", loader = "loader4")))
   
-  rf.rules.panel <- tabPanel(title = labelInput("reglas"), value = "tabRfRules",
-                             withLoader(verbatimTextOutput(ns("rulesRf")),type = "html", loader = "loader4"))
+  rf.rules.panel <- tabPanel(title = labelInput("reglas"), 
+                             value = "tabRfRules",
+                             withLoader(verbatimTextOutput(ns("rulesRf")), 
+                                        type = "html", 
+                                        loader = "loader4"))
   
-  ntree.rf.panel <- tabPanel(title = labelInput("evolerror"), value = "tabRfRMSE",
-                             withLoader(echarts4rOutput(ns('plot_rf_rmse'),height = "75vh"),type = "html", loader = "loader4"))
-  
+  ntree.rf.panel <- tabPanel(title = labelInput("evolerror"), 
+                             value = "tabRfRMSE",
+                             withLoader(echarts4rOutput(ns('plot_rf_rmse'), height = "75vh"), 
+                                        type = "html", 
+                                        loader = "loader4"))
+   
   page.rf <- tabItem(tabName = "rf",
-                     tabBoxPrmdt(id = ns("BoxRf"), opciones = tabs.options,
-                            generate.rf.panel,
-                            plot.rf,
-                            prediction.rf.panel,
-                            ntree.rf.panel,
-                            disp.rf.panel,
-                            general.index.rf.panel,
-                            rf.rules.panel))
+                     tabBoxPrmdt(id = ns("BoxRf"), 
+                                 opciones = tabs.options,
+                                 generate.rf.panel,
+                                 plot.rf,
+                                 prediction.rf.panel,
+                                 ntree.rf.panel,
+                                 disp.rf.panel,
+                                 general.index.rf.panel,
+                                 rf.rules.panel))
   
   
   tagList(
@@ -114,8 +125,11 @@ mod_random_forests_server <- function(input, output, session,updateData, modelos
           updateNumericInput(session, "mtry.rf", value = mtry)
         }
         
+        form <- formula(paste0(variable.predecir,"~."))
+        
         #Model generate
-        modelo.rf <- rf_model(datos.aprendizaje,variable.predecir, ntree, mtry)
+        modelo.rf <- train.randomForest(form, data = datos.aprendizaje, ntree = ntree, 
+                                        mtry = mtry, importance = TRUE)
 
         #Prediccion
         prediccion.rf <- rf_prediction(modelo.rf, datos.prueba)
@@ -126,9 +140,18 @@ mod_random_forests_server <- function(input, output, session,updateData, modelos
         #isolamos para que no entre en un ciclo en el primer renderPrint
         isolate(modelos$rf[[nombreModelo]] <- list(modelo = modelo.rf, prediccion = prediccion.rf, indices = indices.rf))
         
+        # Guardamos los datos dentro del modelo para utilizar 
+        #la función printRandomForest() en Utilities
+        modelo.rf$datos <- datos.aprendizaje
+        #Cambiamos la forma en que va aparecer el call
+        modelo.rf$call$formula <- form
+        modelo.rf$call$ntree   <- ntree
+        modelo.rf$call$mtry    <- mtry
+        
         print(modelo.rf)
      
     }, error = function(e){
+      isolate(modelos$rf[[nombreModelo]] <- NULL)
       showNotification(paste0("Error (RF-01) : ",e), duration = 10, type = "error")
       NULL
     })
@@ -202,7 +225,7 @@ mod_random_forests_server <- function(input, output, session,updateData, modelos
       if(!is.null(modelos$rf[[nombreModelo]])){
         prediccion.rf <- modelos$rf[[nombreModelo]]$prediccion
         isolate({
-          datos.prueba <- updateData$datos.prueba
+          datos.prueba      <- updateData$datos.prueba
           variable.predecir <- updateData$variable.predecir
         })
         idioma <- codedioma$idioma
@@ -233,7 +256,7 @@ mod_random_forests_server <- function(input, output, session,updateData, modelos
   output$indexdfrf <- renderTable({
     tryCatch({
       if(!is.null(modelos$rf[[nombreModelo]])){
-        idioma <- codedioma$idioma
+        idioma     <- codedioma$idioma
         indices.rf <- modelos$rf[[nombreModelo]]$indices
         tabla.indicesPrecision(indices.rf, updateData$decimals, idioma)
       }
@@ -250,7 +273,7 @@ mod_random_forests_server <- function(input, output, session,updateData, modelos
   output$indexdfrf2 <- renderTable({
     tryCatch({
       if(!is.null(modelos$rf[[nombreModelo]])){
-        idioma <- codedioma$idioma
+        idioma   <- codedioma$idioma
         decimals <- updateData$decimals
         tabla.varpred.summary(summary_indices(updateData$datos.prueba[,updateData$variable.predecir]),
                               decimals, 
@@ -295,7 +318,7 @@ mod_random_forests_server <- function(input, output, session,updateData, modelos
       isolate({
         variable.predecir <- updateData$variable.predecir
         ntree <- input$ntree.rf
-        mtry <- input$mtry.rf
+        mtry  <- input$mtry.rf
       })
       
       #Model generate

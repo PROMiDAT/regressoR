@@ -98,14 +98,14 @@ plot_RMSEK <- function(datos , modelo.knn = NULL, titles = c("RMSE Segun Numero 
 
 #------------------------------------CODE---------------------------------------
 codeKnn <- function(variable.predecir, scale, k, kernel, distance){
-  return(paste0("kkn_model(data, '",variable.predecir,"', scale = ",scale, ", k = ", k,
+  return(paste0("modelo.knn <- train.knn(",variable.predecir,"~.,data = datos.aprendizaje, scale = ",scale, ", k = ", k,
                 ", kernel = '",kernel,"', distance = ", distance, ")\n"))
 }
 
-codeKnnPred <- function(nombreModelo = "knn.model"){
-  return(paste0("kkn_prediction(model = ", nombreModelo, ", test.data)\n"))
+codeKnnPred <- function(nombreModelo = "modelo.knn"){
+  return(paste0("prediccion.knn <- predict(", nombreModelo, ", datos.prueba)\n"))
 }
 
 codeKnnIG <- function(variable.predecir){
-  return(paste0("general_indices(test.data[,'",variable.predecir,"'], prediccion.knn)\n"))
+  return(paste0("general_indices(datos.prueba[,'",variable.predecir,"'], prediccion.knn)\n"))
 }

@@ -61,18 +61,18 @@ dt_plot <- function(model){
 
 #------------------------------------CODE---------------------------------------
 codeDt <- function(variable.predecir, minsplit, maxdepth){
-  return(paste0("dt_model(data, '",variable.predecir,"', minsplit = ",minsplit, ", maxdepth = ",maxdepth,")\n"))
+  return(paste0("modelo.dt <- train.rpart(",variable.predecir,"~., datos.aprendizaje, minsplit = ",minsplit, ", maxdepth = ",maxdepth,")\n"))
 }
 
 
-codeDtPred <- function(nombreModelo = "dt.model"){
-  return(paste0("dt_prediction(model = ",nombreModelo,", test.data)\n"))
+codeDtPred <- function(nombreModelo = "modelo.dt"){
+  return(paste0("prediccion.dt <- predict(modelo.dt, datos.prueba)\n"))
 }
 
 codeDtIG <- function(variable.predecir){
-  return(paste0("general_indices(test.data[,'",variable.predecir,"'], prediccion.dt)\n"))
+  return(paste0("general_indices(datos.prueba[,'",variable.predecir,"'], prediccion.dt)\n"))
 }
 
 codeDtPlot <- function(nombreModelo){
-  return(paste0("dt_plot(", nombreModelo,")\n"))
+  return(paste0("dt_plot(modelo.dt)\n"))
 }

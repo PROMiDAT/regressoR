@@ -87,12 +87,12 @@ mod_SVM_server <- function(input, output, session,updateData, modelos, codedioma
         kernel <- input$kernel.svm
       })
       
-      var    <- paste0(variable.predecir, "~.")
-      
+      var    <- as.formula(paste0(variable.predecir, "~."))
+       
       nombreModelo <<- paste0(nombreBase, kernel)
       
       #Model generate
-      modelo.svm <- traineR::train.svm(as.formula(var), data = datos.aprendizaje, scale = as.logical(scale), kernel = kernel)
+      modelo.svm <- traineR::train.svm(var, data = datos.aprendizaje, scale = as.logical(scale), kernel = kernel)
 
       #Prediccion
       prediccion.svm <- predict(modelo.svm, datos.prueba)$prediction
@@ -105,8 +105,15 @@ mod_SVM_server <- function(input, output, session,updateData, modelos, codedioma
                                                   prediccion = prediccion.svm, 
                                                   indices = indices.svm, 
                                                   id      = kernel))
+      #Cambiamos la forma en que va aparecer el call
+      modelo.svm$call$formula <- var
+      modelo.svm$call$kernel  <- kernel
+      modelo.svm$call$scale   <- scale
+      
       print(modelo.svm)
     }, error = function(e){
+      isolate(modelos$svm[[nombreModelo]] <- NULL)
+      
       showNotification(paste0("Error (SVM-01) : ",e), duration = 10, type = "error")
       NULL
     })
@@ -146,7 +153,7 @@ mod_SVM_server <- function(input, output, session,updateData, modelos, codedioma
         })
         idioma <- codedioma$idioma
         
-        codigo <- disp_models(nombreModelo, paste0(tr("svm", idioma),"-",kernel), variable.predecir)
+        codigo <- disp_models("modelo.svm", paste0(tr("svm", idioma),"-",kernel), variable.predecir)
         cod    <- paste0("### docdisp\n",codigo, "\n")
         
         isolate(codedioma$code <- append(codedioma$code, cod))

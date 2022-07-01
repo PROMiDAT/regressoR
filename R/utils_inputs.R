@@ -170,9 +170,9 @@ checkSwitch <- function(id, label = NULL, name) {
         class = "btn-radiogroup",
         tags$button(
           class = "btn radiobtn btn-radioswitch active",
-          tags$span(class = "radio-btn-icon-yes", tags$i(class="glyphicon glyphicon-ok")),
-          tags$span(class = "radio-btn-icon-no", tags$i(class="glyphicon glyphicon-remove")),
-          tags$input(id=id, type="checkbox", checked = "checked", style = 
+          tags$span(class = "radio-btn-icon-yes", tags$i(class = "glyphicon glyphicon-ok")),
+          tags$span(class = "radio-btn-icon-no", tags$i(class = "glyphicon glyphicon-remove")),
+          tags$input(id = id, type="checkbox", checked = "checked", style = 
                        "position: absolute;clip: rect(0,0,0,0);pointer-events: none;"),
           labelInput(name)
         )

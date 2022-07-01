@@ -136,8 +136,11 @@ mod_neural_networks_server <- function(input, output, session,updateData, modelo
       stepmax   <- ifelse(stepmax < 100, 100, stepmax)
       hidden    <- hidden[1:cant.capas]
       #Model generate
-      modelo.nn     <- nn_model(datos.aprendizaje,variable.predecir, hidden, threshold, stepmax)
-
+      
+      form <- formula(paste0(variable.predecir,"~."))
+      modelo.nn <- train.neuralnet(form, data = datos.aprendizaje, hidden = hidden, 
+                                   linear.output = TRUE, threshold = threshold, stepmax = stepmax)
+      
       #Prediccion
       prediccion.nn <- nn_prediction(modelo.nn, datos.prueba)
 
@@ -148,6 +151,13 @@ mod_neural_networks_server <- function(input, output, session,updateData, modelo
       isolate(modelos$nn[[nombreModelo]] <- list(modelo     = modelo.nn, 
                                                  prediccion = prediccion.nn, 
                                                  indices    = indices.nn))
+
+      #Cambiamos la forma en que va aparecer el call
+      modelo.nn$call$formula   <- form
+      modelo.nn$call$hidden    <- hidden
+      modelo.nn$call$threshold <- threshold
+      modelo.nn$call$stepmax   <- stepmax
+      
       print(modelo.nn)
       
     }, error = function(e){
@@ -229,7 +239,7 @@ mod_neural_networks_server <- function(input, output, session,updateData, modelo
         
         idioma <- codedioma$idioma
         
-        codigo <- disp_models(nombreModelo, tr("nn", idioma), variable.predecir)
+        codigo <- disp_models("modelo.nn", tr("nn", idioma), variable.predecir)
         cod    <- paste0("### docdisp\n",codigo, "\n")
         
         isolate(codedioma$code <- append(codedioma$code, cod))
