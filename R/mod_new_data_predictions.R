@@ -49,7 +49,7 @@ mod_new_data_predictions_ui <- function(id){
                          div(
                            col_6(selectInput(inputId = ns("sel.predic.var.nuevos"), label = labelInput("seleccionarPredecir"), choices =  "", width = "100%")),
                            col_6(selectInput(inputId = ns("selectModelsPred"), label = labelInput("selectMod"),
-                                             choices =  list("knn", "dt", "rf", "boost", "svm", "nn", "rl", "rlr", "rd"), width = "100%"))
+                                             choices = list("knn", "dt", "rf", "boost", "svm", "nn", "rl", "rlr", "rd"), width = "100%"))
                          ), hr(style = "border-top: 2px solid #cccccc;" ),
                          uiOutput(ns('opcModelsPredN')),
                          
@@ -68,7 +68,7 @@ mod_new_data_predictions_ui <- function(id){
                                 icon = icon("backward"))),
             col_10(
               box(
-                title = p(labelInput("cargarNuev"),class = "wrapper-tag"), width = 12, solidHeader = FALSE,
+                title = p(labelInput("cargarNuev"),class = "wrapper-tag2"), width = 12, solidHeader = FALSE,
                 collapsible = FALSE, collapsed = FALSE,value = "CargarNuevos",
                 footer = muestra.datos.pred3,
                 div(col_12(

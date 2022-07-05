@@ -1,22 +1,5 @@
 # RF PAGE ------------------------------------------------------------------------------------------------------------
 
-rf_model <- function(data, variable.pred, ntree = 500, mtry = 1){
-  if(!is.null(variable.pred) && !is.null(data)){
-    form <- formula(paste0(variable.pred,"~."))
-    modelo.rf <- train.randomForest(form, data = data, ntree = ntree, mtry = mtry,
-                              importance = TRUE)
-    # Guardamos los datos dentro del modelo para utilizar 
-    #la función printRandomForest() en Utilities
-    modelo.rf$datos <- data
-    #Cambiamos la forma en que va aparecer el call
-    modelo.rf$call$formula <- form
-    modelo.rf$call$ntree   <- ntree
-    modelo.rf$call$mtry    <- mtry
-    return(modelo.rf)
-  }
-  return(NULL)
-}
-
 #' rf_prediction
 #' 
 #' @description generates the prediction of the random forest model.
@@ -31,7 +14,6 @@ rf_prediction <- function(model, test.data){
     return(predict(model,test.data)$prediction)
   }
   return(NULL)
-  #return(paste0(pred.var," <- predict(",model.var,", ",data," %>% select(-`",variable.pred,"`))"))
 }
 
 

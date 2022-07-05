@@ -4,21 +4,27 @@ rulesRandomForest <- function (model, n = 1, include.class = NULL, format = "", 
 {
   if (!inherits(model, "randomForest")) 
     stop("the model is not of the 'randomForest' class")
+  
   if (format == "VB") 
     comment = "'"
+  
   trs      <- getTrees(model, n)
   tr.paths <- getRFPathNodesT(trs)
   tr.vars  <- attr(model$terms, "dataClasses")[-1]
   cat(sprintf("%sRandom Forest Model %d", comment, n), "\n\n")
   cat(paste(comment, "-------------------------------------------------------------\n", 
             sep = ""))
+  
   if (format == "VB") 
     cat("IF FALSE THEN\n' This is a No Op to simplify the code\n\n")
+  
   nrules <- 0
+  
   for (i in seq_along(tr.paths)) {
     tr.path <- tr.paths[[i]]
     nodenum <- as.integer(names(tr.paths[i]))
     target <- levels(model$y)[trs[nodenum, "prediction"]]
+    
     if (!is.null(include.class) && target %notinto% include.class) 
       (next)()
     cat(sprintf("%sTree %d Rule %d Node %d %s\n \n", comment, 
@@ -26,20 +32,25 @@ rulesRandomForest <- function (model, n = 1, include.class = NULL, format = "", 
                                       paste("Decision", target))))
     if (format == "VB") 
       cat("ELSE IF TRUE\n")
-    nrules <- nrules + 1
-    var.index <- trs[, 3][abs(tr.path)]
-    var.names <- names(tr.vars)[var.index]
+    
+    nrules     <- nrules + 1
+    var.index  <- trs[, 3][abs(tr.path)]
+    var.names  <- names(tr.vars)[var.index]
     var.values <- trs[, 4][abs(tr.path)]
+    
     for (j in 1:(length(tr.path) - 1)) {
       var.class <- tr.vars[var.index[j]]
+      
       if (var.class == "character" | var.class == "factor" | 
           var.class == "ordered") {
-        node.op <- "IN"
+        node.op    <- "IN"
         var.levels <- levels(model$datos[[var.names[j]]])
         bins <- sdecimal2binarys(var.values[j])
         bins <- c(bins, rep(0, length(var.levels) - length(bins)))
+        
         if (tr.path[j] > 0) 
           node.value <- var.levels[bins == 1]
+        
         else node.value <- var.levels[bins == 0]
         node.value <- sprintf("(\"%s\")", paste(node.value, 
                                                 collapse = "\", \""))
@@ -79,24 +90,29 @@ getTrees <- function (rfobj, k = 1, labelVar = FALSE)
     stop("There are fewer than ", k, "trees in the forest")
   }
   if (rfobj$type == "regression") {
-    tree <- cbind(rfobj$forest$leftDaughter[, k], rfobj$forest$rightDaughter[, 
-                                                                             k], rfobj$forest$bestvar[, k], rfobj$forest$xbestsplit[, 
-                                                                                                                                    k], rfobj$forest$nodestatus[, k], rfobj$forest$nodepred[, 
-                                                                                                                                                                                            k])[1:rfobj$forest$ndbigtree[k], ]
+    tree <- cbind(rfobj$forest$leftDaughter[, k], 
+                  rfobj$forest$rightDaughter[, k], 
+                  rfobj$forest$bestvar[, k], 
+                  rfobj$forest$xbestsplit[, k], 
+                  rfobj$forest$nodestatus[, k], 
+                  rfobj$forest$nodepred[, k])[1:rfobj$forest$ndbigtree[k], ]
   }
   else {
-    tree <- cbind(rfobj$forest$treemap[, , k], rfobj$forest$bestvar[, 
-                                                                    k], rfobj$forest$xbestsplit[, k], rfobj$forest$nodestatus[, 
-                                                                                                                              k], rfobj$forest$nodepred[, k])[1:rfobj$forest$ndbigtree[k], 
-                                                                                                                              ]
+    tree <- cbind(rfobj$forest$treemap[, , k], 
+                  rfobj$forest$bestvar[, k], 
+                  rfobj$forest$xbestsplit[, k], 
+                  rfobj$forest$nodestatus[, k], 
+                  rfobj$forest$nodepred[, k])[1:rfobj$forest$ndbigtree[k],]
   }
+  
   dimnames(tree) <- list(1:nrow(tree), c("left daughter", "right daughter", 
                                          "split var", "split point", "status", "prediction"))
   if (labelVar) {
     tree <- as.data.frame(tree)
-    v <- tree[[3]]
+    v    <- tree[[3]]
     v[v == 0] <- NA
     tree[[3]] <- factor(rownames(rfobj$importance)[v])
+    
     if (rfobj$type == "classification") {
       v <- tree[[6]]
       v[!v %in% 1:nlevels(rfobj$y)] <- NA
@@ -105,6 +121,7 @@ getTrees <- function (rfobj, k = 1, labelVar = FALSE)
   }
   tree
 }
+
 getRFPathNodesT <- function (tree, root = 1) 
 {
   paths <- list()
@@ -117,7 +134,7 @@ getRFPathNodesT <- function (tree, root = 1)
     lpaths <- lapply(lpaths, append, root, 0)
     rpaths <- getRFPathNodesT(tree, tree[root, "right daughter"])
     rpaths <- lapply(rpaths, append, -root, 0)
-    paths <- c(lpaths, rpaths)
+    paths  <- c(lpaths, rpaths)
   }
   return(paths)
 }
@@ -129,7 +146,7 @@ sdecimal2binarys.small <- function (x)
   if (x < 0) 
     stop("the input must be positive")
   dec <- x
-  n <- floor(log(x)/log(2))
+  n   <- floor(log(x)/log(2))
   bin <- c(1)
   dec <- dec - 2^n
   while (n > 0) {
@@ -142,6 +159,7 @@ sdecimal2binarys.small <- function (x)
   }
   return(bin)
 }
+
 sdecimal2binarys <- function (x) 
 {
   return(rev(sdecimal2binarys.small(x)))

@@ -21,6 +21,25 @@
 	
 }
 
+.wrapper-tag2 {
+	  text-align: center;
+		color: #fff;
+		font-size: 15px;
+		font-weight: 700;
+		background: linear-gradient(to right,#ffffff 10%, #777777 50%, #ffffff 60%);
+		background-size: auto auto;
+		background-clip: border-box;
+		background-size: 200% auto;
+		color: #fff;
+		background-clip: text;
+		text-fill-color: transparent;
+		-webkit-background-clip: text;
+		-webkit-text-fill-color: transparent;
+		animation: textclip 1.5s linear infinite;
+		display: inline-block;
+	
+}
+
 #new_data_predictions_ui_1-predecirPromidat,#new_data_predictions_ui_1-transback2  {
   display:none;
 }

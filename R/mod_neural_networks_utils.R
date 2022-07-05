@@ -1,22 +1,3 @@
-#' nn_model
-#'
-nn_model <- function(data, variable.pred, hidden = c(2), threshold = 0.1, stepmax = 2000){
-  
-  if(!is.null(variable.pred) && !is.null(data)){
-    form <- formula(paste0(variable.pred,"~."))
-    modelo.nn <- train.neuralnet(form, data = data, hidden = hidden, 
-                          linear.output = TRUE, threshold = threshold, stepmax = stepmax)
-
-    #Cambiamos la forma en que va aparecer el call
-    modelo.nn$call$formula <- form
-    modelo.nn$call$hidden <- hidden
-    modelo.nn$call$threshold <- threshold
-    modelo.nn$call$stepmax   <- stepmax
-
-    return(modelo.nn)
-  }
-  return(NULL)
-}
 
 #' nn_prediction
 #' 
@@ -39,10 +20,7 @@ nn_prediction <- function(model, test.data) {
   }
   
   return(NULL)
-  # paste0("datos.dummies.prueb <- as.data.frame(scale(dummy.data.frame(",data," %>% select(-`",variable.pred,"`))))\n",
-  #        "datos.dummies.prueb['",variable.pred,"'] <- NULL\n",
-  #        pred.var," <- neuralnet::compute(",model.var,", datos.dummies.prueb)$net.result\n",
-  #        pred.var, " <- ",pred.var," * ",sd.var,"['",variable.pred,"'] + ",mean.var,"['",variable.pred,"']")
+  
 }
 
 #' nn_plot
