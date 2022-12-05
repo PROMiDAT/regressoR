@@ -14,6 +14,13 @@ poderpred;Poder Predictivo;Predictive Power
 aprendizaje;Aprendizaje Supervisado;Supervised Learning
 comparacion;Comparación de Modelos;Model Comparison
 cargarComp;Cargar Tabla Completa;Load Full Data
+calibracion;Calibración de Modelos;Model Calibration
+crossval;Validación Cruzada;Cross Validation
+seleParModel;Parametrización de Modelos;Parameterization of the Models
+seleModel;Selección de Modelos;Selection of Models
+grafLineas;Gráfico de Líneas;Line Plot
+grafBarras;Gráfico de Barras;Bar Plot
+grafError;Gráfico de Variación del Error;Error Variation Plot
 predicnuevos;Predicción Individuos Nuevos;Predict New Cases
 pred;Predicción;Prediction
 eliminar;Eliminar;Delete
@@ -24,14 +31,19 @@ rl;Regresión Lineal;Linear Regression
 reglin;Regresión Lineal;Linear Regression
 rlr;Regresión Penalizada;Penalized Regression
 regpen;Regresión Penalizada;Penalized Regression
+knnl;K Vecinos Más Cercanos;K Nearest Neighbors
 knn;K Vecinos Más Cercanos;K Nearest Neighbors
 KNN;K Vecinos Más Cercanos;K Nearest Neighbors
 dt;Árboles de Regresión;Regression Trees
+dtl;Árboles de Regresión;Regression Trees
 DT;Árboles de Regresión;Regression Trees
 rf;Bosques Aleatorios;Random Forests
+rfl;Bosques Aleatorios;Random Forests
 RF;Bosques Aleatorios;Random Forests
+bl;Potenciación;Boosting
 boost;Potenciación;Boosting
 BOOST;Potenciación;Boosting
+svml;Soporte Vectorial;Support Vector Machines
 svm;Soporte Vectorial;Support Vector Machines
 SVM;Soporte Vectorial;Support Vector Machines
 nn;Redes Neuronales;Neural Networks
@@ -125,7 +137,7 @@ pvalue;P-valor (Shapiro);P-value (Shapiro)
 tasim;Valor del test;Test value
 rocCurva;Curva ROC;ROC Curve
 selectMod;Seleccionar Modelo:;Select Model:
-selectCat;Seleccionar Categoría:;Select Category:
+selectInd;Seleccionar Índice:;Select Index:
 selbooster;Seleccionar el Amplificador:;Select Booster:
 selnrounds;Número Máximo de Iteraciones:;Maximum Number of Iterations:
 cargarDatos;Cargar Datos;Load Data

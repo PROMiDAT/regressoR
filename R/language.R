@@ -89,8 +89,8 @@ dropNulls <- function (x) {
 
 # 
 # 
-# crear.traslation <- function() { 
-#   library(plyr) 
+# crear.traslation <- function() {
+#   library(plyr)
 #   archivo <-read.table("diccionario.csv", header = TRUE, sep = ";", as.is = TRUE)
 # translation <- dlply(archivo , .(key), function(s) key = as.list(s))
 # 

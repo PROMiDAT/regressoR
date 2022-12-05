@@ -142,16 +142,7 @@ segmentar.datos <- function(datos,porcentaje = 30, semilla = 5, perm.semilla = F
   return(list(test = test, train = train))
 }
 
-############################### Generar Código ################################
-code.carga <- function(nombre.filas = T, ruta = NULL, separador = ";",
-                       sep.decimal = ",", encabezado = T, incluir.NA = F) {
-  res <- paste0(
-    "datos <- read.table(stringsAsFactors = T, '", ruta, "', header=", encabezado, 
-    ", sep='", separador, "', dec = '", sep.decimal, "'", 
-    ifelse(nombre.filas, ", row.names = 1", ""), ")")
-  res <- paste0(res, "\n", code.NA(incluir.NA))
-  return(res)
-}
+
 
 code.NA <- function(deleteNA = T) {
   res <- ifelse(
@@ -167,34 +158,3 @@ code.NA <- function(deleteNA = T) {
       "    }\n  }\n}"))
   return(res)
 }
-
-code.trans <- function(var, nuevo.tipo) {
-  if(nuevo.tipo == "categorico"){
-    return(paste0(
-      "datos[['", var, "']] <- as.factor(datos[['", var, "']])\n"))
-  } else if(nuevo.tipo == "numerico") {
-    return(paste0(
-      "datos[['", var, "']] <- as.numeric(sub(',', '.', datos[['",
-      var, "']], fixed = TRUE))\n"))
-  } else {
-    return(paste0(
-      "datos <- datos.disyuntivos(datos, '", var,"')\n", 
-      "datos[['", var, "']] <- NULL\n"))
-  }
-}
- 
-# Genera el codigo para las particiones para training- testing
-code.segment <- function(p = 30, variable = NULL, semilla = 5, perm.semilla = FALSE){
-  semilla <- ifelse(is.numeric(semilla), semilla, 5)
-  codigo <- ifelse(perm.semilla, paste0("set.seed(",semilla,")"), "rm(.Random.seed, envir = globalenv())")
-  
-  codigo <- paste0(codigo,
-                   "\nvariable.predecir <- '",variable,
-                   "'\nparticion <- sample(1:nrow(datos),size = nrow(datos)*",p/100,
-                   ", replace = FALSE)\n",
-                   "datos.prueba <- datos[-particion,]\ndatos.aprendizaje <- datos[particion,]")
-  
-  codigo <- ifelse(perm.semilla, paste0(codigo, "\nset.seed(",semilla,")"),codigo)
-  return(codigo)
-}
-

@@ -27,7 +27,7 @@ app_ui <- function(request) {
   load.menu <- menuItem(labelInput("data"), tabName = "cargar", icon = icon("database"))
   
   
-  statistics.menu <- menuItem(labelInput("basico"), tabName = "parte1", icon = icon("th-list"),
+  statistics.menu <- menuItem(labelInput("basico"), tabName = "parte1", icon = icon("square-poll-vertical"),
                               menuSubItem(labelInput("resumen"), tabName = "resumen", icon = icon("sort-numeric-down")),
                               menuSubItem(labelInput("normalidad"), tabName = "normalidad", icon = icon("chart-bar")),
                               menuSubItem(labelInput("dispersion"), tabName = "dispersion", icon = icon("chart-line")),
@@ -37,16 +37,29 @@ app_ui <- function(request) {
   
   supervised.learning.menu    <- menuItem(labelInput("aprendizaje"), tabName = "parte2", icon = icon("th-list"),
                                           menuSubItem(labelInput("rl"),tabName = "rl",icon = icon("chart-line")),
-                                          menuSubItem(labelInput("rlr"),tabName = "rlr",icon = icon("chart-line")),
+                                          menuSubItem(labelInput("rlr"),tabName = "rlr",icon = icon("wave-square")),
                                           menuSubItem(labelInput("dt"),tabName = "dt",icon = icon("tree")),
                                           menuSubItem(labelInput("rf"),tabName = "rf",icon = icon("sitemap")),
                                           menuSubItem(labelInput("boost"),tabName = "boosting",icon = icon("superscript")),
                                           menuSubItem(labelInput("knn"),tabName = "knn",icon = icon("dot-circle")),
-                                          menuSubItem(labelInput("svm"),tabName = "svm",icon = icon("chart-line")),
+                                          menuSubItem(labelInput("svm"),tabName = "svm",icon = icon("vector-square")),
                                           menuSubItem(labelInput("rd"), tabName = "rd",icon = icon("chart-pie")),
                                           menuSubItem(labelInput("nn"),tabName = "nn",icon = icon("brain")))
   
-  compare.menu <- menuItem(labelInput("comparacion"), tabName = "comparar", icon = icon("eye"))
+  calibracion.menu    <- menuItem(labelInput("calibracion"), tabName = "calibracion", icon = icon("gears"),
+                                          menuSubItem(labelInput("rl"),tabName = "cv_rl",icon = icon("chart-line")),
+                                          menuSubItem(labelInput("rlr"),tabName = "cv_rlr",icon = icon("wave-square")),
+                                          menuSubItem(labelInput("dtl"),tabName = "cv_dt",icon = icon("tree")),
+                                          menuSubItem(labelInput("rfl"),tabName = "cv_rf",icon = icon("sitemap")),
+                                          menuSubItem(labelInput("bl"),tabName = "cv_boosting",icon = icon("superscript")),
+                                          menuSubItem(labelInput("knnl"),tabName = "cv_knn",icon = icon("dot-circle")),
+                                          menuSubItem(labelInput("svml"),tabName = "cv_svm",icon = icon("vector-square")),
+                                          menuSubItem(labelInput("rd"), tabName = "cv_rd",icon = icon("chart-pie")),
+                                          menuSubItem(labelInput("nn"),tabName = "cv_nn",icon = icon("brain")))
+  
+  cross.val.menu    <- menuItem(labelInput("crossval"), tabName = "cv_cv", icon = icon("laptop-code"))
+  
+  compare.menu <- menuItem(labelInput("comparacion"), tabName = "comparar", icon = icon("balance-scale"))
   
   new.prediction.menu <- menuItem(labelInput("predicnuevos"), tabName = "predNuevos", icon = icon("table"))
   
@@ -81,6 +94,8 @@ app_ui <- function(request) {
                          statistics.menu,
                          supervised.learning.menu,
                          compare.menu,
+                         calibracion.menu,
+                         cross.val.menu,
                          new.prediction.menu,
                          info.menu,
                          hr(),
@@ -152,7 +167,13 @@ app_ui <- function(request) {
                       tabItem(tabName = "rd",  
                               mod_dimension_reduction_ui("dimension_reduction_ui_1")),
                       tabItem(tabName = "nn",  
-                              mod_neural_networks_ui("neural_networks_ui_1")),
+                              mod_neural_networks_ui("neural_networks_ui_1")),  
+
+                      ############### Validación Cruzada ############### 
+                      
+                      tabItem(tabName = "cv_knn", 
+                              mod_cv_knn_ui("cv_knn_ui_1")),
+                      
                       tabItem(tabName = "comparar",
                               mod_model_comparison_ui("model_comparison_ui_1")),
                       tabItem(tabName = "predNuevos",

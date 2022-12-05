@@ -94,9 +94,9 @@ mod_KNN_server <- function(input, output, session,updateData, modelos, codedioma
     tryCatch({
       codigo.knn()
       isolate({
-        datos.aprendizaje <- updateData$datos.aprendizaje
-        datos.prueba      <- updateData$datos.prueba
-        variable.predecir <- updateData$variable.predecir
+        datos.aprendizaje <<- updateData$datos.aprendizaje
+        datos.prueba      <<- updateData$datos.prueba
+        variable.predecir <<- updateData$variable.predecir
         scale  <- as.logical(input$switch_scale_knn)
         kernel <- input$kernel.knn
         k        <- input$k.knn
@@ -114,13 +114,13 @@ mod_KNN_server <- function(input, output, session,updateData, modelos, codedioma
       var    <- as.formula(paste0(variable.predecir, "~."))
       
       #Model generate
-      modelo.knn <- traineR::train.knn(var, data = datos.aprendizaje, scale = as.logical(scale), 
+      modelo.knn <<- traineR::train.knn(var, data = datos.aprendizaje, scale = as.logical(scale), 
                                       kernel = kernel, ks = k, distance = distance )
       #Prediccion
-      prediccion.knn <- predict(modelo.knn, datos.prueba)
+      prediccion.knn <<- predict(modelo.knn, datos.prueba)
 
       #Indices
-      indices.knn <- general_indices(datos.prueba[,variable.predecir], prediccion.knn$prediction)
+      indices.knn <<- general_indices(datos.prueba[,variable.predecir], prediccion.knn$prediction)
 
       #isolamos para que no entre en un ciclo en el primer renderPrint
       isolate(modelos$knn[[nombreModelo]] <- list(modelo = modelo.knn, prediccion = prediccion.knn$prediction, 

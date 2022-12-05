@@ -66,6 +66,14 @@ app_server <- function( input, output, session ) {
         removeClass(class = "disabled", selector = i)
         shinyjs::enable(selector = i)
       }
+      if(is.null(updateData$grupos) || (is.null(updateData$numValC) && updateData$numValC <= 1)) {
+        shinyjs::disable(selector = 'a[href^="#shiny-tab-calibracion"]')
+        shinyjs::disable(selector = 'a[href^="#shiny-tab-cv_cv"]')
+      } else {
+        shinyjs::enable(selector = 'a[href^="#shiny-tab-calibracion"]')
+        shinyjs::enable(selector = 'a[href^="#shiny-tab-cv_cv"]')
+        shinyjs::enable(selector = 'a[data-value=poderPred]')
+      }
     })
   })
   
@@ -75,7 +83,7 @@ app_server <- function( input, output, session ) {
   #' Update on Language
   observeEvent(input$idioma, {
     codedioma$idioma = input$idioma
-    etiquetas <- c(readeR::labels_readeR(), cambiar.labels())
+    etiquetas <- names(translation)
     updateLabelInput(session, etiquetas, tr(etiquetas, input$idioma))
   })
   
@@ -104,15 +112,10 @@ app_server <- function( input, output, session ) {
     codigo <- codedioma$code
     lg     <- input$idioma
     
-    keys <- c(
-      'doccarga', 'doctt', 'doccv', 'docresumen', 'dochist', 'docqq', 
-      'docnormal', 'docdisp', 'docdistnum', 'docdistcat', 'doccor',
-      'docrename', 'doctrans', 'doceliminar', 'distpred', 'reglin', 'regpen', 'pares',
-      'gcoeff', 'posibLanda', 'garbol', 'DT', 'RF', 'reglas', 'BOOST', 'varImp', 'KNN', 
-      'SVM', 'RD', 'RdVarPred', 'RdPred', 'Rmse', 'NN', 'redPlot')
+    keys <- names(translation)
     
     for (k in keys) {
-      codigo <- gsub(k, tr(k, idioma = lg), codigo, fixed = T)
+      codigo <- gsub(paste0(" ", k, "\n"), paste0(" ", tr(k, idioma = lg), "\n"), codigo, fixed = T)
     }
     
     codigo.completo <- paste0(
@@ -166,9 +169,12 @@ app_server <- function( input, output, session ) {
   callModule(mod_dimension_reduction_server,  "dimension_reduction_ui_1",  updateData, modelos, codedioma)
   callModule(mod_neural_networks_server,      "neural_networks_ui_1",      updateData, modelos, codedioma)
 
-  # Comparaación de Individuos
+  # Comparación de Individuos
   callModule(mod_model_comparison_server,     "model_comparison_ui_1",     updateData, modelos, codedioma)
-
+  
+  #Validación Cruzada
+  callModule(mod_cv_knn_server,          "cv_knn_ui_1",           updateData, codedioma)
+  
   # Predicción Ind. Nuevos
   callModule(mod_new_data_predictions_server, "new_data_predictions_ui_1", newCases, updateData2, codedioma)
 

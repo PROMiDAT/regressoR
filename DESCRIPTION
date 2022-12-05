@@ -12,6 +12,7 @@ Depends: R (>= 4.1)
 Imports:
     DT (>= 0.23),
     pls (>= 2.8-0),
+    dplyr,
     shiny (>= 1.7.1),
     golem (>= 0.3.2),
     rlang (>= 1.0.2),
