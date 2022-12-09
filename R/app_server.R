@@ -174,6 +174,7 @@ app_server <- function( input, output, session ) {
   
   #Validación Cruzada
   callModule(mod_cv_knn_server,          "cv_knn_ui_1",           updateData, codedioma)
+  callModule(mod_cv_svm_server,          "cv_svm_ui_1",           updateData, codedioma)
   
   # Predicción Ind. Nuevos
   callModule(mod_new_data_predictions_server, "new_data_predictions_ui_1", newCases, updateData2, codedioma)

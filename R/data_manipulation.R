@@ -64,6 +64,7 @@ summary_indices <- function(data){
 }
 
 
+
 tabla.varpred.summary <- function(summary.var, decimals = NULL, idioma = "es"){
   df <- as.data.frame(summary.var)
   

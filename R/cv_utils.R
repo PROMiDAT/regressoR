@@ -16,7 +16,9 @@ cv.values <- function(datos){
   }
   return(puntos)
 }
-
+summary_indices_v <- function(data){
+  return(c( max(data), min(data),quantile(data, prob=c(0.25)),quantile(data, prob=c(0.75))))
+}
 validar.tamanno <- function(text){
   if(nchar(text) > 15){
     aux <- unlist(strsplit(text, " "))
@@ -50,7 +52,7 @@ indices.cv <- function( cant.vc, kernels, MCs.knn){
     valores <- sapply(MCs.knn[[paste0("MCs.", kernels[kernel])]], function(x) {x})
     value[indice:(n)]     <- valores[1,]
     ea[indice:(n)]        <- valores[2,]
-    er[indice:(n)]        <- valores[3,]
+    er[indice:(n)]        <- valores[3,]/100
     corr[indice:(n)]      <- valores[4,]
     indice <- indice + cant.vc
   }
@@ -63,7 +65,7 @@ indices.cv <- function( cant.vc, kernels, MCs.knn){
 
 
 
-resumen.lineas <- function(datos.grafico, labels = c("Global", "repeticion")) {
+resumen.lineas <- function(datos.grafico, labels = c("Global", "repeticion"), percent = FALSE, vals) {
   puntos <- cv.values(datos.grafico)
   opts <- list(
     xAxis = list(show = TRUE),
@@ -71,25 +73,75 @@ resumen.lineas <- function(datos.grafico, labels = c("Global", "repeticion")) {
     series = puntos)
   
   comp_plot <- e_charts() |>  
-    e_list(opts) |>  
-    e_y_axis(formatter = e_axis_formatter("percent",
-                                          digits = 0)) |>
-    e_axis_labels(x = labels[2],
-                  y = paste('%', labels[1])) |>
+    e_list(opts)  |>
     e_title(labels[1],
             left = "center",
             top = 5,
-            textStyle = list(fontSize = 20)) |>
-    e_tooltip(formatter = e_JS("function(params){
-                                           return('<strong>' + params.value[0] + ' </strong>' +",
-                               " parseFloat(params.value[1] * 100).toFixed(2) + '%' )}")) |>
+            textStyle = list(fontSize = 20))  |>
     e_datazoom(show = F,startValue=1) |>
     e_legend(show = T, type = "scroll", bottom = 1) |>
-    e_show_loading()|> e_x_axis(nameLocation = 'middle', nameGap = 35)
+    e_show_loading()|> e_x_axis(nameLocation = 'middle', nameGap = 35)|>
+    e_group_g(
+      right    = "15%",
+      top      = "80%",
+      z        = 100,
+      bounding = 'raw',
+      children = 
+        list(
+          list(
+            type  = 'rect',
+            left  = 'center',
+            top   = 'center',
+            z     = 100,
+            shape = list(
+              width  = 210,
+              height = 100
+            ),
+            style = list(
+              fill   = 'rgba(0,0,0,0.3)'
+            )
+          ),
+          list(
+            type  = 'text',
+            left  = 'center',
+            top   = 'center',
+            z     = 100,
+            style = list(
+              fill = '#fff',
+              text = paste0(labels[4] ,': ',vals[2] ,'\n', 
+                            labels[3] ,': ',vals[1] ,'\n',
+                            labels[5] ,': ',vals[3] ,'\n',
+                            labels[6] ,': ',vals[4]),
+              font = 'bold 18px sans-serif'
+            )
+          )
+        )
+    )
+  
+  
+  
+  
+  if(percent){
+    comp_plot <- comp_plot|>  
+      e_y_axis(formatter = e_axis_formatter("percent",
+                                            digits = 0)) |>
+      e_axis_labels(x = labels[2],
+                    y = paste('%', labels[1]))|>
+      e_tooltip(formatter = e_JS("function(params){
+                                           return('<strong>' + params.value[0] + ' </strong>' +",
+                                 " parseFloat(params.value[1] * 100).toFixed(5) + '%' )}"))
+  }else{
+    comp_plot <- comp_plot|>  
+      e_axis_labels(x = labels[2],
+                    y = labels[1])|>
+      e_tooltip(formatter = e_JS("function(params){
+                                           return('<strong>' + params.value[0] + ' </strong>' +",
+                                 " parseFloat(params.value[1] ).toFixed(5))}"))
+  }
   comp_plot
 }
 
-resumen.barras <- function(datos.grafico, labels = c("Global", "iteracion"), rotacion = FALSE) {
+resumen.barras <- function(datos.grafico, labels = c("Global", "iteracion"), percent = FALSE, rotacion = FALSE, vals) {
   
   datos.grafico <- datos.grafico |>
     dplyr::group_by( name, color ) |>
@@ -99,33 +151,87 @@ resumen.barras <- function(datos.grafico, labels = c("Global", "iteracion"), rot
   resumen <- datos.grafico |>
     e_charts( name) |>
     e_bar(value, name = var) |> 
-    e_add_nested("itemStyle", color) |>
-    e_labels(show     = TRUE,
-             position = 'top' ,
-             formatter =  e_JS("function(params){
-                                           return(parseFloat(params.value[1] *100).toFixed(2) + '%' )}")) |>
-    e_y_axis(formatter = e_axis_formatter("percent",
-                                          digits = 0)) |>
-    e_axis_labels(x = labels[2],
-                  y = paste('%', labels[1])) |>
+    e_add_nested("itemStyle", color)  |>
     e_title(labels[1],
             left  = "center",
             top   = 5,
             textStyle = list(fontSize = 20)) |>
-    e_tooltip(formatter = e_JS("function(params){
-                                           return('<strong>' + params.value[0] + ' </strong>' +",
-                               " parseFloat(params.value[1] * 100).toFixed(2) + '%' )}")) |>
     e_datazoom(show = F) |>
     e_legend(show = T, type = "scroll", bottom = 1) |>
-    e_show_loading()|> e_x_axis(nameLocation = 'middle', nameGap = 35)
+    e_show_loading()|> e_x_axis(nameLocation = 'middle', nameGap = 35)|>
+    e_group_g(
+      right    = "15%",
+      top      = "80%",
+      z        = 100,
+      bounding = 'raw',
+      children = 
+        list(
+          list(
+            type  = 'rect',
+            left  = 'center',
+            top   = 'center',
+            z     = 100,
+            shape = list(
+              width  = 210,
+              height = 100
+            ),
+            style = list(
+              fill   = 'rgba(0,0,0,0.3)'
+            )
+          ),
+          list(
+            type  = 'text',
+            left  = 'center',
+            top   = 'center',
+            z     = 100,
+            style = list(
+              fill = '#fff',
+              text = paste0(labels[4], ': ' , vals[2] ,'\n',
+                            labels[3], ': ' , vals[1] ,'\n',
+                            labels[5], ': ' , vals[3] ,'\n',
+                            labels[6], ': ' , vals[4]),
+              font = 'bold 18px sans-serif'
+            )
+          )
+        )
+    )
+  
+  
+  
   
   if(rotacion)
     resumen <- resumen |> e_x_axis(axisLabel = list(interval= 0, rotate= 30))
+  
+  if(percent){
+    resumen <- resumen|>  
+      e_y_axis(formatter = e_axis_formatter("percent",
+                                            digits = 0)) |>
+      e_axis_labels(x = labels[2],
+                    y = paste('%', labels[1])) |>
+      e_tooltip(formatter = e_JS("function(params){
+                                           return('<strong>' + params.value[0] + ' </strong>' +",
+                                 " parseFloat(params.value[1] * 100).toFixed(5) + '%' )}"))|>
+      e_labels(show     = TRUE,
+               position = 'top' ,
+               formatter =  e_JS("function(params){
+                                           return(parseFloat(params.value[1] *100).toFixed(3) + '%' )}"))
+  }else{
+    resumen <- resumen|>  
+      e_axis_labels(x = labels[2],
+                    y = labels[1])|>
+      e_tooltip(formatter = e_JS("function(params){
+                                           return('<strong>' + params.value[0] + ' </strong>' +",
+                                 " parseFloat(params.value[1]).toFixed(5) )}"))|>
+      e_labels(show     = TRUE,
+               position = 'top' ,
+               formatter =  e_JS("function(params){
+                                           return(parseFloat(params.value[1]).toFixed(5))}"))
+  }
   resumen$x$opts$legend$data <- datos.grafico$name
   resumen
 }
 
-resumen.error <- function(datos.grafico, labels = c("Global", "iteracion", "Valor Maximo", "Valor Minimo")) {
+resumen.error <- function(datos.grafico, labels = c("Global", "iteracion", "Valor Maximo", "Valor Minimo"), percent = FALSE, vals) {
   
   datos.grafico <- datos.grafico |> 
     dplyr::group_by( name, color ) |>
@@ -139,24 +245,75 @@ resumen.error <- function(datos.grafico, labels = c("Global", "iteracion", "Valo
     e_error_bar(min, max, 
                 tooltip = list(formatter = e_JS(paste0("function(params){",
                                                        "return('<b>", labels[3], ": </b>' + ",
-                                                       "Number.parseFloat(params.value[2]).toFixed(2) + ",
+                                                       "Number.parseFloat(params.value[2]).toFixed(5) + ",
                                                        "'<br/><b>", labels[4], ": </b>' + ",
-                                                       "Number.parseFloat(params.value[1]).toFixed(2))}"))))|>
+                                                       "Number.parseFloat(params.value[1]).toFixed(5))}"))))|>
     e_add_nested("itemStyle", color) |>
-    e_y_axis(formatter = e_axis_formatter("percent",
-                                          digits = 0)) |>
-    e_axis_labels(x = labels[2],
-                  y = paste('%', labels[1])) |>
     e_title(labels[1],
             left  = "center",
             top   = 5,
-            textStyle = list(fontSize = 20)) |>
-    e_tooltip(formatter = e_JS("function(params){
-                                           return('<strong>' + params.value[0] + ' </strong>' +",
-                               " parseFloat(params.value[1] * 100).toFixed(2) + '%' )}")) |>
+            textStyle = list(fontSize = 20))  |>
     e_datazoom(show = F) |>
     e_legend(show = T, type = "scroll", bottom = 1) |>
-    e_show_loading()|> e_x_axis(nameLocation = 'middle', nameGap = 35)
+    e_show_loading()|> e_x_axis(nameLocation = 'middle', nameGap = 35)|>
+    e_group_g(
+      right    = "15%",
+      top      = "80%",
+      z        = 100,
+      bounding = 'raw',
+      children = 
+        list(
+          list(
+            type  = 'rect',
+            left  = 'center',
+            top   = 'center',
+            z     = 100,
+            shape = list(
+              width  = 210,
+              height = 100
+            ),
+            style = list(
+              fill   = 'rgba(0,0,0,0.3)'
+            )
+          ),
+          list(
+            type  = 'text',
+            left  = 'center',
+            top   = 'center',
+            z     = 100,
+            style = list(
+              fill = '#fff',
+              text = paste0(labels[4] ,': ',vals[2] ,'\n',
+                            labels[3] ,': ',vals[1] ,'\n',
+                            labels[5] ,': ',vals[3] ,'\n',
+                            labels[6] ,': ',vals[4]),
+              font = 'bold 18px sans-serif'
+            )
+          )
+        )
+    )
+  
+  
+  
+  
+  
+  if(percent){
+    resumen <- resumen|>  
+      e_y_axis(formatter = e_axis_formatter("percent",
+                                            digits = 0)) |>
+      e_axis_labels(x = labels[2],
+                    y = paste('%', labels[1]))|>
+      e_tooltip(formatter = e_JS("function(params){
+                                           return('<strong>' + params.value[0] + ' </strong>' +",
+                                 " parseFloat(params.value[1] ).toFixed(5) + '%' )}"))
+  }else{
+    resumen <- resumen|>  
+      e_axis_labels(x = labels[2],
+                    y = labels[1])|>
+      e_tooltip(formatter = e_JS("function(params){
+                                           return('<strong>' + params.value[0] + ' </strong>' +",
+                                 " parseFloat(params.value[1]).toFixed(5)  )}"))
+  }
   resumen$x$opts$legend$data <- datos.grafico$name
   resumen
 }

@@ -174,6 +174,9 @@ app_ui <- function(request) {
                       tabItem(tabName = "cv_knn", 
                               mod_cv_knn_ui("cv_knn_ui_1")),
                       
+                      tabItem(tabName = "cv_svm", 
+                              mod_cv_svm_ui("cv_svm_ui_1")),
+                      
                       tabItem(tabName = "comparar",
                               mod_model_comparison_ui("model_comparison_ui_1")),
                       tabItem(tabName = "predNuevos",
