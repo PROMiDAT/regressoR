@@ -147,15 +147,15 @@ app_server <- function( input, output, session ) {
   
   ###################################  Modules  ###############################
   #Carga de Datos
-  readeR::mod_carga_datos_server("carga_datos_ui_1", updateData, modelos, codedioma, "regressoR")
-  readeR::mod_carga_datos_server("carga_datos_ui_2", updateData2, NULL, codedioma, "discoveR")
+  readeR::mod_carga_datos_server("carga_datos_ui_1", updateData,  modelos, codedioma, "regressoR")
+  readeR::mod_carga_datos_server("carga_datos_ui_2", updateData2, NULL,    codedioma, "discoveR")
   
   #Estadísticas Básicas
-  readeR::mod_r_numerico_server("r_numerico_ui_1",         updateData, codedioma)
-  readeR::mod_normal_server("normal_ui_1",                 updateData, codedioma)
-  readeR::mod_dispersion_server("dispersion_ui_1",         updateData, codedioma)
-  readeR::mod_distribuciones_server("distribuciones_ui_1", updateData, codedioma)
-  readeR::mod_correlacion_server("correlacion_ui_1",       updateData, codedioma)
+  readeR::mod_r_numerico_server("r_numerico_ui_1",                 updateData, codedioma)
+  readeR::mod_normal_server("normal_ui_1",                         updateData, codedioma)
+  readeR::mod_dispersion_server("dispersion_ui_1",                 updateData, codedioma)
+  readeR::mod_distribuciones_server("distribuciones_ui_1",         updateData, codedioma)
+  readeR::mod_correlacion_server("correlacion_ui_1",               updateData, codedioma)
   callModule(mod_Predictive_Power_server, "Predictive_Power_ui_1", updateData, codedioma)
   
   # Aprendizaje Supervisado
@@ -173,8 +173,11 @@ app_server <- function( input, output, session ) {
   callModule(mod_model_comparison_server,     "model_comparison_ui_1",     updateData, modelos, codedioma)
   
   #Validación Cruzada
-  callModule(mod_cv_knn_server,          "cv_knn_ui_1",           updateData, codedioma)
-  callModule(mod_cv_svm_server,          "cv_svm_ui_1",           updateData, codedioma)
+  callModule(mod_cv_knn_server,      "cv_knn_ui_1",      updateData, codedioma)
+  callModule(mod_cv_svm_server,      "cv_svm_ui_1",      updateData, codedioma)
+  callModule(mod_cv_dt_server,       "cv_dt_ui_1",       updateData, codedioma)
+  callModule(mod_cv_rf_server,       "cv_rf_ui_1",       updateData, codedioma)
+  callModule(mod_cv_boosting_server, "cv_boosting_ui_1", updateData, codedioma)
   
   # Predicción Ind. Nuevos
   callModule(mod_new_data_predictions_server, "new_data_predictions_ui_1", newCases, updateData2, codedioma)

@@ -1,4 +1,4 @@
-#' cv_knn UI Function
+#' cv_rf UI Function
 #'
 #' @description A shiny Module.
 #'
@@ -7,29 +7,25 @@
 #' @noRd 
 #'
 #' @importFrom shiny NS tagList 
-mod_cv_knn_ui <- function(id){
+mod_cv_rf_ui <- function(id){
   ns <- NS(id)
   
   tagList(
     tabBoxPrmdt(
-      id = ns("BoxKnn"), 
-      tabPanel(title = p(labelInput("seleParModel"),class = "wrapper-tag"), value = "tabCVKnnModelo",
-               div(col_6(numericInput(ns("kmax_cvknn"), labelInput("kv"), min = 1,step = 1, value = 7)),
-                   col_6(radioSwitch(ns("scale_cvknn"), "escal", c("si", "no")))),
-               div(col_6(
+      id = ns("Boxrf"), 
+      tabPanel(title = p(labelInput("seleParModel"),class = "wrapper-tag"), value = "tabCVrfModelo",
+               div(col_6(numericInput(ns("ntree.rf"), labelInput("numTree"), 20, width = "100%", min = 0)),
+                   col_6(numericInput(ns("mtry.rf"), labelInput("numVars"),1, width = "100%", min = 1) )),
+               div(col_12(
                  selectizeInput(
-                   ns("sel_kernel"), labelInput("selkernel"), multiple = T,
-                   choices = c("optimal", "rectangular", "triangular", "epanechnikov", "biweight",
-                               "triweight", "cos","inv","gaussian"))
-               ),col_6(
-                 numericInput(ns("distance_cvknn"), labelInput("distknn"), min = 1,step = 1, value = 2)
-               )),
+                   ns("sel_split"), labelInput("splitIndex"), multiple = T,
+                   choices =  list("gini" = "gini", "Entropia" = "information")))),
                div(col_12(id = ns("texto"),
-                   style = "display:block",withLoader(verbatimTextOutput(ns("txtcvknn")), 
-                                                      type = "html", loader = "loader4"))),
+                          style = "display:block",withLoader(verbatimTextOutput(ns("txtcvrf")), 
+                                                             type = "html", loader = "loader4"))),
                hr(style = "border-top: 2px solid #cccccc;" ),
-               actionButton(ns("btn_cv_knn"), labelInput("generar"), width  = "100%" ),br(),br()),
-      tabPanel(title = p(labelInput("indices"),class = "wrapper-tag"), value = "tabCVKnnIndices",
+               actionButton(ns("btn_cv_rf"), labelInput("generar"), width  = "100%" ),br(),br()),
+      tabPanel(title = p(labelInput("indices"),class = "wrapper-tag"), value = "tabCVrfIndices",
                div(col_4(div(id = ns("row"), shiny::h5(style = "float:left;margin-top: 15px;", labelInput("selectInd"),class = "wrapper-tag"),
                              tags$div(class="multiple-select-var",
                                       selectInput(inputId = ns("cvcv_glo"),label = NULL,
@@ -39,20 +35,20 @@ mod_cv_knn_ui <- function(id){
                              tags$div(class="multiple-select-var",
                                       selectInput(inputId = ns("plot_type_p"),label = NULL,
                                                   choices =  c("barras", "lineas", "error"), width = "100%")))), hr()),
-               div(col_12(echarts4rOutput(ns("e_knn_ind"), width = "100%", height = "70vh"))))
+               div(col_12(echarts4rOutput(ns("e_rf_ind"), width = "100%", height = "70vh"))))
     )
     
   )
 }
-
-#' cv_knn Server Functions
+    
+#' cv_rf Server Functions
 #'
 #' @noRd 
-mod_cv_knn_server <- function(input, output, session, updateData, codedioma){
+mod_cv_rf_server <- function(input, output, session, updateData, codedioma){
   ns <- session$ns
   
   
-  M <- rv(MCs.knn = NULL, grafico = NULL, er = NULL, ea = NULL, corr = NULL, times = 0, summary = NULL)
+  M <- rv(MCs.rf = NULL, grafico = NULL, er = NULL, ea = NULL, corr = NULL, times = 0, summary = NULL)
   
   observeEvent(codedioma$idioma, {
     
@@ -65,7 +61,7 @@ mod_cv_knn_server <- function(input, output, session, updateData, codedioma){
   })
   
   observeEvent(c(updateData$datos, updateData$variable.predecir), {
-    M$MCs.knn <- NULL
+    M$MCs.rf <- NULL
     M$grafico <- NULL
     M$ea   <- NULL
     M$er   <- NULL
@@ -74,28 +70,28 @@ mod_cv_knn_server <- function(input, output, session, updateData, codedioma){
     datos        <- updateData$datos
 
     if(!is.null(datos)){
-      updateNumericInput(session,"kmax_cvknn",value = round(sqrt(nrow(datos))))
-      updateSelectizeInput(session, "sel_kernel", selected = "")
+      updateNumericInput(session,"mtry.rf",value = round(sqrt(ncol(datos) - 1)))
+      updateSelectizeInput(session, "sel_split", selected = "")
     }
+    
   })
   
-  output$txtcvknn <- renderPrint({
-    input$btn_cv_knn
-    M$MCs.knn <- NULL
+  output$txtcvrf <- renderPrint({
+    input$btn_cv_rf
+    M$MCs.rf <- NULL
     M$grafico <- NULL
     M$ea   <- NULL
     M$er   <- NULL
     M$corr <- NULL
     tryCatch({
-      kernels   <- isolate(input$sel_kernel)
+      kernels   <- isolate(input$sel_split)
       cant.vc   <- isolate(updateData$numValC)
-      MCs.knn   <- vector(mode = "list")
+      MCs.rf    <- vector(mode = "list")
       datos     <- isolate(updateData$datos)
       numGrupos <- isolate(updateData$numGrupos)
       grupos    <- isolate(updateData$grupos)
-      kmax      <- isolate(input$kmax_cvknn)
-      scales    <- isolate(input$scale_cvknn)
-      distance  <- isolate(input$distance_cvknn)
+      ntree     <- isolate(input$ntree.rf)
+      mtry      <- isolate(input$mtry.rf)
       variable  <- updateData$variable.predecir
       var_      <- paste0(variable, "~.")
       nombres   <- vector(mode = "character", length = length(kernels))
@@ -105,15 +101,15 @@ mod_cv_knn_server <- function(input, output, session, updateData, codedioma){
           showNotification("Debe seleccionar al menos un kernel")
       }
       for (kernel in 1:length(kernels)){
-        MCs.knn[[paste0("MCs.",kernels[kernel])]] <- vector(mode = "list", length = cant.vc)
+        MCs.rf[[paste0("MCs.",kernels[kernel])]] <- vector(mode = "list", length = cant.vc)
         nombres[kernel] <- paste0("MC.",kernels[kernel])
       }
       for (i in 1:cant.vc){
-        MC.knn <- vector(mode = "list", length = length(kernels))
-        names(MC.knn) <- nombres
+        MC.rf <- vector(mode = "list", length = length(kernels))
+        names(MC.rf) <- nombres
         for (kernel in 1:length(kernels)){
-          MC.knn[[kernel]] <- vector(mode = "list", 4)
-          names(MC.knn[[kernel]]) <- c("Raiz.Error.Cuadratico", "Error.Absoluto", "Error.Relativo", "Correlacion")
+          MC.rf[[kernel]] <- vector(mode = "list", 4)
+          names(MC.rf[[kernel]]) <- c("Raiz.Error.Cuadratico", "Error.Absoluto", "Error.Relativo", "Correlacion")
         }
         
         for (k in 1:numGrupos){
@@ -122,38 +118,37 @@ mod_cv_knn_server <- function(input, output, session, updateData, codedioma){
           ttesting  <- datos[muestra, ]
           
           for (j in 1:length(kernels)){
-            modelo      <- train.knn(as.formula(var_), 
-                                     data   = ttraining, 
-                                     kernel = kernels[j], 
-                                     kmax   = kmax, 
-                                     scale  = as.logical(scales), 
-                                     distance = distance)
+            modelo      <- train.randomForest(as.formula(var_), 
+                                              data   = ttraining, 
+                                              parms = list(split = kernels[j]),
+                                              ntree = ntree, 
+                                              mtry = mtry )
             
             prediccion  <- predict(modelo, ttesting)
             MC          <- general_indices(ttesting[,variable], prediccion$prediction)
-            MC.knn[[j]] <- Map(c, MC.knn[[j]], MC)
+            MC.rf[[j]] <- Map(c, MC.rf[[j]], MC)
             
           }
         }
         
-        for (l in 1:length(MCs.knn)){
-          MCs.knn[[l]][[i]] <-  sapply(MC.knn[[l]],mean)
+        for (l in 1:length(MCs.rf)){
+          MCs.rf[[l]][[i]] <-  sapply(MC.rf[[l]],mean)
         }
       }
       
-      M$MCs.knn  <- MCs.knn
+      M$MCs.rf  <- MCs.rf
       
-      resultados <- indices.cv(cant.vc, kernels, MCs.knn)
+      resultados <- indices.cv(cant.vc, kernels, MCs.rf)
       
       M$grafico  <- resultados$grafico
       M$ea   <- resultados$ea
       M$er   <- resultados$er
       M$corr <- resultados$corr
       M$summary <- summary_indices_v(datos[[variable]])
-      print(MCs.knn)
+      print(MCs.rf)
       
     },error = function(e){
-      M$MCs.knn <- NULL
+      M$MCs.rf <- NULL
       M$grafico <- NULL
       M$ea   <- NULL
       M$er   <- NULL
@@ -163,7 +158,7 @@ mod_cv_knn_server <- function(input, output, session, updateData, codedioma){
     })
   })
   
-  output$e_knn_ind  <-  renderEcharts4r({
+  output$e_rf_ind  <-  renderEcharts4r({
     idioma <- codedioma$idioma
     tryCatch({
       indice  <- input$cvcv_glo
@@ -171,10 +166,10 @@ mod_cv_knn_server <- function(input, output, session, updateData, codedioma){
       grafico <- M$grafico
       if(!is.null(grafico)){
         label <- switch (indice,
-                           "0" = tr("RMSE",idioma),
-                           "1" = tr("MAE",idioma),
-                           "2" = tr("ER",idioma),
-                           "3" = tr("correlacion",idioma)
+                         "0" = tr("RMSE",idioma),
+                         "1" = tr("MAE",idioma),
+                         "2" = tr("ER",idioma),
+                         "3" = tr("correlacion",idioma)
         )
         grafico$value <- switch (indice,
                                  "0" = grafico$value,
@@ -196,12 +191,10 @@ mod_cv_knn_server <- function(input, output, session, updateData, codedioma){
       return(NULL)
     })
   })
-
 }
-
-
+    
 ## To be copied in the UI
-# mod_cv_knn_ui("cv_knn_1")
-
+# mod_cv_rf_ui("cv_rf_1")
+    
 ## To be copied in the server
-# mod_cv_knn_server("cv_knn_1")
+# mod_cv_rf_server("cv_rf_1")
