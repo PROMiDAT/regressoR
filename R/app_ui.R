@@ -63,7 +63,7 @@ app_ui <- function(request) {
   
   new.prediction.menu <- menuItem(labelInput("predicnuevos"), tabName = "predNuevos", icon = icon("table"))
   
-  info.menu <- menuItem(labelInput("acercade"), tabName = "acercaDe", icon = icon("info"))
+  info.menu <- menuItem(labelInput("acercade"), tabName = "acercaDe", icon = icon("circle-info"))
   
   menu.language <- tags$li(class = "nodisabled treeview",
                            tags$a(href = "#shiny-tab-tabdioma",
@@ -182,11 +182,16 @@ app_ui <- function(request) {
                       
                       tabItem(tabName = "cv_rf", 
                               mod_cv_rf_ui("cv_rf_ui_1")),
-                      
-                      
+
                       tabItem(tabName = "cv_boosting", 
                               mod_cv_boosting_ui("cv_boosting_ui_1")),
                       
+                      tabItem(tabName = "cv_rlr", 
+                              mod_cv_rlr_ui("cv_rlr_ui_1")),
+                      
+                      tabItem(tabName = "cv_rd", 
+                              mod_cv_rd_ui("cv_rd_ui_1")),
+
                       tabItem(tabName = "comparar",
                               mod_model_comparison_ui("model_comparison_ui_1")),
                       tabItem(tabName = "predNuevos",
@@ -269,7 +274,7 @@ golem_add_external_resources <- function(){
     favicon(),
     bundle_resources(
       path = app_sys('app/www'),
-      app_title = 'RegressoR'
+      app_title = 'regressoR'
     ),
     shinyjs::useShinyjs(),
     tags$script(HTML(jsCode))

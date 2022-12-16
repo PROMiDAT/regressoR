@@ -178,6 +178,8 @@ app_server <- function( input, output, session ) {
   callModule(mod_cv_dt_server,       "cv_dt_ui_1",       updateData, codedioma)
   callModule(mod_cv_rf_server,       "cv_rf_ui_1",       updateData, codedioma)
   callModule(mod_cv_boosting_server, "cv_boosting_ui_1", updateData, codedioma)
+  callModule(mod_cv_rlr_server,      "cv_rlr_ui_1",      updateData, codedioma)
+  callModule(mod_cv_rd_server,       "cv_rd_ui_1",      updateData, codedioma)
   
   # Predicción Ind. Nuevos
   callModule(mod_new_data_predictions_server, "new_data_predictions_ui_1", newCases, updateData2, codedioma)
