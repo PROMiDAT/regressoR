@@ -17,7 +17,7 @@ Imports:
     golem (>= 0.3.2),
     rlang (>= 1.0.2),
     glmnet (>= 4.1-4),
-    readeR  (>= 1.0.3), 
+    loadeR  (>= 1.0.3), 
     shinyjs (>= 2.1.0),
     traineR  (>= 2.0.2),
     shinyAce (>= 0.4.2),

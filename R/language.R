@@ -1,5 +1,5 @@
 load("inst/app/lang/translation.bin") # Load translation.bin (dictionary to change language)
-translation <- append(translation, readeR::translation.readeR())
+translation <- append(translation, loadeR::translation.loadeR())
 enc <- "utf8"
 
 cambiar.labels <- function(){

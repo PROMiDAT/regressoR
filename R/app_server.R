@@ -122,7 +122,7 @@ app_server <- function( input, output, session ) {
       "library(XLConnect)\n", "library(caret)\n",
       "library(traineR)\n", "library(glmnet)\n",
       "library(rpart.plot)\n", "library(htmltools)\n",
-      "library(echarts4r)\n", "library(readeR)\n\n"
+      "library(echarts4r)\n", "library(loadeR)\n\n"
     )
     for (cod in codigo) {
       codigo.completo <- paste0(codigo.completo, "\n", cod)
@@ -147,15 +147,15 @@ app_server <- function( input, output, session ) {
   
   ###################################  Modules  ###############################
   #Carga de Datos
-  readeR::mod_carga_datos_server("carga_datos_ui_1", updateData,  modelos, codedioma, "regressoR")
-  readeR::mod_carga_datos_server("carga_datos_ui_2", updateData2, NULL,    codedioma, "discoveR")
+  loadeR::mod_carga_datos_server("carga_datos_ui_1", updateData,  modelos, codedioma, "regressoR")
+  loadeR::mod_carga_datos_server("carga_datos_ui_2", updateData2, NULL,    codedioma, "discoveR")
   
   #Estadísticas Básicas
-  readeR::mod_r_numerico_server("r_numerico_ui_1",                 updateData, codedioma)
-  readeR::mod_normal_server("normal_ui_1",                         updateData, codedioma)
-  readeR::mod_dispersion_server("dispersion_ui_1",                 updateData, codedioma)
-  readeR::mod_distribuciones_server("distribuciones_ui_1",         updateData, codedioma)
-  readeR::mod_correlacion_server("correlacion_ui_1",               updateData, codedioma)
+  loadeR::mod_r_numerico_server("r_numerico_ui_1",                 updateData, codedioma)
+  loadeR::mod_normal_server("normal_ui_1",                         updateData, codedioma)
+  loadeR::mod_dispersion_server("dispersion_ui_1",                 updateData, codedioma)
+  loadeR::mod_distribuciones_server("distribuciones_ui_1",         updateData, codedioma)
+  loadeR::mod_correlacion_server("correlacion_ui_1",               updateData, codedioma)
   callModule(mod_Predictive_Power_server, "Predictive_Power_ui_1", updateData, codedioma)
   
   # Aprendizaje Supervisado
@@ -179,7 +179,8 @@ app_server <- function( input, output, session ) {
   callModule(mod_cv_rf_server,       "cv_rf_ui_1",       updateData, codedioma)
   callModule(mod_cv_boosting_server, "cv_boosting_ui_1", updateData, codedioma)
   callModule(mod_cv_rlr_server,      "cv_rlr_ui_1",      updateData, codedioma)
-  callModule(mod_cv_rd_server,       "cv_rd_ui_1",      updateData, codedioma)
+  callModule(mod_cv_rd_server,       "cv_rd_ui_1",       updateData, codedioma)
+  callModule(mod_cv_rl_server,       "cv_rl_ui_1",       updateData, codedioma)
   
   # Predicción Ind. Nuevos
   callModule(mod_new_data_predictions_server, "new_data_predictions_ui_1", newCases, updateData2, codedioma)

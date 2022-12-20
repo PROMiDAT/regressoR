@@ -14,15 +14,15 @@ mod_cv_rd_ui <- function(id){
     tabBoxPrmdt(
       id = ns("Boxrd"), 
       tabPanel(title = p(labelInput("seleParModel"),class = "wrapper-tag"), value = "tabCVrdModelo",
-               div(col_6(selectizeInput(
-                 ns("sel_kernel"), labelInput("selectAlg"), multiple = T,
-                 choices = list("ACP" = 0, "MCP" = 1))),
-                   col_6(radioSwitch(ns("scale_cvrd"), "escal", c("si", "no")))),
                div(col_6(
                  radioSwitch(ns("permitir_ncomp"), "", c("manual", "automatico"), val.def = FALSE)
                ),col_6(
                  numericInput(ns("ncomp.rd"), labelInput("ncomp"),value = 2, min = 1, width = "100%")
                )),
+               div(col_6(selectizeInput(
+                 ns("sel_kernel"), labelInput("selectAlg"), multiple = T,
+                 choices = list("ACP" = 0, "MCP" = 1))),
+                   col_6(radioSwitch(ns("scale_cvrd"), "escal", c("si", "no")))),
                div(col_12(id = ns("texto"),
                           style = "display:block",withLoader(verbatimTextOutput(ns("txtcvrd")), 
                                                              type = "html", loader = "loader4"))),

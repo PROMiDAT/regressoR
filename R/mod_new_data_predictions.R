@@ -33,7 +33,7 @@ mod_new_data_predictions_ui <- function(id){
     div(id = ns("primera"),
         div(
           col_11(
-            readeR::mod_carga_datos_ui("carga_datos_ui_2", p(labelInput("cargarComp"),class = "wrapper-tag"), "discoveR")
+            loadeR::mod_carga_datos_ui("carga_datos_ui_2", p(labelInput("cargarComp"),class = "wrapper-tag"), "discoveR")
           ),
           col_1(actionButton(inputId = ns("cargarnext"),width = "100%",
                              label = NULL, icon = icon("forward")) ))
@@ -376,7 +376,7 @@ mod_new_data_predictions_server <- function(input, output, session, newCases, up
     
     if(!is.null(variable)){
       tryCatch({
-        #codigo <- readeR:::code.carga(rowname, ruta$name, sep, dec, encabezado, deleteNA)
+        #codigo <- loadeR:::code.carga(rowname, ruta$name, sep, dec, encabezado, deleteNA)
         #codigo <- paste0(codigo, "datos.prueba.completos <<- datos\n")
         
         #isolate(codedioma$code <- append(codedioma$code, codigo))
@@ -690,7 +690,7 @@ mod_new_data_predictions_server <- function(input, output, session, newCases, up
         }
         else{
           if(paste0(var, ".", unique(originales[, var])[1]) %in% colnames(datos.aprendizaje)){
-            datos.prueba <- readeR::datos.disyuntivos(datos.prueba, var)
+            datos.prueba <- loadeR::datos.disyuntivos(datos.prueba, var)
             datos.prueba[, var]       <- NULL
           }else{
             datos.prueba[, var]       <- NULL

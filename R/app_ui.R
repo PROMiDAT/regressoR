@@ -85,7 +85,7 @@ app_ui <- function(request) {
                           sliderInput(inputId = "aux", min = 2, value = 2,
                                       label = "Cantidad de Clusters", max = 10),
                           colourInput(
-                            "auxColor", NULL, value = "red", allowTransparent = T))
+                            "auxColor", NULL, value =  "red", allowTransparent = T))
   
   # The side menu
   mi.menu <- sidebarMenu(id = "principal",
@@ -137,17 +137,17 @@ app_ui <- function(request) {
                     load.page,
                     tabItems(
                       tabItem(tabName = "cargar",  
-                              readeR::mod_carga_datos_ui("carga_datos_ui_1", labelInput("data"))),
+                              loadeR::mod_carga_datos_ui("carga_datos_ui_1", labelInput("data"))),
                       tabItem(tabName = "resumen",
-                              readeR::mod_r_numerico_ui("r_numerico_ui_1")),
+                              loadeR::mod_r_numerico_ui("r_numerico_ui_1")),
                       tabItem(tabName = "normalidad",
-                              readeR:: mod_normal_ui("normal_ui_1")),
+                              loadeR:: mod_normal_ui("normal_ui_1")),
                       tabItem(tabName = "dispersion",
-                              readeR::mod_dispersion_ui("dispersion_ui_1")),
+                              loadeR::mod_dispersion_ui("dispersion_ui_1")),
                       tabItem(tabName = "distribucion",
-                              readeR::mod_distribuciones_ui("distribuciones_ui_1")),
+                              loadeR::mod_distribuciones_ui("distribuciones_ui_1")),
                       tabItem(tabName = "correlacion",
-                              readeR::mod_correlacion_ui("correlacion_ui_1")),
+                              loadeR::mod_correlacion_ui("correlacion_ui_1")),
                       tabItem(tabName = "poderPred",
                               mod_Predictive_Power_ui("Predictive_Power_ui_1")),
                       tabItem(tabName = "rl",
@@ -191,6 +191,9 @@ app_ui <- function(request) {
                       
                       tabItem(tabName = "cv_rd", 
                               mod_cv_rd_ui("cv_rd_ui_1")),
+                      
+                      tabItem(tabName = "cv_rl", 
+                              mod_cv_rl_ui("cv_rl_ui_1")),
 
                       tabItem(tabName = "comparar",
                               mod_model_comparison_ui("model_comparison_ui_1")),
