@@ -155,6 +155,7 @@ mod_cv_rl_server <- function(input, output, session, updateData, codedioma){
                                  "2" = M$er,
                                  "3" = M$corr
         )
+        grafico$name <-  tr(grafico$name, idioma)
         p <- ifelse(indice == "2", TRUE, FALSE)
         switch (type,
                 "barras" = return( resumen.barras(grafico, labels = c(label,"Kernel",tr(c("maximo","minimo", "q1", "q3"), idioma)) ,percent = p, vals = M$summary)),

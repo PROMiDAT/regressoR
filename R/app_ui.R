@@ -54,8 +54,7 @@ app_ui <- function(request) {
                                           menuSubItem(labelInput("bl"),tabName = "cv_boosting",icon = icon("superscript")),
                                           menuSubItem(labelInput("knnl"),tabName = "cv_knn",icon = icon("dot-circle")),
                                           menuSubItem(labelInput("svml"),tabName = "cv_svm",icon = icon("vector-square")),
-                                          menuSubItem(labelInput("rd"), tabName = "cv_rd",icon = icon("chart-pie")),
-                                          menuSubItem(labelInput("nn"),tabName = "cv_nn",icon = icon("brain")))
+                                          menuSubItem(labelInput("rd"), tabName = "cv_rd",icon = icon("chart-pie")))
   
   cross.val.menu    <- menuItem(labelInput("crossval"), tabName = "cv_cv", icon = icon("laptop-code"))
   
@@ -194,6 +193,9 @@ app_ui <- function(request) {
                       
                       tabItem(tabName = "cv_rl", 
                               mod_cv_rl_ui("cv_rl_ui_1")),
+                      
+                      tabItem(tabName = "cv_cv", 
+                              mod_cross_validation_ui("cross_validation_ui_1")),
 
                       tabItem(tabName = "comparar",
                               mod_model_comparison_ui("model_comparison_ui_1")),
