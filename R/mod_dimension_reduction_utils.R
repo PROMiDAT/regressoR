@@ -319,16 +319,3 @@ plot_var_pred_rd <- function(model, n.comp, titles = c("Varianza Explicada en Va
     e_show_loading()
 }
 
-
-#------------------------------------CODE---------------------------------------
-codeRd <- function(variable.predecir, mode, scale){
-  return(paste0("rd_model(data, '",variable.predecir,"', mode = ",mode, ", scale = ", scale, ")\n"))
-}
-
-codeRdPred <- function(nombreModelo, ncomp){
-  return(paste0("rd_prediction(model = ", nombreModelo, ", test.data, ncomp = ", ncomp, ")\n"))
-}
-
-codeRdIG <- function(variable.predecir){
-  return(paste0("general_indices(test.data[,'",variable.predecir,"'], prediccion.rd)\n"))
-}

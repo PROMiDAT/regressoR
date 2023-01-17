@@ -96,13 +96,13 @@ mod_cv_rl_server <- function(input, output, session, updateData, codedioma){
         
         for (k in 1:numGrupos){
           muestra   <- grupos[[i]][[k]]
-          ttraining <<- datos[-muestra, ]
-          ttesting  <<- datos[muestra, ]
+          ttraining <- datos[-muestra, ]
+          ttesting  <- datos[muestra, ]
           j <- 1
           
-            modelo      <<- lm(as.formula(var_), 
+            modelo      <- lm(as.formula(var_), 
                                      data   = ttraining)
-            prediccion  <<- predict(modelo, ttesting)
+            prediccion  <- predict(modelo, ttesting)
             MC          <- general_indices(ttesting[,variable], prediccion)
             MC.rl[[j]]  <- Map(c, MC.rl[[j]], MC)
           

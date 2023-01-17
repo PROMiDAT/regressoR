@@ -18,3 +18,6 @@
 #' }
 #' @keywords package
 #' @docType package
+
+NULL
+utils::globalVariables(c( "name", "value", "color"))

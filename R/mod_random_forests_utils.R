@@ -1,23 +1,5 @@
 # RF PAGE ------------------------------------------------------------------------------------------------------------
 
-#' rf_prediction
-#' 
-#' @description generates the prediction of the random forest model.
-#'
-#' @param model Random Forest model(randomForest).
-#' @param test.data dataframe.
-#'
-#' @export
-#'
-rf_prediction <- function(model, test.data){
-  if(!is.null(test.data) && !is.null(model)){
-    return(predict(model,test.data)$prediction)
-  }
-  return(NULL)
-}
-
-
-
 #' importance_plot_rf
 #' 
 #' @description graphs the importance of variables for the random forest model according to the percentage increase in mean square error.
@@ -83,17 +65,4 @@ rf_ntree_values <- function(model) {
   )
   colnames(rf_results) = c("ntree", "RMSE", "Fit?")
   return(rf_results)
-}
-
-#------------------------------------CODE---------------------------------------
-codeRf <- function(variable.predecir, ntree, mtry){
-  return(paste0("modelo.rf <- (",variable.predecir,"~., data = datos.aprendizaje, ntree = ",ntree, ", mtry = ", mtry, ")\n"))
-}
-
-codeRfPred <- function(nombreModelo = "modelo.rf"){
-  return(paste0("prediccion.rf <- predict(modelo.rf, datos.prueba)\n"))
-}
-
-codeRfIG <- function(variable.predecir){
-  return(paste0("general_indices(datos.prueba[,'",variable.predecir,"'], prediccion.rf)\n"))
 }

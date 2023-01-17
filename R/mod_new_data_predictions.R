@@ -240,8 +240,10 @@ mod_new_data_predictions_server <- function(input, output, session, newCases, up
                           isolate(modelo)
                         },
                         rl   = {
-                          gen.code <- codeRl(variable)
-                          isolate(modelo <- rl_model(train,variable))
+                          gen.code       <- codeRl(variable)
+                          isolate(modelo <- lm(as.formula(var), 
+                                               data   = train))
+                          isolate(codedioma$code <- append(codedioma$code,  paste0(sub, gen.code)))
                           isolate(modelo)
                         },
                         rlr    = {

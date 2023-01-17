@@ -50,6 +50,10 @@ mod_cross_validation_ui <- function(id){
                       col_6(selectInput(inputId = ns("alpha.rlr.pred"),  label = labelInput("selectAlg"),selected = 1,
                                         choices = list("Ridge" = 0, "Lasso" = 1)))))
   
+  opc_rd <- list(div(col_6(radioSwitchNP(ns("switch.scale.rd.pred"), "escal", c("si", "no"))),
+                      col_6(selectInput(inputId = ns("kernel.rd.pred"), label = labelInput("selectAlg"),selected = 1,
+                                        choices = list("ACP" = 0, "MCP" = 1)))))
+  
   opc_nn <- list(div(col_4(numericInput(ns("threshold.nn"),labelInput("threshold"),
                                         min = 0,   step = 0.01, value = 0.05)),
                      col_4(numericInput(ns("stepmax_nn"),labelInput("stepmax"),
@@ -92,7 +96,7 @@ mod_cross_validation_ui <- function(id){
                conditionalPanel(condition =  "input.sel_methods == 'rlr'",
                                 opc_rlr, ns = ns),
                conditionalPanel(condition =  "input.sel_methods == 'rd'",
-                                opc_rlr, ns = ns),
+                                opc_rd, ns = ns),
                hr(style = "border-top: 2px solid #cccccc;" ),
                actionButton(ns("btn_cv"), labelInput("generar"), width  = "100%" ),br(),br(),
                div(id = ns("texto"),
@@ -137,7 +141,8 @@ mod_cross_validation_server <- function(input, output, session, updateData, code
     
     nombres <- list("knnl", "dtl", "rfl", "bl", "svml" , "rl", "rlr", "rd")
     names(nombres) <- tr(c("knnl", "dtl", "rfl", "bl", "svml", "rl", "rlr", "rd"),codedioma$idioma)
-    modelos <-ifelse(!is.null(isolate(input$sel_models)), isolate(input$sel_models), "") 
+    
+    modelos <- input$sel_models
     indices <- list(0, 1, 2, 3)
     names(indices) <- tr(c("RMSE", "MAE", "ER", "correlacion"),codedioma$idioma) 
     nombres_p <- list("barras", "lineas", "error")
@@ -146,6 +151,7 @@ mod_cross_validation_server <- function(input, output, session, updateData, code
     updateSelectInput(session, "cvcv_glo", choices = indices, selected = 0)
     updateSelectInput(session, "plot_type_p", choices = nombres_p, selected = "barras")
     updateCheckboxGroupInput(session, "sel_models", choices = nombres, selected = modelos)
+    updateSelectInput(session, "sel_methods", choices = tr(modelos, codedioma$idioma), selected = modelos[1])
   })
   
   observeEvent(c(updateData$datos, updateData$variable.predecir), {
@@ -241,21 +247,38 @@ mod_cross_validation_server <- function(input, output, session, updateData, code
                                                n.minobsinnode    = params$minsplit_b)},
       
                                    "rl"    = {
-                                     train.glm(var_,
-                                               data = ttraining)},
+                                     lm(as.formula(var_), 
+                                        data   = ttraining)},
                                    "rlr"   = {
-                                     train.glmnet(var_,
-                                                  data        = ttraining,
-                                                  standardize = as.logical(params$scal_rlr),
-                                                  alpha       = params$alpha,
-                                                  family      = 'multinomial')}
+                                     rlr_model(data  = ttraining, 
+                                               alpha = params$alpha, 
+                                               variable.pred = variable,
+                                               standardize   = as.logical(params$scal_rlr))
+                                   },
+                                   "rd"   = {
+                                     rd_model(data = ttraining, variable.pred = variable,
+                                              mode = params$kernel_rd, scale = as.logical(params$scal_rd))
+                                     
+                                   }
             )
-      
-              prediccion  <- predict(modelo, ttesting)
-              MC          <- general_indices(ttesting[,variable], prediccion$prediction)
+            if(models[j] %not_in% c("rl", "rlr", "rd")){
+              prediccion  <- predict(modelo, ttesting)$prediction
+            }else{
+                if(models[j] == "rl"){
+                  prediccion  <- predict(modelo, ttesting)
+                }
+                if(models[j] == "rlr"){
+                  prediccion  <- rlr_prediction(modelo, 
+                                                ttesting, 
+                                                variable)
+                }
+                if(models[j] == "rd"){
+                  prediccion  <- rd_prediction(modelo, ttesting, params$ncomp_rd)
+                }
+              }
+              
+              MC          <- general_indices(ttesting[,variable], prediccion)
               MC.cv[[j]]  <- Map(c, MC.cv[[j]], MC)
-      
-      
           }
         }
       
@@ -287,6 +310,75 @@ mod_cross_validation_server <- function(input, output, session, updateData, code
       })
     })
   })
+ 
+  output$e_cv_ind  <-  renderEcharts4r({
+    idioma <- codedioma$idioma
+    tryCatch({
+      indice  <- input$cvcv_glo
+      type    <- input$plot_type_p
+      grafico <- M$grafico
+      if(!is.null(grafico)){
+        label <- switch (indice,
+                         "0" = tr("RMSE",idioma),
+                         "1" = tr("MAE",idioma),
+                         "2" = tr("ER",idioma),
+                         "3" = tr("correlacion",idioma)
+        )
+        grafico$value <- switch (indice,
+                                 "0" = grafico$value,
+                                 "1" = M$ea,
+                                 "2" = M$er,
+                                 "3" = M$corr
+        )
+        grafico$name <-  tr(grafico$name, idioma)
+        p <- ifelse(indice == "2", TRUE, FALSE)
+        switch (type,
+                "barras" = return( resumen.barras(grafico, labels = c(label,tr(c("modelo","maximo","minimo", "q1", "q3"), idioma)) ,percent = p, vals = M$summary)),
+                "error" = return( resumen.error(grafico, labels = c(label, tr(c("modelo","maximo","minimo", "q1", "q3"), idioma)),percent = p, vals = M$summary)),
+                "lineas" = return( resumen.lineas(grafico, labels = c(label, tr(c("crossval", "maximo","minimo", "q1", "q3"), idioma)), percent = p, vals = M$summary))
+        )
+      }
+      else
+        return(NULL)
+    },error = function(e){
+      showNotification(e)
+      return(NULL)
+    })
+  })
+  
+  
+  # Update Comparison Table
+  output$TablaComp <- DT::renderDataTable({
+    res      <- data.frame()
+    idioma   <- codedioma$idioma
+    global   <<- M$grafico
+    tryCatch({
+      global$name <-  tr(global$name,codedioma$idioma)
+      for (i in 1:nrow(global)) {
+        new <- data.frame(
+          RMSE = global[i,"value"],
+          MAE = M$ea[i], 
+          ER = M$er[i]*100, 
+          correlacion = M$corr[i]
+        )
+        
+        row.names(new) <- global[i,"name"]
+        res            <- rbind(res, new)
+        
+      }
+      
+      colnames(res)              <- tr(colnames(res), idioma)
+      res[]                      <- lapply(res, as.numeric)
+      res                        <- round(res, 5) 
+      DT::datatable(res, selection = "none", editable = FALSE,
+                    options = list(dom = "frtip", pageLength = 10, buttons = NULL))
+    }, error = function(e) {
+      showNotification(e, duration = 10)
+      DT::datatable(data.frame(), selection = "none", editable = FALSE,
+                    options = list(dom = "frtip", pageLength = 10, buttons = NULL))
+    })
+  },server = FALSE)
+  
   
   #Actualiza la cantidad de capas ocultas (neuralnet)
   observeEvent(input$cant.capas.nn.pred, {
@@ -326,11 +418,14 @@ mod_cross_validation_server <- function(input, output, session, updateData, code
       cant.capas   <-  input$cant.capas.nn.pred 
       capas.np     <-  as.vector(as.numeric(capas.np[1:cant.capas] ))
       scal_rlr     <-  input$switch.scale.rlr.pred 
+      scal_rd      <-  input$switch.scale.rd.pred 
       alpha        <-  input$alpha.rlr.pred 
+      kernel_rd    <-  input$kernel.rd.pred 
       iter         <-  input$iter.boosting.pred 
       maxdepth_b   <-  input$maxdepth.boosting.pred 
       minsplit_b   <-  input$minsplit.boosting.pred
-      coeflearn_b  <- input$coeflearn
+      coeflearn_b  <-  input$coeflearn
+      ncomp_rd     <-  sqrt(ncol(isolate(updateData$datos)))
     })
     return(list(k_kn        = k_kn,       scal_kn     = scal_kn,     kernel_kn    = kernel_kn, 
                 tipo_dt     = tipo_dt,    minsplit_dt = minsplit_dt, maxdepth_dt  = maxdepth_dt, 
@@ -339,44 +434,11 @@ mod_cross_validation_server <- function(input, output, session, updateData, code
                 n.rounds    = n.rounds,   threshold   = threshold,   stepmax      = stepmax, 
                 capas.np    = capas.np,   scal_rlr    = scal_rlr,    alpha        = alpha, 
                 iter        = iter,       maxdepth_b  = maxdepth_b,  minsplit_b   = minsplit_b, 
-                coeflearn_b = coeflearn_b))
+                coeflearn_b = coeflearn_b,scal_rd     = scal_rd,     kernel_rd    = kernel_rd, 
+                ncomp_rd    = ncomp_rd))
   }
   
   
-  output$e_cv_ind  <-  renderEcharts4r({
-    idioma <- codedioma$idioma
-    tryCatch({
-      indice  <- input$cvcv_glo
-      type    <- input$plot_type_p
-      grafico <- M$grafico
-      if(!is.null(grafico)){
-        label <- switch (indice,
-                         "0" = tr("RMSE",idioma),
-                         "1" = tr("MAE",idioma),
-                         "2" = tr("ER",idioma),
-                         "3" = tr("correlacion",idioma)
-        )
-        grafico$value <- switch (indice,
-                                 "0" = grafico$value,
-                                 "1" = M$ea,
-                                 "2" = M$er,
-                                 "3" = M$corr
-        )
-        grafico$name <-  tr(grafico$name, idioma)
-        p <- ifelse(indice == "2", TRUE, FALSE)
-        switch (type,
-                "barras" = return( resumen.barras(grafico, labels = c(label,tr(c("modelo","maximo","minimo", "q1", "q3"), idioma)) ,percent = p, vals = M$summary)),
-                "error" = return( resumen.error(grafico, labels = c(label, tr(c("modelo","maximo","minimo", "q1", "q3"), idioma)),percent = p, vals = M$summary)),
-                "lineas" = return( resumen.lineas(grafico, labels = c(label, tr(c("crossval", "maximo","minimo", "q1", "q3"), idioma)), percent = p, vals = M$summary))
-        )
-      }
-      else
-        return(NULL)
-    },error = function(e){
-      showNotification(e)
-      return(NULL)
-    })
-  })
   defaul_param_values <- function(){
     updateSliderInput(session, "cant.capas.nn.pred", value = 3)
   }

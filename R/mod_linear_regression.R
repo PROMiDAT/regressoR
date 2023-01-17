@@ -97,14 +97,14 @@ mod_linear_regression_server <- function(input, output, session, updateData, mod
       form <- formula(paste0(variable.predecir,"~."))
       #Model generate
       modelo.rl <- lm(formula = form, data = datos.aprendizaje)
-      
+      modelo.rl$call$formula <- form
       #Coefficients
       model.information <- rl_coeff(modelo.rl)
       df.rl <<- model.information$df.rl
       r2    <<- model.information$r2
       
       #Prediccion
-      prediccion.rl <- rl_prediction(modelo.rl, datos.prueba)
+      prediccion.rl <- predict(modelo.rl, datos.prueba)
       
       #Indices
       indices.rl <- general_indices(datos.prueba[,variable.predecir], prediccion.rl)
@@ -260,10 +260,10 @@ mod_linear_regression_server <- function(input, output, session, updateData, mod
     codigo <- codeRlCoef()
     cod    <- paste0(cod, codigo)
     #Prediccion
-    codigo <- codeRlPred()
+    codigo <- codigo.prediccion("rl")
     cod    <- paste0(cod, codigo)
     #Indices
-    codigo <- codeRlIG(variable.predecir)
+    codigo <- codigo.IG(model.name = "rl", variable.pr = variable.predecir)
     cod    <- paste0(cod, codigo)
     
     isolate(codedioma$code <- append(codedioma$code, cod))

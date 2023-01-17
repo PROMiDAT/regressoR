@@ -356,11 +356,11 @@ mod_penalized_Regression_server <- function(input, output, session, updateData, 
                            nombreModelo,log.landa)
     cod    <- paste0(cod, codigo)
     #Prediccion
-    codigo <- codeRlrPred(nombreModelo,variable.predecir,
+    codigo <- codeRlrPred("rlr",variable.predecir,
                           log.landa)
     cod    <- paste0(cod, codigo)
     #Indices
-    codigo <- codeRlrIG(variable.predecir)
+    codigo <- codigo.IG(model.name = "rlr", variable.pr = variable.predecir)
     cod    <- paste0(cod, codigo)
     
     isolate(codedioma$code <- append(codedioma$code, cod))

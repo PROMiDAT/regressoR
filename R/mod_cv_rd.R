@@ -90,7 +90,7 @@ mod_cv_rd_server <- function(input, output, session, updateData, codedioma){
   
   output$txtcvrd <- renderPrint({
     input$btn_cv_rd
-    M$MCs.rd <- NULL
+    M$MCs.rd  <- NULL
     M$grafico <- NULL
     M$ea   <- NULL
     M$er   <- NULL
@@ -98,7 +98,7 @@ mod_cv_rd_server <- function(input, output, session, updateData, codedioma){
     tryCatch({
       kernels   <- isolate(input$sel_kernel)
       cant.vc   <- isolate(updateData$numValC)
-      MCs.rd   <- vector(mode = "list")
+      MCs.rd    <- vector(mode = "list")
       datos     <- isolate(updateData$datos)
       numGrupos <- isolate(updateData$numGrupos)
       grupos    <- isolate(updateData$grupos)
@@ -143,11 +143,10 @@ mod_cv_rd_server <- function(input, output, session, updateData, codedioma){
           for (j in 1:length(kernels)){
             modelo      <- rd_model(data = ttraining, variable.pred = variable,
                                      mode = kernels[j], scale = as.logical(scales))
-            
-            prediccion  <- rd_prediction(modelo, ttesting, ncomp)
+            ncomp       <- ifelse(is.null(ncomp), modelo$optimal.n.comp, ncomp)
+            prediccion  <- predict(modelo, ttesting, ncomp = ncomp)
             MC          <- general_indices(ttesting[,variable], prediccion)
-            MC.rd[[j]] <- Map(c, MC.rd[[j]], MC)
-            
+            MC.rd[[j]]  <- Map(c, MC.rd[[j]], MC)
           }
         }
         

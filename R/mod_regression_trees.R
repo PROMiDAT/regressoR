@@ -272,10 +272,10 @@ mod_regression_trees_server <- function(input, output, session,updateData, model
     cod    <- paste0("### DT\n", codigo)
     
     #Prediccion
-    codigo <- codeDtPred(nombreModelo)
+    codigo <- codigo.prediccion("dt")
     cod    <- paste0(cod, codigo)
     #Indices
-    codigo <- codeDtIG(variable.predecir)
+    codigo <- codigo.IG(model.name = "dt", variable.pr = variable.predecir)
     cod    <- paste0(cod, codigo)
     
     isolate(codedioma$code <- append(codedioma$code, cod))

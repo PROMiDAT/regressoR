@@ -138,27 +138,27 @@ mod_neural_networks_server <- function(input, output, session,updateData, modelo
       #Model generate
       
       form <- formula(paste0(variable.predecir,"~."))
-      modelo.nn <- train.neuralnet(form, data = datos.aprendizaje, hidden = hidden, 
+      modelo <- train.neuralnet(form, data = datos.aprendizaje, hidden = hidden, 
                                    linear.output = TRUE, threshold = threshold, stepmax = stepmax)
       
       #Prediccion
-      prediccion.nn <- nn_prediction(modelo.nn, datos.prueba)
+      prediccion.nn <- predict(modelo, datos.prueba)$prediction
 
       #Indices
       indices.nn    <- general_indices(datos.prueba[,variable.predecir], prediccion.nn)
 
       #isolamos para que no entre en un ciclo en el primer renderPrint
-      isolate(modelos$nn[[nombreModelo]] <- list(modelo     = modelo.nn, 
+      isolate(modelos$nn[[nombreModelo]] <- list(modelo     = modelo, 
                                                  prediccion = prediccion.nn, 
                                                  indices    = indices.nn))
 
       #Cambiamos la forma en que va aparecer el call
-      modelo.nn$call$formula   <- form
-      modelo.nn$call$hidden    <- hidden
-      modelo.nn$call$threshold <- threshold
-      modelo.nn$call$stepmax   <- stepmax
+      modelo$call$formula   <- form
+      modelo$call$hidden    <- hidden
+      modelo$call$threshold <- threshold
+      modelo$call$stepmax   <- stepmax
       
-      print(modelo.nn)
+      print(modelo)
       
     }, error = function(e){
       isolate(modelos$nn[[nombreModelo]] <- NULL)
@@ -177,7 +177,7 @@ mod_neural_networks_server <- function(input, output, session,updateData, modelo
     tryCatch({
       if(!is.null(modelos$nn[[nombreModelo]])){
         isolate({
-          modelo.nn  <- modelos$nn[[nombreModelo]]$modelo
+          modelo     <- modelos$nn[[nombreModelo]]$modelo
           cant.capas <- input$cant.capas.nn
           hidden     <- c(input$nn.cap.1,input$nn.cap.2,input$nn.cap.3,input$nn.cap.4,
                           input$nn.cap.5,input$nn.cap.6,input$nn.cap.7,input$nn.cap.8,
@@ -191,8 +191,8 @@ mod_neural_networks_server <- function(input, output, session,updateData, modelo
         
         isolate(codedioma$code <- append(codedioma$code, cod))
         
-        if(cant.capas * sum(hidden) <= 1000 & ncol(modelo.nn$covariate) <= 25){
-          nn_plot(modelo.nn)
+        if(cant.capas * sum(hidden) <= 1000 & ncol(modelo$covariate) <= 25){
+          nn_plot(modelo)
         }else{
           showNotification(tr("bigPlot"), duration = 10, type = "message")
           NULL
@@ -319,12 +319,14 @@ mod_neural_networks_server <- function(input, output, session,updateData, modelo
       #Model generate
       codigo <- codeNn(variable.predecir, hidden, threshold, stepmax)
       cod    <- paste0("### NN\n", codigo)
+      
       #Prediccion
-      codigo <- codeNnPred(nombreModelo)
+      codigo <- codigo.prediccion("nn")
       cod    <- paste0(cod, codigo)
       #Indices
-      codigo <- codeNnIG(variable.predecir)
+      codigo <- codigo.IG(model.name = "nn", variable.pr = variable.predecir)
       cod    <- paste0(cod, codigo)
+      
       isolate(codedioma$code <- append(codedioma$code, cod))
       
     })

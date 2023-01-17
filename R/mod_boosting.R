@@ -107,7 +107,7 @@ mod_boosting_server <- function(input, output, session,updateData, modelos, code
         modelo.boost <- boosting_model(datos.aprendizaje,variable.predecir, n.trees, distribution, shrinkage)
 
         #Prediccion
-        prediccion.boost <- boosting_prediction(modelo.boost, datos.prueba, n.trees)
+        prediccion.boost <- predict(modelo.boost,datos.prueba, n.trees = n.trees)$prediction
 
         #Indices
         indices.boost <- general_indices(datos.prueba[,variable.predecir], prediccion.boost)
@@ -284,10 +284,10 @@ mod_boosting_server <- function(input, output, session,updateData, modelos, code
         cod    <- paste0("### BOOST\n", codigo)
         
         #Prediccion
-        codigo <- codeBoostPred(nombreModelo, n.trees)
+        codigo <- codigo.prediccion("boosting")
         cod    <- paste0(cod, codigo)
         #Indices
-        codigo <- codeBoostIG(variable.predecir)
+        codigo <- codigo.IG(model.name = "boosting", variable.pr = variable.predecir)
         cod    <- paste0(cod, codigo)
         
         isolate(codedioma$code <- append(codedioma$code, cod))

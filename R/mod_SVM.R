@@ -226,10 +226,10 @@ mod_SVM_server <- function(input, output, session,updateData, modelos, codedioma
       cod    <- paste0("### SVM\n", codigo)
       
       #Prediccion
-      codigo <- codeSvmPred(nombreModelo)
+      codigo <- codigo.prediccion("svm")
       cod    <- paste0(cod, codigo)
       #Indices
-      codigo <- codeSvmIG(variable.predecir)
+      codigo <- codigo.IG(model.name = "svm", variable.pr = variable.predecir)
       cod    <- paste0(cod, codigo)
       
       isolate(codedioma$code <- append(codedioma$code, cod))

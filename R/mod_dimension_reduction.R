@@ -137,7 +137,7 @@ mod_dimension_reduction_server <- function(input, output, session,updateData, mo
       }
 
       #Prediccion
-      prediccion.rd <- rd_prediction(modelo.rd, datos.prueba, ncomp)
+      prediccion.rd <- predict(modelo.rd, datos.prueba, ncomp = ncomp)
 
       #Indices
       indices.rd <- general_indices(datos.prueba[,variable.predecir], prediccion.rd)
@@ -347,15 +347,16 @@ mod_dimension_reduction_server <- function(input, output, session,updateData, mo
         modo.rd <- input$modo.rd
         ncomp   <- input$ncomp.rd
       })
+      
       #Model generate
       codigo <- codeRd(variable.predecir,modo.rd, scale)
       cod    <- paste0("### RD\n", codigo)
       
       #Prediccion
-      codigo <- codeRdPred(nombreModelo, ncomp)
+      codigo <- codigo.prediccion("rd")
       cod    <- paste0(cod, codigo)
       #Indices
-      codigo <- codeRdIG(variable.predecir)
+      codigo <- codigo.IG(model.name = "rd", variable.pr = variable.predecir)
       cod    <- paste0(cod, codigo)
       
       isolate(codedioma$code <- append(codedioma$code, cod))

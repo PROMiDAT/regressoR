@@ -22,10 +22,6 @@ rlr_model <- function(data, variable.pred,alpha = 0, standardize = TRUE){
     return(modelo.rlr)
   }
   return(NULL)
-  
-  # return(paste0("x <- model.matrix(`",variable.pred,"`~., ",data,")[, -1]\n",
-  #               "y <- ",data,"[, '",variable.pred,"']\n",
-  #               model.var," <- cv.glmnet(x, y, standardize = ",standardize,", alpha = ",alpha,")"))
 }
 
 #' coef_lambda
@@ -73,14 +69,6 @@ rlr_prediction <- function(model, test.data, variable.pred, log.lambda = NULL) {
     return(predict(model,newx = prueba, s = lambda, exact = FALSE))
   }
   return(NULL)
-  
-  # paste0("x <- model.matrix(`",variable.pred,"`~., ",data.a,")[, -1]\n",
-  #        "y <- ",data.a,"[, '",variable.pred,"']\n",
-  #        "prueba <- ",data.p,"\n",
-  #        "prueba[, '",variable.pred,"'] <- 0\n",
-  #        "prueba <- model.matrix(`",variable.pred,"`~., prueba)[, -1]\n",
-  #        pred.var," <- predict(",model.var,",newx = prueba,",
-  #        "s = ",lambda,", exact = TRUE, x = x, y = y)")
 }
 
 #' rlr_type
@@ -153,12 +141,6 @@ e_posib_lambda <- function(cv.glm, log.lambda = NULL, titles = c("Error Cuadrati
                             tooltip = list(formatter = e_JS(paste0("function(params){",
                                                                               "return('<b>Log(lambda) ", titles[5],": </b>' + ",
                                                                               "Number.parseFloat(params.value).toFixed(6))}")))))
-    # e_mark_line(title = "Log(lambda.1se)", 
-    #             data = list(xAxis = x2,
-    #                         tooltip = list(formatter = e_JS(paste0("function(params){",
-    #                                                                           "return('<b>Log(lambda.1se): </b>' + ",
-    #                                                                           "Number.parseFloat(params.value).toFixed(6))}")))))
-  
   #Si se eligió manualmente un lambda
   if(!is.null(log.lambda)){
     grafico <- grafico |> 
@@ -213,7 +195,6 @@ e_coeff_landa <- function(cv.glm, log.lambda = NULL, titles = c("Coeficientes","
   x      <- log(cv.glm$glmnet.fit$lambda)
   data   <- cbind(x = x, data)
   data   <- data[order(data$x),]
-  #lambda <- ifelse(best.lambda %in% data$x, best.lambda, log(cv.glm$lambda.min))
   new    <- data.frame()
   for (nom in colnames(data)[-1]) {
     x      <- data[["x"]]
@@ -266,25 +247,3 @@ e_coeff_landa <- function(cv.glm, log.lambda = NULL, titles = c("Coeficientes","
 }
 
 
-
-#------------------------------------CODE---------------------------------------
-codeRlr <- function(variable.predecir, alpha, standardize){
-  return(paste0("rlr_model(datos.aprendizaje, '",variable.predecir,"', alpha = ",alpha, ", standardize = ",standardize,")\n"))
-}
-
-codeRlrCoeff <- function(variable.predecir, nombreModelo, log.lambda = NULL){
-  param.lambda <- ifelse(is.null(log.lambda),"",paste0(", log.lambda = ",log.lambda))
-  return(paste0("coef_lambda(datos.aprendizaje, '", variable.predecir,"', model = ",nombreModelo,
-                param.lambda, ")\n"))
-}
-
-
-codeRlrPred <- function(nombreModelo, variable.predecir, log.lambda = NULL){
-  param.lambda <- ifelse(is.null(log.lambda),"",paste0(", log.lambda = ",log.lambda))
-  return(paste0("rlr_prediction(model = ",nombreModelo, ", datos.prueba, " , "'", variable.predecir,"'",param.lambda, ")\n"))
-}
-
-
-codeRlrIG <- function(variable.predecir){
-  return(paste0("general_indices(datos.prueba[,'",variable.predecir,"'], prediccion.rlr)\n"))
-}

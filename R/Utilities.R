@@ -266,7 +266,7 @@ pairs.panels <- function (x, smooth = TRUE, scale = FALSE, density = TRUE, ellip
     if (density) {
       tryd <- try(d <- density(x, na.rm = TRUE, bw = "nrd",
                                adjust = 1.2), silent = TRUE)
-      if (class(tryd) != "try-error") {
+      if (!inherits(tryd, "try-error")) {
         d$y <- d$y/max(d$y)
         lines(d)
       }
@@ -501,7 +501,7 @@ dummy <- function (x, data = NULL, sep = "", drop = TRUE, fun = as.integer, verb
     name <- x
     x <- data[, name]
   }
-  if (drop == FALSE && class(x) == "factor") {
+  if (drop == FALSE && inherits(x, "factor")) {
     x <- factor(x, levels = levels(x), exclude = NULL)
   }
   else {

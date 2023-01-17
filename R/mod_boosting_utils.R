@@ -22,28 +22,6 @@ boosting_model <- function(data, variable.pred, n.trees = 50, distribution = "ga
   else{return(NULL)}
 }
 
-#' boosting_prediction
-#' 
-#' @description generates the prediction of a boosting model.
-#'
-#' @param model boosting model(gbm).
-#' @param test.data dataframe.
-#' @param n.trees number of trees used in the prediction.
-#'
-#' @seealso \code{\link[gbm]{gbm}}
-#' 
-#' @export
-#' 
-boosting_prediction <- function(model, test.data, n.trees = 50) {
-  if(!is.null(test.data) && !is.null(model)){
-    return(predict(model,test.data, n.trees = n.trees)$prediction)
-  }
-  return(NULL)
-  # return(paste0(pred.var," <- predict(",model.var,
-  #               ", ",data," %>% select(-`",variable.pred,"`), n.trees = ",n.trees,")"))
-}
-
-
 #' boosting_importance_plot
 #' 
 #' @description generates the graph of variable importance.
@@ -75,16 +53,3 @@ boosting_importance_plot <- function(model, titles = c("Importancia de Variables
     e_show_loading()
 }
 
-
-#------------------------------------CODE---------------------------------------
-codeBoost <- function(variable.predecir, n.trees, distribution, shrinkage){
-  return(paste0("boosting_model(data, '",variable.predecir,"', n.trees = ",n.trees, ", distribution = '", distribution, "', shrinkage = ",shrinkage, ")\n"))
-}
-
-codeBoostPred <- function(nombreModelo, n.trees){
-  return(paste0("boosting_prediction(model = ", nombreModelo, ", test.data, n.trees = ", n.trees, ")\n"))
-}
-
-codeBoostIG <- function(variable.predecir){
-  return(paste0("general_indices(test.data[,'",variable.predecir,"'], prediccion.boost)\n"))
-}

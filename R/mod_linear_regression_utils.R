@@ -1,38 +1,3 @@
-#' Rl_model
-#' 
-#' @description generates a linear regression model.
-#'
-#' @param data dataframe
-#' @param variable.pred the name of the variable to be predicted.
-#' 
-#' @seealso \code{\link[stats]{lm}}
-#'
-#' @export
-rl_model <- function(data, variable.pred){
-  if(!is.null(variable.pred) && !is.null(data)){
-    form <- formula(paste0(variable.pred,"~."))
-    modelo.rl <- lm(formula = form, data = data)
-    #Cambiamos la forma en que va aparecer el call
-    modelo.rl$call$formula <- form
-    return(modelo.rl)
-  }
-  return(NULL)
-}
-
-#' rl_prediction
-#' 
-#' @description generates the prediction of the linear regression model.
-#'
-#' @param model a linear regression model(lm).
-#' @param test.data dataframe.
-#'
-#' @seealso \code{\link[stats]{predict}}
-#'
-#' @export
-#' 
-rl_prediction <- function(model, test.data) {
-  return(predict(model,test.data))
-}
 
 #' rl_coeff
 #' 
@@ -58,24 +23,6 @@ rl_coeff <- function(modelo){
   
 }
 
-#------------------------------------CODE---------------------------------------
-
-codeRl <- function(variable.predecir){
-  return(paste0("modelo.rl <- lm(",variable.predecir,"~.,data = datos.aprendizaje)\n"))
-}
-
-codeRlCoef <- function(nombreModelo = "modelo.rl"){
-  return(paste0("information <- rl_coeff(",nombreModelo,")\n",
-                "information$df.rl[,c(1,4)]\n"))
-}
-
-codeRlPred <- function(nombreModelo = "modelo.rl"){
-  return(paste0("prediccion.rl <- predict(", nombreModelo, ", datos.prueba)\n"))
-}
-
-codeRlIG <- function(variable.predecir){
-  return(paste0("general_indices(datos.prueba[,'",variable.predecir,"'], prediccion.rl)\n"))
-}
 
 
 #' disp_models

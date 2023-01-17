@@ -118,7 +118,7 @@ mod_cv_dt_server <- function(input, output, session, updateData, codedioma){
           for (j in 1:length(kernels)){
             modelo      <- train.rpart(as.formula(var_), 
                                      data   = ttraining, 
-                                     parms = list(split = splits[j]),
+                                     parms = list(split = kernels[j]),
                                      control = rpart.control(minsplit = minsplit, 
                                                              maxdepth = maxdepth), 
                                      model = TRUE)

@@ -128,27 +128,27 @@ mod_random_forests_server <- function(input, output, session,updateData, modelos
         form <- formula(paste0(variable.predecir,"~."))
         
         #Model generate
-        modelo.rf <- train.randomForest(form, data = datos.aprendizaje, ntree = ntree, 
+        modelo <- train.randomForest(form, data = datos.aprendizaje, ntree = ntree, 
                                         mtry = mtry, importance = TRUE)
 
         #Prediccion
-        prediccion.rf <- rf_prediction(modelo.rf, datos.prueba)
+        prediccion <- predict(modelo,datos.prueba)$prediction
 
         #Indices
-        indices.rf <- general_indices(datos.prueba[,variable.predecir], prediccion.rf)
+        indices.rf <- general_indices(datos.prueba[,variable.predecir], prediccion)
 
         #isolamos para que no entre en un ciclo en el primer renderPrint
-        isolate(modelos$rf[[nombreModelo]] <- list(modelo = modelo.rf, prediccion = prediccion.rf, indices = indices.rf))
+        isolate(modelos$rf[[nombreModelo]] <- list(modelo = modelo, prediccion = prediccion, indices = indices.rf))
         
         # Guardamos los datos dentro del modelo para utilizar 
         #la función printRandomForest() en Utilities
-        modelo.rf$datos <- datos.aprendizaje
+        modelo$datos <- datos.aprendizaje
         #Cambiamos la forma en que va aparecer el call
-        modelo.rf$call$formula <- form
-        modelo.rf$call$ntree   <- ntree
-        modelo.rf$call$mtry    <- mtry
+        modelo$call$formula <- form
+        modelo$call$ntree   <- ntree
+        modelo$call$mtry    <- mtry
         
-        print(modelo.rf)
+        print(modelo)
      
     }, error = function(e){
       isolate(modelos$rf[[nombreModelo]] <- NULL)
@@ -163,7 +163,7 @@ mod_random_forests_server <- function(input, output, session,updateData, modelos
     tryCatch({
       if(!is.null(modelos$rf[[nombreModelo]])){
         
-        modelo.rf <- modelos$rf[[nombreModelo]]$modelo
+        modelo <- modelos$rf[[nombreModelo]]$modelo
         idioma    <- codedioma$idioma
         
         # Actualiza el codigo del grafico de rf
@@ -176,7 +176,7 @@ mod_random_forests_server <- function(input, output, session,updateData, modelos
           tr("variable", idioma)
         )
         
-        importance_plot_rf(modelo.rf,titulos)
+        importance_plot_rf(modelo,titulos)
       }else{NULL}
     }, error = function(e){
       showNotification(paste0("Error (RF-02) : ", e), duration = 10, type = "error")
@@ -189,12 +189,12 @@ mod_random_forests_server <- function(input, output, session,updateData, modelos
   output$rfPrediTable <- DT::renderDataTable({
     tryCatch({
       if(!is.null(modelos$rf[[nombreModelo]])){
-        prediccion.rf <- modelos$rf[[nombreModelo]]$prediccion
+        prediccion <- modelos$rf[[nombreModelo]]$prediccion
         isolate({
           datos.prueba <- updateData$datos.prueba
           real.val     <- datos.prueba[updateData$variable.predecir]
         })
-        tb_predic(real.val, prediccion.rf, updateData$decimals, codedioma$idioma)
+        tb_predic(real.val, prediccion, updateData$decimals, codedioma$idioma)
       }
       else{NULL}
       
@@ -223,7 +223,7 @@ mod_random_forests_server <- function(input, output, session,updateData, modelos
   output$plot_rf_disp <- renderEcharts4r({
     tryCatch({
       if(!is.null(modelos$rf[[nombreModelo]])){
-        prediccion.rf <- modelos$rf[[nombreModelo]]$prediccion
+        prediccion <- modelos$rf[[nombreModelo]]$prediccion
         isolate({
           datos.prueba      <- updateData$datos.prueba
           variable.predecir <- updateData$variable.predecir
@@ -241,7 +241,7 @@ mod_random_forests_server <- function(input, output, session,updateData, modelos
           tr("pred", idioma)
         )
         
-        plot_real_prediction(datos.prueba[variable.predecir],prediccion.rf,
+        plot_real_prediction(datos.prueba[variable.predecir],prediccion,
                              tr("rf", idioma),titulos)
       }
       else{NULL}
@@ -296,13 +296,13 @@ mod_random_forests_server <- function(input, output, session,updateData, modelos
     tryCatch({
       n <- input$rules.rf.n
       if(!is.null(modelos$rf[[nombreModelo]]) && !is.na(n)){
-        modelo.rf <- modelos$rf[[nombreModelo]]$modelo
+        modelo <- modelos$rf[[nombreModelo]]$modelo
         codigo <- paste0("printRandomForests(modelo.rf, ",n,", format='VB')")
         cod    <- paste0("### reglas\n",codigo, "\n")
         
         isolate(codedioma$code <- append(codedioma$code, cod))
         
-        rulesRandomForest(modelo.rf, n, format='VB')
+        rulesRandomForest(modelo, n, format='VB')
       }
       else{NULL}
     },
@@ -326,10 +326,10 @@ mod_random_forests_server <- function(input, output, session,updateData, modelos
       cod    <- paste0("### RF\n", codigo)
       
       #Prediccion
-      codigo <- codeRfPred(nombreModelo)
+      codigo <- codigo.prediccion("rf")
       cod    <- paste0(cod, codigo)
       #Indices
-      codigo <- codeRfIG(variable.predecir)
+      codigo <- codigo.IG(model.name = "rf", variable.pr = variable.predecir)
       cod    <- paste0(cod, codigo)
       
       isolate(codedioma$code <- append(codedioma$code, cod))

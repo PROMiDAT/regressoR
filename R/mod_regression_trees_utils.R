@@ -15,21 +15,3 @@ dt_plot <- function(model){
   return(NULL)
 }
 
-
-#------------------------------------CODE---------------------------------------
-codeDt <- function(variable.predecir, minsplit, maxdepth){
-  return(paste0("modelo.dt <- train.rpart(",variable.predecir,"~., datos.aprendizaje, minsplit = ",minsplit, ", maxdepth = ",maxdepth,")\n"))
-}
-
-
-codeDtPred <- function(nombreModelo = "modelo.dt"){
-  return(paste0("prediccion.dt <- predict(modelo.dt, datos.prueba)\n"))
-}
-
-codeDtIG <- function(variable.predecir){
-  return(paste0("general_indices(datos.prueba[,'",variable.predecir,"'], prediccion.dt)\n"))
-}
-
-codeDtPlot <- function(nombreModelo){
-  return(paste0("dt_plot(modelo.dt)\n"))
-}
