@@ -144,6 +144,8 @@ mod_cv_dt_server <- function(input, output, session, updateData, codedioma){
       M$er   <- resultados$er
       M$corr <- resultados$corr
       M$summary <- summary_indices_v(datos[[variable]])
+      isolate(codedioma$code <- append(codedioma$code, cv_dt_code(variable, cant.vc, numGrupos)))
+      
       print(MCs.dt)
       
     },error = function(e){

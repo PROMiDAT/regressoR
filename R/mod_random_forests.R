@@ -147,7 +147,7 @@ mod_random_forests_server <- function(input, output, session,updateData, modelos
         modelo$call$formula <- form
         modelo$call$ntree   <- ntree
         modelo$call$mtry    <- mtry
-        
+
         print(modelo)
      
     }, error = function(e){

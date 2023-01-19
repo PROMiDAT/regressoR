@@ -85,3 +85,484 @@ codeDt <- function(variable.predecir, minsplit, maxdepth, datos = "datos.aprendi
 codeDtPlot <- function(nombreModelo){
   return(paste0("dt_plot(modelo.dt)\n"))
 }
+
+# Códigos de Validación Cruzada ---------------------------------------------------------------------------------------------------
+
+# KNN ---------------------------------------------------------------------------------------------------
+
+cv_knn_code <- function(var_pred, validaciones, grupo){
+  paste0(
+    "numero.filas <- nrow(datos)
+cantidad.validacion.cruzada <- ",validaciones,"
+cantidad.grupos <- ",grupo,"
+
+MCs.rectangular <- list()
+MCs.triangular <- list()
+MCs.epanechnikov <- list()
+MCs.biweight <- list()
+MCs.triweight <- list()
+MCs.cos <- list()
+MCs.inv <- list()
+MCs.gaussian <- list()
+MCs.optimal <- list()
+
+for(i in 1:cantidad.validacion.cruzada){
+  grupos  <- createFolds(1:numero.filas, cantidad.grupos)  # Crea los 5 grupos
+  MC.rectangular   <- vector(mode = 'list', 4)
+  MC.triangular    <- vector(mode = 'list', 4)
+  MC.epanechnikov  <- vector(mode = 'list', 4)
+  MC.biweight   <- vector(mode = 'list', 4)
+  MC.triweight  <- vector(mode = 'list', 4)
+  MC.cos  <- vector(mode = 'list', 4)
+  MC.inv  <- vector(mode = 'list', 4)
+  MC.gaussian  <- vector(mode = 'list', 4)
+  MC.optimal   <- vector(mode = 'list', 4)
+  
+  # Este ciclo es el que hace 'cross-validation' (validación cruzada) con 5
+  # grupos (Folds)
+  for(k in 1:cantidad.grupos) {
+    muestra <- grupos[[k]]  # Por ser una lista requiere de doble paréntesis
+    ttesting <- datos[muestra, ]
+    ttraining <- datos[-muestra, ]
+    
+    modelo <- train.knn(",var_pred," ~ ., data = ttraining, kmax = 37, kernel = 'rectangular')
+    prediccion <- predict(modelo, ttesting)
+    MC <- general_indices(ttesting[,",var_pred,"], prediccion$prediction)
+    MC.rectangular <- Map(c, MC.rectangular, MC)
+    
+    modelo <- train.knn(",var_pred," ~ ., data = ttraining, kmax = 37, kernel = 'triangular')
+    prediccion <- predict(modelo, ttesting)
+    MC <- general_indices(ttesting[,",var_pred,"], prediccion$prediction)
+    MC.triangular <-  Map(c, MC.triangular, MC)
+    
+    modelo <- train.knn(",var_pred," ~ ., data = ttraining, kmax = 37, kernel = 'epanechnikov')
+    prediccion <- predict(modelo, ttesting)
+    MC <- general_indices(ttesting[,",var_pred,"], prediccion$prediction)
+    MC.epanechnikov <-  Map(c, MC.epanechnikov, MC)
+    
+    modelo <- train.knn(",var_pred," ~ ., data = ttraining, kmax = 37, kernel = 'biweight')
+    prediccion <- predict(modelo, ttesting)
+    MC <- general_indices(ttesting[,",var_pred,"], prediccion$prediction)
+    MC.biweight <-  Map(c, MC.biweight, MC)
+    
+    modelo <- train.knn(",var_pred," ~ ., data = ttraining, kmax = 37, kernel = 'triweight')
+    prediccion <- predict(modelo, ttesting)
+    MC <- general_indices(ttesting[,",var_pred,"], prediccion$prediction)
+    MC.triweight <-  Map(c, MC.triweight, MC)
+    
+    modelo <- train.knn(",var_pred," ~ ., data = ttraining, kmax = 37, kernel = 'cos')
+    prediccion <- predict(modelo, ttesting)
+    MC <- general_indices(ttesting[,",var_pred,"], prediccion$prediction)
+    MC.cos <-  Map(c, MC.cos, MC)
+    
+    modelo <- train.knn(",var_pred," ~ ., data = ttraining, kmax = 37, kernel = 'inv')
+    prediccion <- predict(modelo, ttesting)
+    MC <- general_indices(ttesting[,",var_pred,"], prediccion$prediction)
+    MC.inv <-  Map(c, MC.inv, MC)
+    
+    modelo <- train.knn(",var_pred," ~ ., data = ttraining, kmax = 37, kernel = 'gaussian')
+    prediccion <- predict(modelo, ttesting)
+    MC <- general_indices(ttesting[,",var_pred,"], prediccion$prediction)
+    MC.gaussian <-  Map(c, MC.gaussian, MC)
+    
+    modelo <- train.knn(",var_pred," ~ ., data = ttraining, kmax = 37, kernel = 'optimal')
+    prediccion <- predict(modelo, ttesting)
+    MC <- general_indices(ttesting[,",var_pred,"], prediccion$prediction)
+    MC.optimal <-  Map(c, MC.optimal, MC)
+  }
+  
+  MCs.rectangular[[i]] <- sapply(MC.rectangular, mean)
+  MCs.triangular[[i]]  <- sapply(MC.triangular, mean)
+  MCs.epanechnikov[[i]] <- sapply(MC.epanechnikov, mean)
+  MCs.biweight[[i]]  <- sapply(MC.biweight, mean)
+  MCs.triweight[[i]] <- sapply(MC.triweight, mean)
+  MCs.cos[[i]]  <- sapply(MC.cos, mean)
+  MCs.inv[[i]]  <- sapply(MC.inv, mean)
+  MCs.gaussian[[i]] <- sapply(MC.gaussian, mean)
+  MCs.optimal[[i]]  <- sapply(MC.optimal, mean)
+}")
+}
+
+# SVM ---------------------------------------------------------------------------------------------------
+
+cv_svm_code <- function(var_pred,   validaciones, grupo){
+  paste0(
+    "numero.filas <- nrow(datos)
+cantidad.validacion.cruzada <- ",validaciones,"
+cantidad.grupos <- ",grupo,"
+
+MCs.radial <- list()
+MCs.linear <- list()
+MCs.polynomial <- list()
+MCs.sigmoid <- list()
+
+for(i in 1:cantidad.validacion.cruzada){
+  grupos  <- createFolds(1:numero.filas, cantidad.grupos)  # Crea los 10 grupos
+  MC.radial  <- vector(mode = 'list', 4)
+  MC.linear  <- vector(mode = 'list', 4)
+  MC.polynomial  <- vector(mode = 'list', 4)
+  MC.sigmoid  <- vector(mode = 'list', 4)
+  
+  # Este ciclo es el que hace 'cross-validation' (validación cruzada) con 10
+  # grupos (Folds)
+  for(k in 1:cantidad.grupos) {
+    muestra <- grupos[[k]]  # Por ser una lista requiere de doble paréntesis
+    ttesting <- datos[muestra, ]
+    taprendizaje <- datos[-muestra, ]
+    
+    modelo <- train.svm(",var_pred," ~ ., data = taprendizaje, kernel = 'radial', probability = FALSE)
+    prediccion <- predict(modelo, ttesting)
+    MC <- general_indices(ttesting[,",var_pred,"], prediccion$prediction)
+    MC.radial <-  Map(c, MC.radial, MC)
+    
+    modelo     <- train.svm(",var_pred," ~ ., data = taprendizaje, kernel = 'linear', probability = FALSE)
+    prediccion <- predict(modelo, ttesting)
+    MC <- general_indices(ttesting[,",var_pred,"], prediccion$prediction)
+    MC.linear <-  Map(c, MC.linear, MC)
+    
+    modelo     <- train.svm(",var_pred," ~ ., data = taprendizaje, kernel = 'polynomial', probability = FALSE)
+    prediccion <- predict(modelo, ttesting)
+    MC <- general_indices(ttesting[,",var_pred,"], prediccion$prediction)
+    MC.polynomial <-  Map(c, MC.polynomial, MC)
+    
+    modelo <- train.svm(",var_pred," ~ ., data = taprendizaje, kernel = 'sigmoid', probability = FALSE)
+    prediccion <- predict(modelo, ttesting)
+    MC <- general_indices(ttesting[,",var_pred,"], prediccion$prediction)
+    MC.sigmoid <-  Map(c, MC.sigmoid, MC)
+  }
+
+  MCs.radial[[i]] <- sapply(MC.radial, mean)
+  MCs.linear[[i]] <- sapply(MC.linear, mean)
+  MCs.polynomial[[i]] <- sapply(MC.polynomial, mean)
+  MCs.sigmoid[[i]] <- sapply(MC.sigmoid, mean)
+}"
+  )
+}
+
+
+# DT ---------------------------------------------------------------------------------------------------
+
+cv_dt_code <- function(var_pred,   validaciones, grupo){
+  paste0(
+    "numero.filas <- nrow(datos)
+cantidad.validacion.cruzada <- ",validaciones,"
+cantidad.grupos <- ",grupo,"
+
+MCs.gini <- list()
+MCs.information <- list()
+
+for(i in 1:cantidad.validacion.cruzada){
+  grupos  <- createFolds(1:numero.filas, cantidad.grupos)  # Crea los 10 grupos
+  MC.gini  <- vector(mode = 'list', 4)
+  MC.information  <- vector(mode = 'list', 4)
+  
+  # Este ciclo es el que hace 'cross-validation' (validación cruzada) con 10
+  # grupos (Folds)
+  for(k in 1:cantidad.grupos) {
+    muestra <- grupos[[k]]  # Por ser una lista requiere de doble paréntesis
+    ttesting <- datos[muestra, ]
+    taprendizaje <- datos[-muestra, ]
+    
+    modelo     <- train.rpart(",var_pred," ~ ., data = taprendizaje, parms = list(split = 'gini'), control = rpart.control(minsplit = 10, maxdepth = 100))
+    prediccion <- predict(modelo, ttesting)
+    MC         <- general_indices(ttesting[,",var_pred,"], prediccion$prediction)
+    MC.gini    <-  Map(c, MC.gini, MC)
+    
+    modelo     <- train.rpart(",var_pred," ~ ., data = taprendizaje, , parms = list(split = 'information'), control = rpart.control(minsplit = 10, maxdepth = 100))
+    prediccion <- predict(modelo, ttesting)
+    MC         <- general_indices(ttesting[,",var_pred,"], prediccion$prediction)
+    MC.information <-  Map(c, MC.information, MC)
+    
+  }
+
+  MCs.gini[[i]] <- sapply(MC.gini, mean)
+  MCs.information[[i]] <- sapply(MC.information, mean)
+}"
+  )
+}
+
+
+# RF ---------------------------------------------------------------------------------------------------
+
+cv_rf_code <- function(var_pred,   validaciones, grupo){
+  paste0(
+    "numero.filas <- nrow(datos)
+cantidad.validacion.cruzada <- ",validaciones,"
+cantidad.grupos <- ",grupo,"
+
+MCs.gini <- list()
+MCs.information <- list()
+
+for(i in 1:cantidad.validacion.cruzada){
+  grupos   <- createFolds(1:numero.filas, cantidad.grupos)  # Crea los 10 grupos
+  MC.gini  <- vector(mode = 'list', 4)
+  MC.information  <- vector(mode = 'list', 4)
+  
+  # Este ciclo es el que hace 'cross-validation' (validación cruzada) con 10
+  # grupos (Folds)
+  for(k in 1:cantidad.grupos) {
+    muestra      <- grupos[[k]]  # Por ser una lista requiere de doble paréntesis
+    ttesting     <- datos[muestra, ]
+    taprendizaje <- datos[-muestra, ]
+    
+    modelo     <- train.randomForest(",var_pred," ~ ., data = taprendizaje, parms = list(split = 'gini'), , mtry =floor(sqrt(ncol(datos))), ntree = 100)
+    prediccion <- predict(modelo, ttesting)
+    MC         <- general_indices(ttesting[,",var_pred,"], prediccion$prediction)
+    MC.gini    <-  Map(c, MC.gini, MC)
+    
+    modelo         <- train.randomForest(",var_pred," ~ ., data = taprendizaje, parms = list(split = 'information'), mtry =floor(sqrt(ncol(datos))), ntree = 100)
+    prediccion     <- predict(modelo, ttesting)
+    MC             <- general_indices(ttesting[,",var_pred,"], prediccion$prediction)
+    MC.information <-  Map(c, MC.information, MC)
+    
+  }
+
+  MCs.gini[[i]] <- sapply(MC.gini, mean)
+  MCs.information[[i]] <- sapply(MC.information, mean)
+}"
+  )
+}
+
+# BOOST ---------------------------------------------------------------------------------------------------
+
+cv_boost_code <- function(var_pred,   validaciones, grupo){
+  paste0(
+    "numero.filas <- nrow(datos)
+cantidad.validacion.cruzada <- ",validaciones,"
+cantidad.grupos <- ",grupo,"
+
+MCs.gaussian <- list()
+MCs.laplace  <- list()
+MCs.tdist    <- list()
+
+for(i in 1:cantidad.validacion.cruzada){
+  grupos       <- createFolds(1:numero.filas, cantidad.grupos)  # Crea los 10 grupos
+  MC.gaussian  <- vector(mode = 'list', 4)
+  MC.laplace   <- vector(mode = 'list', 4)
+  MC.tdist     <- vector(mode = 'list', 4)
+  
+  # Este ciclo es el que hace 'cross-validation' (validación cruzada) con 10
+  # grupos (Folds)
+  for(k in 1:cantidad.grupos) {
+    muestra  <- grupos[[k]]  # Por ser una lista requiere de doble paréntesis
+    ttesting <- datos[muestra, ]
+    taprendizaje <- datos[-muestra, ]
+    
+    modelo <- train.gbm(",var_pred," ~ ., data = taprendizaje, distribution = 'gaussian', n.trees = 100,
+                                          shrinkage  = 0.1)
+    prediccion  <- predict(modelo, ttesting)
+    MC          <- general_indices(ttesting[,",var_pred,"], prediccion$prediction)
+    MC.gaussian <-  Map(c, MC.gaussian, MC)
+    
+    modelo <- train.gbm(",var_pred," ~ ., data = taprendizaje, distribution = 'laplace', n.trees = 100,
+                                          shrinkage  = 0.1)
+    prediccion <- predict(modelo, ttesting)
+    MC         <- general_indices(ttesting[,",var_pred,"], prediccion$prediction)
+    MC.laplace <-  Map(c, MC.laplace, MC)
+    
+    modelo     <- train.gbm(",var_pred," ~ ., data = taprendizaje, distribution = 'tdist', n.trees = 100,
+                                          shrinkage = 0.1)
+    prediccion <- predict(modelo, ttesting)
+    MC         <- general_indices(ttesting[,",var_pred,"], prediccion$prediction)
+    MC.tdist   <-  Map(c, MC.tdist, MC)
+    
+  }
+  MCs.gaussian[[i]] <- sapply(MC.gaussian, mean)
+  MCs.laplace[[i]]  <- sapply(MC.laplace, mean)
+  MCs.tdist[[i]]    <- sapply(MC.tdist, mean)
+}"
+  )
+}
+
+
+# RL ---------------------------------------------------------------------------------------------------
+
+cv_rl_code <- function(var_pred,   validaciones, grupo){
+  paste0(
+    "numero.filas <- nrow(datos)
+cantidad.validacion.cruzada <- ",validaciones,"
+cantidad.grupos <- ",grupo,"
+
+MCs.rl <- list()
+
+for(i in 1:cantidad.validacion.cruzada){
+  grupos  <- createFolds(1:numero.filas, cantidad.grupos)  # Crea los 10 grupos
+  MC.rl  <- vector(mode = 'list', 4)
+  # Este ciclo es el que hace 'cross-validation' (validación cruzada) con 10
+  # grupos (Folds)
+  for(k in 1:cantidad.grupos) {
+    muestra  <- grupos[[k]]  # Por ser una lista requiere de doble paréntesis
+    ttesting <- datos[muestra, ]
+    taprendizaje <- datos[-muestra, ]
+    
+    modelo     <- lm(",var_pred," ~ ., data = taprendizaje)
+    prediccion <- predict(modelo, ttesting)
+    MC         <- general_indices(ttesting[,",var_pred,"], prediccion$prediction)
+    MC.rl      <-  Map(c, MC.rl, MC)
+    
+    
+  }
+  MCs.rl[[i]] <- sapply(MC.rectangular, mean)
+}"
+  )
+}
+
+# RLR ---------------------------------------------------------------------------------------------------
+
+cv_rlr_code <- function(var_pred,   validaciones, grupo){
+  paste0(
+    "numero.filas <- nrow(datos)
+cantidad.validacion.cruzada <- ",validaciones,"
+cantidad.grupos <- ",grupo,"
+
+MCs.ridge <- list()
+MCs.lasso <- list()
+
+for(i in 1:cantidad.validacion.cruzada){
+  grupos    <- createFolds(1:numero.filas, cantidad.grupos)  # Crea los 10 grupos
+  MC.ridge  <- vector(mode = 'list', 4)
+  MC.lasso  <- vector(mode = 'list', 4)
+  
+  # Este ciclo es el que hace 'cross-validation' (validación cruzada) con 10
+  # grupos (Folds)
+  for(k in 1:cantidad.grupos) {
+    muestra  <- grupos[[k]]  # Por ser una lista requiere de doble paréntesis
+    ttesting <- datos[muestra, ]
+    taprendizaje <- datos[-muestra, ]
+    
+    modelo     <- rlr_model(data = taprendizaje, variable.pred = var_pred, alpha = 0, standardize = TRUE)
+    prediccion <- rlr_prediction(modelo, ttesting, var_pred)
+    MC         <- general_indices(ttesting[,",var_pred,"], prediccion)
+    MC.ridge   <-  Map(c, MC.ridge, MC)
+    
+    modelo     <- rlr_model(data = taprendizaje, variable.pred = var_pred, alpha = 1, standardize = TRUE)
+    prediccion <- rlr_prediction(modelo, ttesting, var_pred)
+    MC         <- general_indices(ttesting[,",var_pred,"], prediccion)
+    MC.lasso   <-  Map(c, MC.lasso, MC)
+    
+  }
+
+  MCs.ridge[[i]] <- sapply(MC.ridge, mean)
+  MCs.lasso[[i]] <- sapply(MC.lasso, mean)
+}"
+  )
+}
+
+
+# RD ---------------------------------------------------------------------------------------------------
+
+cv_rd_code <- function(var_pred,   validaciones, grupo){
+  paste0(
+    "numero.filas <- nrow(datos)
+cantidad.validacion.cruzada <- ",validaciones,"
+cantidad.grupos <- ",grupo,"
+
+MCs.acp <- list()
+MCs.mcp <- list()
+
+for(i in 1:cantidad.validacion.cruzada){
+  grupos  <- createFolds(1:numero.filas, cantidad.grupos)  # Crea los 10 grupos
+  MC.acp  <- vector(mode = 'list', 4)
+  MC.mcp  <- vector(mode = 'list', 4)
+  
+  # Este ciclo es el que hace 'cross-validation' (validación cruzada) con 10
+  # grupos (Folds)
+  for(k in 1:cantidad.grupos) {
+    muestra  <- grupos[[k]]  # Por ser una lista requiere de doble paréntesis
+    ttesting <- datos[muestra, ]
+    taprendizaje <- datos[-muestra, ]
+    
+    modelo     <- rd_model(data = taprendizaje, variable.pred = var_pred, mode = 0, scale = TRUE)
+    prediccion <- predict(modelo, ttesting, var_pred)
+    MC         <- general_indices(ttesting[,",var_pred,"], prediccion)
+    MC.acp     <-  Map(c, MC.acp, MC)
+    
+    modelo     <- rd_model(data = taprendizaje, variable.pred = var_pred, mode = 1, scale = TRUE)
+    prediccion <- predict(modelo, ttesting, var_pred)
+    MC         <- general_indices(ttesting[,",var_pred,"], prediccion)
+    MC.mcp     <-  Map(c, MC.mcp, MC)
+    
+  }
+
+  MCs.acp[[i]] <- sapply(MC.acp, mean)
+  MCs.mcp[[i]] <- sapply(MC.mcp, mean)
+}"
+  )
+}
+
+
+# Todos ---------------------------------------------------------------------------------------------------
+
+cv_cv_code <- function(var_pred,   validaciones, grupo){
+  paste0(
+    "numero.filas <- nrow(datos)
+cantidad.validacion.cruzada <- ",validaciones,"
+cantidad.grupos <- ",grupo,"
+
+MCs.svm <- list()
+MCs.knn <- list()
+MCs.arbol <- list()
+MCs.bosque <- list()
+MCs.potenciacion <- list()
+
+# Validación cruzada 5 veces
+for (i in 1:cantidad.validacion.cruzada) {
+    grupos <- createFolds(1:numero.filas, cantidad.grupos) # Crea los 10 grupos
+    
+    MC.svm  <- vector(mode = 'list', 4)
+    MC.knn  <- vector(mode = 'list', 4)
+    MC.arbol  <- vector(mode = 'list', 4)
+    MC.bosque  <- vector(mode = 'list', 4)
+    MC.potenciacion  <- vector(mode = 'list', 4)
+    MC.glm  <- vector(mode = 'list', 4) 
+    
+    # Este ciclo es el que hace validación cruzada con 10 grupos
+    for (k in 1:cantidad.grupos) {
+        muestra <- grupos[[k]] # Por ser una lista requiere de doble paréntesis
+        ttesting <- datos[muestra, ]
+        ttraining <- datos[-muestra, ]
+        
+        modelo <- train.svm(",var_pred," ~ ., data = ttraining, kernel = 'linear', probability = FALSE)
+        prediccion <- predict(modelo, ttesting)
+        MC <- general_indices(ttesting[,",var_pred,"], prediccion$prediction)
+        MC.svm <-  Map(c, MC.svm, MC)
+        
+        modelo <- train.knn(",var_pred," ~ ., data = ttraining, kmax = 37)
+        prediccion <- predict(modelo, ttesting)
+        MC <- general_indices(ttesting[,",var_pred,"], prediccion$prediction)
+        MC.knn <-  Map(c, MC.knn, MC)
+       
+        modelo = train.rpart(",var_pred," ~ ., data = ttraining)
+        prediccion <- predict(modelo, ttesting)
+        MC <- general_indices(ttesting[,",var_pred,"], prediccion$prediction)
+        MC.arbol <-  Map(c, MC.arbol, MC)
+        
+        modelo <- train.randomForest(",var_pred," ~ ., data = ttraining)
+        prediccion <- predict(modelo, ttesting)
+        MC <- general_indices(ttesting[,",var_pred,"], prediccion$prediction)
+        MC.bosque <-  Map(c, MC.bosque, MC)
+        
+        
+        modelo <- train.glm(",var_pred," ~ ., data = ttraining)
+        prediccion <- predict(modelo, ttesting)
+        MC <- general_indices(ttesting[,",var_pred,"], prediccion$prediction)
+        MC.glm <-  Map(c, MC.glm, MC)
+    }
+    
+    
+    MCs.svm[[i]] <- sapply(MC.rectangular, mean)
+    MCs.knn[[i]] <- sapply(MC.rectangular, mean)
+    MCs.bayes[[i]] <- sapply(MC.rectangular, mean) 
+    MCs.arbol[[i]] <- sapply(MC.rectangular, mean)
+    MCs.bosque[[i]] <- sapply(MC.rectangular, mean)
+    MCs.potenciacion[[i]] <- sapply(MC.rectangular, mean)
+    MCs.red[[i]] <- sapply(MC.rectangular, mean)
+    MCs.xgboost[[i]] <- sapply(MC.rectangular, mean)
+    MCs.red.neu[[i]] <- sapply(MC.rectangular, mean)
+    MCs.glm[[i]] <- sapply(MC.rectangular, mean)
+}"
+  )
+}
+
+
+

@@ -99,6 +99,8 @@ app_ui <- function(request) {
                          info.menu,
                          hr(),
                          menu.language,
+                         hr(), 
+                         img(src = "img/regressoR.png", style = "margin-left: auto;margin-right: auto;display: block;width: 80%;"),
                          init.inputs)
   
   
@@ -106,7 +108,7 @@ app_ui <- function(request) {
   
   #Imports .css and .js, also decide the icon
   mi.head <- tags$head(
-    tags$link(rel="icon", href="https://www.promidat.org/theme/image.php/formal_white/theme/1438713216/favicon"),
+    tags$link(rel="icon", href="https://www.promidat.education/theme/image.php/formal_white/theme/1438713216/favicon"),
     useShinyjs())
   
   #The loading page generating model

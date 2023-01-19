@@ -137,6 +137,8 @@ mod_cv_svm_server <- function(input, output, session, updateData, codedioma){
       M$er   <- resultados$er
       M$corr <- resultados$corr
       M$summary <- summary_indices_v(datos[[variable]])
+      isolate(codedioma$code <- append(codedioma$code, cv_svm_code(variable, cant.vc, numGrupos)))
+      
       print(MCs.svm)
       
     },error = function(e){

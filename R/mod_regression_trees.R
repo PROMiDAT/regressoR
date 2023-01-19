@@ -110,6 +110,7 @@ mod_regression_trees_server <- function(input, output, session,updateData, model
       modelo.dt$call$formula   <- var
       modelo.dt$call$control$minsplit <- minsplit
       modelo.dt$call$control$maxdepth <- maxdepth
+
       print(summary(modelo.dt))
       
     }, error = function(e){

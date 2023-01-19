@@ -109,7 +109,7 @@ mod_SVM_server <- function(input, output, session,updateData, modelos, codedioma
       modelo.svm$call$formula <- var
       modelo.svm$call$kernel  <- kernel
       modelo.svm$call$scale   <- scale
-      
+
       print(modelo.svm)
     }, error = function(e){
       isolate(modelos$svm[[nombreModelo]] <- NULL)
