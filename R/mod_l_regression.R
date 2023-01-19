@@ -1,4 +1,4 @@
-#' linear_regression UI Function
+#' l_regression UI Function
 #'
 #' @description A shiny Module.
 #'
@@ -7,12 +7,12 @@
 #' @noRd 
 #'
 #' @importFrom shiny NS tagList 
-mod_linear_regression_ui <- function(id){
+mod_l_regression_ui <- function(id){
   ns <- NS(id)
 
   opc_rl <- div(
     conditionalPanel(
-      "input['linear_regression_ui_1-BoxRl'] == 'tabRlModelo'",
+      "input['l_regression_ui_1-BoxRl'] == 'tabRlModelo'",
       tabsOptions(heights = c(70), tabs.content = list(
         list(
           options.run(ns("runRl")), tags$hr(style = "margin-top: 0px;"))
@@ -74,10 +74,10 @@ mod_linear_regression_ui <- function(id){
   )
 }
     
-#' linear_regression Server Function
+#' l_regression Server Function
 #'
 #' @noRd 
-mod_linear_regression_server <- function(input, output, session, updateData, modelos, codedioma){
+mod_l_regression_server <- function(input, output, session, updateData, modelos, codedioma){
   ns <- session$ns
   
   nombreModelo <- "modelo.rl"
@@ -272,8 +272,8 @@ mod_linear_regression_server <- function(input, output, session, updateData, mod
 }
     
 ## To be copied in the UI
-# mod_linear_regression_ui("linear_regression_ui_1")
+# mod_l_regression_ui("l_regression_ui_1")
     
 ## To be copied in the server
-# callModule(mod_linear_regression_server, "linear_regression_ui_1")
+# callModule(mod_l_regression_server, "l_regression_ui_1")
  

@@ -40,18 +40,6 @@ importance_plot_rf <- function(model.rf, titles = c("Importancia de Variables Se
     e_show_loading()
 }
 
-
-make_rf_pred = function(train, test, variable.pred, ntree = 500, mtry = 1) {
-  if(!is.null(variable.pred) && !is.null(train)){
-    form  <- formula(paste0(variable.pred,"~."))
-    modelo.rf <- train.randomForest(form, data = train, ntree = ntree, mtry = mtry,
-                                    importance = TRUE)
-    prediccion.rf <- rf_prediction(modelo.rf, test)$prediction
-    return(rmse(test[,variable.pred], prediccion.rf))
-  }
-  return(NULL)
-}
-
 rf_ntree_values <- function(model) {
   ntree  = c(1:model$ntree)
   rf_rmse = sqrt(model$mse)

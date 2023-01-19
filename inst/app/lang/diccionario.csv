@@ -63,6 +63,7 @@ puntocoma;Punto y coma;Semicolon
 tab;Espacio;Tab
 separadordec;Separador de Decimales;Decimal Separator
 punto;Punto;Point
+tipoGrafico;Tipo de Gráfico:; Plot Type:
 eliminana;Acción para Datos Ausentes (NAs);Action for Missing Data (NAs)
 si;SI;YES
 no;NO;NO

@@ -151,3 +151,14 @@ tb_predic <- function(real, predic.var, decimals = NULL, languaje = "es"){
                                       )
                        ))
 }
+
+# Close a menu in the "shiny" application according to your tabName
+close_menu <- function(tabname = NA, valor = T) {
+  select <- paste0("a[href^='#shiny-tab-", tabname, "']")
+  if(valor){
+    shinyjs::hide(selector = "ul.menu-open")
+    shinyjs::disable(selector = select)
+  } else {
+    shinyjs::enable(selector = select)
+  }
+}

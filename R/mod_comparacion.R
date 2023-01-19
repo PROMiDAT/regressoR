@@ -1,4 +1,4 @@
-#' model_comparison UI Function
+#' comparacion UI Function
 #'
 #' @description A shiny Module.
 #'
@@ -7,7 +7,7 @@
 #' @noRd 
 #'
 #' @importFrom shiny NS tagList 
-mod_model_comparison_ui <- function(id){
+mod_comparacion_ui <- function(id){
   ns <- NS(id)
 
   table.comparison.panel <- tabPanel(title = labelInput("tablaComp"),
@@ -22,10 +22,10 @@ mod_model_comparison_ui <- function(id){
   )
 }
     
-#' model_comparison Server Function
+#' comparacion Server Function
 #'
 #' @noRd 
-mod_model_comparison_server <- function(input, output, session, updateData, modelos, codedioma){
+mod_comparacion_server <- function(input, output, session, updateData, modelos, codedioma){
   ns <- session$ns
   
   #Muestra la tabla comparativa.
@@ -63,8 +63,8 @@ mod_model_comparison_server <- function(input, output, session, updateData, mode
 }
     
 ## To be copied in the UI
-# mod_model_comparison_ui("model_comparison_ui_1")
+# mod_comparacion_ui("comparacion_ui_1")
     
 ## To be copied in the server
-# callModule(mod_model_comparison_server, "model_comparison_ui_1")
+# callModule(mod_comparacion_server, "comparacion_ui_1")
  

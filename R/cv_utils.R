@@ -16,9 +16,19 @@ cv.values <- function(datos){
   }
   return(puntos)
 }
+
 summary_indices_v <- function(data){
   return(c( max(data), min(data),quantile(data, prob=c(0.25)),quantile(data, prob=c(0.75))))
 }
+
+#Obtiene los nombres de columnas o regresa un string vacio
+colnames.empty <- function(res){
+  res <- colnames(res)
+  if(is.null(res))
+    return("")
+  return(res)
+}
+
 validar.tamanno <- function(text){
   if(nchar(text) > 15){
     aux <- unlist(strsplit(text, " "))

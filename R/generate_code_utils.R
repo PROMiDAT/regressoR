@@ -504,6 +504,9 @@ MCs.knn <- list()
 MCs.arbol <- list()
 MCs.bosque <- list()
 MCs.potenciacion <- list()
+MCs.rl  <- list()
+MCs.rlr <- list()
+MCs.rd <- list()
 
 # Validación cruzada 5 veces
 for (i in 1:cantidad.validacion.cruzada) {
@@ -514,7 +517,9 @@ for (i in 1:cantidad.validacion.cruzada) {
     MC.arbol  <- vector(mode = 'list', 4)
     MC.bosque  <- vector(mode = 'list', 4)
     MC.potenciacion  <- vector(mode = 'list', 4)
-    MC.glm  <- vector(mode = 'list', 4) 
+    MC.rl  <- vector(mode = 'list', 4) 
+    MC.rlr  <- vector(mode = 'list', 4) 
+    MC.rd  <- vector(mode = 'list', 4) 
     
     # Este ciclo es el que hace validación cruzada con 10 grupos
     for (k in 1:cantidad.grupos) {
@@ -543,23 +548,31 @@ for (i in 1:cantidad.validacion.cruzada) {
         MC.bosque <-  Map(c, MC.bosque, MC)
         
         
-        modelo <- train.glm(",var_pred," ~ ., data = ttraining)
+        modelo     <- lm(",var_pred," ~ ., data = ttraining)
         prediccion <- predict(modelo, ttesting)
         MC <- general_indices(ttesting[,",var_pred,"], prediccion$prediction)
-        MC.glm <-  Map(c, MC.glm, MC)
+        MC.rl <-  Map(c, MC.rl, MC)
+        
+        modelo     <- rlr_model(variable.pred =",var_pred," , data = ttraining)
+        prediccion <- rlr_prediction(modelo, ttesting,",var_pred,")
+        MC <- general_indices(ttesting[,",var_pred,"], prediccion$prediction)
+        MC.rlr <-  Map(c, MC.rlr, MC)
+        
+        modelo     <- rlr_model(variable.pred =",var_pred," , data = ttraining)
+        prediccion <- predict(modelo, ttesting)
+        MC <- general_indices(ttesting[,",var_pred,"], prediccion$prediction)
+        MC.rd <-  Map(c, MC.rd, MC)
     }
     
     
-    MCs.svm[[i]] <- sapply(MC.rectangular, mean)
-    MCs.knn[[i]] <- sapply(MC.rectangular, mean)
-    MCs.bayes[[i]] <- sapply(MC.rectangular, mean) 
-    MCs.arbol[[i]] <- sapply(MC.rectangular, mean)
-    MCs.bosque[[i]] <- sapply(MC.rectangular, mean)
-    MCs.potenciacion[[i]] <- sapply(MC.rectangular, mean)
-    MCs.red[[i]] <- sapply(MC.rectangular, mean)
-    MCs.xgboost[[i]] <- sapply(MC.rectangular, mean)
-    MCs.red.neu[[i]] <- sapply(MC.rectangular, mean)
-    MCs.glm[[i]] <- sapply(MC.rectangular, mean)
+    MCs.svm[[i]] <- sapply(MC.svm, mean)
+    MCs.knn[[i]] <- sapply(MC.knn, mean)
+    MCs.arbol[[i]] <- sapply(MC.arbol, mean)
+    MCs.bosque[[i]] <- sapply(MC.bosque, mean)
+    MCs.potenciacion[[i]] <- sapply(MC.potenciacion, mean)
+    MCs.rl[[i]]  <- sapply(MC.rl, mean)
+    MCs.rlr[[i]] <- sapply(MC.rlr, mean)
+    MCs.rd[[i]]  <- sapply(MC.rd, mean)
 }"
   )
 }

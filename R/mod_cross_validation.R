@@ -294,6 +294,7 @@ mod_cross_validation_server <- function(input, output, session, updateData, code
         M$er   <- resultados$er
         M$corr <- resultados$corr
         M$summary <- summary_indices_v(datos[[variable]])
+        isolate(codedioma$code <- append(codedioma$code, cv_cv_code(variable, cant.vc, numGrupos)))
         print(MCs.cv)
         
         return(invisible(''))

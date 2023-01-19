@@ -159,18 +159,18 @@ app_server <- function( input, output, session ) {
   callModule(mod_Predictive_Power_server, "Predictive_Power_ui_1", updateData, codedioma)
   
   # Aprendizaje Supervisado
-  callModule(mod_linear_regression_server,    "linear_regression_ui_1",    updateData, modelos, codedioma)
+  callModule(mod_l_regression_server,         "l_regression_ui_1",    updateData, modelos, codedioma)
   callModule(mod_penalized_Regression_server, "penalized_Regression_ui_1", updateData, modelos, codedioma)
   callModule(mod_regression_trees_server,     "regression_trees_ui_1",     updateData, modelos, codedioma)
-  callModule(mod_random_forests_server,       "random_forests_ui_1",       updateData, modelos, codedioma)
+  callModule(mod_r_forest_server,             "r_forest_ui_1",       updateData, modelos, codedioma)
   callModule(mod_boosting_server,             "boosting_ui_1",             updateData, modelos, codedioma)
   callModule(mod_KNN_server,                  "KNN_ui_1",                  updateData, modelos, codedioma)
   callModule(mod_SVM_server,                  "SVM_ui_1",                  updateData, modelos, codedioma)
   callModule(mod_dimension_reduction_server,  "dimension_reduction_ui_1",  updateData, modelos, codedioma)
-  callModule(mod_neural_networks_server,      "neural_networks_ui_1",      updateData, modelos, codedioma)
+  callModule(mod_neural_net_server,           "neural_net_ui_1",      updateData, modelos, codedioma)
 
   # Comparación de Individuos
-  callModule(mod_model_comparison_server,     "model_comparison_ui_1",     updateData, modelos, codedioma)
+  callModule(mod_comparacion_server,     "comparacion_ui_1",     updateData, modelos, codedioma)
   
   #Validación Cruzada
   callModule(mod_cv_knn_server,      "cv_knn_ui_1",      updateData, codedioma)
@@ -184,7 +184,7 @@ app_server <- function( input, output, session ) {
   callModule(mod_cross_validation_server,"cross_validation_ui_1", updateData, codedioma)
   
   # Predicción Ind. Nuevos
-  callModule(mod_new_data_predictions_server, "new_data_predictions_ui_1", newCases, updateData2, codedioma)
+  callModule(mod_ind_nuevos_server, "ind_nuevos_ui_1", newCases, updateData2, codedioma)
 
   # About
   callModule(mod_information_page_server,     "information_page_ui_1", codedioma)

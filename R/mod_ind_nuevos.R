@@ -1,4 +1,4 @@
-#' new_data_predictions UI Function
+#' ind_nuevos UI Function
 #'
 #' @description A shiny Module.
 #'
@@ -7,7 +7,7 @@
 #' @noRd
 #'
 #' @importFrom shiny NS tagList 
-mod_new_data_predictions_ui <- function(id){
+mod_ind_nuevos_ui <- function(id){
   
   ns <- NS(id)
   
@@ -100,10 +100,10 @@ mod_new_data_predictions_ui <- function(id){
   
 }
 
-#' new_data_predictions Server Function
+#' ind_nuevos Server Function
 #' @keywords internal
 #' 
-mod_new_data_predictions_server <- function(input, output, session, newCases, updateData2, codedioma){
+mod_ind_nuevos_server <- function(input, output, session, newCases, updateData2, codedioma){
   ns <- session$ns
   shinyjs::runjs('get_file()')
   
@@ -705,8 +705,8 @@ mod_new_data_predictions_server <- function(input, output, session, newCases, up
 }
 
 ## To be copied in the UI
-# mod_new_data_predictions_ui("new_data_predictions_ui_1")
+# mod_ind_nuevos_ui("ind_nuevos_ui_1")
 
 ## To be copied in the server
-# callModule(mod_new_data_predictions_server, "new_data_predictions_ui_1")
+# callModule(mod_ind_nuevos_server, "ind_nuevos_ui_1")
 

@@ -1,4 +1,4 @@
-#' random_forests UI Function
+#' r_forest UI Function
 #'
 #' @description A shiny Module.
 #'
@@ -7,7 +7,7 @@
 #' @noRd 
 #'
 #' @importFrom shiny NS tagList 
-mod_random_forests_ui <- function(id){
+mod_r_forest_ui <- function(id){
   
   ns <- NS(id)
   
@@ -78,10 +78,10 @@ mod_random_forests_ui <- function(id){
   )
 }
 
-#' random_forests Server Function
+#' r_forest Server Function
 #'
 #' @noRd 
-mod_random_forests_server <- function(input, output, session,updateData, modelos, codedioma){
+mod_r_forest_server <- function(input, output, session,updateData, modelos, codedioma){
   ns <- session$ns
   
   nombreModelo <- "modelo.rf"
@@ -342,8 +342,8 @@ mod_random_forests_server <- function(input, output, session,updateData, modelos
 }
 
 ## To be copied in the UI
-# mod_random_forests_ui("random_forests_ui_1")
+# mod_r_forest_ui("r_forest_ui_1")
 
 ## To be copied in the server
-# callModule(mod_random_forests_server, "random_forests_ui_1")
+# callModule(mod_r_forest_server, "r_forest_ui_1")
 

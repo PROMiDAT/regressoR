@@ -152,13 +152,13 @@ app_ui <- function(request) {
                       tabItem(tabName = "poderPred",
                               mod_Predictive_Power_ui("Predictive_Power_ui_1")),
                       tabItem(tabName = "rl",
-                              mod_linear_regression_ui("linear_regression_ui_1")),
+                              mod_l_regression_ui("l_regression_ui_1")),
                       tabItem(tabName = "rlr",
                               mod_penalized_Regression_ui("penalized_Regression_ui_1")),
                       tabItem(tabName = "dt",
                               mod_regression_trees_ui("regression_trees_ui_1")),
                       tabItem(tabName = "rf",
-                              mod_random_forests_ui("random_forests_ui_1")),
+                              mod_r_forest_ui("r_forest_ui_1")),
                       tabItem(tabName = "boosting",
                               mod_boosting_ui("boosting_ui_1")),
                       tabItem(tabName = "knn",  
@@ -168,7 +168,7 @@ app_ui <- function(request) {
                       tabItem(tabName = "rd",  
                               mod_dimension_reduction_ui("dimension_reduction_ui_1")),
                       tabItem(tabName = "nn",  
-                              mod_neural_networks_ui("neural_networks_ui_1")),  
+                              mod_neural_net_ui("neural_net_ui_1")),  
 
                       ############### Validación Cruzada ############### 
                       
@@ -200,9 +200,9 @@ app_ui <- function(request) {
                               mod_cross_validation_ui("cross_validation_ui_1")),
 
                       tabItem(tabName = "comparar",
-                              mod_model_comparison_ui("model_comparison_ui_1")),
+                              mod_comparacion_ui("comparacion_ui_1")),
                       tabItem(tabName = "predNuevos",
-                              mod_new_data_predictions_ui("new_data_predictions_ui_1")),
+                              mod_ind_nuevos_ui("ind_nuevos_ui_1")),
                       tabItem(tabName = "acercaDe",
                               mod_information_page_ui("information_page_ui_1"))
                     )),
@@ -238,11 +238,11 @@ golem_add_external_resources <- function(){
   var dec = $("input[name=\'carga_datos_ui_2-dec\']:checked").val();
   var nas = $("input[name=\'carga_datos_ui_2-deleteNA\']:checked").val();
 
-  Shiny.setInputValue("new_data_predictions_ui_1-jsrowname", rowname);
-  Shiny.setInputValue("new_data_predictions_ui_1-jsheader", header);
-  Shiny.setInputValue("new_data_predictions_ui_1-jssep", sep);
-  Shiny.setInputValue("new_data_predictions_ui_1-jsdec", dec);
-  Shiny.setInputValue("new_data_predictions_ui_1-jsnas", nas);
+  Shiny.setInputValue("ind_nuevos_ui_1-jsrowname", rowname);
+  Shiny.setInputValue("ind_nuevos_ui_1-jsheader", header);
+  Shiny.setInputValue("ind_nuevos_ui_1-jssep", sep);
+  Shiny.setInputValue("ind_nuevos_ui_1-jsdec", dec);
+  Shiny.setInputValue("ind_nuevos_ui_1-jsnas", nas);
   }
   
   get_inputs_xlsx = function() {
@@ -255,20 +255,20 @@ golem_add_external_resources <- function(){
   var col_final = $("#carga_datos_ui_2-col_final").val();
   var deleteNA_xlsx = $("input[name=\'carga_datos_ui_2-deleteNA_xlsx\']:checked").val();
 
-  Shiny.setInputValue("new_data_predictions_ui_1-jsrowname_xlsx", rowname);
-  Shiny.setInputValue("new_data_predictions_ui_1-jsheader_xlsx", header);
-  Shiny.setInputValue("new_data_predictions_ui_1-jsnum_hoja", num_hoja);
-  Shiny.setInputValue("new_data_predictions_ui_1-jsfila_inicio", fila_inicio);
-  Shiny.setInputValue("new_data_predictions_ui_1-jscol_inicio", col_inicio);
-  Shiny.setInputValue("new_data_predictions_ui_1-jsfila_final", fila_final);
-  Shiny.setInputValue("new_data_predictions_ui_1-jscol_final", col_final);
-  Shiny.setInputValue("new_data_predictions_ui_1-jsdeleteNA_xlsx", deleteNA_xlsx);
+  Shiny.setInputValue("ind_nuevos_ui_1-jsrowname_xlsx", rowname);
+  Shiny.setInputValue("ind_nuevos_ui_1-jsheader_xlsx", header);
+  Shiny.setInputValue("ind_nuevos_ui_1-jsnum_hoja", num_hoja);
+  Shiny.setInputValue("ind_nuevos_ui_1-jsfila_inicio", fila_inicio);
+  Shiny.setInputValue("ind_nuevos_ui_1-jscol_inicio", col_inicio);
+  Shiny.setInputValue("ind_nuevos_ui_1-jsfila_final", fila_final);
+  Shiny.setInputValue("ind_nuevos_ui_1-jscol_final", col_final);
+  Shiny.setInputValue("ind_nuevos_ui_1-jsdeleteNA_xlsx", deleteNA_xlsx);
 }
   
   get_file = function() {
   $("#carga_datos_ui_2-run_data").on("click", function(){
         var file_type = $("#carga_datos_ui_2-file_type").find(".active")[0].firstElementChild.getAttribute("data-value")
-        Shiny.setInputValue("new_data_predictions_ui_1-jsfile_type", file_type);
+        Shiny.setInputValue("ind_nuevos_ui_1-jsfile_type", file_type);
         });
 }
   '

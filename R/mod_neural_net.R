@@ -1,4 +1,4 @@
-#' neural_networks UI Function
+#' neural_net UI Function
 #'
 #' @description A shiny Module.
 #'
@@ -7,7 +7,7 @@
 #' @noRd 
 #'
 #' @importFrom shiny NS tagList 
-mod_neural_networks_ui <- function(id){
+mod_neural_net_ui <- function(id){
   
   ns <- NS(id)
   
@@ -64,10 +64,10 @@ mod_neural_networks_ui <- function(id){
   )
 }
 
-#' neural_networks Server Function
+#' neural_net Server Function
 #'
 #' @noRd 
-mod_neural_networks_server <- function(input, output, session,updateData, modelos, codedioma){
+mod_neural_net_server <- function(input, output, session,updateData, modelos, codedioma){
   ns <- session$ns
   
   nombreModelo <- "modelo.nn"
@@ -335,8 +335,8 @@ mod_neural_networks_server <- function(input, output, session,updateData, modelo
 }
 
 ## To be copied in the UI
-# mod_neural_networks_ui("neural_networks_ui_1")
+# mod_neural_net_ui("neural_net_ui_1")
 
 ## To be copied in the server
-# callModule(mod_neural_networks_server, "neural_networks_ui_1")
+# callModule(mod_neural_net_server, "neural_net_ui_1")
 
