@@ -35,7 +35,7 @@ app_ui <- function(request) {
                               menuSubItem(labelInput("correlacion"), tabName = "correlacion", icon = icon("table")),
                               menuItem(labelInput("poderpred"), tabName = "poderPred", icon = icon("rocket")))
   
-  supervised.learning.menu    <- menuItem(labelInput("aprendizaje"), tabName = "parte2", icon = icon("th-list"),
+  supervised.learning.menu    <- menuItem(labelInput("tt"), tabName = "parte2", icon = icon("th-list"),
                                           menuSubItem(labelInput("rl"),tabName = "rl",icon = icon("chart-line")),
                                           menuSubItem(labelInput("rlr"),tabName = "rlr",icon = icon("wave-square")),
                                           menuSubItem(labelInput("dt"),tabName = "dt",icon = icon("tree")),
@@ -44,7 +44,9 @@ app_ui <- function(request) {
                                           menuSubItem(labelInput("knn"),tabName = "knn",icon = icon("dot-circle")),
                                           menuSubItem(labelInput("svm"),tabName = "svm",icon = icon("vector-square")),
                                           menuSubItem(labelInput("rd"), tabName = "rd",icon = icon("chart-pie")),
-                                          menuSubItem(labelInput("nn"),tabName = "nn",icon = icon("brain")))
+                                          menuSubItem(labelInput("nn"),tabName = "nn",icon = icon("brain")),
+                                          menuSubItem(labelInput("comparacion"),tabName = "comparar",icon = icon("balance-scale")),
+                                          menuSubItem(labelInput("varError"),tabName = "varerr",icon = icon("triangle-exclamation")))
   
   calibracion.menu    <- menuItem(labelInput("calibracion"), tabName = "calibracion", icon = icon("gears"),
                                           menuSubItem(labelInput("rl"),tabName = "cv_rl",icon = icon("chart-line")),
@@ -56,9 +58,7 @@ app_ui <- function(request) {
                                           menuSubItem(labelInput("svml"),tabName = "cv_svm",icon = icon("vector-square")),
                                           menuSubItem(labelInput("rd"), tabName = "cv_rd",icon = icon("chart-pie")))
   
-  cross.val.menu    <- menuItem(labelInput("crossval"), tabName = "cv_cv", icon = icon("laptop-code"))
-  
-  compare.menu <- menuItem(labelInput("comparacion"), tabName = "comparar", icon = icon("balance-scale"))
+  cross.val.menu    <- menuItem(labelInput("seleModel"), tabName = "cv_cv", icon = icon("laptop-code"))
   
   new.prediction.menu <- menuItem(labelInput("predicnuevos"), tabName = "predNuevos", icon = icon("table"))
   
@@ -92,7 +92,6 @@ app_ui <- function(request) {
                          load.menu,
                          statistics.menu,
                          supervised.learning.menu,
-                         compare.menu,
                          calibracion.menu,
                          cross.val.menu,
                          new.prediction.menu,
@@ -154,7 +153,7 @@ app_ui <- function(request) {
                       tabItem(tabName = "rl",
                               mod_l_regression_ui("l_regression_ui_1")),
                       tabItem(tabName = "rlr",
-                              mod_penalized_Regression_ui("penalized_Regression_ui_1")),
+                              mod_penalized_l_r_ui("penalized_l_r_ui_1")),
                       tabItem(tabName = "dt",
                               mod_regression_trees_ui("regression_trees_ui_1")),
                       tabItem(tabName = "rf",
@@ -198,9 +197,11 @@ app_ui <- function(request) {
                       
                       tabItem(tabName = "cv_cv", 
                               mod_cross_validation_ui("cross_validation_ui_1")),
-
+                      
                       tabItem(tabName = "comparar",
                               mod_comparacion_ui("comparacion_ui_1")),
+                      tabItem(tabName = "varerr", 
+                              mod_varerr_ui("varerr_ui_1")),   
                       tabItem(tabName = "predNuevos",
                               mod_ind_nuevos_ui("ind_nuevos_ui_1")),
                       tabItem(tabName = "acercaDe",

@@ -42,6 +42,34 @@ validar.tamanno <- function(text){
   }
   return(text)  
 }
+
+
+indices.comp <- function(MCs, n){
+
+  col_      <- gg_color_hue(n)
+  rep       <- vector(mode = "numeric",   length = n)
+  value     <- vector(mode = "numeric",   length = n)
+  ea        <- vector(mode = "numeric",   length = n)
+  er        <- vector(mode = "numeric",   length = n)
+  corr      <- vector(mode = "numeric",   length = n)
+  color     <- vector(mode = "character", length = n)
+  
+  for (i in 1:n){
+    rep[i]    <- i
+    color[i]  <- col_[i]
+    value[i]  <- MCs[[i]]$Raiz.Error.Cuadratico
+    ea[i]     <- MCs[[i]]$Error.Absoluto
+    er[i]     <- MCs[[i]]$Error.Relativo/100
+    corr[i]   <- MCs[[i]]$Correlacion
+
+  }
+  
+  grafico    <- data.frame(rep, value, color, ea, er, corr)
+  
+  resultados <- list(grafico = grafico, global = value)
+  return(list(grafico = grafico, global = value))
+}
+
 indices.cv <- function( cant.vc, kernels, MCs.knn){
 
   col_      <- gg_color_hue(length(kernels))
@@ -326,4 +354,38 @@ resumen.error <- function(datos.grafico, labels = c("Global", "iteracion", "Valo
   }
   resumen$x$opts$legend$data <- datos.grafico$name
   resumen
+}
+
+comp.lineas <- function(datos.grafico, labels = c("Global", "repeticion"), percent = FALSE) {
+  
+  comp_plot <- datos.grafico |>
+    e_charts(rep) |>
+    e_line(value, name = var) |>
+    e_title(labels[1],
+            left = "center",
+            top = 5,
+            textStyle = list(fontSize = 20)) |>
+    e_datazoom(show = F,startValue=1) |>
+    e_legend(show = T, type = "scroll", bottom = 1) |>
+    e_show_loading()|> e_x_axis(nameLocation = 'middle', nameGap = 35)
+  
+  
+  if(percent){
+    comp_plot <- comp_plot|>  
+      e_y_axis(formatter = e_axis_formatter("percent",
+                                            digits = 0)) |>
+      e_axis_labels(x = labels[2],
+                    y = paste('%', labels[1]))|>
+      e_tooltip(formatter = e_JS("function(params){
+                                           return('<strong>' + params.value[0] + ' </strong>' +",
+                                 " parseFloat(params.value[1] ).toFixed(5) + '%' )}"))
+  }else{
+    comp_plot <- comp_plot|>  
+      e_axis_labels(x = labels[2],
+                    y = labels[1])|>
+      e_tooltip(formatter = e_JS("function(params){
+                                           return('<strong>' + params.value[0] + ' </strong>' +",
+                                 " parseFloat(params.value[1]).toFixed(5)  )}"))
+  }
+  comp_plot
 }

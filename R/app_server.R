@@ -31,6 +31,16 @@ app_server <- function( input, output, session ) {
                                 rf  = NULL, boost = NULL, knn = NULL, 
                                 svm = NULL, rd    = NULL, nn  = NULL)
   
+  modelos2    <-  rv(svm      = list(n = 0, mcs = vector(mode = "list", length = 10)),
+                     knn      = list(n = 0, mcs = vector(mode = "list", length = 10)),
+                     rd       = list(n = 0, mcs = vector(mode = "list", length = 10)),
+                     rl       = list(n = 0, mcs = vector(mode = "list", length = 10)),
+                     rlr      = list(n = 0, mcs = vector(mode = "list", length = 10)),
+                     boosting = list(n = 0, mcs = vector(mode = "list", length = 10)),
+                     rf       = list(n = 0, mcs = vector(mode = "list", length = 10)),
+                     nn       = list(n = 0, mcs = vector(mode = "list", length = 10)),
+                     dt       = list(n = 0, mcs = vector(mode = "list", length = 10)))
+  
   newCases   <-     rv(originales        = NULL, 
                        datos.prueba      = NULL, 
                        datos.aprendizaje = NULL,
@@ -159,18 +169,19 @@ app_server <- function( input, output, session ) {
   callModule(mod_Predictive_Power_server, "Predictive_Power_ui_1", updateData, codedioma)
   
   # Aprendizaje Supervisado
-  callModule(mod_l_regression_server,         "l_regression_ui_1",    updateData, modelos, codedioma)
-  callModule(mod_penalized_Regression_server, "penalized_Regression_ui_1", updateData, modelos, codedioma)
-  callModule(mod_regression_trees_server,     "regression_trees_ui_1",     updateData, modelos, codedioma)
-  callModule(mod_r_forest_server,             "r_forest_ui_1",       updateData, modelos, codedioma)
-  callModule(mod_boosting_server,             "boosting_ui_1",             updateData, modelos, codedioma)
-  callModule(mod_KNN_server,                  "KNN_ui_1",                  updateData, modelos, codedioma)
-  callModule(mod_SVM_server,                  "SVM_ui_1",                  updateData, modelos, codedioma)
-  callModule(mod_dimension_reduction_server,  "dimension_reduction_ui_1",  updateData, modelos, codedioma)
-  callModule(mod_neural_net_server,           "neural_net_ui_1",      updateData, modelos, codedioma)
+  callModule(mod_l_regression_server,         "l_regression_ui_1",         updateData, modelos, codedioma, modelos2)
+  callModule(mod_penalized_l_r_server,        "penalized_l_r_ui_1",        updateData, modelos, codedioma, modelos2)
+  callModule(mod_regression_trees_server,     "regression_trees_ui_1",     updateData, modelos, codedioma, modelos2)
+  callModule(mod_r_forest_server,             "r_forest_ui_1",             updateData, modelos, codedioma, modelos2)
+  callModule(mod_boosting_server,             "boosting_ui_1",             updateData, modelos, codedioma, modelos2)
+  callModule(mod_KNN_server,                  "KNN_ui_1",                  updateData, modelos, codedioma, modelos2)
+  callModule(mod_SVM_server,                  "SVM_ui_1",                  updateData, modelos, codedioma, modelos2)
+  callModule(mod_dimension_reduction_server,  "dimension_reduction_ui_1",  updateData, modelos, codedioma, modelos2)
+  callModule(mod_neural_net_server,           "neural_net_ui_1",           updateData, modelos, codedioma, modelos2)
 
   # Comparación de Individuos
   callModule(mod_comparacion_server,     "comparacion_ui_1",     updateData, modelos, codedioma)
+  callModule(mod_varerr_server,          "varerr_ui_1",          updateData, modelos, codedioma, modelos2)
   
   #Validación Cruzada
   callModule(mod_cv_knn_server,      "cv_knn_ui_1",      updateData, codedioma)

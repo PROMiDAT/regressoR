@@ -35,11 +35,11 @@ mod_regression_trees_ui <- function(id){
   
   general.index.dt.panel <- tabPanel(title = labelInput("indices"),value = "tabDtIndex",
                                      br(),
-                                     fluidRow(withLoader(tableOutput(ns('indexdfdt')),type = "html", loader = "loader4")),
+                                     div(withLoader(tableOutput(ns('indexdfdt')),type = "html", loader = "loader4")),
                                      br(),
-                                     fluidRow(column(width = 12, align="center", tags$h3(labelInput("resumenVarPre")))),
+                                     div(column(width = 12, align="center", tags$h3(labelInput("resumenVarPre")))),
                                      br(),
-                                     fluidRow(withLoader(tableOutput(ns('indexdfdt2')),type = "html", loader = "loader4")))
+                                     div(withLoader(tableOutput(ns('indexdfdt2')),type = "html", loader = "loader4")))
   
   rules.dt.panel <- tabPanel(title = labelInput("reglas"),value = "tabDtReglas",
                              withLoader(verbatimTextOutput(ns("rulesDt")),type = "html", loader = "loader4"))
@@ -61,7 +61,7 @@ mod_regression_trees_ui <- function(id){
 #' regression_trees Server Function
 #'
 #' @noRd 
-mod_regression_trees_server <- function(input, output, session,updateData, modelos, codedioma){
+mod_regression_trees_server <- function(input, output, session,updateData, modelos, codedioma, modelos2){
   ns <- session$ns
   
   nombreModelo <- "modelo.dt"
@@ -71,6 +71,9 @@ mod_regression_trees_server <- function(input, output, session,updateData, model
     updateNumericInput(session,inputId = "maxdepth.dt", value = 15)
   }
   
+  observeEvent(c(updateData$datos), {
+    modelos2$dt = list(n = 0, mcs = vector(mode = "list", length = 10))
+  })
   observeEvent(updateData$datos.aprendizaje,{
     return.dt.default.values()
   })
@@ -107,12 +110,28 @@ mod_regression_trees_server <- function(input, output, session,updateData, model
       #isolamos para que no entre en un ciclo en el primer renderPrint
       isolate(modelos$dt[[nombreModelo]] <- list(modelo = modelo.dt, prediccion = prediccion.dt, indices = indices.dt, 
                                                  id = NULL))
-      modelo.dt$call$formula   <- var
-      modelo.dt$call$control$minsplit <- minsplit
-      modelo.dt$call$control$maxdepth <- maxdepth
 
-      print(summary(modelo.dt))
+
+      isolate({
+        modelos$dt[[nombreModelo]] <- list(modelo = modelo.dt, prediccion = prediccion.dt, indices = indices.dt, 
+                                            id = NULL)
+        modelos2$dt$n <- modelos2$dt$n + 1
+        modelos2$dt$mcs[modelos2$dt$n] <- list(indices.dt)
+        if(modelos2$dt$n > 9)
+          modelos2$dt$n <- 0
+        
+      })
       
+      if(!is.null(modelos$dt[[nombreModelo]])){
+        modelo.dt <- modelos$dt[[nombreModelo]]$modelo
+        #Cambiamos la forma en que va aparecer el call
+        modelo.dt$call$formula   <- var
+        modelo.dt$call$control$minsplit <- minsplit
+        modelo.dt$call$control$maxdepth <- maxdepth
+        print(summary(modelo.dt))
+        
+      }
+      else{NULL}
     }, error = function(e){
       isolate(modelos$dt[[nombreModelo]] <- NULL)
       

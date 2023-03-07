@@ -10,81 +10,69 @@
 mod_KNN_ui <- function(id){
   ns <- NS(id)
   
-  knn.options <- list(options.run(ns("runKnn")), tags$hr(style = "margin-top: 0px;"),
-                      fluidRow(column(numericInput(ns("k.knn"), labelInput("kv"), min = 1,step = 1, value = 7), width = 5),
-                               column(selectInput(inputId = ns("kernel.knn"), label = labelInput("selkernel"),selected = "optimal",
-                                                  choices = c("optimal", "rectangular", "triangular", "epanechnikov", "biweight",
-                                                              "triweight", "cos","inv","gaussian")),width = 5)),
-                      fluidRow(column(radioSwitch(id = ns("switch_scale_knn"), label = "escal",
-                                                       names = c("si", "no")), width=5),
-                               column(width=5, numericInput(ns("distance.knn"), labelInput("distknn"), min = 1,step = 1, value = 2))) )
-  
-  
-  tabs.options.generate <- tabsOptions(widths = c(100), heights = c(70),
-                                       tabs.content = list(knn.options))
-  
-  
-  tabs.options <- list(conditionalPanel("input.BoxKnn == 'tabKknModelo'",tabs.options.generate,ns = ns))
-  
-  generate.knn.panel <- tabPanel(title = labelInput("generatem"), value = "tabKknModelo",
-                                 withLoader(verbatimTextOutput(ns("txtknn")),type = "html", loader = "loader4"))
-  
-  prediccion.knn.panel <- tabPanel(title = labelInput("predm"), value = "tabKknPred",
-                                   withLoader(DT::dataTableOutput(ns("knnPrediTable")),type = "html", loader = "loader4"))
-  
-  disp.knn.panel <- tabPanel(title = labelInput("dispersion"), value = "tabKknDisp",
-                             withLoader(echarts4rOutput(ns('plot_knn_disp'),height = "75vh"),type = "html", loader = "loader4"))
-  
-  general.index.knn.panel <- tabPanel(title = labelInput("indices"), value = "tabKknIndex",
-                                      br(),
-                                      fluidRow(withLoader(tableOutput(ns('indexdfknn')),type = "html", loader = "loader4")),
-                                      br(),
-                                      fluidRow(column(width = 12, align="center", tags$h3(labelInput("resumenVarPre")))),
-                                      br(),
-                                      fluidRow(withLoader(tableOutput(ns('indexdfknn2')),type = "html", loader = "loader4")))
-  rmse.knn.panel <- tabPanel(title = labelInput("RMSE"), value = "tabKknRMSE",
-                             withLoader(echarts4rOutput(ns('plot_knn_rmse'),height = "75vh"),type = "html", loader = "loader4"))
-  
-  page.knn <- tabItem(tabName = "knn",
-                      tabBoxPrmdt(id = ns("BoxKnn"), opciones = tabs.options,
-                             generate.knn.panel,
-                             prediccion.knn.panel,
-                             rmse.knn.panel,
-                             disp.knn.panel,
-                             general.index.knn.panel))
+  tabs.options <- list(
+        conditionalPanel("input.BoxKnn == 'tabKknModelo'", tabsOptions(widths = c(100), heights = c(70),
+                        tabs.content = list(list(options.run(ns("runKnn")), tags$hr(style = "margin-top: 0px;"),
+                                                 div(col_6(numericInput(ns("k.knn"), labelInput("kv"), min = 1,step = 1, value = 7)),
+                                                     col_6(selectInput(inputId = ns("kernel.knn"), label = labelInput("selkernel"),selected = "optimal",
+                                                                       choices = c("optimal", "rectangular", "triangular", "epanechnikov", "biweight",
+                                                                                   "triweight", "cos","inv","gaussian")))),
+                                                 div(col_6(radioSwitch(id = ns("switch_scale_knn"), label = "escal",
+                                                                       names = c("si", "no"))),
+                                                     col_6(numericInput(ns("distance.knn"), labelInput("distknn"), min = 1,step = 1, value = 2)))))),ns = ns))
   
   tagList(
-    page.knn
+    tabBoxPrmdt(id = ns("BoxKnn"), opciones = tabs.options,
+                tabPanel(title = labelInput("generatem"), value = "tabKknModelo",
+                         withLoader(verbatimTextOutput(ns("txtknn")),
+                                    type = "html", loader = "loader4")),
+                tabPanel(title = labelInput("predm"), value = "tabKknPred",
+                         withLoader(DT::dataTableOutput(ns("knnPrediTable")),
+                                    type = "html", loader = "loader4")),
+                tabPanel(title = labelInput("RMSE"), value = "tabKknRMSE",
+                         withLoader(echarts4rOutput(ns('plot_knn_rmse'),height = "75vh"),
+                                    type = "html", loader = "loader4")),
+                tabPanel(title = labelInput("dispersion"), value = "tabKknDisp",
+                         withLoader(echarts4rOutput(ns('plot_knn_disp'),height = "75vh"),
+                                    type = "html", loader = "loader4")),
+                tabPanel(title = labelInput("indices"), value = "tabKknIndex",
+                         br(),
+                         div(withLoader(tableOutput(ns('indexdfknn')),
+                                        type = "html", loader = "loader4")),
+                         br(),
+                         div(col_12(align="center", tags$h3(labelInput("resumenVarPre")))),
+                         br(),
+                         div(withLoader(tableOutput(ns('indexdfknn2')),
+                                        type = "html", loader = "loader4"))))
   )
 }
 
 #' KNN Server Function
 #'
 #' @noRd 
-mod_KNN_server <- function(input, output, session,updateData, modelos, codedioma){
+mod_KNN_server <- function(input, output, session,updateData, modelos, codedioma, modelos2){
   ns <- session$ns
   
   nombreBase <- "modelo.knn."
   nombreModelo <- "modelo.knn."
+
+  observeEvent(c(updateData$datos ), {
+    modelos2$knn = list(n = 0, mcs = vector(mode = "list", length = 10))
+  })
   
-  return.knn.default.values <- function(){
+  observeEvent(updateData$datos.aprendizaje,{
+    modelos$knn <- NULL
     updateNumericInput(session, "k.knn", value = 7)
     updateSelectInput(session, "kernel.knn",selected = "optimal")
     updateRadioSwitch(session,"switch_scale_knn","TRUE")
     updateNumericInput(session, "distance.knn", value = 2)
     
-    isolate(datos.aprendizaje <- updateData$datos.aprendizaje)
+    datos.aprendizaje <- updateData$datos.aprendizaje
     if(!is.null(datos.aprendizaje)){
       updateNumericInput(session, "k.knn", value = round(sqrt(nrow(datos.aprendizaje))))
     }
     
     nombreModelo <- "modelo.knn."
-  }
-  
-  
-  
-  observeEvent(updateData$datos.aprendizaje,{
-    return.knn.default.values()
   })
   
   
@@ -123,16 +111,27 @@ mod_KNN_server <- function(input, output, session,updateData, modelos, codedioma
       indices.knn <- general_indices(datos.prueba[,variable.predecir], prediccion.knn$prediction)
 
       #isolamos para que no entre en un ciclo en el primer renderPrint
-      isolate(modelos$knn[[nombreModelo]] <- list(modelo = modelo.knn, prediccion = prediccion.knn$prediction, 
-                                                  indices = indices.knn, id = kernel))
-      #Cambiamos la forma en que va aparecer el call
-      modelo.knn$call$formula  <- var
-      modelo.knn$call$ks       <- k
-      modelo.knn$call$kernel   <- kernel
-      modelo.knn$call$scale    <- scale
-      modelo.knn$call$distance <- distance
-      
-      print(modelo.knn)
+      isolate({
+        modelos$knn[[nombreModelo]] <- list(modelo = modelo.knn, prediccion = prediccion.knn$prediction, 
+                                            indices = indices.knn, id = kernel)
+        modelos2$knn$n <- modelos2$knn$n + 1
+        modelos2$knn$mcs[modelos2$knn$n] <- list(indices.knn)
+        if(modelos2$knn$n > 9)
+          modelos2$knn$n <- 0
+        
+      })
+
+      if(!is.null(modelos$knn[[nombreModelo]])){
+        modelo.knn <- modelos$knn[[nombreModelo]]$modelo
+        #Cambiamos la forma en que va aparecer el call
+        modelo.knn$call$formula  <- var
+        modelo.knn$call$ks       <- k
+        modelo.knn$call$kernel   <- kernel
+        modelo.knn$call$scale    <- scale
+        modelo.knn$call$distance <- distance
+        print(modelo.knn)
+      }
+      else{NULL}
     }, error = function(e){
       isolate(modelos$knn[[nombreModelo]] <- NULL)
       showNotification(paste0("Error (KNN-01) : ",e), duration = 10, type = "error")

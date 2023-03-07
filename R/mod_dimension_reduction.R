@@ -11,68 +11,52 @@ mod_dimension_reduction_ui <- function(id){
   
   ns <- NS(id)
   
-  rd.options  <- list(options.run(ns("runRd")), tags$hr(style = "margin-top: 0px;"),
-                      fluidRow(column(selectInput(inputId = ns("modo.rd"), label = labelInput("selectAlg"),selected = 0,
-                                                  choices = list("ACP" = 0, "MCP" = 1)),width = 5),
-                               column(width=5,radioSwitch(id = ns("switch_scale_rd"), label = "escal",names = c("si", "no")))),
-                      fluidRow(column(id = ns("colManualCom"),width = 5, 
-                                      numericInput(ns("ncomp.rd"), labelInput("ncomp"),value = 2, min = 1, width = "100%")),
-                               column(width = 5, radioSwitch(id = ns("permitir_ncomp"), label = "",
-                                                             names = c("manual", "automatico"), val.def = FALSE))))
+  tabs.options <- list(
+    conditionalPanel("input.BoxRd == 'tabRdModelo'", tabsOptions(widths = c(100), heights = c(80),
+        tabs.content = list(list(options.run(ns("runRd")), tags$hr(style = "margin-top: 0px;"),
+                                 fluidRow(col_6(selectInput(inputId = ns("modo.rd"), label = labelInput("selectAlg"),selected = 0,
+                                                             choices = list("ACP" = 0, "MCP" = 1))),
+                                          col_6(radioSwitch(id = ns("switch_scale_rd"), label = "escal",names = c("si", "no")))),
+                                 fluidRow(col_6(id = ns("colManualCom"), 
+                                                 numericInput(ns("ncomp.rd"), labelInput("ncomp"),value = 2, min = 1, width = "100%")),
+                                          col_6(radioSwitch(id = ns("permitir_ncomp"), label = "",
+                                                                        names = c("manual", "automatico"), val.def = FALSE)))))),ns = ns))
   
-  tabs.options.generate <- tabsOptions(widths = c(100), heights = c(80),
-                                       tabs.content = list(rd.options))
-  
-  
-  tabs.options <- list(conditionalPanel("input.BoxRd == 'tabRdModelo'",tabs.options.generate,ns = ns))
-  
-  
-  generate.rd.panel <- tabPanel(title = labelInput("generatem"),value = "tabRdModelo",
-                                withLoader(verbatimTextOutput(ns("txtRd")),type = "html", loader = "loader4"))
-  
-  rmse.rd.panel <- tabPanel(title = labelInput("RMSE"),value = "tabRdRMSE",
-                            withLoader(echarts4rOutput(ns('plot_rd_rmse'),height = "75vh"),type = "html", loader = "loader4"))
-  
-  plot.pred.rd.panel <- tabPanel(title = labelInput("RdPred"), value = "tabRdPlotPred",
-                                 withLoader(echarts4rOutput(ns('plot_rd_pred'),height = "75vh"),type = "html", loader = "loader4"))
-  
-  panel.plot.var.pred.rd <- tabPanel(title = labelInput("RdVarPred"), value = "tabRdPlotVarPred",
-                                     withLoader(echarts4rOutput(ns('plot_rd_var_pred'),height = "75vh"),type = "html", loader = "loader4"))
-  
-  prediction.rd.panel <- tabPanel(title = labelInput("predm"), value = "tabRdPred",
-                                  withLoader(DT::dataTableOutput(ns("rdPrediTable")),type = "html", loader = "loader4"))
-  
-  disp.rd.panel <- tabPanel(title = labelInput("dispersion"), value = "tabRdDisp",
-                            withLoader(echarts4rOutput(ns('plot_rd_disp'),height = "75vh"),type = "html", loader = "loader4"))
-  
-  general.index.rd.panel <- tabPanel(title = labelInput("indices"), value = "tabRdIndex",
-                                     br(),
-                                     fluidRow(withLoader(tableOutput(ns('indexdfrd')),type = "html", loader = "loader4")),
-                                     br(),
-                                     fluidRow(column(width = 12, align="center", tags$h3(labelInput("resumenVarPre")))),
-                                     br(),
-                                     fluidRow(withLoader(tableOutput(ns('indexdfrd2')),type = "html", loader = "loader4")))
-  
-  page.rd <- tabItem(tabName = "rd",
-                     tabBoxPrmdt(id = ns("BoxRd"), opciones = tabs.options,
-                            generate.rd.panel,
-                            rmse.rd.panel,
-                            plot.pred.rd.panel,
-                            panel.plot.var.pred.rd,
-                            prediction.rd.panel,
-                            disp.rd.panel,
-                            general.index.rd.panel))
-  
-  
+
   tagList(
-    page.rd
+    tabBoxPrmdt(id = ns("BoxRd"), opciones = tabs.options,
+                tabPanel(title = labelInput("generatem"),value = "tabRdModelo",
+                         withLoader(verbatimTextOutput(ns("txtRd")),
+                                    type = "html", loader = "loader4")),
+                tabPanel(title = labelInput("RMSE"),value = "tabRdRMSE",
+                         withLoader(echarts4rOutput(ns('plot_rd_rmse'),height = "75vh"),
+                                    type = "html", loader = "loader4")),
+                tabPanel(title = labelInput("RdPred"), value = "tabRdPlotPred",
+                         withLoader(echarts4rOutput(ns('plot_rd_pred'),height = "75vh"),
+                                    type = "html", loader = "loader4")),
+                tabPanel(title = labelInput("RdVarPred"), value = "tabRdPlotVarPred",
+                         withLoader(echarts4rOutput(ns('plot_rd_var_pred'),height = "75vh"),
+                                    type = "html", loader = "loader4")),
+                tabPanel(title = labelInput("predm"), value = "tabRdPred",
+                         withLoader(DT::dataTableOutput(ns("rdPrediTable")),
+                                    type = "html", loader = "loader4")),
+                tabPanel(title = labelInput("dispersion"), value = "tabRdDisp",
+                         withLoader(echarts4rOutput(ns('plot_rd_disp'),height = "75vh"),
+                                    type = "html", loader = "loader4")),
+                tabPanel(title = labelInput("indices"), value = "tabRdIndex",
+                         br(),
+                         div(withLoader(tableOutput(ns('indexdfrd')),type = "html", loader = "loader4")),
+                         br(),
+                         div(col_12(align="center", tags$h3(labelInput("resumenVarPre")))),
+                         br(),
+                         div(withLoader(tableOutput(ns('indexdfrd2')),type = "html", loader = "loader4"))))
   )
 }
 
 #' dimension_reduction Server Function
 #'
 #' @noRd 
-mod_dimension_reduction_server <- function(input, output, session,updateData, modelos, codedioma){
+mod_dimension_reduction_server <- function(input, output, session,updateData, modelos, codedioma, modelos2){
   ns <- session$ns
   
   nombreBase <- "modelo.rd."
@@ -80,6 +64,9 @@ mod_dimension_reduction_server <- function(input, output, session,updateData, mo
   
   ncomp <- NULL
   
+  observeEvent(c(updateData$datos), {
+    modelos2$rd = list(n = 0, mcs = vector(mode = "list", length = 10))
+  })
   return.rd.default.values <- function(){
     updateSelectInput(session,"modo.rd",selected = 0)
     updateRadioSwitch(session,"switch_scale_rd","TRUE")
@@ -143,9 +130,23 @@ mod_dimension_reduction_server <- function(input, output, session,updateData, mo
       indices.rd <- general_indices(datos.prueba[,variable.predecir], prediccion.rd)
 
       #isolamos para que no entre en un ciclo en el primer renderPrint
-      isolate(modelos$rd[[nombreModelo]] <- list(modelo = modelo.rd, prediccion = prediccion.rd, indices = indices.rd, 
-                                                 id = rd_type(modo.rd)))
-      print(modelo.rd)
+
+      isolate({
+        modelos$rd[[nombreModelo]] <- list(modelo = modelo.rd, prediccion = prediccion.rd, indices = indices.rd, 
+                                            id = rd_type(modo.rd))
+        modelos2$rd$n <- modelos2$rd$n + 1
+        modelos2$rd$mcs[modelos2$rd$n] <- list(indices.rd)
+        if(modelos2$rd$n > 9)
+          modelos2$rd$n <- 0
+        
+      })
+      
+      if(!is.null(modelos$rd[[nombreModelo]])){
+        modelo.rd <- modelos$rd[[nombreModelo]]$modelo
+        print(modelo.rd)
+      }
+      else{NULL}
+      
     }, error = function(e){
       isolate(modelos$rd[[nombreModelo]] <- NULL)
       showNotification(paste0("Error (RD-01) : ",e), duration = 10, type = "error")

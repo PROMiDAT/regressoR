@@ -44,11 +44,11 @@ mod_neural_net_ui <- function(id){
   
   general.index.nn.panel <- tabPanel(title = labelInput("indices"), value = "tabNnIndex",
                                      br(),
-                                     fluidRow(withLoader(tableOutput(ns('indexdfnn')),type = "html", loader = "loader4")),
+                                     div(withLoader(tableOutput(ns('indexdfnn')),type = "html", loader = "loader4")),
                                      br(),
-                                     fluidRow(column(width = 12, align="center", tags$h3(labelInput("resumenVarPre")))),
+                                     div(column(width = 12, align="center", tags$h3(labelInput("resumenVarPre")))),
                                      br(),
-                                     fluidRow(withLoader(tableOutput(ns('indexdfnn2')),type = "html", loader = "loader4")))
+                                     div(withLoader(tableOutput(ns('indexdfnn2')),type = "html", loader = "loader4")))
   
   page.nn  <- tabItem(tabName = "nn",
                       tabBoxPrmdt(id = ns("BoxNn"), opciones = tabs.options,
@@ -67,7 +67,7 @@ mod_neural_net_ui <- function(id){
 #' neural_net Server Function
 #'
 #' @noRd 
-mod_neural_net_server <- function(input, output, session,updateData, modelos, codedioma){
+mod_neural_net_server <- function(input, output, session,updateData, modelos, codedioma, modelos2){
   ns <- session$ns
   
   nombreModelo <- "modelo.nn"
@@ -80,6 +80,9 @@ mod_neural_net_server <- function(input, output, session,updateData, modelos, co
     updateLayers()
   }
   
+  observeEvent(c(updateData$datos,updateData$variable.predecir), {
+    modelos2$nn = list(n = 0, mcs = vector(mode = "list", length = 10))
+  })
   observeEvent(updateData$datos.aprendizaje, {
     #Change to default values
     return.nn.default.values()

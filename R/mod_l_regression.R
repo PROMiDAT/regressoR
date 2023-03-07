@@ -47,15 +47,15 @@ mod_l_regression_ui <- function(id){
   rl.general.index.panel <- tabPanel(title = labelInput("indices"), 
                                      value = "tabRlIndex",
                                      br(),
-                                     fluidRow(withLoader(tableOutput(ns('indexdfrl')),
+                                     div(withLoader(tableOutput(ns('indexdfrl')),
                                                          type   = "html", 
                                                          loader = "loader4")),
                                      br(),
-                                     fluidRow(column(width = 12, 
+                                     div(column(width = 12, 
                                                      align = "center", 
                                                      tags$h3(labelInput("resumenVarPre")))),
                                      br(),
-                                     fluidRow(withLoader(tableOutput(ns('indexdfrl2')),
+                                     div(withLoader(tableOutput(ns('indexdfrl2')),
                                                          type   = "html", 
                                                          loader = "loader4")))
   
@@ -77,13 +77,16 @@ mod_l_regression_ui <- function(id){
 #' l_regression Server Function
 #'
 #' @noRd 
-mod_l_regression_server <- function(input, output, session, updateData, modelos, codedioma){
+mod_l_regression_server <- function(input, output, session, updateData, modelos, codedioma, modelos2){
   ns <- session$ns
   
   nombreModelo <- "modelo.rl"
   df.rl <- NULL
   r2    <- NULL
-
+  
+  observeEvent(c(updateData$datos), {
+    modelos2$rl = list(n = 0, mcs = vector(mode = "list", length = 10))
+  })
   #Update model 
   output$txtRl <- renderPrint({
     input$runRl
@@ -115,9 +118,27 @@ mod_l_regression_server <- function(input, output, session, updateData, modelos,
                                                  indices    = indices.rl, 
                                                  id = NULL))
       #Cambiamos la forma en que va aparecer el call
-      modelo.rl$call$formula <- form
       
-      print(summary(modelo.rl))
+      isolate({
+        modelos$rl[[nombreModelo]] <- list(modelo     = modelo.rl, 
+                                            prediccion = prediccion.rl, 
+                                            indices    = indices.rl, 
+                                            id = NULL)
+        modelos2$rl$n <- modelos2$rl$n + 1
+        modelos2$rl$mcs[modelos2$rl$n] <- list(indices.rl)
+        if(modelos2$rl$n > 9)
+          modelos2$rl$n <- 0
+        
+      })
+      
+      if(!is.null(modelos$rl[[nombreModelo]])){
+        modelo.rl <- modelos$rl[[nombreModelo]]$modelo
+        #Cambiamos la forma en que va aparecer el call
+        modelo.rl$call$formula <- form
+        
+        print(summary(modelo.rl))
+      }
+      else{NULL}
     }, error = function(e){
       isolate(modelos$rl[[nombreModelo]] <- NULL)
       showNotification(paste0("Error (RL-01) : ",e), duration = 10, type = "error")

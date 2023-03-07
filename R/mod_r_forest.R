@@ -43,11 +43,11 @@ mod_r_forest_ui <- function(id){
   
   general.index.rf.panel <- tabPanel(title = labelInput("indices"), value = "tabRfIndex",
                                      br(),
-                                     fluidRow(withLoader(tableOutput(ns('indexdfrf')), type = "html", loader = "loader4")),
+                                     div(withLoader(tableOutput(ns('indexdfrf')), type = "html", loader = "loader4")),
                                      br(),
-                                     fluidRow(column(width = 12, align="center", tags$h3(labelInput("resumenVarPre")))),
+                                     div(column(width = 12, align="center", tags$h3(labelInput("resumenVarPre")))),
                                      br(),
-                                     fluidRow(withLoader(tableOutput(ns('indexdfrf2')), type = "html", loader = "loader4")))
+                                     div(withLoader(tableOutput(ns('indexdfrf2')), type = "html", loader = "loader4")))
   
   rf.rules.panel <- tabPanel(title = labelInput("reglas"), 
                              value = "tabRfRules",
@@ -81,12 +81,15 @@ mod_r_forest_ui <- function(id){
 #' r_forest Server Function
 #'
 #' @noRd 
-mod_r_forest_server <- function(input, output, session,updateData, modelos, codedioma){
+mod_r_forest_server <- function(input, output, session,updateData, modelos, codedioma, modelos2){
   ns <- session$ns
   
   nombreModelo <- "modelo.rf"
   
   
+  observeEvent(c(updateData$datos), {
+    modelos2$rf = list(n = 0, mcs = vector(mode = "list", length = 10))
+  })
   return.rf.default.values <- function(){
     updateNumericInput(session = session, inputId = "ntree.rf", value = 20)
     updateNumericInput(session,"mtry.rf",value = 1)
@@ -140,16 +143,30 @@ mod_r_forest_server <- function(input, output, session,updateData, modelos, code
         #isolamos para que no entre en un ciclo en el primer renderPrint
         isolate(modelos$rf[[nombreModelo]] <- list(modelo = modelo, prediccion = prediccion, indices = indices.rf))
         
-        # Guardamos los datos dentro del modelo para utilizar 
-        #la función printRandomForest() en Utilities
-        modelo$datos <- datos.aprendizaje
-        #Cambiamos la forma en que va aparecer el call
-        modelo$call$formula <- form
-        modelo$call$ntree   <- ntree
-        modelo$call$mtry    <- mtry
-
-        print(modelo)
-     
+        
+        isolate({
+          modelos$rf[[nombreModelo]] <- list(modelo = modelo, prediccion = prediccion, indices = indices.rf)
+          modelos2$rf$n <- modelos2$rf$n + 1
+          modelos2$rf$mcs[modelos2$rf$n] <- list(indices.rf)
+          if(modelos2$rf$n > 9)
+            modelos2$rf$n <- 0
+          
+        })
+        
+        if(!is.null(modelos$rf[[nombreModelo]])){
+          modelo <- modelos$rf[[nombreModelo]]$modelo
+          #Cambiamos la forma en que va aparecer el call
+          # Guardamos los datos dentro del modelo para utilizar 
+          #la función printRandomForest() en Utilities
+          modelo$datos <- datos.aprendizaje
+          #Cambiamos la forma en que va aparecer el call
+          modelo$call$formula <- form
+          modelo$call$ntree   <- ntree
+          modelo$call$mtry    <- mtry
+          
+          print(modelo)
+        }
+        else{NULL}
     }, error = function(e){
       isolate(modelos$rf[[nombreModelo]] <- NULL)
       showNotification(paste0("Error (RF-01) : ",e), duration = 10, type = "error")

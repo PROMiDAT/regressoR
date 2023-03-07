@@ -20,24 +20,6 @@ infoBoxPROMiDAT <- function(title, value, icon) {
 }
 
 
-
-tabBoxPrmdt <- function (..., id = NULL, title = NULL, opciones = NULL) {
-  content <- shiny::tabsetPanel(..., id = id, selected = NULL)
-  content$attribs$class <- "nav-tabs-custom"
-  
-  if (!is.null(title)) {
-    content$children[[1]] <- htmltools::tagAppendChild(
-      content$children[[1]], tags$li(class = "header pull-right", title))
-  }
-  if (!is.null(opciones)) {
-    pos <- length(content$children[[2]]$children) + 1
-    content$children[[2]]$children[[pos]] <- opciones
-  }
-  
-  content
-}
-
-
 #' render_index_table
 #' 
 #' @description creates a reactive table for indices panels.

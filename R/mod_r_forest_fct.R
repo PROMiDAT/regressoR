@@ -46,7 +46,7 @@ rulesRandomForest <- function (model, n = 1, include.class = NULL, format = "", 
         node.op    <- "IN"
         var.levels <- levels(model$datos[[var.names[j]]])
         bins <- sdecimal2binarys(var.values[j])
-        bins <- c(bins, rep(0, length(var.levels) - length(bins)))
+        #bins <- c(bins, rep(0, length(var.levels) - length(bins)))
         
         if (tr.path[j] > 0) 
           node.value <- var.levels[bins == 1]

@@ -15,13 +15,15 @@ aprendizaje;Aprendizaje Supervisado;Supervised Learning
 comparacion;Comparación de Modelos;Model Comparison
 cargarComp;Cargar Tabla Completa;Load Full Data
 calibracion;Calibración de Modelos;Model Calibration
+varError;Variación del Error;Error Variation 
 crossval;Validación Cruzada;Cross Validation
+rep;Repetición;Repetition
 seleParModel;Parametrización de Modelos;Parameterization of the Models
 seleModel;Selección de Modelos;Selection of Models
 grafLineas;Gráfico de Líneas;Line Plot
 grafBarras;Gráfico de Barras;Bar Plot
 grafError;Gráfico de Variación del Error;Error Variation Plot
-predicnuevos;Predicción Individuos Nuevos;Predict New Cases
+predicnuevos;Predicción Individuos Nuevos;New Cases Prediction
 pred;Predicción;Prediction
 eliminar;Eliminar;Delete
 imputar;Imputar;Impute
@@ -291,6 +293,7 @@ nonZeroCoeff;Coeficientes Distintos de Cero;Non-Zero Coefficients
 gcoeff;Coeficientes y lambda;Coefficients and lambda
 manual;Manual;Manual
 automatico;Automático;Automatic
+tt;Aprendizaje - Prueba;Training - Testing
 log_landa;Lambda Log(x) = ;Lambda Log(x) =
 selected;Seleccionado;Selected
 uppCurve;Curva Superior;Upper Curve

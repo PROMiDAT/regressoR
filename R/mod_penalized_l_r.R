@@ -1,4 +1,4 @@
-#' penalized_Regression UI Function
+#' penalized_l_r UI Function
 #'
 #' @description A shiny Module.
 #'
@@ -7,7 +7,7 @@
 #' @noRd 
 #'
 #' @importFrom shiny NS tagList 
-mod_penalized_Regression_ui <- function(id){
+mod_penalized_l_r_ui <- function(id){
   ns <- NS(id)
   
   
@@ -23,7 +23,7 @@ mod_penalized_Regression_ui <- function(id){
                                       radioSwitch(id = ns("permitir_landa"), label = "",
                                                   names = c("manual", "automatico"), val.def = FALSE))))
   
-  tabs.options.generate <- tabsOptions(botones =  list(icon("cog")), heights = c(70),
+  tabs.options.generate <- tabsOptions(heights = c(70),
                                        tabs.content = list(rlr.options))
 
   
@@ -50,11 +50,11 @@ mod_penalized_Regression_ui <- function(id){
   
   rlr.general.index.panel <- tabPanel(title = labelInput("indices"), value = "tabRlrIndex",
                                       br(),
-                                      fluidRow(withLoader(tableOutput(ns('indexdfrlr')),type = "html", loader = "loader4")),
+                                      div(withLoader(tableOutput(ns('indexdfrlr')),type = "html", loader = "loader4")),
                                       br(),
-                                      fluidRow(column(width = 12, align="center", tags$h3(labelInput("resumenVarPre")))),
+                                      div(column(width = 12, align="center", tags$h3(labelInput("resumenVarPre")))),
                                       br(),
-                                      fluidRow(withLoader(tableOutput(ns('indexdfrlr2')),type = "html", loader = "loader4")))
+                                      div(withLoader(tableOutput(ns('indexdfrlr2')),type = "html", loader = "loader4")))
   
   
   page.rlr <- tabItem(tabName = "rlr",
@@ -72,10 +72,10 @@ mod_penalized_Regression_ui <- function(id){
   )
 }
 
-#' penalized_Regression Server Function
+#' penalized_l_r Server Function
 #'
 #' @noRd 
-mod_penalized_Regression_server <- function(input, output, session, updateData, modelos, codedioma){
+mod_penalized_l_r_server <- function(input, output, session, updateData, modelos, codedioma, modelos2){
   ns <- session$ns
   
   nombreBase   <- "modelo.rlr."
@@ -83,6 +83,9 @@ mod_penalized_Regression_server <- function(input, output, session, updateData, 
   log.landa    <- NULL
   coefficients <- NULL
   
+  observeEvent(c(updateData$datos), {
+    modelos2$rlr = list(n = 0, mcs = vector(mode = "list", length = 10))
+  })
   return.rlr.default.values <- function(){
     updateSelectInput(session, "alpha.rlr",selected = 1)
     updateRadioSwitch(session,"switch_scale_rlr","TRUE")
@@ -148,7 +151,23 @@ mod_penalized_Regression_server <- function(input, output, session, updateData, 
       isolate(modelos$rlr[[nombreModelo]] <- list(modelo     = modelo.rlr, 
                                                   prediccion = prediccion.rlr, 
                                                   indices  = indices.rlr,
-                                                  id       = rlr_type(alpha)))
+                                                  id       = rlr_type(alpha), 
+                                                  coefficients = coefficients))
+      
+      #isolamos para que no entre en un ciclo en el primer renderPrint
+      isolate({
+        modelos$rlr[[nombreModelo]] <- list(modelo     = modelo.rlr, 
+                                            prediccion = prediccion.rlr, 
+                                            indices  = indices.rlr,
+                                            id       = rlr_type(alpha), 
+                                            coefficients = coefficients)
+        modelos2$rlr$n <- modelos2$rlr$n + 1
+        modelos2$rlr$mcs[modelos2$rlr$n] <- list(indices.rlr)
+        if(modelos2$rlr$n > 9)
+          modelos2$rlr$n <- 0
+        
+      })
+      
       if(!is.null(modelos$rlr[[nombreModelo]])){
         modelos.rlr <- modelos$rlr[[nombreModelo]]$modelo
         print(modelos.rlr)
@@ -174,7 +193,7 @@ mod_penalized_Regression_server <- function(input, output, session, updateData, 
           tr("automatico",   codedioma$idioma),
           tr("nonZeroCoeff", codedioma$idioma)
         )
-        
+        log.landa    <- isolate(input$log_landa)
         param.lambda <- ifelse(is.null(log.landa),"",paste0(", log.lambda = ",log.landa))
         codigo       <- paste0("e_posib_lambda(", nombreModelo, param.lambda, ")")
         cod          <- paste0("### posibLanda\n",codigo, "\n")
@@ -201,13 +220,12 @@ mod_penalized_Regression_server <- function(input, output, session, updateData, 
         cod    <- paste0("### gcoeff\n",codigo, "\n")
         
         isolate(codedioma$code <- append(codedioma$code, cod))
-        
+        log.landa <- isolate(input$log_landa)
         titulos <- c(
           tr("coeff", codedioma$idioma),
           tr("selected", codedioma$idioma),
           tr("automatico", codedioma$idioma)
         )
-        
         e_coeff_landa(modelos$rlr[[nombreModelo]]$modelo, log.landa, titulos)
       }
       else{NULL}
@@ -222,6 +240,7 @@ mod_penalized_Regression_server <- function(input, output, session, updateData, 
   output$dtRlrCoeff <- DT::renderDataTable({
     tryCatch({
       if(!is.null(modelos$rlr[[nombreModelo]])){
+        coefficients <- modelos$rlr[[nombreModelo]]$coefficients
         dttable.custom(data.frame(row.names = row.names(coefficients),
                                   coeff     = as.vector(coefficients)), 
                        decimals     = updateData$decimals,
@@ -370,7 +389,7 @@ mod_penalized_Regression_server <- function(input, output, session, updateData, 
 }
 
 ## To be copied in the UI
-# mod_penalized_Regression_ui("penalized_Regression_ui_1")
+# mod_penalized_l_r_ui("penalized_l_r_ui_1")
 
 ## To be copied in the server
-# callModule(mod_penalized_Regression_server, "penalized_Regression_ui_1")
+# callModule(mod_penalized_l_r_server, "penalized_l_r_ui_1")

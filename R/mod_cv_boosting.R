@@ -34,7 +34,7 @@ mod_cv_boosting_ui <- function(id){
                    col_4(div(id = ns("row"), shiny::h5(style = "float:left;margin-top: 15px;", labelInput("tipoGrafico"),class = "wrapper-tag"),
                              tags$div(class="multiple-select-var",
                                       selectInput(inputId = ns("plot_type_p"),label = NULL,
-                                                  choices =  c("barras", "lineas", "error"), width = "100%")))), hr()),
+                                                  choices =  c( "lineas","barras", "error"), width = "100%")))), hr()),
                div(col_12(echarts4rOutput(ns("e_boosting_ind"), width = "100%", height = "70vh"))))
     )
     
@@ -52,12 +52,12 @@ mod_cv_boosting_server <- function(input, output, session, updateData, codedioma
   
   observeEvent(codedioma$idioma, {
     
-    nombres <- list("barras", "lineas", "error")
-    names(nombres) <- tr(c("grafBarras", "grafLineas", "grafError"),codedioma$idioma)
+    nombres <- list( "lineas", "barras","error")
+    names(nombres) <- tr(c( "grafLineas","grafBarras", "grafError"),codedioma$idioma)
     indices <- list(0, 1, 2, 3)
     names(indices) <- tr(c("RMSE", "MAE", "ER", "correlacion"),codedioma$idioma) 
     updateSelectInput(session, "cvcv_glo", choices = indices, selected = 0)
-    updateSelectInput(session, "plot_type_p", choices = nombres, selected = "barras")
+    updateSelectInput(session, "plot_type_p", choices = nombres, selected = "lineas")
   })
   
   observeEvent(c(updateData$datos, updateData$variable.predecir), {

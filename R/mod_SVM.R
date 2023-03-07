@@ -36,11 +36,11 @@ mod_SVM_ui <- function(id){
   
   general.index.svm.panel <- tabPanel(title = labelInput("indices"), value = "tabSvmIndex",
                                       br(),
-                                      fluidRow(withLoader(tableOutput(ns('indexdfsvm')),type = "html", loader = "loader4")),
+                                      div(withLoader(tableOutput(ns('indexdfsvm')),type = "html", loader = "loader4")),
                                       br(),
-                                      fluidRow(column(width = 12, align="center", tags$h3(labelInput("resumenVarPre")))),
+                                      div(column(width = 12, align="center", tags$h3(labelInput("resumenVarPre")))),
                                       br(),
-                                      fluidRow(withLoader(tableOutput(ns('indexdfsvm2')),type = "html", loader = "loader4")))
+                                      div(withLoader(tableOutput(ns('indexdfsvm2')),type = "html", loader = "loader4")))
   
   page.svm <- tabItem(tabName = "svm",
                       tabBoxPrmdt(id = ns("BoxSvm"), opciones = tabs.options,
@@ -58,7 +58,7 @@ mod_SVM_ui <- function(id){
 #' SVM Server Function
 #'
 #' @noRd 
-mod_SVM_server <- function(input, output, session,updateData, modelos, codedioma){
+mod_SVM_server <- function(input, output, session,updateData, modelos, codedioma, modelos2){
   ns <- session$ns
   
   nombreBase   <- "modelo.svm."
@@ -68,6 +68,10 @@ mod_SVM_server <- function(input, output, session,updateData, modelos, codedioma
     updateRadioSwitch(session,"switch_scale_svm","TRUE")
     updateSelectInput(session,"kernel.svm",selected = "radial")
   }
+  
+  observeEvent(c(updateData$datos), {
+    modelos2$svm = list(n = 0, mcs = vector(mode = "list", length = 10))
+  })
   
   observeEvent(updateData$datos.aprendizaje,{
     return.svm.default.values()
@@ -101,19 +105,30 @@ mod_SVM_server <- function(input, output, session,updateData, modelos, codedioma
       indices.svm <- general_indices(datos.prueba[,variable.predecir], prediccion.svm)
 
       #isolamos para que no entre en un ciclo en el primer renderPrint
-      isolate(modelos$svm[[nombreModelo]] <- list(modelo     = modelo.svm, 
-                                                  prediccion = prediccion.svm, 
-                                                  indices = indices.svm, 
-                                                  id      = kernel))
-      #Cambiamos la forma en que va aparecer el call
-      modelo.svm$call$formula <- var
-      modelo.svm$call$kernel  <- kernel
-      modelo.svm$call$scale   <- scale
-
-      print(modelo.svm)
+      isolate({
+        modelos$svm[[nombreModelo]] <- list(modelo     = modelo.svm, 
+                                            prediccion = prediccion.svm, 
+                                            indices = indices.svm, 
+                                            id      = kernel)
+        modelos2$svm$n <- modelos2$svm$n + 1
+        modelos2$svm$mcs[modelos2$svm$n] <- list(indices.svm)
+        if(modelos2$svm$n > 9)
+          modelos2$svm$n <- 0
+        
+      })
+      if(!is.null(modelos$svm[[nombreModelo]])){
+        modelo.svm <- modelos$svm[[nombreModelo]]$modelo
+        #Cambiamos la forma en que va aparecer el call
+        modelo.svm$call$formula <- var
+        modelo.svm$call$kernel  <- kernel
+        modelo.svm$call$scale   <- scale
+        
+        print(modelo.svm)
+      }
+      else{NULL}
+      
     }, error = function(e){
       isolate(modelos$svm[[nombreModelo]] <- NULL)
-      
       showNotification(paste0("Error (SVM-01) : ",e), duration = 10, type = "error")
       NULL
     })

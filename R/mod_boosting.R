@@ -11,74 +11,64 @@ mod_boosting_ui <- function(id){
   
   ns <- NS(id)
   
-  b.options <- list(options.run(ns("runBoosting")), tags$hr(style = "margin-top: 0px;"),
-                    fluidRow(column(numericInput(ns("iter.boosting"), labelInput("numTree"), 20, width = "100%",min = 1), width = 5),
-                             column(numericInput(ns("shrinkage.boosting"), labelInput("shrinkage"), 0.1, width = "100%",min = 0.01, step = 0.01), width=5)),
-                    fluidRow(column(selectInput(inputId = ns("tipo.boosting"), label = labelInput("selectAlg"),selected = "gaussian",
-                                                choices =  c("gaussian", "laplace", "tdist")), width = 5)))
-  
-
-  
-  tabs.options.generate <- tabsOptions(widths = c(100), heights = c(80),
-                                       tabs.content = list(b.options))
-  
-  
-  tabs.options <- list(conditionalPanel("input.BoxB == 'tabBModelo'",tabs.options.generate,ns = ns))
-  
-  generate.b.panel <- tabPanel(title = labelInput("generatem"), value = "tabBModelo",
-                               withLoader(verbatimTextOutput(ns("txtBoosting")),type = "html", loader = "loader4"))
-  
-  plot.boosting.import <- tabPanel(title = labelInput("varImp"), value = "tabBImp",
-                                   withLoader(echarts4rOutput(ns('plot_boosting_import'),height = "75vh"),type = "html", loader = "loader4"))
-  
-  prediction.b.panel <- tabPanel(title = labelInput("predm"), value = "tabBPred",
-                                 withLoader(DT::dataTableOutput(ns("boostingPrediTable")),type = "html", loader = "loader4"))
-  
-  disp.boosting.panel <- tabPanel(title = labelInput("dispersion"), value = "tabBDisp",
-                                  withLoader(echarts4rOutput(ns('plot_boosting_disp'),height = "75vh"),type = "html", loader = "loader4"))
-  
-  general.index.b.panel <- tabPanel(title = labelInput("indices"),value = "tabBIndex",
-                                    br(),
-                                    fluidRow(withLoader(tableOutput(ns('indexdfb')),type = "html", loader = "loader4")),
-                                    br(),
-                                    fluidRow(column(width = 12, align="center", tags$h3(labelInput("resumenVarPre")))),
-                                    br(),
-                                    fluidRow(withLoader(tableOutput(ns('indexdfb2')),type = "html", loader = "loader4")))
-  ntree.b.panel <- tabPanel(title = labelInput("evolerror"), value = "tabBRMSE",
-                            withLoader(echarts4rOutput(ns('plot_b_rmse'),height = "75vh"),type = "html", loader = "loader4"))
-  
-  pagina.boosting <- tabItem(tabName = "boosting",
-                             tabBoxPrmdt(id = ns("BoxB"), opciones = tabs.options,
-                                    generate.b.panel,
-                                    plot.boosting.import,
-                                    prediction.b.panel,
-                                    ntree.b.panel,
-                                    disp.boosting.panel,
-                                    general.index.b.panel))
+  tabs.options <- 
+    list(
+      conditionalPanel("input.BoxB == 'tabBModelo'",
+                        tabsOptions(widths  = c(100), heights = c(80),
+                                    tabs.content = list(list(options.run(ns("runBoosting")), tags$hr(style = "margin-top: 0px;"),
+                                                             div(col_5(numericInput(ns("iter.boosting"), labelInput("numTree"), 20, width = "100%",min = 1)),
+                                                                 col_5(numericInput(ns("shrinkage.boosting"), labelInput("shrinkage"), 0.1, width = "100%",min = 0.01, step = 0.01))),
+                                                             div(col_5(selectInput(inputId = ns("tipo.boosting"), label = labelInput("selectAlg"),selected = "gaussian",
+                                                                                    choices =  c("gaussian", "laplace", "tdist"))))))),ns = ns))
   
   tagList(
-    pagina.boosting
+    tabBoxPrmdt(id = ns("BoxB"), opciones = tabs.options,
+                tabPanel(title = labelInput("generatem"), value = "tabBModelo",
+                         withLoader(verbatimTextOutput(ns("txtBoosting")),
+                                    type = "html", loader = "loader4")),
+                tabPanel(title = labelInput("varImp"), value = "tabBImp",
+                         withLoader(echarts4rOutput(ns('plot_boosting_import'),height = "75vh"),
+                                    type = "html", loader = "loader4")),
+                tabPanel(title = labelInput("predm"), value = "tabBPred",
+                         withLoader(DT::dataTableOutput(ns("boostingPrediTable")),
+                                    type = "html", loader = "loader4")),
+                tabPanel(title = labelInput("evolerror"), value = "tabBRMSE",
+                         withLoader(echarts4rOutput(ns('plot_b_rmse'),height = "75vh"),
+                                    type = "html", loader = "loader4")),
+                tabPanel(title = labelInput("dispersion"), value = "tabBDisp",
+                         withLoader(echarts4rOutput(ns('plot_boosting_disp'),height = "75vh"),
+                                    type = "html", loader = "loader4")),
+                tabPanel(title = labelInput("indices"),value = "tabBIndex",
+                         br(),
+                         div(withLoader(tableOutput(ns('indexdfb')),
+                                        type = "html", loader = "loader4")),
+                         br(),
+                         div(col_12(align="center", tags$h3(labelInput("resumenVarPre")))),
+                         br(),
+                         div(withLoader(tableOutput(ns('indexdfb2')),type = "html", loader = "loader4"))))
   )
 }
 
 #' boosting Server Function
 #'
 #' @noRd 
-mod_boosting_server <- function(input, output, session,updateData, modelos, codedioma){
+mod_boosting_server <- function(input, output, session,updateData, modelos, codedioma, modelos2){
   ns <- session$ns
   
   nombreBase <- "modelo.boost."
   nombreModelo <- "modelo.boost."
   
   return.boosting.default.values <- function(){
-    updateSelectInput(session,inputId = "tipo.boosting", selected = "gaussian")
+    updateSelectInput(session,  inputId = "tipo.boosting", selected = "gaussian")
     updateNumericInput(session, inputId = "iter.boosting", value = 20)
     updateNumericInput(session, inputId = "shrinkage.boosting", value = 0.1)
     
     nombreModelo <- "modelo.boost."
   }
   
-  
+  observeEvent(c(updateData$datos), {
+    modelos2$boosting = list(n = 0, mcs = vector(mode = "list", length = 10))
+  })
   observeEvent(updateData$datos.aprendizaje,{
     return.boosting.default.values()
   })
@@ -112,10 +102,24 @@ mod_boosting_server <- function(input, output, session,updateData, modelos, code
         #Indices
         indices.boost <- general_indices(datos.prueba[,variable.predecir], prediccion.boost)
 
+        
         #isolamos para que no entre en un ciclo en el primer renderPrint
-        isolate(modelos$boost[[nombreModelo]] <- list(modelo = modelo.boost, prediccion = prediccion.boost, indices = indices.boost,
-                                                      id = distribution))
-        print(modelo.boost)
+        isolate({
+          modelos$boost[[nombreModelo]] <- list(modelo = modelo.boost, prediccion = prediccion.boost, indices = indices.boost,
+                                                id = distribution)
+          modelos2$boosting$n <- modelos2$boosting$n + 1
+          modelos2$boosting$mcs[modelos2$boosting$n] <- list(indices.boost)
+          if(modelos2$boosting$n > 9)
+            modelos2$boosting$n <- 0
+          
+        })
+        
+        if(!is.null(modelos$boost[[nombreModelo]])){
+          modelo.boost <- modelos$boost[[nombreModelo]]$modelo
+          print(modelo.boost)
+        }
+        else{NULL}
+        
       }
       else{
         isolate(modelos$boost[[nombreModelo]] <- NULL)
