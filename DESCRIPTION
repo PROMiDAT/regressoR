@@ -3,7 +3,7 @@ Package: regressoR
 Type: Package
 Version: 3.0.0
 Authors@R: c(
-    person("Oldemar", "Rodriguez R.", email = "oldemar.rodriguez@ucr.ac.cr", role = c("aut","cre")),
+    person("Oldemar", "Rodriguez", email = "oldemar.rodriguez@ucr.ac.cr", role = c("aut","cre")),
     person("Andres", "Navarro D.", role = c("ctb","prg")),
     person("Diego", "Jimenez A.", role = c("ctb","prg")),
     person("Ariel", "Arroyo S.", role = c("ctb","prg")),
