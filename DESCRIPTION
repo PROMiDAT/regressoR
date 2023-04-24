@@ -30,6 +30,6 @@ Imports:
 Description: Perform a supervised data analysis on a database through a 'shiny' graphical interface. It includes methods such as linear regression, penalized regression, k-nearest neighbors, decision trees, ada boosting, extreme gradient boosting, random forest, neural networks, deep learning and support vector machines.
 License: GPL (>=2)
 Encoding: UTF-8
-URL: https://www.promidat.com,https://github.com/PROMiDAT/regressoR
+URL: https://promidat.website/,https://github.com/PROMiDAT/regressoR
 BugReports: https://github.com/PROMiDAT/predictoR/issues
 RoxygenNote: 7.1.2
