@@ -1,12 +1,10 @@
 Title: Regression Data Analysis System
 Package: regressoR
 Type: Package
-Version: 2.0.1
+Version: 2.0.2
 Authors@R: c(
     person("Oldemar", "Rodriguez R.", email = "oldemar.rodriguez@ucr.ac.cr", role = c("aut","cre")),
-    person("Andres", "Navarro D.", role = c("ctb","prg")),
-    person("Diego", "Jimenez A.", role = c("ctb","prg")),
-    person("Ariel", "Arroyo S.", role = c("ctb","prg")))
+    person("Diego", "Jimenez A.", role = c("ctb","prg")))
 Depends: R (>= 4.1)
 Imports:
     shiny (>= 1.7.1),
